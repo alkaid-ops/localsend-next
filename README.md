@@ -23,5 +23,11 @@ PC frontends. Flutter and Iced are intentionally out of scope.
 - `localsend-tui`: terminal frontend
 - `localsend-slint`: GUI frontend
 
-See `docs/desktop-pc.md` for operation and `VENDORED_CORE.md` for the upstream
-core provenance.
+See `docs/desktop-pc.md` for operation, `docs/verification.zh-CN.md` for the
+current test evidence, and `VENDORED_CORE.md` for upstream provenance.
+
+## macOS test build
+
+`apps/localsend-slint/package-macos.sh` builds an arm64 ad-hoc signed test app at
+`target/release/bundle/macos/LocalSend.app`. It bundles the Slint GUI, tray, and
+daemon. This is not a Developer ID signed or notarized distribution artifact.
