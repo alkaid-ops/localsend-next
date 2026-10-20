@@ -1,0 +1,15 @@
+[package]
+name = "localsend-gui-iced"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[features]
+default = ["renderer-tiny-skia"]
+renderer-tiny-skia = ["iced/tiny-skia"]
+renderer-wgpu = ["iced/wgpu"]
+
+[dependencies]
+iced = { version = "0.14.0", default-features = false, features = ["crisp", "linux-theme-detection", "thread-pool", "wayland", "web-colors", "x11"] }
+localsend-rpc = { path = "../../crates/localsend-rpc" }
+tokio = { version = "1.49", features = ["full"] }

@@ -1,7 +1,9 @@
 # localsend-next repository rules
 
 - The product is a PC-only LocalSend-compatible client.
-- The only formal GUI is `apps/localsend-slint` using Slint winit and FemtoVG.
+- The only formal GUI is `apps/localsend-gui-slint` using Slint winit and FemtoVG.
+- The egui, FLTK, Iced, and Tauri directories are experimental and excluded from
+  the root workspace until migrated to `localsend-rpc`.
 - Runtime architecture is frontends -> `localsend-rpc` -> `localsendd` ->
   vendored official LocalSend core.
 - Frontends must not depend on the vendored core and must not spawn `localsendd`.

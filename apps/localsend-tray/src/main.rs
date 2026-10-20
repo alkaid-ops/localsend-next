@@ -284,9 +284,9 @@ fn find_gui_executable(current: &std::path::Path) -> Option<std::path::PathBuf> 
         "LocalSend"
     };
     let dev_gui_name = if cfg!(windows) {
-        "localsend-slint.exe"
+        "localsend-gui-slint.exe"
     } else {
-        "localsend-slint"
+        "localsend-gui-slint"
     };
     current
         .parent()

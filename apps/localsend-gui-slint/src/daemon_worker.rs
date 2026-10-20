@@ -76,7 +76,7 @@ impl DaemonWorker {
         let (commands, command_rx) = mpsc::unbounded_channel();
         let (event_tx, events) = std_mpsc::channel();
         thread::Builder::new()
-            .name("localsend-slint-daemon-worker".to_string())
+            .name("localsend-gui-slint-daemon-worker".to_string())
             .spawn(move || {
                 let runtime = match tokio::runtime::Builder::new_multi_thread()
                     .enable_all()

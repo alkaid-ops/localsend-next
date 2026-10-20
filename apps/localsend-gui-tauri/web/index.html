@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LocalSend PC</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>LocalSend PC</h1>
+        <span id="daemon-state">connecting</span>
+      </header>
+      <nav>
+        <button data-tab="receive" class="active">接收</button>
+        <button data-tab="send">发送</button>
+        <button data-tab="settings">设置</button>
+      </nav>
+      <section id="receive" class="tab active">
+        <h2>接收</h2>
+        <p id="server-state">服务器状态：读取中</p>
+        <div id="incoming"></div>
+        <div id="transfers"></div>
+        <h3>最近历史</h3>
+        <ul id="history"></ul>
+      </section>
+      <section id="send" class="tab">
+        <h2>发送</h2>
+        <div class="row">
+          <input id="manual-target" placeholder="IP 或 host:port" />
+          <button id="add-manual">添加设备</button>
+          <button id="refresh">刷新发现</button>
+        </div>
+        <ul id="devices"></ul>
+        <div class="row">
+          <input id="send-path" placeholder="文件或目录路径" />
+          <input id="send-pin" placeholder="PIN（可选）" />
+          <button id="send-file">发送路径</button>
+        </div>
+        <div class="row">
+          <input id="send-text" placeholder="文本消息" />
+          <button id="send-text-button">发送文本</button>
+        </div>
+        <p id="send-status"></p>
+      </section>
+      <section id="settings" class="tab">
+        <h2>设置</h2>
+        <label>设备名称 <input id="alias" /></label>
+        <label>端口 <input id="port" type="number" /></label>
+        <label>PIN <input id="pin" /></label>
+        <label>接收目录 <input id="destination" /></label>
+        <label class="check"><input id="auto-accept" type="checkbox" /> 自动接受</label>
+        <label class="check"><input id="https" type="checkbox" /> 使用 HTTPS</label>
+        <button id="save-settings">保存设置</button>
+        <p id="settings-status"></p>
+      </section>
+    </main>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

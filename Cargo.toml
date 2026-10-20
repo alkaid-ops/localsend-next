@@ -2,13 +2,22 @@
 resolver = "3"
 members = [
     "crates/*",
-    "apps/*",
+    "apps/localsendd",
+    "apps/localsend-tray",
+    "apps/localsend-tui",
+    "apps/localsend-gui-slint",
+]
+exclude = [
+    "apps/localsend-gui-egui",
+    "apps/localsend-gui-fltk",
+    "apps/localsend-gui-iced",
+    "apps/localsend-gui-tauri",
 ]
 default-members = [
     "apps/localsendd",
     "apps/localsend-tray",
     "apps/localsend-tui",
-    "apps/localsend-slint",
+    "apps/localsend-gui-slint",
 ]
 
 [workspace.package]

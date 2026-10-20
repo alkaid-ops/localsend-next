@@ -89,7 +89,7 @@ slightly lower on this macOS host, but Slint wins on the overall desktop path:
 - The same Slint UI code remains usable across renderer experiments without
   changing the daemon/RPC architecture.
 
-`apps/localsend-slint` therefore defaults to `backend-femtovg`. The migration to
+`apps/localsend-gui-slint` therefore defaults to `backend-femtovg`. The migration to
 `localsend-next` keeps this renderer choice; measurements above remain historical
 evidence from the predecessor workspace.
 

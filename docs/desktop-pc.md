@@ -3,7 +3,7 @@
 ## 进程边界
 
 ```text
-localsend-slint / localsend-tui / localsend-tray
+localsend-gui-slint / localsend-tui / localsend-tray
                        |
                 localsend-rpc
                        |
@@ -40,7 +40,10 @@ localsend-slint / localsend-tui / localsend-tray
 
 ## 前端
 
-正式 GUI 是 `apps/localsend-slint`，release 固定使用 `winit-femtovg`。接收、发送、设置三页保持原 LocalSend 结构。
+正式 GUI 是 `apps/localsend-gui-slint`，release 固定使用 `winit-femtovg`。接收、发送、设置三页保持原 LocalSend 结构。
+
+`localsend-gui-egui`、`localsend-gui-fltk`、`localsend-gui-iced` 和
+`localsend-gui-tauri` 保留为实验目录，暂不进入 workspace 和发布链路。
 
 TUI 主要键位：
 
@@ -56,13 +59,13 @@ cargo check --workspace
 cargo run -p localsendd
 cargo run -p localsend-tui
 cargo run -p localsend-tray
-cargo run -p localsend-slint --no-default-features --features backend-femtovg
+cargo run -p localsend-gui-slint --no-default-features --features backend-femtovg
 ```
 
 macOS 打包：
 
 ```sh
-cd apps/localsend-slint
+cd apps/localsend-gui-slint
 ./package-macos.sh
 codesign --verify --deep --strict ../../target/release/bundle/macos/LocalSend.app
 ```

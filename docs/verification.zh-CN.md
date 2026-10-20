@@ -19,7 +19,7 @@ localsend-rpc: 3 passed
 localsend-service: 1 loopback integration passed
 localsend-tui: 2 passed
 localsend-tray: 1 passed
-localsend-slint: 9 passed
+localsend-gui-slint: 9 passed
 localsendd: 1 lifecycle integration passed
 ```
 
@@ -69,3 +69,25 @@ the scan must return every confirmed device, got 1 for a channel of 16
 - Slint 正确显示官方设备 alias、HTTP、macOS 型号和 `127.0.0.1` 地址。
 - 从 daemon 发送文本到官方客户端时，官方客户端返回 `401` PIN challenge；daemon 将发送标记为 `failed`，证明请求已到达官方协议端点。
 - 未输入官方客户端 PIN，因此本轮没有执行成功传输、拒绝和取消的完整官方 UI 矩阵。
+
+## 实验 GUI 目录
+
+当前应用目录包含：
+
+- `apps/localsend-gui-slint`：正式 GUI，仍在 root workspace 和发布链路中。
+- `apps/localsend-gui-egui`
+- `apps/localsend-gui-fltk`
+- `apps/localsend-gui-iced`
+- `apps/localsend-gui-tauri`
+
+四个实验 GUI 已从 root workspace 排除，避免未完成实现影响正式构建和后续 CI。它们已经改为依赖
+`localsend-rpc`，不再引用旧的 `localsend-rs` 项目。
+
+独立 `cargo check --manifest-path ...` 结果：
+
+- egui：通过
+- Iced：通过
+- Tauri：通过
+- FLTK：通过；首次 bundled SDK 下载因 HTTP/2 中断失败，使用本地代理重试后通过
+
+这些检查只证明原型可以编译，不代表功能、视觉或跨平台验收完成。

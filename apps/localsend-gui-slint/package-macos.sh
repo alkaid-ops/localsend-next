@@ -14,11 +14,11 @@ export PATH="$HOME/.cargo/bin:$PATH"
 
 cargo build --release --manifest-path "$REPO_ROOT/Cargo.toml" -p localsendd
 cargo build --release --manifest-path "$REPO_ROOT/Cargo.toml" -p localsend-tray
-cargo build --release --manifest-path "$REPO_ROOT/Cargo.toml" -p localsend-slint --no-default-features --features backend-femtovg
+cargo build --release --manifest-path "$REPO_ROOT/Cargo.toml" -p localsend-gui-slint --no-default-features --features backend-femtovg
 
 mkdir -p "$MACOS_DIR" "$RESOURCES_DIR" "$ICON_WORK_DIR/raw" "$ICON_WORK_DIR/AppIcon.iconset"
 
-cp "$REPO_ROOT/target/release/localsend-slint" "$MACOS_DIR/LocalSend"
+cp "$REPO_ROOT/target/release/localsend-gui-slint" "$MACOS_DIR/LocalSend"
 cp "$REPO_ROOT/target/release/localsendd" "$MACOS_DIR/localsendd"
 cp "$REPO_ROOT/target/release/localsend-tray" "$MACOS_DIR/localsend-tray"
 cp "$SCRIPT_DIR/packaging/macos/Info.plist" "$CONTENTS_DIR/Info.plist"

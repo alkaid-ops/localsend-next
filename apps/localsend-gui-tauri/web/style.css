@@ -1,0 +1,43 @@
+:root {
+  color: #1d2428;
+  background: #edf2f1;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { max-width: 980px; margin: 0 auto; min-height: 100vh; padding: 24px; }
+header { display: flex; align-items: baseline; justify-content: space-between; }
+h1 { margin: 0; font-size: 28px; }
+h2 { margin: 0 0 16px; font-size: 20px; }
+h3 { margin-top: 28px; font-size: 15px; }
+nav { display: flex; gap: 8px; margin: 24px 0; border-bottom: 1px solid #cbd8d5; }
+button {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid #9eb5b0;
+  border-radius: 6px;
+  background: #fff;
+  color: #173c37;
+  cursor: pointer;
+}
+nav button { border: 0; border-bottom: 3px solid transparent; border-radius: 0; background: transparent; }
+nav button.active { border-color: #0f766e; color: #0f766e; font-weight: 700; }
+.tab { display: none; }
+.tab.active { display: block; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+input {
+  min-height: 36px;
+  min-width: 220px;
+  padding: 6px 10px;
+  border: 1px solid #a8b9b6;
+  border-radius: 6px;
+  background: #fff;
+}
+label { display: grid; gap: 6px; margin: 12px 0; }
+label.check { display: flex; align-items: center; }
+label.check input { min-width: auto; }
+ul { padding-left: 20px; }
+li { margin: 6px 0; }
+#incoming, #transfers { margin: 8px 0; padding: 12px; border: 1px solid #c9d7d4; border-radius: 8px; background: #fff; }
+#daemon-state { color: #0f766e; font-size: 13px; }

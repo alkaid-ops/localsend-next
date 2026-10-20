@@ -1,0 +1,16 @@
+[package]
+name = "localsend-gui-egui"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[features]
+default = ["renderer-glow"]
+renderer-glow = ["eframe/glow"]
+renderer-wgpu = ["eframe/wgpu"]
+
+[dependencies]
+anyhow = "1.0"
+eframe = { version = "0.37.0", default-features = false, features = ["clipboard", "default_fonts", "links", "wayland", "x11"] }
+localsend-rpc = { path = "../../crates/localsend-rpc" }
+tokio = { version = "1.49", features = ["full"] }

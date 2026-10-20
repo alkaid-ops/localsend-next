@@ -3750,6 +3750,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "localsend-gui-slint"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "arboard",
+ "directories",
+ "i-slint-backend-testing",
+ "libc",
+ "localsend-platform",
+ "localsend-rpc",
+ "png",
+ "rfd",
+ "serde",
+ "serde_json",
+ "slint",
+ "slint-build",
+ "tokio",
+]
+
+[[package]]
 name = "localsend-platform"
 version = "0.1.0"
 dependencies = [
@@ -3801,26 +3821,6 @@ dependencies = [
  "tokio-util",
  "tracing",
  "uuid",
-]
-
-[[package]]
-name = "localsend-slint"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "arboard",
- "directories",
- "i-slint-backend-testing",
- "libc",
- "localsend-platform",
- "localsend-rpc",
- "png",
- "rfd",
- "serde",
- "serde_json",
- "slint",
- "slint-build",
- "tokio",
 ]
 
 [[package]]

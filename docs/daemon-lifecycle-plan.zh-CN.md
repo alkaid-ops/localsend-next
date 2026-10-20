@@ -3,7 +3,7 @@
 ## 规则
 
 1. `localsend-tray` 是 GUI 和 owned daemon 的启动者。
-2. `localsend-slint` 先取得自己的单实例锁，但只连接 daemon，不 spawn daemon。
+2. `localsend-gui-slint` 先取得自己的单实例锁，但只连接 daemon，不 spawn daemon。
 3. `localsendd` 先取得 instance lock，再绑定 RPC endpoint；第二个 daemon 必须干净退出。
 4. owned daemon 使用 `--require-owner`，在 3 秒内没有 owner 或 owner 断开后优雅退出。
 5. 显式启动的 daemon 没有 owner lease，只能由显式 Shutdown 停止。
