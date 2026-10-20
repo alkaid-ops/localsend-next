@@ -1,0 +1,12 @@
+/target/
+/build/
+/tmp/
+/graphify-out/
+**/target/
+**/build/
+**/.DS_Store
+*.app
+*.dmg
+*.log
+.idea/
+.vscode/
