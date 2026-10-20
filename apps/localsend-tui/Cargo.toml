@@ -14,4 +14,8 @@ ratatui = "0.30"
 tokio.workspace = true
 
 [dev-dependencies]
+localsend-core = { package = "localsend", path = "../../crates/localsend-official-core", features = ["full"] }
+localsend-testkit = { path = "../../crates/localsend-testkit" }
+portable-pty = "0.9"
 tempfile.workspace = true
+vt100 = "0.16"

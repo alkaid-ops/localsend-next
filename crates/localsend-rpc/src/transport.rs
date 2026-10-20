@@ -211,6 +211,11 @@ pub async fn connect() -> io::Result<BoxedIo> {
     ))
 }
 
+#[cfg(unix)]
+pub async fn connect_to(endpoint: &str) -> io::Result<BoxedIo> {
+    Ok(Box::new(tokio::net::UnixStream::connect(endpoint).await?))
+}
+
 #[cfg(windows)]
 pub struct LocalListener {
     name: String,
@@ -254,6 +259,13 @@ pub async fn connect() -> io::Result<BoxedIo> {
     use tokio::net::windows::named_pipe::ClientOptions;
 
     Ok(Box::new(ClientOptions::new().open(endpoint_name())?))
+}
+
+#[cfg(windows)]
+pub async fn connect_to(endpoint: &str) -> io::Result<BoxedIo> {
+    use tokio::net::windows::named_pipe::ClientOptions;
+
+    Ok(Box::new(ClientOptions::new().open(endpoint)?))
 }
 
 #[cfg(windows)]

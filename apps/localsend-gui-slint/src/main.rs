@@ -1,7 +1,6 @@
-mod daemon_worker;
-mod view_model;
-
-use daemon_worker::{DaemonWorker, UiCommand, WorkerEvent};
+use localsend_gui_slint::daemon_worker::{DaemonWorker, UiCommand, WorkerEvent};
+use localsend_gui_slint::view_model;
+use localsend_gui_slint::*;
 use localsend_platform::{InstanceLock, local_ipv4_addresses, scoped_lock_name};
 use localsend_rpc::transport;
 use localsend_rpc::{
@@ -18,8 +17,6 @@ use std::process::Command;
 use std::rc::Rc;
 use std::sync::OnceLock;
 use std::time::Duration;
-
-slint::include_modules!();
 
 static SYSTEM_DARK_THEME: OnceLock<bool> = OnceLock::new();
 
@@ -1974,6 +1971,9 @@ fn language_label(language: &str) -> &'static str {
 #[cfg(test)]
 mod tests {
     use super::{WindowPlacement, WindowState, visual_ids_from_ips};
+    use i_slint_backend_testing::{AccessibleRole, ElementQuery};
+    use localsend_gui_slint::AppWindow;
+    use slint::ComponentHandle;
     use std::fs;
 
     #[test]
@@ -2066,5 +2066,107 @@ mod tests {
             })
         );
         fs::remove_file(path).unwrap();
+    }
+
+    #[test]
+    fn accessible_navigation_and_primary_actions_are_semantic() {
+        i_slint_backend_testing::init_integration_test_with_mock_time();
+        let ui = AppWindow::new().expect("create window");
+        ui.window()
+            .set_size(slint::LogicalSize::new(1200.0, 1800.0));
+        let choose_file = std::rc::Rc::new(std::cell::Cell::new(false));
+        let toggles = std::rc::Rc::new(std::cell::RefCell::new(Vec::<(String, bool)>::new()));
+        let submitted = std::rc::Rc::new(std::cell::RefCell::new(Vec::<(String, String)>::new()));
+        ui.on_choose_file({
+            let choose_file = choose_file.clone();
+            move || choose_file.set(true)
+        });
+        ui.on_set_toggle({
+            let toggles = toggles.clone();
+            move |name, value| toggles.borrow_mut().push((name.to_string(), value))
+        });
+        ui.on_submit_setting({
+            let submitted = submitted.clone();
+            move |name, value| {
+                submitted
+                    .borrow_mut()
+                    .push((name.to_string(), value.to_string()))
+            }
+        });
+        ui.set_selected_tab("receive".into());
+        ui.show().expect("show window");
+        i_slint_backend_testing::mock_elapsed_time(std::time::Duration::from_millis(50));
+
+        let send = ElementQuery::from_root(&ui)
+            .match_accessible_role(AccessibleRole::Button)
+            .match_predicate(|element| {
+                element
+                    .accessible_label()
+                    .is_some_and(|label| label == "发送")
+            })
+            .find_first()
+            .expect("send navigation button");
+        send.invoke_accessible_default_action();
+        assert_eq!(ui.get_selected_tab(), "send");
+        i_slint_backend_testing::mock_elapsed_time(std::time::Duration::from_millis(50));
+
+        let file = ElementQuery::from_root(&ui)
+            .match_accessible_role(AccessibleRole::Button)
+            .match_predicate(|element| {
+                element
+                    .accessible_label()
+                    .is_some_and(|label| label == "文件")
+            })
+            .find_first()
+            .expect("file button");
+        file.invoke_accessible_default_action();
+        assert!(choose_file.get());
+
+        let settings = ElementQuery::from_root(&ui)
+            .match_accessible_role(AccessibleRole::Button)
+            .match_predicate(|element| {
+                element
+                    .accessible_label()
+                    .is_some_and(|label| label == "设置")
+            })
+            .find_first()
+            .expect("settings navigation button");
+        settings.invoke_accessible_default_action();
+        assert_eq!(ui.get_selected_tab(), "settings");
+        i_slint_backend_testing::mock_elapsed_time(std::time::Duration::from_millis(50));
+
+        let animation_switch = ElementQuery::from_root(&ui)
+            .match_accessible_role(AccessibleRole::Switch)
+            .match_predicate(|element| {
+                element
+                    .accessible_label()
+                    .is_some_and(|label| label == "动画效果")
+            })
+            .find_first()
+            .expect("animation switch");
+        animation_switch.invoke_accessible_default_action();
+        assert!(
+            toggles
+                .borrow()
+                .iter()
+                .any(|(name, _)| name == "animations")
+        );
+
+        let alias = ElementQuery::from_root(&ui)
+            .match_accessible_role(AccessibleRole::TextInput)
+            .match_predicate(|element| {
+                element
+                    .accessible_label()
+                    .is_some_and(|label| label == "设备名称")
+            })
+            .find_first()
+            .expect("alias input");
+        alias.set_accessible_value("Accessible PC");
+        assert!(
+            submitted
+                .borrow()
+                .iter()
+                .any(|(name, value)| name == "alias" && value == "Accessible PC")
+        );
     }
 }

@@ -62,6 +62,13 @@ cargo run -p localsend-tray
 cargo run -p localsend-gui-slint --no-default-features --features backend-femtovg
 ```
 
+全流程本地验收：
+
+```sh
+./scripts/accept-tui.sh
+./scripts/accept-slint.sh
+```
+
 macOS 打包：
 
 ```sh

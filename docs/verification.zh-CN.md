@@ -60,6 +60,12 @@ the scan must return every confirmed device, got 1 for a channel of 16
 - 结束 GUI 进程后，独立 daemon 继续存活。
 - 打包 tray 在 daemon 不存在时成功创建 owned `localsendd`；tray 退出后 daemon、socket 和 runtime manifest 均自动清理。
 
+## 全流程自动化门禁
+
+- `./scripts/accept-tui.sh`：3 次连续运行通过；真实 PTY 全流程、TestBackend 三尺寸渲染和官方 core peer 全部通过。
+- `./scripts/accept-slint.sh`：3 次连续运行通过；Slint accessible tree、真实 daemon worker、32 张 golden、FemtoVG release、codesign 和 AXUIElement 页面切换全部通过。
+- 自动验收的具体覆盖与产物路径见 `docs/acceptance-automation.zh-CN.md`。
+
 ## 官方客户端互操作冒烟
 
 使用本机已安装的官方 LocalSend 1.18.2 补测：

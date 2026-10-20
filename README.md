@@ -24,7 +24,13 @@ PC frontends. Flutter and Iced are intentionally out of scope.
 - `localsend-gui-slint`: formal GUI frontend
 
 See `docs/desktop-pc.md` for operation, `docs/verification.zh-CN.md` for the
-current test evidence, and `VENDORED_CORE.md` for upstream provenance.
+current test evidence, `docs/acceptance-automation.zh-CN.md` for the local
+acceptance gates, and `VENDORED_CORE.md` for upstream provenance.
+
+```sh
+./scripts/accept-tui.sh
+./scripts/accept-slint.sh
+```
 
 ## macOS test build
 

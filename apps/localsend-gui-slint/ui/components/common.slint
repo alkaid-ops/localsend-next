@@ -7,6 +7,11 @@ export component FlutterNavItem inherits Rectangle {
     in property <bool> compact: false;
     callback clicked;
 
+    accessible-role: button;
+    accessible-label: root.label;
+    accessible-enabled: true;
+    accessible-action-default => { root.clicked(); }
+
     height: 56px;
     border-radius: 28px;
     background: root.active ? ThemeTokens.secondary-container : (touch.has-hover ? ThemeTokens.surface-container : transparent);
@@ -48,6 +53,11 @@ export component FlutterIconButton inherits Rectangle {
     in property <bool> enabled: true;
     callback clicked;
 
+    accessible-role: button;
+    accessible-label: root.tooltip;
+    accessible-enabled: root.enabled;
+    accessible-action-default => { if (root.enabled) { root.clicked(); } }
+
     width: 40px;
     height: 40px;
     border-radius: 20px;
@@ -76,6 +86,12 @@ export component FlutterInlineSettingEntry inherits Rectangle {
     in property <bool> compact: false;
     in property <bool> enabled: true;
     callback submitted(string);
+
+    accessible-role: text-input;
+    accessible-label: root.label;
+    accessible-value <=> root.text;
+    accessible-enabled: root.enabled;
+    accessible-action-set-value(value) => { root.text = value; root.submitted(value); }
 
     height: 56px;
     background: transparent;
@@ -131,6 +147,11 @@ export component FlutterBigButton inherits Rectangle {
     in property <bool> enabled: true;
     callback clicked;
 
+    accessible-role: button;
+    accessible-label: root.label;
+    accessible-enabled: root.enabled;
+    accessible-action-default => { if (root.enabled) { root.clicked(); } }
+
     width: 100px;
     height: 65px;
     border-radius: ThemeTokens.button-radius;
@@ -168,6 +189,12 @@ export component FlutterSegmentButton inherits Rectangle {
     in property <bool> active: false;
     callback clicked;
 
+    accessible-role: button;
+    accessible-label: root.label;
+    accessible-checked: root.active;
+    accessible-enabled: true;
+    accessible-action-default => { root.clicked(); }
+
     height: 40px;
     border-radius: 20px;
     background: active ? ThemeTokens.secondary-container : transparent;
@@ -189,6 +216,11 @@ export component FlutterDialogButton inherits Rectangle {
     in property <bool> primary: false;
     in property <bool> enabled: true;
     callback clicked;
+
+    accessible-role: button;
+    accessible-label: root.label;
+    accessible-enabled: root.enabled;
+    accessible-action-default => { if (root.enabled) { root.clicked(); } }
 
     width: 104px;
     height: 40px;
@@ -213,6 +245,11 @@ export component FlutterOutlinedButton inherits Rectangle {
     in property <string> label;
     in property <bool> enabled: true;
     callback clicked;
+
+    accessible-role: button;
+    accessible-label: root.label;
+    accessible-enabled: root.enabled;
+    accessible-action-default => { if (root.enabled) { root.clicked(); } }
 
     width: 160px;
     height: 42px;
@@ -240,6 +277,11 @@ export component FlutterSettingsEntry inherits Rectangle {
     in property <bool> compact: false;
     in property <bool> enabled: true;
     callback clicked;
+
+    accessible-role: button;
+    accessible-label: root.label + ": " + root.value;
+    accessible-enabled: root.enabled;
+    accessible-action-default => { if (root.enabled) { root.clicked(); } }
 
     height: 56px;
     background: transparent;
@@ -295,6 +337,17 @@ export component FlutterBooleanEntry inherits Rectangle {
     in property <bool> compact: false;
     in property <bool> enabled: true;
     callback toggled(bool);
+
+    accessible-role: switch;
+    accessible-label: root.label;
+    accessible-checked <=> root.checked;
+    accessible-enabled: root.enabled;
+    accessible-action-default => {
+        if (root.enabled) {
+            root.checked = !root.checked;
+            root.toggled(root.checked);
+        }
+    }
 
     height: 56px;
     background: transparent;
@@ -359,6 +412,11 @@ export component FlutterDeviceTile inherits Rectangle {
     callback clicked(string);
     callback details(string);
     callback favorite-clicked(string);
+
+    accessible-role: button;
+    accessible-label: root.alias + ", " + root.ip + ", " + root.protocol;
+    accessible-enabled: true;
+    accessible-action-default => { root.clicked(root.fingerprint); }
 
     height: 76px;
     border-radius: ThemeTokens.card-radius;

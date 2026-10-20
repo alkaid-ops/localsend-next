@@ -61,8 +61,29 @@ impl DaemonClient {
         Self::connect_with_role(true, true).await
     }
 
+    pub async fn connect_to(endpoint: impl AsRef<str>) -> anyhow::Result<Self> {
+        Self::connect_to_with_role(endpoint.as_ref(), false, false).await
+    }
+
+    pub async fn connect_to_interactive(endpoint: impl AsRef<str>) -> anyhow::Result<Self> {
+        Self::connect_to_with_role(endpoint.as_ref(), true, false).await
+    }
+
+    pub async fn connect_to_owned(endpoint: impl AsRef<str>) -> anyhow::Result<Self> {
+        Self::connect_to_with_role(endpoint.as_ref(), false, true).await
+    }
+
     async fn connect_with_role(interactive: bool, lifecycle_owner: bool) -> anyhow::Result<Self> {
         let connection = transport::connect().await?;
+        Self::from_connection(connection, interactive, lifecycle_owner).await
+    }
+
+    async fn connect_to_with_role(
+        endpoint: &str,
+        interactive: bool,
+        lifecycle_owner: bool,
+    ) -> anyhow::Result<Self> {
+        let connection = transport::connect_to(endpoint).await?;
         Self::from_connection(connection, interactive, lifecycle_owner).await
     }
 

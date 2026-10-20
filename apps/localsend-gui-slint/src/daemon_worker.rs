@@ -73,6 +73,14 @@ enum PendingSend {
 
 impl DaemonWorker {
     pub fn spawn() -> Self {
+        Self::spawn_inner(None)
+    }
+
+    pub fn spawn_with_endpoint(endpoint: impl Into<String>) -> Self {
+        Self::spawn_inner(Some(endpoint.into()))
+    }
+
+    fn spawn_inner(endpoint: Option<String>) -> Self {
         let (commands, command_rx) = mpsc::unbounded_channel();
         let (event_tx, events) = std_mpsc::channel();
         thread::Builder::new()
@@ -91,7 +99,7 @@ impl DaemonWorker {
                         return;
                     }
                 };
-                runtime.block_on(run_worker(command_rx, event_tx));
+                runtime.block_on(run_worker(endpoint, command_rx, event_tx));
             })
             .expect("spawn daemon worker");
         Self { commands, events }
@@ -99,12 +107,17 @@ impl DaemonWorker {
 }
 
 async fn run_worker(
+    endpoint: Option<String>,
     mut commands: mpsc::UnboundedReceiver<UiCommand>,
     events_out: std_mpsc::Sender<WorkerEvent>,
 ) {
     let mut pending_sends = HashMap::<String, PendingSend>::new();
     loop {
-        let client = match DaemonClient::connect_interactive().await {
+        let connected = match endpoint.as_deref() {
+            Some(endpoint) => DaemonClient::connect_to_interactive(endpoint).await,
+            None => DaemonClient::connect_interactive().await,
+        };
+        let client = match connected {
             Ok(client) => client,
             Err(error) => {
                 let _ = events_out.send(WorkerEvent::Connection {
