@@ -1,0 +1,48 @@
+export struct DeviceItem {
+    alias: string,
+    ip: string,
+    fingerprint: string,
+    protocol: string,
+    model: string,
+    device-type: string,
+    favorite: bool,
+    selected: bool,
+}
+
+export struct FavoriteItem {
+    alias: string,
+    fingerprint: string,
+}
+
+export struct HistoryItem {
+    id: string,
+    name: string,
+    subtitle: string,
+    path: string,
+    message: string,
+    is-message: bool,
+}
+
+export struct RequestFileItem {
+    file-id: string,
+    name: string,
+    size: string,
+    selected: bool,
+}
+
+export struct TransferItem {
+    transfer-id: string,
+    peer: string,
+    summary: string,
+    status: string,
+    direction: string,
+    progress-percent: int,
+    file-count: int,
+}
+
+export struct SelectedFileItem {
+    path: string,
+    name: string,
+    is-directory: bool,
+    size: string,
+}

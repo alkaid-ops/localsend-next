@@ -1,0 +1,445 @@
+import { ThemeTokens } from "../theme.slint";
+
+export component FlutterNavItem inherits Rectangle {
+    in property <string> label;
+    in property <image> icon;
+    in property <bool> active: false;
+    in property <bool> compact: false;
+    callback clicked;
+
+    height: 56px;
+    border-radius: 28px;
+    background: root.active ? ThemeTokens.secondary-container : (touch.has-hover ? ThemeTokens.surface-container : transparent);
+
+    HorizontalLayout {
+        padding-left: root.compact ? 14px : 18px;
+        padding-right: root.compact ? 14px : 20px;
+        spacing: root.compact ? 0px : 16px;
+        alignment: center;
+
+        Image {
+            width: 24px;
+            height: 24px;
+            source: root.icon;
+            colorize: root.active ? ThemeTokens.primary : ThemeTokens.on-surface-variant;
+            image-fit: contain;
+        }
+        if !root.compact : Text {
+            text: root.label;
+            color: root.active ? ThemeTokens.on-secondary-container : ThemeTokens.on-surface;
+            font-size: 14px;
+            font-weight: root.active ? 600 : 500;
+            vertical-alignment: center;
+            horizontal-stretch: 1;
+        }
+    }
+    touch := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+}
+
+export component FlutterIconButton inherits Rectangle {
+    in property <image> icon;
+    in property <string> tooltip;
+    in property <length> icon-size: 24px;
+    in property <brush> icon-color: ThemeTokens.on-surface-variant;
+    in property <brush> background-color: transparent;
+    in property <bool> enabled: true;
+    callback clicked;
+
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    background: touch.has-hover ? ThemeTokens.surface-container-high : root.background-color;
+
+    Image {
+        x: (parent.width - icon-size) / 2;
+        y: (parent.height - icon-size) / 2;
+        width: icon-size;
+        height: icon-size;
+        source: root.icon;
+        colorize: root.enabled ? root.icon-color : ThemeTokens.disabled;
+        image-fit: contain;
+    }
+    touch := TouchArea {
+        enabled: root.enabled;
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+}
+
+export component FlutterInlineSettingEntry inherits Rectangle {
+    in property <string> label;
+    in-out property <string> text;
+    in property <string> placeholder: "";
+    in property <bool> compact: false;
+    in property <bool> enabled: true;
+    callback submitted(string);
+
+    height: 56px;
+    background: transparent;
+    HorizontalLayout {
+        padding-left: 16px;
+        padding-right: 8px;
+        spacing: 12px;
+        alignment: center;
+        Text {
+            text: root.label;
+            color: root.enabled ? ThemeTokens.on-surface : ThemeTokens.disabled;
+            font-size: 14px;
+            width: parent.width - (root.compact ? 170px : 240px) - 36px;
+            horizontal-alignment: left;
+            vertical-alignment: center;
+            overflow: elide;
+        }
+        Rectangle {
+            width: root.compact ? 170px : 240px;
+            height: 40px;
+            border-radius: ThemeTokens.input-radius;
+            background: ThemeTokens.surface-container-high;
+            input := TextInput {
+                x: 10px;
+                width: parent.width - 50px;
+                height: parent.height;
+                text <=> root.text;
+                color: root.enabled ? ThemeTokens.on-surface : ThemeTokens.disabled;
+                font-size: 14px;
+                single-line: true;
+                enabled: root.enabled;
+                accepted => { root.submitted(self.text); }
+            }
+            FlutterIconButton {
+                x: parent.width - 42px;
+                y: 0px;
+                width: 40px;
+                height: 40px;
+                icon: @image-url("../icons/check.svg");
+                icon-size: 18px;
+                tooltip: "Apply";
+                enabled: root.enabled;
+                clicked => { root.submitted(input.text); }
+            }
+        }
+    }
+}
+
+export component FlutterBigButton inherits Rectangle {
+    in property <image> icon;
+    in property <string> label;
+    in property <bool> filled: false;
+    in property <bool> enabled: true;
+    callback clicked;
+
+    width: 100px;
+    height: 65px;
+    border-radius: ThemeTokens.button-radius;
+    background: root.filled ? ThemeTokens.primary : ThemeTokens.secondary-container;
+    opacity: root.enabled ? 1 : 0.45;
+
+    VerticalLayout {
+        alignment: center;
+        spacing: 4px;
+        Image {
+            width: 24px;
+            height: 24px;
+            source: root.icon;
+            colorize: root.filled ? ThemeTokens.on-primary : ThemeTokens.on-secondary-container;
+            image-fit: contain;
+        }
+        Text {
+            text: root.label;
+            color: root.filled ? ThemeTokens.on-primary : ThemeTokens.on-secondary-container;
+            font-size: 13px;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+            overflow: elide;
+        }
+    }
+    TouchArea {
+        enabled: root.enabled;
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+}
+
+export component FlutterSegmentButton inherits Rectangle {
+    in property <string> label;
+    in property <bool> active: false;
+    callback clicked;
+
+    height: 40px;
+    border-radius: 20px;
+    background: active ? ThemeTokens.secondary-container : transparent;
+    Text {
+        text: root.label;
+        color: active ? ThemeTokens.on-secondary-container : ThemeTokens.on-surface-variant;
+        font-size: 14px;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+    TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+}
+
+export component FlutterDialogButton inherits Rectangle {
+    in property <string> label;
+    in property <bool> primary: false;
+    in property <bool> enabled: true;
+    callback clicked;
+
+    width: 104px;
+    height: 40px;
+    border-radius: ThemeTokens.button-radius;
+    background: root.enabled && root.primary ? ThemeTokens.primary : ThemeTokens.surface-container;
+    Text {
+        text: root.label;
+        color: root.enabled && root.primary ? ThemeTokens.on-primary : (root.enabled ? ThemeTokens.primary : ThemeTokens.disabled);
+        font-size: 14px;
+        font-weight: primary ? 600 : 500;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+    TouchArea {
+        enabled: root.enabled;
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+}
+
+export component FlutterOutlinedButton inherits Rectangle {
+    in property <string> label;
+    in property <bool> enabled: true;
+    callback clicked;
+
+    width: 160px;
+    height: 42px;
+    border-radius: ThemeTokens.button-radius;
+    border-width: 1px;
+    border-color: ThemeTokens.outline;
+    background: touch.has-hover ? ThemeTokens.surface-container-low : transparent;
+    Text {
+        text: root.label;
+        color: ThemeTokens.primary;
+        font-size: 14px;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+    touch := TouchArea {
+        enabled: root.enabled;
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+}
+
+export component FlutterSettingsEntry inherits Rectangle {
+    in property <string> label;
+    in property <string> value;
+    in property <bool> compact: false;
+    in property <bool> enabled: true;
+    callback clicked;
+
+    height: 56px;
+    background: transparent;
+    HorizontalLayout {
+        padding-left: 16px;
+        padding-right: 12px;
+        spacing: 12px;
+        alignment: center;
+        Text {
+            text: root.label;
+            color: root.enabled ? ThemeTokens.on-surface : ThemeTokens.disabled;
+            font-size: 14px;
+            width: parent.width - (root.compact ? 128px : 150px) - 40px;
+            horizontal-alignment: left;
+            vertical-alignment: center;
+            overflow: elide;
+        }
+        Rectangle {
+            width: root.compact ? 128px : 150px;
+            height: 40px;
+            border-radius: ThemeTokens.input-radius;
+            background: ThemeTokens.surface-container-high;
+            Text {
+                x: 10px;
+                width: parent.width - 32px;
+                text: root.value;
+                color: root.enabled ? ThemeTokens.on-surface : ThemeTokens.disabled;
+                font-size: 14px;
+                vertical-alignment: center;
+                overflow: elide;
+            }
+            Image {
+                x: parent.width - 26px;
+                y: 10px;
+                width: 20px;
+                height: 20px;
+                source: @image-url("../icons/chevron-down.svg");
+                colorize: ThemeTokens.on-surface-variant;
+                image-fit: contain;
+            }
+        }
+    }
+    TouchArea {
+        enabled: root.enabled;
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+}
+
+export component FlutterBooleanEntry inherits Rectangle {
+    in property <string> label;
+    in-out property <bool> checked: false;
+    in property <bool> compact: false;
+    in property <bool> enabled: true;
+    callback toggled(bool);
+
+    height: 56px;
+    background: transparent;
+    HorizontalLayout {
+        padding-left: 16px;
+        padding-right: 12px;
+        spacing: 12px;
+        alignment: center;
+        Text {
+            text: root.label;
+            color: ThemeTokens.on-surface;
+            font-size: 14px;
+            width: parent.width - (root.compact ? 128px : 150px) - 40px;
+            horizontal-alignment: left;
+            vertical-alignment: center;
+            overflow: elide;
+        }
+        Rectangle {
+            width: root.compact ? 128px : 150px;
+            height: 40px;
+            border-radius: ThemeTokens.input-radius;
+            background: ThemeTokens.surface-container-high;
+            Rectangle {
+                x: parent.width - 50px;
+                y: 4px;
+                width: 42px;
+                height: 32px;
+                border-radius: 16px;
+                background: root.checked ? ThemeTokens.primary : ThemeTokens.outline;
+                Rectangle {
+                    x: root.checked ? 22px : 4px;
+                    y: 4px;
+                    width: 24px;
+                    height: 24px;
+                    border-radius: 12px;
+                    background: root.checked ? ThemeTokens.on-primary : ThemeTokens.surface;
+                    animate x { duration: 120ms; easing: ease-in-out; }
+                }
+            }
+        }
+    }
+    TouchArea {
+        enabled: root.enabled;
+        mouse-cursor: pointer;
+        clicked => {
+            root.checked = !root.checked;
+            root.toggled(root.checked);
+        }
+    }
+}
+
+export component FlutterDeviceTile inherits Rectangle {
+    in property <string> alias;
+    in property <string> ip;
+    in property <string> protocol;
+    in property <string> model;
+    in property <string> device-type;
+    in property <string> fingerprint;
+    in property <bool> favorite: false;
+    in property <bool> selected: false;
+    in property <bool> multiple: false;
+    callback clicked(string);
+    callback details(string);
+    callback favorite-clicked(string);
+
+    height: 76px;
+    border-radius: ThemeTokens.card-radius;
+    border-width: selected ? 1px : 0px;
+    border-color: ThemeTokens.primary;
+    background: selected ? ThemeTokens.secondary-container : ThemeTokens.surface-container-low;
+
+    TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(root.fingerprint); }
+    }
+
+    HorizontalLayout {
+        padding-left: 14px;
+        padding-right: 8px;
+        spacing: 12px;
+        alignment: center;
+        Image {
+            width: 42px;
+            height: 42px;
+            source: @image-url("../icons/smartphone.svg");
+            colorize: root.favorite ? ThemeTokens.primary : ThemeTokens.on-surface-variant;
+            image-fit: contain;
+        }
+        VerticalLayout {
+            spacing: 4px;
+            horizontal-stretch: 1;
+            Text {
+                text: root.alias;
+                color: ThemeTokens.on-surface;
+                font-size: 20px;
+                overflow: elide;
+            }
+            HorizontalLayout {
+                spacing: 6px;
+                Text {
+                    text: root.ip + " · " + root.protocol;
+                    color: ThemeTokens.on-surface-variant;
+                    font-size: 12px;
+                    overflow: elide;
+                }
+                if root.model != "" : Text {
+                    text: root.model;
+                    color: ThemeTokens.on-surface-variant;
+                    font-size: 12px;
+                    overflow: elide;
+                }
+            }
+        }
+        FlutterIconButton {
+            icon: @image-url("../icons/info.svg");
+            tooltip: "Device details";
+            clicked => { root.details(root.fingerprint); }
+        }
+        FlutterIconButton {
+            icon: @image-url("../icons/heart.svg");
+            tooltip: root.favorite ? "Remove favorite" : "Add favorite";
+            icon-color: root.favorite ? ThemeTokens.primary : ThemeTokens.on-surface-variant;
+            clicked => { root.favorite-clicked(root.fingerprint); }
+        }
+    }
+}
+
+export component FlutterSettingsSection inherits Rectangle {
+    in property <string> title;
+    in property <bool> compact: false;
+    background: transparent;
+    VerticalLayout {
+        spacing: 4px;
+        Text {
+            text: root.title;
+            color: ThemeTokens.on-surface-variant;
+            font-size: 14px;
+            font-weight: 600;
+            x: 8px;
+        }
+        Rectangle {
+            horizontal-stretch: 1;
+            border-radius: ThemeTokens.card-radius;
+            background: ThemeTokens.surface-container-low;
+            // The parent supplies the section height and its rows.
+        }
+    }
+}

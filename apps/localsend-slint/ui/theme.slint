@@ -1,0 +1,35 @@
+// Flutter reference: ColorScheme.fromSeed(seedColor: Colors.teal), Flutter 3.41.9.
+// Values were printed from the Flutter test runtime on 2026-10-20.
+export global ThemeTokens {
+    in property <bool> dark: false;
+    in property <int> accent-index: 0;
+
+    out property <color> primary: accent-index == 1 ? (dark ? #A0CAFD : #36618E) : (accent-index == 2 ? (dark ? #A1D39A : #3B6939) : (dark ? #82D5C8 : #006A60));
+    out property <color> on-primary: accent-index == 1 ? (dark ? #003258 : #FFFFFF) : (accent-index == 2 ? (dark ? #0A390F : #FFFFFF) : (dark ? #003731 : #FFFFFF));
+    out property <color> primary-container: accent-index == 1 ? (dark ? #194975 : #D1E4FF) : (accent-index == 2 ? (dark ? #235024 : #BCF0B4) : (dark ? #005048 : #9EF2E4));
+    out property <color> on-primary-container: accent-index == 1 ? (dark ? #D1E4FF : #194975) : (accent-index == 2 ? (dark ? #BCF0B4 : #235024) : (dark ? #9EF2E4 : #005048));
+    out property <color> secondary: accent-index == 1 ? (dark ? #BBC7DB : #535F70) : (accent-index == 2 ? (dark ? #BACCB3 : #52634F) : (dark ? #B1CCC6 : #4A635F));
+    out property <color> secondary-container: accent-index == 1 ? (dark ? #3B4858 : #D7E3F7) : (accent-index == 2 ? (dark ? #3B4B38 : #D5E8CF) : (dark ? #334B47 : #CCE8E2));
+    out property <color> on-secondary-container: accent-index == 1 ? (dark ? #D7E3F7 : #3B4858) : (accent-index == 2 ? (dark ? #D5E8CF : #3B4B38) : (dark ? #CCE8E2 : #334B47));
+    out property <color> surface: dark ? #0E1513 : #F4FBF8;
+    out property <color> surface-container-low: dark ? #161D1C : #EFF5F2;
+    out property <color> surface-container: dark ? #1A2120 : #E9EFED;
+    out property <color> surface-container-high: dark ? #252B2A : #E3EAE7;
+    out property <color> surface-container-highest: dark ? #303635 : #DDE4E1;
+    out property <color> on-surface: dark ? #DDE4E1 : #161D1C;
+    out property <color> on-surface-variant: dark ? #BEC9C6 : #3F4947;
+    out property <color> outline: dark ? #899390 : #6F7977;
+    out property <color> outline-variant: dark ? #3F4947 : #BEC9C6;
+    out property <color> error: dark ? #FFB4AB : #BA1A1A;
+    out property <color> warning: #FF9800;
+    out property <color> scrim: #00000066;
+    out property <color> disabled: dark ? #697370 : #899390;
+
+    out property <length> input-radius: 5px;
+    out property <length> button-radius: 10px;
+    out property <length> card-radius: 12px;
+    out property <length> dialog-radius: 12px;
+    out property <length> page-horizontal-padding: 15px;
+    out property <length> receive-padding: 30px;
+    out property <length> settings-max-width: 600px;
+}

@@ -1,0 +1,438 @@
+import { ScrollView } from "std-widgets.slint";
+import { ThemeTokens } from "theme.slint";
+import { DeviceItem, FavoriteItem, HistoryItem, RequestFileItem, SelectedFileItem, TransferItem } from "models.slint";
+import {
+    FlutterBooleanEntry,
+    FlutterBigButton,
+    FlutterDialogButton,
+    FlutterIconButton,
+    FlutterNavItem,
+    FlutterSegmentButton,
+    FlutterSettingsEntry,
+} from "components/common.slint";
+import { ReceivePage } from "pages/receive-page.slint";
+import { SendPage } from "pages/send-page.slint";
+import { SettingsPage } from "pages/settings-page.slint";
+import { DialogLayer } from "dialogs/dialog-layer.slint";
+export { ThemeTokens }
+export { DeviceItem, FavoriteItem, HistoryItem, RequestFileItem, SelectedFileItem, TransferItem }
+
+export component AppWindow inherits Window {
+    title: "LocalSend";
+    preferred-width: root.requested-window-width;
+    preferred-height: root.requested-window-height;
+    min-width: 600px;
+    min-height: 500px;
+    always-on-top: root.settings-always-on-top;
+    background: ThemeTokens.surface;
+
+    in-out property <length> requested-window-width: 1120px;
+    in-out property <length> requested-window-height: 760px;
+    in-out property <string> selected-tab: "receive";
+    in-out property <string> server-status: "正在连接 localsendd...";
+    in-out property <string> devices-text: "";
+    in-out property <string> message: "";
+
+    in-out property <string> device-alias: "LocalSend PC";
+    in-out property <string> device-id: "#80";
+    in-out property <int> auto-save-index: 2;
+    in-out property <bool> settings-auto-finish: true;
+    in-out property <bool> settings-save-to-history: true;
+    in-out property <int> device-count: 0;
+    in-out property <int> active-transfer-count: 0;
+    in-out property <int> history-count: 0;
+    in-out property <bool> server-running: false;
+    in-out property <[DeviceItem]> devices: [];
+    in-out property <[FavoriteItem]> favorites: [];
+    in-out property <[SelectedFileItem]> selected-files: [];
+    in-out property <[HistoryItem]> history-items: [];
+    in-out property <[RequestFileItem]> incoming-files: [];
+    in-out property <[string]> selected-request-ids: [];
+    in-out property <[TransferItem]> transfer-items: [];
+    in-out property <string> settings-theme: "跟随系统";
+    in-out property <string> settings-color: "LocalSend";
+    in-out property <string> settings-language: "跟随系统";
+    in-out property <bool> save-window-position: true;
+    in-out property <bool> minimize-to-tray: true;
+    in-out property <bool> launch-on-login: false;
+    in-out property <bool> animations-enabled: true;
+    in-out property <bool> text-dialog-open: false;
+    in-out property <string> text-message: "";
+    in-out property <bool> history-dialog-open: false;
+    in-out property <bool> message-received-open: false;
+    in-out property <string> message-received-sender: "";
+    in-out property <string> message-received-text: "";
+    in-out property <bool> info-dialog-open: false;
+    in-out property <bool> manual-dialog-open: false;
+    in-out property <bool> favorites-dialog-open: false;
+    in-out property <bool> send-mode-dialog-open: false;
+    in-out property <bool> troubleshoot-dialog-open: false;
+    in-out property <string> manual-target: "";
+    in-out property <string> info-alias: "";
+    in-out property <string> info-ip: "";
+    in-out property <string> info-port: "";
+    in-out property <string> destination-dir: "";
+    in-out property <int> send-mode: 0;
+    in-out property <bool> has-selection: false;
+    in-out property <int> selected-file-count: 0;
+    in-out property <string> selected-files-text: "";
+    in-out property <bool> last-received-visible: false;
+    in-out property <string> last-received-title: "";
+    in-out property <string> last-received-body: "";
+    in-out property <int> incoming-request-count: 0;
+    in-out property <string> incoming-request-id: "";
+    in-out property <string> incoming-request-title: "";
+    in-out property <string> incoming-request-body: "";
+    in-out property <string> active-transfer-summary: "";
+    in-out property <string> selected-target-label: "";
+    in-out property <string> selected-total-size: "0 B";
+    in-out property <string> settings-device-type: "Desktop";
+    in-out property <string> settings-device-model: "";
+    in-out property <bool> settings-terms-supported: false;
+    in-out property <string> settings-discovery-timeout: "10";
+    in-out property <string> settings-multicast-group: "";
+    in-out property <string> settings-network-filter: "全部接口";
+    in-out property <bool> settings-encryption: true;
+    in-out property <bool> settings-always-on-top: false;
+    in-out property <bool> settings-require-pin: false;
+    in-out property <bool> settings-advanced: false;
+    in-out property <length> settings-scroll-y: 0px;
+    in-out property <bool> setting-dialog-open: false;
+    in-out property <string> setting-edit-key: "";
+    in-out property <string> setting-edit-value: "";
+    in-out property <bool> pin-dialog-open: false;
+    in-out property <string> pin-transfer-id: "";
+    in-out property <string> pin-value: "";
+    in-out property <bool> web-share-dialog-open: false;
+    in-out property <bool> web-share-running: false;
+    in-out property <string> web-share-url: "";
+
+    out property <length> viewport-width: 1120px;
+    out property <length> viewport-height: 760px;
+    property <bool> narrow: root.viewport-width < 700px;
+    property <bool> compact-sidebar: root.viewport-width < 800px;
+    property <bool> tablet: root.viewport-width >= 700px && root.viewport-width < 800px;
+    property <length> sidebar-width: root.compact-sidebar ? 80px : 256px;
+
+    callback refresh();
+    callback toggle-server();
+    callback set-auto-save(int);
+    callback choose-file();
+    callback choose-folder();
+    callback send-text(string);
+    callback send-clipboard();
+    callback add-manual(string);
+    callback toggle-favorite(string);
+    callback send-to-device(string);
+    callback send-multi();
+    callback clear-selection();
+    callback set-send-mode(int);
+    callback clear-history();
+    callback dismiss-message-received();
+    callback copy-message-received();
+    callback open-destination();
+    callback open-troubleshoot-firewall();
+    callback cycle-setting(string);
+    callback set-toggle(string, bool);
+    callback respond-transfer(string, [string], bool);
+    callback toggle-request-file(string);
+    callback cancel-transfer(string);
+    callback retry-pin(string, string);
+    callback dismiss-pin();
+    callback open-web-share();
+    callback start-web-share();
+    callback stop-web-share();
+    callback copy-web-share-url();
+    callback open-about();
+    callback open-support();
+    callback open-privacy();
+    callback open-terms();
+    callback open-changelog();
+    callback restart-server();
+    callback edit-setting(string);
+    callback submit-setting(string, string);
+    callback cancel-setting();
+    callback pick-destination();
+    callback remove-selected(string);
+    callback edit-selection();
+    callback open-history-path(string);
+    callback show-device-details(string);
+
+    changed width => { root.viewport-width = root.width; }
+    changed height => { root.viewport-height = root.height; }
+
+    Rectangle {
+        width: root.viewport-width;
+        height: root.viewport-height;
+        horizontal-stretch: 1;
+        vertical-stretch: 1;
+        background: ThemeTokens.surface;
+
+        VerticalLayout {
+            width: root.viewport-width;
+            height: root.viewport-height;
+            spacing: 0px;
+            Rectangle {
+                height: root.viewport-height - (root.narrow ? 72px : 0px);
+                vertical-stretch: 1;
+                horizontal-stretch: 1;
+                background: ThemeTokens.surface;
+
+                HorizontalLayout {
+                    spacing: 0px;
+                    if !root.narrow : Rectangle {
+                        width: root.sidebar-width;
+                        background: ThemeTokens.surface-container-low;
+                        VerticalLayout {
+                            padding-left: root.compact-sidebar ? 10px : 20px;
+                            padding-right: root.compact-sidebar ? 10px : 20px;
+                            padding-top: 20px;
+                            spacing: 12px;
+
+                            if root.compact-sidebar : Image {
+                                width: 44px;
+                                height: 44px;
+                                source: @image-url("images/flutter-logo-512.png");
+                                colorize: ThemeTokens.primary;
+                                image-fit: contain;
+                                horizontal-alignment: center;
+                            }
+                            if !root.compact-sidebar : Text {
+                                text: "LocalSend";
+                                color: ThemeTokens.on-surface;
+                                font-size: 32px;
+                                font-weight: 700;
+                                horizontal-alignment: center;
+                                height: 76px;
+                            }
+                            FlutterNavItem {
+                                width: parent.width;
+                                label: "接收";
+                                icon: @image-url("icons/wifi.svg");
+                                active: root.selected-tab == "receive";
+                                compact: root.compact-sidebar;
+                                clicked => { root.selected-tab = "receive"; root.refresh(); }
+                            }
+                            FlutterNavItem {
+                                width: parent.width;
+                                label: "发送";
+                                icon: @image-url("icons/send.svg");
+                                active: root.selected-tab == "send";
+                                compact: root.compact-sidebar;
+                                clicked => { root.selected-tab = "send"; root.refresh(); }
+                            }
+                            FlutterNavItem {
+                                width: parent.width;
+                                label: "设置";
+                                icon: @image-url("icons/settings.svg");
+                                active: root.selected-tab == "settings";
+                                compact: root.compact-sidebar;
+                                clicked => { root.selected-tab = "settings"; }
+                            }
+                        }
+                    }
+
+                    Rectangle {
+                        horizontal-stretch: 1;
+                        vertical-stretch: 1;
+                        background: ThemeTokens.surface;
+                        if root.selected-tab == "receive" : ReceivePage {
+                            width: root.viewport-width - (root.narrow ? 0px : root.sidebar-width);
+                            height: root.viewport-height - (root.narrow ? 72px : 0px);
+                            vertical-stretch: 1;
+                            viewport-width: root.viewport-width - (root.narrow ? 0px : root.sidebar-width);
+                            viewport-height: root.viewport-height - (root.narrow ? 72px : 0px);
+                            alias: root.device-alias;
+                            device-id: root.device-id;
+                            ip-summary: root.info-ip;
+                            port: root.info-port;
+                            server-status: root.server-status;
+                            server-running: root.server-running;
+                            request-id: root.incoming-request-id;
+                            request-title: root.incoming-request-title;
+                            request-files: root.incoming-files;
+                            selected-request-ids: root.selected-request-ids;
+                            transfers: root.transfer-items;
+                            show-history => { root.history-dialog-open = true; }
+                            show-info => { root.info-dialog-open = true; }
+                            open-web-share => { root.web-share-dialog-open = true; root.open-web-share(); }
+                            toggle-request-file(file-id) => { root.toggle-request-file(file-id); }
+                            respond-transfer(request-id, selected, accept) => { root.respond-transfer(request-id, selected, accept); }
+                            cancel-transfer(transfer-id) => { root.cancel-transfer(transfer-id); }
+                        }
+                        if root.selected-tab == "send" : SendPage {
+                            width: root.viewport-width - (root.narrow ? 0px : root.sidebar-width);
+                            height: root.viewport-height - (root.narrow ? 72px : 0px);
+                            vertical-stretch: 1;
+                            viewport-width: root.viewport-width - (root.narrow ? 0px : root.sidebar-width);
+                            devices: root.devices;
+                            selected-files: root.selected-files;
+                            selected-target: root.selected-target-label;
+                            selected-total-size: root.selected-total-size;
+                            selected-file-count: root.selected-file-count;
+                            send-mode: root.send-mode;
+                            status-message: root.message;
+                            choose-file => { root.choose-file(); }
+                            choose-folder => { root.choose-folder(); }
+                            open-text => { root.text-dialog-open = true; }
+                            send-clipboard => { root.send-clipboard(); }
+                            clear-selection => { root.clear-selection(); }
+                            remove-selected(path) => { root.remove-selected(path); }
+                            refresh => { root.refresh(); }
+                            add-manual => { root.manual-dialog-open = true; }
+                            open-favorites => { root.favorites-dialog-open = true; }
+                            open-send-mode => { root.send-mode-dialog-open = true; }
+                            send-to-device(fingerprint) => { root.send-to-device(fingerprint); }
+                            device-details(fingerprint) => { root.show-device-details(fingerprint); }
+                            toggle-favorite(fingerprint) => { root.toggle-favorite(fingerprint); }
+                            send-multi => { root.send-multi(); }
+                            troubleshoot => { root.troubleshoot-dialog-open = true; }
+                        }
+                        if root.selected-tab == "settings" : SettingsPage {
+                            width: root.viewport-width - (root.narrow ? 0px : root.sidebar-width);
+                            height: root.viewport-height - (root.narrow ? 72px : 0px);
+                            vertical-stretch: 1;
+                            status-message: root.message;
+                            viewport-width: root.viewport-width - (root.narrow ? 0px : root.sidebar-width);
+                            brightness: root.settings-theme;
+                            color-mode: root.settings-color;
+                            language: root.settings-language;
+                            always-on-top: root.settings-always-on-top;
+                            save-window-position: root.save-window-position;
+                            minimize-to-tray: root.minimize-to-tray;
+                            launch-on-login: root.launch-on-login;
+                            animations: root.animations-enabled;
+                            auto-save-index: root.auto-save-index;
+                            auto-finish: root.settings-auto-finish;
+                            save-to-history: root.settings-save-to-history;
+                            require-pin: root.settings-require-pin;
+                            destination: root.destination-dir;
+                            server-running: root.server-running;
+                            server-status: root.server-status;
+                            alias: root.device-alias;
+                            device-type: root.settings-device-type;
+                            device-model: root.settings-device-model;
+                            terms-supported: root.settings-terms-supported;
+                            port: root.info-port;
+                            discovery-timeout: root.settings-discovery-timeout;
+                            multicast-group: root.settings-multicast-group;
+                            network-filter: root.settings-network-filter;
+                            encryption: root.settings-encryption;
+                            advanced: root.settings-advanced;
+                            scroll-y <=> root.settings-scroll-y;
+                            cycle-setting(name) => { root.cycle-setting(name); }
+                            set-toggle(name, value) => { root.set-toggle(name, value); }
+                            set-auto-save(index) => { root.set-auto-save(index); }
+                            edit-setting(key) => { root.edit-setting(key); }
+                            submit-setting(key, value) => { root.submit-setting(key, value); }
+                            toggle-server => { root.toggle-server(); }
+                            restart-server => { root.restart-server(); }
+                            pick-destination => { root.pick-destination(); }
+                            open-about => { root.open-about(); }
+                            open-support => { root.open-support(); }
+                            open-privacy => { root.open-privacy(); }
+                            open-terms => { root.open-terms(); }
+                            open-changelog => { root.open-changelog(); }
+                        }
+                    }
+                }
+            }
+
+            if root.narrow : Rectangle {
+                height: 72px;
+                background: ThemeTokens.surface-container-low;
+                HorizontalLayout {
+                    spacing: 4px;
+                    FlutterNavItem {
+                        horizontal-stretch: 1;
+                        label: "接收";
+                        icon: @image-url("icons/wifi.svg");
+                        active: root.selected-tab == "receive";
+                        clicked => { root.selected-tab = "receive"; root.refresh(); }
+                    }
+                    FlutterNavItem {
+                        horizontal-stretch: 1;
+                        label: "发送";
+                        icon: @image-url("icons/send.svg");
+                        active: root.selected-tab == "send";
+                        clicked => { root.selected-tab = "send"; root.refresh(); }
+                    }
+                    FlutterNavItem {
+                        horizontal-stretch: 1;
+                        label: "设置";
+                        icon: @image-url("icons/settings.svg");
+                        active: root.selected-tab == "settings";
+                        clicked => { root.selected-tab = "settings"; }
+                    }
+                }
+            }
+        }
+    }
+
+    DialogLayer {
+        width: 100%;
+        height: 100%;
+        viewport-width: root.viewport-width;
+        viewport-height: root.viewport-height;
+        text-open: root.text-dialog-open;
+        text-value: root.text-message;
+        history-open: root.history-dialog-open;
+        history-items: root.history-items;
+        message-open: root.message-received-open;
+        message-sender: root.message-received-sender;
+        message-text: root.message-received-text;
+        info-open: root.info-dialog-open;
+        info-alias: root.info-alias;
+        info-ip: root.info-ip;
+        info-port: root.info-port;
+        info-status: root.server-status;
+        manual-open: root.manual-dialog-open;
+        manual-target: root.manual-target;
+        favorites-open: root.favorites-dialog-open;
+        favorites: root.favorites;
+        devices: root.devices;
+        send-mode-open: root.send-mode-dialog-open;
+        send-mode: root.send-mode;
+        troubleshoot-open: root.troubleshoot-dialog-open;
+        pin-open: root.pin-dialog-open;
+        pin-value: root.pin-value;
+        pin-transfer-id: root.pin-transfer-id;
+        setting-open: root.setting-dialog-open;
+        setting-value: root.setting-edit-value;
+        setting-key: root.setting-edit-key;
+        web-share-open: root.web-share-dialog-open;
+        web-share-running: root.web-share-running;
+        web-share-url: root.web-share-url;
+        send-text(text) => { root.send-text(text); }
+        cancel-text => { root.text-dialog-open = false; root.text-message = ""; }
+        clear-history => { root.clear-history(); }
+        open-destination => { root.open-destination(); }
+        close-history => { root.history-dialog-open = false; }
+        open-history-path(path) => { root.open-history-path(path); }
+        open-history-message(message, sender) => {
+            root.message-received-text = message;
+            root.message-received-sender = sender;
+            root.message-received-open = true;
+        }
+        close-message => { root.dismiss-message-received(); }
+        copy-message => { root.copy-message-received(); }
+        close-info => { root.info-dialog-open = false; }
+        add-manual(target) => { root.add-manual(target); }
+        close-manual => { root.manual-dialog-open = false; root.manual-target = ""; }
+        toggle-favorite(fingerprint) => { root.toggle-favorite(fingerprint); }
+        close-favorites => { root.favorites-dialog-open = false; }
+        set-send-mode(mode) => { root.set-send-mode(mode); }
+        send-multi => { root.send-multi(); }
+        close-send-mode => { root.send-mode-dialog-open = false; }
+        open-firewall => { root.open-troubleshoot-firewall(); }
+        close-troubleshoot => { root.troubleshoot-dialog-open = false; }
+        retry-pin(transfer-id, pin) => { root.retry-pin(transfer-id, pin); root.pin-dialog-open = false; root.pin-value = ""; }
+        cancel-pin => { root.dismiss-pin(); }
+        submit-setting(key, value) => { root.submit-setting(key, value); }
+        cancel-setting => { root.cancel-setting(); }
+        start-web-share => { root.start-web-share(); }
+        stop-web-share => { root.stop-web-share(); }
+        copy-web-share-url => { root.copy-web-share-url(); }
+        close-web-share => { root.web-share-dialog-open = false; }
+    }
+}

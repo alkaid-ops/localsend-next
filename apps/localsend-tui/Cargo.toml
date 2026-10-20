@@ -1,0 +1,17 @@
+[package]
+name = "localsend-tui"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+publish = false
+
+[dependencies]
+anyhow.workspace = true
+crossterm = "0.29"
+localsend-rpc.workspace = true
+ratatui = "0.30"
+tokio.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true

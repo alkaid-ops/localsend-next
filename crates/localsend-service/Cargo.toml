@@ -1,0 +1,29 @@
+[package]
+name = "localsend-service"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+publish = false
+
+[dependencies]
+anyhow.workspace = true
+bytes.workspace = true
+chrono.workspace = true
+directories.workspace = true
+futures-util.workspace = true
+localsend-core = { package = "localsend", path = "../localsend-official-core", features = ["full"] }
+localsend-rpc.workspace = true
+mime_guess = "2.0"
+parking_lot.workspace = true
+pem = "4.0"
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+tokio.workspace = true
+tokio-util.workspace = true
+tracing.workspace = true
+uuid.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true

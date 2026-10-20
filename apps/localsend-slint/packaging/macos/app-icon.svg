@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <rect width="1024" height="1024" rx="220" fill="#101817"/>
+  <g stroke="#9BDFD3" stroke-width="72" stroke-linecap="round">
+    <line x1="512" y1="118" x2="512" y2="218"/>
+    <line x1="512" y1="118" x2="512" y2="218" transform="rotate(45 512 512)"/>
+    <line x1="512" y1="118" x2="512" y2="218" transform="rotate(90 512 512)"/>
+    <line x1="512" y1="118" x2="512" y2="218" transform="rotate(135 512 512)"/>
+    <line x1="512" y1="118" x2="512" y2="218" transform="rotate(180 512 512)"/>
+    <line x1="512" y1="118" x2="512" y2="218" transform="rotate(225 512 512)"/>
+    <line x1="512" y1="118" x2="512" y2="218" transform="rotate(270 512 512)"/>
+    <line x1="512" y1="118" x2="512" y2="218" transform="rotate(315 512 512)"/>
+  </g>
+  <circle cx="512" cy="512" r="180" fill="#9BDFD3"/>
+</svg>

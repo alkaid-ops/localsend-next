@@ -1,0 +1,259 @@
+import { ScrollView } from "std-widgets.slint";
+import {
+    FlutterBigButton,
+    FlutterDeviceTile,
+    FlutterIconButton,
+} from "../components/common.slint";
+import { ThemeTokens } from "../theme.slint";
+import { DeviceItem, SelectedFileItem } from "../models.slint";
+
+export component SendPage inherits Rectangle {
+    in property <length> viewport-width: 800px;
+    in property <[DeviceItem]> devices: [];
+    in property <[SelectedFileItem]> selected-files: [];
+    in property <string> selected-target: "";
+    in property <string> selected-total-size: "0 B";
+    in property <int> selected-file-count: 0;
+    in property <int> send-mode: 0;
+    in property <string> status-message: "";
+    callback choose-file();
+    callback choose-folder();
+    callback open-text();
+    callback send-clipboard();
+    callback clear-selection();
+    callback remove-selected(string);
+    callback refresh();
+    callback add-manual();
+    callback open-favorites();
+    callback open-send-mode();
+    callback send-to-device(string);
+    callback device-details(string);
+    callback toggle-favorite(string);
+    callback send-multi();
+    callback troubleshoot();
+
+    background: ThemeTokens.surface;
+
+    ScrollView {
+        width: parent.width;
+        height: parent.height;
+        content-width: self.visible-width;
+        content-height: max(self.visible-height, 640px);
+
+        Rectangle {
+            width: min(root.viewport-width, 600px);
+            x: (root.viewport-width - self.width) / 2;
+            height: parent.height;
+            background: transparent;
+
+            VerticalLayout {
+                padding-left: 15px;
+                padding-right: 15px;
+                padding-top: 30px;
+                padding-bottom: 30px;
+                spacing: 12px;
+
+                Text {
+                    text: "选择";
+                    color: ThemeTokens.on-surface;
+                    font-size: 20px;
+                    font-weight: 500;
+                    height: 28px;
+                }
+
+                if root.selected-files.length == 0 : HorizontalLayout {
+                    spacing: 10px;
+                    FlutterBigButton {
+                        label: "文件";
+                        icon: @image-url("../icons/file.svg");
+                        clicked => { root.choose-file(); }
+                    }
+                    FlutterBigButton {
+                        label: "文件夹";
+                        icon: @image-url("../icons/folder.svg");
+                        clicked => { root.choose-folder(); }
+                    }
+                    FlutterBigButton {
+                        label: "文本";
+                        icon: @image-url("../icons/align-left.svg");
+                        clicked => { root.open-text(); }
+                    }
+                    FlutterBigButton {
+                        label: "剪贴板";
+                        icon: @image-url("../icons/clipboard.svg");
+                        clicked => { root.send-clipboard(); }
+                    }
+                }
+
+                if root.selected-files.length > 0 : Rectangle {
+                    height: min(245px, 126px + root.selected-files.length * 34px);
+                    border-radius: ThemeTokens.card-radius;
+                    background: ThemeTokens.surface-container-low;
+
+                    VerticalLayout {
+                        padding-left: 15px;
+                        padding-right: 12px;
+                        padding-top: 10px;
+                        padding-bottom: 10px;
+                        spacing: 7px;
+
+                        HorizontalLayout {
+                            Text {
+                                text: "已选择 " + root.selected-files.length + " 项";
+                                color: ThemeTokens.on-surface;
+                                font-size: 16px;
+                                font-weight: 600;
+                                horizontal-stretch: 1;
+                            }
+                            FlutterIconButton {
+                                icon: @image-url("../icons/close.svg");
+                                tooltip: "清除所选项";
+                                clicked => { root.clear-selection(); }
+                            }
+                        }
+                        Text { text: root.selected-total-size; color: ThemeTokens.on-surface-variant; font-size: 13px; }
+                        ScrollView {
+                            height: min(112px, root.selected-files.length * 34px);
+                            content-height: max(self.visible-height, root.selected-files.length * 34px);
+                            VerticalLayout {
+                                for file in root.selected-files : HorizontalLayout {
+                                    height: 30px;
+                                    spacing: 8px;
+                                    Image {
+                                        width: 20px;
+                                        height: 20px;
+                                        source: file.is-directory ? @image-url("../icons/folder.svg") : @image-url("../icons/file.svg");
+                                        colorize: ThemeTokens.primary;
+                                        image-fit: contain;
+                                    }
+                                    Text {
+                                        text: file.name + " · " + file.size;
+                                        color: ThemeTokens.on-surface;
+                                        font-size: 13px;
+                                        horizontal-stretch: 1;
+                                        overflow: elide;
+                                    }
+                                    FlutterIconButton {
+                                        icon: @image-url("../icons/close.svg");
+                                        tooltip: "移除所选项";
+                                        clicked => { root.remove-selected(file.path); }
+                                    }
+                                }
+                            }
+                        }
+                        HorizontalLayout {
+                            alignment: end;
+                            spacing: 8px;
+                            FlutterBigButton {
+                                width: 80px;
+                                height: 40px;
+                                label: "添加文件";
+                                icon: @image-url("../icons/file.svg");
+                                clicked => { root.choose-file(); }
+                            }
+                            FlutterBigButton {
+                                width: 80px;
+                                height: 40px;
+                                label: "添加文件夹";
+                                icon: @image-url("../icons/folder.svg");
+                                clicked => { root.choose-folder(); }
+                            }
+                        }
+                    }
+                }
+
+                HorizontalLayout {
+                    height: 44px;
+                    spacing: 2px;
+                    Text {
+                        text: "附近的设备";
+                        color: ThemeTokens.on-surface;
+                        font-size: 20px;
+                        font-weight: 500;
+                        horizontal-stretch: 1;
+                        vertical-alignment: center;
+                    }
+                    FlutterIconButton { icon: @image-url("../icons/refresh-cw.svg"); tooltip: "刷新设备"; clicked => { root.refresh(); } }
+                    FlutterIconButton { icon: @image-url("../icons/crosshair.svg"); tooltip: "手动添加设备"; clicked => { root.add-manual(); } }
+                    FlutterIconButton { icon: @image-url("../icons/heart.svg"); tooltip: "收藏设备"; clicked => { root.open-favorites(); } }
+                    FlutterIconButton { icon: @image-url("../icons/settings.svg"); tooltip: "发送模式"; clicked => { root.open-send-mode(); } }
+                }
+
+                if root.devices.length == 0 : Rectangle {
+                    height: 100px;
+                    border-radius: ThemeTokens.card-radius;
+                    background: ThemeTokens.surface-container-low;
+                    HorizontalLayout {
+                        padding-left: 18px;
+                        spacing: 14px;
+                        alignment: center;
+                        Image {
+                            width: 42px;
+                            height: 42px;
+                            source: @image-url("../icons/smartphone.svg");
+                            colorize: ThemeTokens.on-surface-variant;
+                            image-fit: contain;
+                        }
+                        VerticalLayout {
+                            spacing: 4px;
+                            Text { text: "正在查找设备"; color: ThemeTokens.on-surface; font-size: 16px; }
+                            Text { text: "设备需要连接到同一网络"; color: ThemeTokens.on-surface-variant; font-size: 13px; }
+                        }
+                    }
+                }
+
+                for device in root.devices : FlutterDeviceTile {
+                    alias: device.alias;
+                    ip: device.ip;
+                    protocol: device.protocol;
+                    model: device.model;
+                    device-type: device.device-type;
+                    fingerprint: device.fingerprint;
+                    favorite: device.favorite;
+                    selected: device.selected;
+                    multiple: root.send-mode == 1;
+                    clicked(fingerprint) => { root.send-to-device(fingerprint); }
+                    details(fingerprint) => { root.device-details(fingerprint); }
+                    favorite-clicked(fingerprint) => { root.toggle-favorite(fingerprint); }
+                }
+
+                if root.send-mode == 1 && root.devices.length > 0 : HorizontalLayout {
+                    height: 48px;
+                    Text {
+                        text: root.selected-target;
+                        color: ThemeTokens.on-surface-variant;
+                        horizontal-stretch: 1;
+                        vertical-alignment: center;
+                        overflow: elide;
+                    }
+                    FlutterBigButton {
+                        width: 104px;
+                        height: 40px;
+                        label: "发送";
+                        icon: @image-url("../icons/send.svg");
+                        filled: true;
+                        enabled: root.selected-file-count > 0;
+                        clicked => { root.send-multi(); }
+                    }
+                }
+
+                Text {
+                    text: root.status-message;
+                    color: ThemeTokens.on-surface-variant;
+                    font-size: 13px;
+                    horizontal-alignment: center;
+                    wrap: word-wrap;
+                    height: root.status-message == "" ? 0px : 20px;
+                }
+                Text {
+                    text: "故障排除";
+                    color: ThemeTokens.primary;
+                    font-size: 14px;
+                    horizontal-alignment: center;
+                    height: 24px;
+                    TouchArea { clicked => { root.troubleshoot(); } }
+                }
+            }
+        }
+    }
+}

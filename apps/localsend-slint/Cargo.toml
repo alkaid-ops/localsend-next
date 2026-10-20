@@ -1,0 +1,34 @@
+[package]
+name = "localsend-slint"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[features]
+default = ["backend-femtovg"]
+backend-software = ["slint/renderer-software"]
+backend-femtovg = ["slint/renderer-femtovg"]
+backend-skia = ["slint/renderer-skia"]
+backend-skia-opengl = ["slint/renderer-skia-opengl"]
+
+[build-dependencies]
+slint-build = "1.18.1"
+
+[dependencies]
+anyhow = "1.0"
+arboard = { version = "3.7", default-features = false }
+directories = "6.0"
+localsend-platform.workspace = true
+localsend-rpc.workspace = true
+png = "0.18"
+rfd = "0.17"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+slint = { version = "1.18.1", default-features = false, features = ["std", "backend-winit", "compat-1-18"] }
+tokio = { version = "1.49", features = ["full"] }
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
+
+[dev-dependencies]
+i-slint-backend-testing = { version = "1.18.1", features = ["renderer-software"] }

@@ -3863,6 +3863,8 @@ dependencies = [
  "localsend-platform",
  "localsend-rpc",
  "localsend-service",
+ "serde_json",
+ "tempfile",
  "tokio",
  "tracing",
  "tracing-subscriber",
