@@ -285,7 +285,7 @@ struct ServiceTask {
     internal_rx: mpsc::UnboundedReceiver<InternalEvent>,
     frontend_answers_requests: bool,
     server: Option<RunningServer>,
-    discovery: Option<RunningDiscovery>,
+    discoveries: Vec<RunningDiscovery>,
     pending_receives: HashMap<String, PendingReceive>,
     web_decisions: HashMap<String, oneshot::Sender<bool>>,
     cancellations: HashMap<String, CancellationToken>,
@@ -333,7 +333,7 @@ impl ServiceTask {
             internal_rx,
             frontend_answers_requests: false,
             server: None,
-            discovery: None,
+            discoveries: Vec::new(),
             pending_receives: HashMap::new(),
             web_decisions: HashMap::new(),
             cancellations: HashMap::new(),
@@ -678,55 +678,58 @@ impl ServiceTask {
             .as_ref()
             .map(|server| server.handle.port())
             .unwrap_or(self.settings.port);
-        let group = self
+        let configured_group = self
             .settings
             .multicast_group
             .as_deref()
             .filter(|value| !value.trim().is_empty())
-            .map(str::parse)
-            .transpose()
-            .unwrap_or(Some(DEFAULT_MULTICAST_GROUP));
-        let (stop_tx, stop_rx) = oneshot::channel();
-        let config = DiscoveryConfig {
-            group: group.unwrap_or(DEFAULT_MULTICAST_GROUP),
-            group_v6: Some(DEFAULT_MULTICAST_GROUP_V6),
-            port: if self.settings.port == 0 {
-                DEFAULT_MULTICAST_PORT
-            } else {
-                self.settings.port
-            },
-            interface_filter: InterfaceFilter {
-                whitelist: self.settings.interface_whitelist.clone(),
-                blacklist: self.settings.interface_blacklist.clone(),
-            },
-            device: MulticastDevice {
-                alias: self.settings.alias.clone(),
-                version: PROTOCOL_VERSION_V2.to_string(),
-                device_model: Some("localsend-next".to_string()),
-                device_type: Some(DeviceType::Desktop),
-                fingerprint: self.identity.fingerprint.clone(),
-                port: server_port,
-                protocol,
-                download: self.web_share.is_some(),
-            },
-            identity: self.identity.device_identity(),
-            timeout: DEFAULT_DISCOVERY_TIMEOUT,
-            event_tx: Some(self.discovery_tx.clone()),
-        };
-        let handle = Arc::new(localsend_core::discovery::start(config, stop_rx).await);
-        let announcing = handle.clone();
-        tokio::spawn(async move {
-            announcing.announce().await;
-        });
-        self.discovery = Some(RunningDiscovery {
-            handle,
-            stop_tx: Some(stop_tx),
-        });
+            .and_then(|value| value.parse().ok())
+            .unwrap_or(DEFAULT_MULTICAST_GROUP);
+        let mut groups = vec![configured_group];
+        if configured_group != DEFAULT_MULTICAST_GROUP {
+            groups.push(DEFAULT_MULTICAST_GROUP);
+        }
+        for (index, group) in groups.into_iter().enumerate() {
+            let (stop_tx, stop_rx) = oneshot::channel();
+            let config = DiscoveryConfig {
+                group,
+                group_v6: (index == 0).then_some(DEFAULT_MULTICAST_GROUP_V6),
+                // LocalSend always discovers on 53317. The advertised HTTP
+                // port below may be different and is carried in the payload.
+                port: DEFAULT_MULTICAST_PORT,
+                interface_filter: InterfaceFilter {
+                    whitelist: self.settings.interface_whitelist.clone(),
+                    blacklist: self.settings.interface_blacklist.clone(),
+                },
+                device: MulticastDevice {
+                    alias: self.settings.alias.clone(),
+                    version: PROTOCOL_VERSION_V2.to_string(),
+                    device_model: Some("localsend-next".to_string()),
+                    device_type: Some(DeviceType::Desktop),
+                    fingerprint: self.identity.fingerprint.clone(),
+                    port: server_port,
+                    protocol,
+                    download: self.web_share.is_some(),
+                },
+                identity: self.identity.device_identity(),
+                timeout: DEFAULT_DISCOVERY_TIMEOUT,
+                event_tx: Some(self.discovery_tx.clone()),
+            };
+            let handle = Arc::new(localsend_core::discovery::start(config, stop_rx).await);
+            let announcing = handle.clone();
+            tokio::spawn(async move {
+                announcing.announce().await;
+            });
+            self.discoveries.push(RunningDiscovery {
+                handle,
+                stop_tx: Some(stop_tx),
+            });
+        }
         Ok(())
     }
 
     async fn stop_discovery(&mut self) {
-        if let Some(mut discovery) = self.discovery.take() {
+        for mut discovery in std::mem::take(&mut self.discoveries) {
             if let Some(stop_tx) = discovery.stop_tx.take() {
                 let _ = stop_tx.send(());
             }
@@ -736,15 +739,17 @@ impl ServiceTask {
     }
 
     async fn refresh_discovery(&mut self) {
-        if self.discovery.is_none() {
+        if self.discoveries.is_empty() {
             let protocol = protocol_type(self.settings.protocol);
             if let Err(error) = self.start_discovery(protocol).await {
                 self.set_error(format!("starting discovery: {error:#}"));
                 return;
             }
         }
-        if let Some(discovery) = &self.discovery {
+        for discovery in &self.discoveries {
             discovery.handle.announce().await;
+        }
+        if let Some(discovery) = self.discoveries.first() {
             let channels = self
                 .snapshot()
                 .favorites
@@ -760,14 +765,14 @@ impl ServiceTask {
 
     async fn add_manual_device(&mut self, target: &str) -> Result<(), String> {
         let (host, port) = parse_target(target, self.settings.port)?;
-        if self.discovery.is_none() {
+        if self.discoveries.is_empty() {
             self.start_discovery(protocol_type(self.settings.protocol))
                 .await
                 .map_err(|error| error.to_string())?;
         }
         let discovery = self
-            .discovery
-            .as_ref()
+            .discoveries
+            .first()
             .ok_or_else(|| "discovery is not running".to_string())?;
         let mut last_error = None;
         for protocol in [
@@ -1612,8 +1617,10 @@ impl ServiceTask {
             download: info.download,
         };
         let fallback_view = discovered_device_view(&device);
-        if let Some(discovery) = &self.discovery {
-            discovery.handle.add_device(device).await;
+        if !self.discoveries.is_empty() {
+            for discovery in &self.discoveries {
+                discovery.handle.add_device(device.clone()).await;
+            }
             return;
         }
         self.snapshot

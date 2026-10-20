@@ -8,6 +8,8 @@ mkdir -p "$OUT"
 
 cd "$ROOT"
 cargo build -p localsendd -p localsend-tui | tee "$OUT/build.log"
+cargo test -p localsend-service --test multicast_discovery -- --nocapture \
+    | tee "$OUT/multicast-discovery.log"
 
 for run in 1 2 3; do
     LOCALSEND_ACCEPTANCE=1 cargo test -p localsend-tui -- --test-threads=1 --nocapture \

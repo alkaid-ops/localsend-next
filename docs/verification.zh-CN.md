@@ -66,6 +66,14 @@ the scan must return every confirmed device, got 1 for a channel of 16
 - `./scripts/accept-slint.sh`：3 次连续运行通过；Slint accessible tree、真实 daemon worker、32 张 golden、FemtoVG release、codesign 和 AXUIElement 页面切换全部通过。
 - 自动验收的具体覆盖与产物路径见 `docs/acceptance-automation.zh-CN.md`。
 
+## Discovery 兼容修复
+
+- LocalSend v1.18.2 固定使用 UDP `53317` 和 IPv4 组播 `224.0.0.167`。
+- 修复前 daemon 在 HTTP 端口非 0 时把 HTTP 端口误当作组播端口，导致原版客户端无法发现。
+- 现在组播端口始终为 `53317`；配置了旧地址 `239.255.88.61` 时同时加入该组和官方默认组。
+- `multicast_discovery` 集成测试使用两个不同 HTTP 端口、一个旧组和一个默认组，双向发现通过。
+- 实测 HTTP 监听 `53532` 时，daemon 仍持有 IPv4 `53317` 的旧组/官方组 socket 和 IPv6 `53317` socket；不再出现 `53532/UDP`。
+
 ## 官方客户端互操作冒烟
 
 使用本机已安装的官方 LocalSend 1.18.2 补测：

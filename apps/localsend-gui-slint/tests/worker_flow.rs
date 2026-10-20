@@ -222,9 +222,12 @@ async fn worker_starts_web_receive_page() -> anyhow::Result<()> {
     wait_for_snapshot(&worker, |snapshot| snapshot.server_running);
     worker.commands.send(UiCommand::StartWebReceive)?;
 
-    let port = daemon.snapshot().await?.server_port.expect("daemon port");
     let response = timeout(Duration::from_secs(10), async {
         loop {
+            let Some(port) = daemon.snapshot().await?.server_port else {
+                sleep(Duration::from_millis(50)).await;
+                continue;
+            };
             let mut stream = match tokio::net::TcpStream::connect(("127.0.0.1", port)).await {
                 Ok(stream) => stream,
                 Err(_) => {

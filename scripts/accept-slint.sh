@@ -78,6 +78,11 @@ for _ in {1..100}; do
     sleep 0.05
 done
 
+if pgrep -f 'LocalSend.app/Contents/MacOS/LocalSend' >/dev/null; then
+    printf '{"suite":"slint","result":"blocked","reason":"an existing LocalSend GUI instance is running","artifacts":"%s"}\n' "$OUT" > "$OUT/summary.json"
+    exit 2
+fi
+
 LOCALSEND_CONFIG_DIR="$CFG" LOCALSEND_RPC_SOCKET="$SMOKE/daemon.sock" LOCALSEND_GUI_TAB=receive \
     "$APP/Contents/MacOS/LocalSend" --window >"$OUT/gui.log" 2>&1 &
 GUI_PID=$!
@@ -114,7 +119,7 @@ elif [[ $AX_CODE -ne 0 ]]; then
     exit 1
 fi
 
-kill "$GUI_PID"
+kill "$GUI_PID" 2>/dev/null || true
 wait "$GUI_PID" 2>/dev/null || true
 kill -0 "$DAEMON_PID"
 

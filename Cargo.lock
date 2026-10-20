@@ -3966,6 +3966,7 @@ dependencies = [
  "futures-util",
  "localsend",
  "localsend-rpc",
+ "localsend-testkit",
  "mime_guess",
  "parking_lot",
  "pem 4.0.0",

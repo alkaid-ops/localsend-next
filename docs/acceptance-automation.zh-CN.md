@@ -19,11 +19,14 @@
 3. 使用真实 PTY 驱动 `localsend-tui`，通过 vt100 解析最终终端画面。
 4. 使用 Ratatui `TestBackend` 验证 60x20、80x24、120x40 三页布局。
 5. 使用 vendored 官方 core 构建确定性 peer，验证发送和接收协议。
+6. 使用两个不同 HTTP 端口和不同 IPv4 组播组的 daemon 验证 fixed-port 发现兼容性。
 
 当前自动化覆盖：
 
 - 三页切换、最小尺寸布局和 TUI 退出后 daemon 存活。
 - daemon 被终止后进入 reconnecting，重启后恢复 snapshot。
+- 组播 UDP 固定使用 `53317`，不跟随 HTTP 端口；自定义旧组同时兼容官方
+  `224.0.0.167`。
 - 接收全部文件、部分接受、拒绝、落盘字节和历史记录。
 - 手动 IP、文件/目录发送、目录相对名称、Unicode 文本发送。
 - 收藏添加和收藏别名编辑。

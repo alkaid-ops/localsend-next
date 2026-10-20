@@ -23,7 +23,6 @@ impl DaemonFixture {
         std::fs::create_dir_all(&destination)?;
         let endpoint = root.path().join("daemon.sock");
         let mut settings = settings;
-        settings.port = 0;
         settings.destination_dir = Some(destination.clone());
         settings.start_server_on_launch = true;
         std::fs::write(
@@ -180,6 +179,7 @@ pub fn daemon_binary_for_tests() -> anyhow::Result<PathBuf> {
 
 pub fn default_daemon_settings() -> DesktopSettings {
     DesktopSettings {
+        port: 0,
         protocol: Protocol::Http,
         auto_save: localsend_rpc::AutoSaveMode::Off,
         ..DesktopSettings::default()

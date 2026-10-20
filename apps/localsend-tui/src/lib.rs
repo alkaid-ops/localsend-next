@@ -547,8 +547,11 @@ impl App {
                     .await
             }
             InputMode::EditPort => match value.parse::<u16>() {
-                Ok(port) => self.update_settings(|settings| settings.port = port).await,
+                Ok(port) if port > 0 => {
+                    self.update_settings(|settings| settings.port = port).await;
+                }
                 Err(_) => self.status = "Port must be a number".to_string(),
+                Ok(_) => self.status = "Port must be between 1 and 65535".to_string(),
             },
             InputMode::EditPin => {
                 let pin = if value == "-" { None } else { Some(value) };
