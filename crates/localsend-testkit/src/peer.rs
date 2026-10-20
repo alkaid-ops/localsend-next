@@ -361,9 +361,20 @@ impl SenderPeer {
             },
             files: payload_files.clone(),
         };
-        let prepared = client
+        let prepared = match client
             .prepare_upload(protocol, host, port, None, payload, pin, cancel.clone())
-            .await?;
+            .await
+        {
+            Ok(prepared) => prepared,
+            Err(ClientError::StatusCode(status)) if status.status == 403 => {
+                return Ok(SendReport {
+                    session_id: None,
+                    accepted_file_ids: Vec::new(),
+                    refused_file_ids: payload_files.keys().cloned().collect(),
+                });
+            }
+            Err(error) => return Err(error),
+        };
         let Some(response) = prepared.response else {
             return Ok(SendReport {
                 session_id: None,

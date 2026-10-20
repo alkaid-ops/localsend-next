@@ -1,4 +1,4 @@
-use localsend_rpc::{AutoSaveMode, DesktopSettings, ServiceCommand};
+use localsend_rpc::{AutoSaveMode, DesktopSettings, Protocol, ServiceCommand};
 use localsend_testkit::{
     AcceptanceArtifacts, DaemonFixture, PeerAcceptance, PeerFile, ReceiverPeer, SenderPeer,
     daemon_binary_for_tests, default_daemon_settings,
@@ -196,6 +196,105 @@ async fn tui_receive_accepts_all_and_records_history() -> anyhow::Result<()> {
 }
 
 #[tokio::test(flavor = "multi_thread")]
+async fn tui_receive_supports_partial_accept_and_reject() -> anyhow::Result<()> {
+    let mut daemon = fixture(default_daemon_settings()).await?;
+    let mut tui = TuiPty::spawn(daemon.endpoint(), daemon.config_dir(), 40, 120)?;
+    tui.wait_for_text("Incoming Request", Duration::from_secs(10))?;
+    let source = TempDir::new()?;
+    let first = source.path().join("one.txt");
+    let second = source.path().join("two.txt");
+    std::fs::write(&first, b"one")?;
+    std::fs::write(&second, b"two")?;
+    let port = daemon.snapshot().await?.server_port.expect("server port");
+    let sender = tokio::spawn(SenderPeer::send_files(
+        "127.0.0.1",
+        port,
+        localsend_testkit::ProtocolType::Http,
+        None,
+        vec![
+            PeerFile {
+                path: first.clone(),
+                remote_name: "one.txt".to_string(),
+            },
+            PeerFile {
+                path: second.clone(),
+                remote_name: "two.txt".to_string(),
+            },
+        ],
+    ));
+    tui.wait_for_text("one.txt", Duration::from_secs(10))?;
+    tui.wait_for_text("two.txt", Duration::from_secs(10))?;
+    tui.send(" ")?;
+    tui.send("y")?;
+    let partial = timeout(Duration::from_secs(20), sender)
+        .await??
+        .map_err(anyhow::Error::from)?;
+    assert_eq!(partial.accepted_file_ids.len(), 1);
+    assert_eq!(partial.refused_file_ids.len(), 1);
+    let saved_after_partial = std::fs::read_dir(daemon.destination())?.count();
+    assert_eq!(saved_after_partial, 1);
+
+    let partial_session = partial.session_id.clone().expect("partial session");
+    let cancel_result = timeout(Duration::from_secs(10), async {
+        loop {
+            let snapshot = daemon.snapshot().await?;
+            if snapshot.incoming_requests.is_empty()
+                && snapshot.active_transfers.iter().any(|transfer| {
+                    transfer.transfer_id == partial_session
+                        && transfer.status == localsend_rpc::TransferStatus::Finished
+                })
+            {
+                break Ok::<_, anyhow::Error>(());
+            }
+            sleep(Duration::from_millis(50)).await;
+        }
+    })
+    .await;
+    if cancel_result.is_err() {
+        let snapshot = daemon.snapshot().await?;
+        anyhow::bail!("cancel status did not arrive: {snapshot:?}");
+    }
+    cancel_result??;
+    let reject_sender = tokio::spawn(SenderPeer::send_files(
+        "127.0.0.1",
+        port,
+        localsend_testkit::ProtocolType::Http,
+        None,
+        vec![
+            PeerFile {
+                path: first,
+                remote_name: "one.txt".to_string(),
+            },
+            PeerFile {
+                path: second,
+                remote_name: "two.txt".to_string(),
+            },
+        ],
+    ));
+    timeout(Duration::from_secs(10), async {
+        loop {
+            if !daemon.snapshot().await?.incoming_requests.is_empty() {
+                break Ok::<_, anyhow::Error>(());
+            }
+            sleep(Duration::from_millis(50)).await;
+        }
+    })
+    .await??;
+    sleep(Duration::from_millis(500)).await;
+    tui.send("n")?;
+    let rejected = timeout(Duration::from_secs(20), reject_sender)
+        .await??
+        .map_err(anyhow::Error::from)?;
+    assert!(rejected.accepted_file_ids.is_empty());
+    assert_eq!(rejected.refused_file_ids.len(), 2);
+    assert_eq!(std::fs::read_dir(daemon.destination())?.count(), 1);
+    tui.send("q")?;
+    tui.wait_exit(Duration::from_secs(5))?;
+    daemon.shutdown().await?;
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
 async fn tui_manual_ip_send_file_and_text() -> anyhow::Result<()> {
     let artifacts = AcceptanceArtifacts::create("tui")?;
     let peer = ReceiverPeer::start(
@@ -216,6 +315,34 @@ async fn tui_manual_ip_send_file_and_text() -> anyhow::Result<()> {
     tui.wait_for_text("Incoming Request", Duration::from_secs(10))?;
     tui.send("2")?;
     tui.wait_for_text("deterministic-peer", Duration::from_secs(10))?;
+    tui.send("F")?;
+    timeout(Duration::from_secs(10), async {
+        loop {
+            if !daemon.snapshot().await?.favorites.is_empty() {
+                break Ok::<_, anyhow::Error>(());
+            }
+            sleep(Duration::from_millis(50)).await;
+        }
+    })
+    .await??;
+    tui.send("e")?;
+    tui.wait_for_text("Favorite alias", Duration::from_secs(5))?;
+    tui.send("Peer Favorite\r")?;
+    timeout(Duration::from_secs(10), async {
+        loop {
+            if daemon
+                .snapshot()
+                .await?
+                .favorites
+                .iter()
+                .any(|favorite| favorite.alias == "Peer Favorite")
+            {
+                break Ok::<_, anyhow::Error>(());
+            }
+            sleep(Duration::from_millis(50)).await;
+        }
+    })
+    .await??;
     let source = TempDir::new()?;
     let path = source.path().join("manual.txt");
     std::fs::write(&path, b"manual-ip")?;
@@ -246,6 +373,131 @@ async fn tui_manual_ip_send_file_and_text() -> anyhow::Result<()> {
             .iter()
             .any(|request| request.file_names.iter().any(|name| name == "message.txt"))
     );
+    tui.send("q")?;
+    tui.wait_exit(Duration::from_secs(5))?;
+    peer.shutdown().await;
+    daemon.shutdown().await?;
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn tui_sends_directory_preserving_relative_names() -> anyhow::Result<()> {
+    let peer = ReceiverPeer::start(
+        localsend_testkit::ProtocolType::Http,
+        PeerAcceptance::All,
+        None,
+        None,
+    )
+    .await?;
+    let mut daemon = fixture(default_daemon_settings()).await?;
+    daemon
+        .connect_interactive()
+        .await?
+        .command(ServiceCommand::AddManualDevice {
+            target: format!("127.0.0.1:{}", peer.port()),
+        })
+        .await
+        .map_err(anyhow::Error::msg)?;
+    let mut tui = TuiPty::spawn(daemon.endpoint(), daemon.config_dir(), 40, 120)?;
+    tui.wait_for_text("Incoming Request", Duration::from_secs(10))?;
+    tui.send("2")?;
+    tui.wait_for_text("deterministic-peer", Duration::from_secs(10))?;
+    let source = TempDir::new()?;
+    let folder = source.path().join("bundle");
+    std::fs::create_dir_all(folder.join("nested"))?;
+    std::fs::write(folder.join("root.txt"), b"root")?;
+    std::fs::write(folder.join("nested/child.txt"), b"child")?;
+    tui.send("\u{c}")?;
+    tui.wait_for_text("File or directory path", Duration::from_secs(5))?;
+    tui.send(&format!("{}\r", folder.display()))?;
+    let request = peer.wait_for_request(Duration::from_secs(10)).await?;
+    assert!(
+        request
+            .file_names
+            .iter()
+            .any(|name| name == "bundle/root.txt" || name == "bundle\\root.txt")
+    );
+    assert!(
+        request
+            .file_names
+            .iter()
+            .any(|name| name == "bundle/nested/child.txt" || name == "bundle\\nested\\child.txt")
+    );
+    peer.wait_for_files(2, Duration::from_secs(15)).await?;
+    tui.send("q")?;
+    tui.wait_exit(Duration::from_secs(5))?;
+    peer.shutdown().await;
+    daemon.shutdown().await?;
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn tui_cancels_slow_outgoing_transfer() -> anyhow::Result<()> {
+    let peer = ReceiverPeer::start(
+        localsend_testkit::ProtocolType::Http,
+        PeerAcceptance::All,
+        None,
+        Some(64 * 1024),
+    )
+    .await?;
+    let mut daemon = fixture(default_daemon_settings()).await?;
+    daemon
+        .connect_interactive()
+        .await?
+        .command(ServiceCommand::AddManualDevice {
+            target: format!("127.0.0.1:{}", peer.port()),
+        })
+        .await
+        .map_err(anyhow::Error::msg)?;
+    let mut tui = TuiPty::spawn(daemon.endpoint(), daemon.config_dir(), 40, 120)?;
+    tui.wait_for_text("Incoming Request", Duration::from_secs(10))?;
+    tui.send("2")?;
+    tui.wait_for_text("deterministic-peer", Duration::from_secs(10))?;
+    let source = TempDir::new()?;
+    let large = source.path().join("slow.bin");
+    std::fs::write(&large, vec![7_u8; 16 * 1024 * 1024])?;
+    tui.send("\u{c}")?;
+    tui.wait_for_text("File or directory path", Duration::from_secs(5))?;
+    tui.send(&format!("{}\r", large.display()))?;
+    timeout(Duration::from_secs(15), async {
+        loop {
+            let snapshot = daemon.snapshot().await?;
+            if snapshot.active_transfers.iter().any(|transfer| {
+                transfer.direction == localsend_rpc::TransferDirection::Send
+                    && matches!(
+                        transfer.status,
+                        localsend_rpc::TransferStatus::Waiting
+                            | localsend_rpc::TransferStatus::Transferring
+                    )
+            }) {
+                break Ok::<_, anyhow::Error>(());
+            }
+            sleep(Duration::from_millis(50)).await;
+        }
+    })
+    .await??;
+    sleep(Duration::from_millis(300)).await;
+    tui.send("x")?;
+    let cancel_result = timeout(Duration::from_secs(10), async {
+        loop {
+            let snapshot = daemon.snapshot().await?;
+            if snapshot.active_transfers.iter().any(|transfer| {
+                transfer.direction == localsend_rpc::TransferDirection::Send
+                    && transfer.status == localsend_rpc::TransferStatus::Cancelled
+            }) {
+                break Ok::<_, anyhow::Error>(());
+            }
+            sleep(Duration::from_millis(50)).await;
+        }
+    })
+    .await;
+    if cancel_result.is_err() {
+        anyhow::bail!(
+            "cancel status did not arrive: {:?}",
+            daemon.snapshot().await?
+        );
+    }
+    cancel_result??;
     tui.send("q")?;
     tui.wait_exit(Duration::from_secs(5))?;
     peer.shutdown().await;
@@ -296,6 +548,20 @@ async fn tui_pin_retry_and_settings_persist() -> anyhow::Result<()> {
         anyhow::ensure!(Instant::now() < deadline, "settings did not persist");
         sleep(Duration::from_millis(50)).await;
     }
+    tui.send("h")?;
+    tui.send("a")?;
+    timeout(Duration::from_secs(10), async {
+        loop {
+            let snapshot = daemon.snapshot().await?;
+            if snapshot.settings.protocol == Protocol::Https
+                && snapshot.settings.auto_save != AutoSaveMode::Off
+            {
+                break Ok::<_, anyhow::Error>(());
+            }
+            sleep(Duration::from_millis(50)).await;
+        }
+    })
+    .await??;
     tui.send("q")?;
     tui.wait_exit(Duration::from_secs(5))?;
     peer.shutdown().await;

@@ -8,6 +8,7 @@ use localsend_testkit::{
 };
 use std::time::Duration;
 use tempfile::TempDir;
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::time::{sleep, timeout};
 
 fn next_snapshot(worker: &DaemonWorker, deadline: std::time::Instant) -> ServiceSnapshot {
@@ -37,6 +38,21 @@ fn wait_for_snapshot(
         let snapshot = next_snapshot(worker, deadline);
         if predicate(&snapshot) {
             return snapshot;
+        }
+    }
+}
+
+fn wait_for_pin_required(worker: &DaemonWorker, deadline: std::time::Instant) -> String {
+    loop {
+        let remaining = deadline.saturating_duration_since(std::time::Instant::now());
+        assert!(!remaining.is_zero(), "timed out waiting for PIN prompt");
+        match worker.events.recv_timeout(remaining).expect("worker event") {
+            WorkerEvent::PinRequired { transfer_id } => return transfer_id,
+            WorkerEvent::Connection {
+                connected: false,
+                message,
+            } => panic!("worker disconnected: {message}"),
+            _ => {}
         }
     }
 }
@@ -117,6 +133,187 @@ async fn worker_send_receive_and_settings_flow() -> anyhow::Result<()> {
         snapshot.settings.alias == "worker-persisted"
     });
 
+    worker.commands.send(UiCommand::ShutdownDaemon)?;
+    peer.shutdown().await;
+    let _ = daemon.shutdown().await;
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn worker_retries_pin_and_rejects_incoming_request() -> anyhow::Result<()> {
+    let mut daemon =
+        DaemonFixture::start(&daemon_binary_for_tests()?, default_daemon_settings()).await?;
+    let peer = ReceiverPeer::start(
+        ProtocolType::Http,
+        PeerAcceptance::All,
+        Some("2468".to_string()),
+        None,
+    )
+    .await?;
+    let worker = DaemonWorker::spawn_with_endpoint(daemon.endpoint().to_string_lossy());
+    wait_for_snapshot(&worker, |snapshot| snapshot.server_running);
+    worker
+        .commands
+        .send(UiCommand::AddManual(format!("127.0.0.1:{}", peer.port())))?;
+    let snapshot = wait_for_snapshot(&worker, |snapshot| {
+        snapshot
+            .devices
+            .iter()
+            .any(|device| device.device.port == peer.port())
+    });
+    let fingerprint = snapshot
+        .devices
+        .iter()
+        .find(|device| device.device.port == peer.port())
+        .expect("pin peer")
+        .device
+        .fingerprint
+        .clone();
+    let source = TempDir::new()?;
+    let outgoing = source.path().join("pin-retry.txt");
+    std::fs::write(&outgoing, b"pin retry")?;
+    worker.commands.send(UiCommand::SendFiles {
+        fingerprint,
+        paths: vec![outgoing],
+    })?;
+    let transfer_id =
+        wait_for_pin_required(&worker, std::time::Instant::now() + Duration::from_secs(10));
+    worker.commands.send(UiCommand::RetryPin {
+        transfer_id,
+        pin: "2468".to_string(),
+    })?;
+    peer.wait_for_files(1, Duration::from_secs(15)).await?;
+
+    let incoming = source.path().join("reject.txt");
+    std::fs::write(&incoming, b"reject me")?;
+    let sender = tokio::spawn(SenderPeer::send_files(
+        "127.0.0.1",
+        daemon.snapshot().await?.server_port.expect("daemon port"),
+        ProtocolType::Http,
+        None,
+        vec![PeerFile {
+            path: incoming.clone(),
+            remote_name: "reject.txt".to_string(),
+        }],
+    ));
+    let request_snapshot =
+        wait_for_snapshot(&worker, |snapshot| !snapshot.incoming_requests.is_empty());
+    worker.commands.send(UiCommand::RespondTransfer {
+        request_id: request_snapshot.incoming_requests[0].request_id.clone(),
+        decision: ReceiverDecision::Decline,
+    })?;
+    let report = timeout(Duration::from_secs(20), sender)
+        .await??
+        .map_err(anyhow::Error::from)?;
+    assert!(report.accepted_file_ids.is_empty());
+    assert_eq!(report.refused_file_ids.len(), 1);
+    assert!(!daemon.destination().join("reject.txt").exists());
+    worker.commands.send(UiCommand::ShutdownDaemon)?;
+    peer.shutdown().await;
+    let _ = daemon.shutdown().await;
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn worker_starts_web_receive_page() -> anyhow::Result<()> {
+    let mut daemon =
+        DaemonFixture::start(&daemon_binary_for_tests()?, default_daemon_settings()).await?;
+    let worker = DaemonWorker::spawn_with_endpoint(daemon.endpoint().to_string_lossy());
+    wait_for_snapshot(&worker, |snapshot| snapshot.server_running);
+    worker.commands.send(UiCommand::StartWebReceive)?;
+
+    let port = daemon.snapshot().await?.server_port.expect("daemon port");
+    let response = timeout(Duration::from_secs(10), async {
+        loop {
+            let mut stream = match tokio::net::TcpStream::connect(("127.0.0.1", port)).await {
+                Ok(stream) => stream,
+                Err(_) => {
+                    sleep(Duration::from_millis(50)).await;
+                    continue;
+                }
+            };
+            stream
+                .write_all(b"GET / HTTP/1.1\r\nHost: 127.0.0.1\r\nConnection: close\r\n\r\n")
+                .await?;
+            let mut response = String::new();
+            stream.read_to_string(&mut response).await?;
+            if response.contains("200 OK") && response.contains("<html") {
+                break Ok::<_, anyhow::Error>(response);
+            }
+            sleep(Duration::from_millis(50)).await;
+        }
+    })
+    .await??;
+    assert!(response.contains("LocalSend") || response.contains("upload"));
+    worker.commands.send(UiCommand::StopWebShare)?;
+    worker.commands.send(UiCommand::ShutdownDaemon)?;
+    let _ = daemon.shutdown().await;
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn worker_cancels_slow_outgoing_transfer() -> anyhow::Result<()> {
+    let mut daemon =
+        DaemonFixture::start(&daemon_binary_for_tests()?, default_daemon_settings()).await?;
+    let peer = ReceiverPeer::start(
+        ProtocolType::Http,
+        PeerAcceptance::All,
+        None,
+        Some(64 * 1024),
+    )
+    .await?;
+    let worker = DaemonWorker::spawn_with_endpoint(daemon.endpoint().to_string_lossy());
+    wait_for_snapshot(&worker, |snapshot| snapshot.server_running);
+    worker
+        .commands
+        .send(UiCommand::AddManual(format!("127.0.0.1:{}", peer.port())))?;
+    let snapshot = wait_for_snapshot(&worker, |snapshot| {
+        snapshot
+            .devices
+            .iter()
+            .any(|device| device.device.port == peer.port())
+    });
+    let fingerprint = snapshot
+        .devices
+        .iter()
+        .find(|device| device.device.port == peer.port())
+        .expect("slow peer")
+        .device
+        .fingerprint
+        .clone();
+    let source = TempDir::new()?;
+    let large = source.path().join("slow.bin");
+    std::fs::write(&large, vec![9_u8; 16 * 1024 * 1024])?;
+    worker.commands.send(UiCommand::SendFiles {
+        fingerprint,
+        paths: vec![large],
+    })?;
+    let transferring = wait_for_snapshot(&worker, |snapshot| {
+        snapshot.active_transfers.iter().any(|transfer| {
+            transfer.direction == localsend_rpc::TransferDirection::Send
+                && matches!(
+                    transfer.status,
+                    localsend_rpc::TransferStatus::Waiting
+                        | localsend_rpc::TransferStatus::Transferring
+                )
+        })
+    });
+    let transfer_id = transferring
+        .active_transfers
+        .iter()
+        .find(|transfer| transfer.direction == localsend_rpc::TransferDirection::Send)
+        .expect("send transfer")
+        .transfer_id
+        .clone();
+    worker
+        .commands
+        .send(UiCommand::CancelTransfer(transfer_id))?;
+    wait_for_snapshot(&worker, |snapshot| {
+        snapshot.active_transfers.iter().any(|transfer| {
+            transfer.direction == localsend_rpc::TransferDirection::Send
+                && transfer.status == localsend_rpc::TransferStatus::Cancelled
+        })
+    });
     worker.commands.send(UiCommand::ShutdownDaemon)?;
     peer.shutdown().await;
     let _ = daemon.shutdown().await;

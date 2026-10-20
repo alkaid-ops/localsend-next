@@ -23,10 +23,12 @@
 当前自动化覆盖：
 
 - 三页切换、最小尺寸布局和 TUI 退出后 daemon 存活。
-- 接收全部文件、落盘字节、历史记录。
-- 手动 IP、文件发送、Unicode 文本发送。
+- 接收全部文件、部分接受、拒绝、落盘字节和历史记录。
+- 手动 IP、文件/目录发送、目录相对名称、Unicode 文本发送。
+- 收藏添加和收藏别名编辑。
 - PIN 错误提示和重试成功。
-- alias 设置提交与 daemon snapshot 持久化。
+- 慢速发送取消并保持 Cancelled 状态。
+- alias、HTTP/HTTPS、auto-save 设置提交与 daemon snapshot 持久化。
 
 失败产物包含终端画面和 daemon snapshot。脚本只有在三次运行全部通过后才输出
 `result: passed`。
@@ -37,7 +39,8 @@
 
 1. 运行三次单元、语义和 worker 集成测试。
 2. 通过 Slint testing backend 查询 accessible tree，执行无障碍默认动作和设置输入。
-3. 使用真实 daemon 与官方 core peer 验证发送、接收和设置持久化。
+3. 使用真实 daemon 与官方 core peer 验证发送、接收、部分接受、拒绝、取消、PIN
+   重试、Web Share 接收页和设置持久化。
 4. 生成 Receive/Send/Settings 的 32 张软件渲染截图，并与 golden 做逐字节比较。
 5. 构建 FemtoVG release App，执行 deep strict 签名验证。
 6. 启动真实 App，使用 macOS AXUIElement 切换发送和设置页，不使用 AppleScript。
@@ -48,7 +51,7 @@ AX 自动化优先使用 Xcode 6.0.3 工具链；缺少兼容 Swift 编译器或
 
 ## 当前结果
 
-- TUI：3 次连续运行通过，4 条真实 PTY 全流程通过。
+- TUI：3 次连续运行通过，7 条真实 PTY 全流程通过。
 - Slint：3 次连续语义/worker 测试通过，32 张 golden 完全一致。
 - 真实 App：native AX navigation、release 打包、codesign 和 daemon 生命周期通过。
 - vendored 官方 core 未修改。

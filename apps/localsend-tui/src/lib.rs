@@ -814,7 +814,9 @@ impl App {
                 }
             }
             KeyCode::Char('n') if self.tab == Tab::Receive => self.decline_request().await,
-            KeyCode::Char('x') if self.tab == Tab::Receive => self.cancel_selected_transfer().await,
+            KeyCode::Char('x') if matches!(self.tab, Tab::Receive | Tab::Send) => {
+                self.cancel_selected_transfer().await;
+            }
             KeyCode::Char('c') if self.tab == Tab::Receive => self.clear_history().await,
             KeyCode::PageUp | KeyCode::Char('[') => {
                 self.history_cursor = self.history_cursor.saturating_sub(1);

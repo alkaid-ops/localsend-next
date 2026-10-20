@@ -1446,6 +1446,18 @@ impl ServiceTask {
             } => {
                 self.cancellations.remove(&transfer_id);
                 self.file_progress.retain(|(id, _), _| id != &transfer_id);
+                if self
+                    .snapshot
+                    .read()
+                    .active_transfers
+                    .iter()
+                    .any(|transfer| {
+                        transfer.transfer_id == transfer_id
+                            && transfer.status == TransferStatus::Cancelled
+                    })
+                {
+                    return;
+                }
                 self.set_transfer_status(&transfer_id, TransferStatus::Failed, Some(error.clone()));
                 self.emit(ServiceEvent::TransferFailed {
                     transfer_id,
