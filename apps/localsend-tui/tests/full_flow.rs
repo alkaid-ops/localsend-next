@@ -146,6 +146,21 @@ async fn tui_pages_lifecycle_and_daemon_survival() -> anyhow::Result<()> {
 }
 
 #[tokio::test(flavor = "multi_thread")]
+async fn tui_reconnects_after_daemon_restart() -> anyhow::Result<()> {
+    let mut daemon = fixture(default_daemon_settings()).await?;
+    let mut tui = TuiPty::spawn(daemon.endpoint(), daemon.config_dir(), 24, 80)?;
+    tui.wait_for_text("Incoming Request", Duration::from_secs(10))?;
+    daemon.kill()?;
+    tui.wait_for_text("reconnecting", Duration::from_secs(10))?;
+    daemon.restart().await?;
+    tui.wait_for_text("Reconnected to localsendd", Duration::from_secs(10))?;
+    tui.send("q")?;
+    tui.wait_exit(Duration::from_secs(5))?;
+    daemon.shutdown().await?;
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
 async fn tui_receive_accepts_all_and_records_history() -> anyhow::Result<()> {
     let artifacts = AcceptanceArtifacts::create("tui")?;
     let mut daemon = fixture(default_daemon_settings()).await?;

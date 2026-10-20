@@ -75,6 +75,24 @@ async fn service_exposes_snapshot_and_can_send_to_its_own_receiver() {
     let _restore = EnvRestore::set(&config);
 
     let service = ServiceHandle::spawn().await.expect("spawn service");
+    wait_for_server(&service).await;
+    let snapshot = service.snapshot();
+    let mut settings = snapshot.settings.clone();
+    settings.alias = "revision one".to_string();
+    service
+        .command(ServiceCommand::UpdateSettings {
+            expected_revision: snapshot.settings.revision,
+            settings: settings.clone(),
+        })
+        .await
+        .expect("first settings update");
+    let stale = service
+        .command(ServiceCommand::UpdateSettings {
+            expected_revision: snapshot.settings.revision,
+            settings,
+        })
+        .await;
+    assert!(stale.is_err());
     let (port, alias) = wait_for_server(&service).await;
     let source = root.path().join("hello.txt");
     std::fs::write(&source, b"official core adapter").expect("write source");

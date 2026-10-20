@@ -8,6 +8,7 @@ use tokio::time::{Duration, Instant};
 pub struct DaemonFixture {
     root: TempDir,
     child: Child,
+    daemon_binary: PathBuf,
     endpoint: PathBuf,
     config_dir: PathBuf,
     destination: PathBuf,
@@ -41,6 +42,7 @@ impl DaemonFixture {
         let fixture = Self {
             root,
             child,
+            daemon_binary: daemon_binary.to_path_buf(),
             endpoint,
             config_dir,
             destination,
@@ -98,6 +100,20 @@ impl DaemonFixture {
         }
     }
 
+    pub fn kill(&mut self) -> anyhow::Result<()> {
+        if self.child.try_wait()?.is_none() {
+            self.child.kill()?;
+            let _ = self.child.wait();
+        }
+        Ok(())
+    }
+
+    pub async fn restart(&mut self) -> anyhow::Result<()> {
+        self.kill()?;
+        self.child = spawn_process(&self.daemon_binary, &self.config_dir, &self.endpoint)?;
+        self.wait_ready().await
+    }
+
     async fn wait_ready(&self) -> anyhow::Result<()> {
         let deadline = Instant::now() + Duration::from_secs(10);
         loop {
@@ -117,6 +133,22 @@ impl DaemonFixture {
             tokio::time::sleep(Duration::from_millis(50)).await;
         }
     }
+}
+
+fn spawn_process(
+    daemon_binary: &Path,
+    config_dir: &Path,
+    endpoint: &Path,
+) -> anyhow::Result<Child> {
+    Command::new(daemon_binary)
+        .env("LOCALSEND_CONFIG_DIR", config_dir)
+        .env("LOCALSEND_RPC_SOCKET", endpoint)
+        .env("RUST_LOG", "info")
+        .stdin(Stdio::null())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .with_context(|| format!("spawning {}", daemon_binary.display()))
 }
 
 impl Drop for DaemonFixture {

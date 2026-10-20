@@ -386,6 +386,12 @@ impl App {
                 _ => {}
             }
         }
+        if self.connected && self.client.is_connection_closed() {
+            self.connected = false;
+            self.reconnect_at = Instant::now() + Duration::from_secs(1);
+            self.status = "Daemon stopped; reconnect pending".to_string();
+            changed = true;
+        }
         if changed {
             match self.client.command(ServiceCommand::GetSnapshot).await {
                 Ok(CommandResult::Snapshot { snapshot }) => self.snapshot = snapshot,

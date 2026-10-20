@@ -23,12 +23,14 @@
 当前自动化覆盖：
 
 - 三页切换、最小尺寸布局和 TUI 退出后 daemon 存活。
+- daemon 被终止后进入 reconnecting，重启后恢复 snapshot。
 - 接收全部文件、部分接受、拒绝、落盘字节和历史记录。
 - 手动 IP、文件/目录发送、目录相对名称、Unicode 文本发送。
 - 收藏添加和收藏别名编辑。
 - PIN 错误提示和重试成功。
 - 慢速发送取消并保持 Cancelled 状态。
 - alias、HTTP/HTTPS、auto-save 设置提交与 daemon snapshot 持久化。
+- 设置 revision 冲突在 daemon 层被拒绝。
 
 失败产物包含终端画面和 daemon snapshot。脚本只有在三次运行全部通过后才输出
 `result: passed`。
@@ -51,7 +53,7 @@ AX 自动化优先使用 Xcode 6.0.3 工具链；缺少兼容 Swift 编译器或
 
 ## 当前结果
 
-- TUI：3 次连续运行通过，7 条真实 PTY 全流程通过。
+- TUI：3 次连续运行通过，8 条真实 PTY 全流程通过。
 - Slint：3 次连续语义/worker 测试通过，32 张 golden 完全一致。
 - 真实 App：native AX navigation、release 打包、codesign 和 daemon 生命周期通过。
 - vendored 官方 core 未修改。
