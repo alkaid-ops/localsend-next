@@ -1,11 +1,14 @@
 use anyhow::Context;
+use bytes::Bytes;
 use localsend_core::crypto::cert::{fingerprint_from_cert_der, generate_self_signed};
+use localsend_core::crypto::hash::{HashError, sha256_file_content, sha256_hex};
 use localsend_core::discovery::{
-    DEFAULT_DISCOVERY_TIMEOUT, DeviceIdentity, DiscoveredDevice, DiscoveryConfig, DiscoveryEvent,
-    DiscoveryHandle, HttpChannel, StatefulDevice,
+    DeviceIdentity, DiscoveredDevice, DiscoveryConfig, DiscoveryEvent, DiscoveryHandle,
+    HttpChannel, StatefulDevice,
 };
 use localsend_core::http::client::LsHttpClient;
 use localsend_core::http::client::LsHttpClientVersion;
+use localsend_core::http::client::v2::LsHttpClientV2;
 use localsend_core::http::dto::{PrepareUploadRequestDto, RegisterDto};
 use localsend_core::http::server::common::save::FileUploadTarget;
 use localsend_core::http::server::v2::{
@@ -33,10 +36,11 @@ use localsend_rpc::{
 };
 use parking_lot::RwLock;
 use std::collections::{HashMap, HashSet};
+use std::net::Ipv4Addr;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::sync::atomic::{AtomicUsize, Ordering};
-use std::time::Duration;
+use std::time::{Duration, Instant};
 use tokio::sync::{broadcast, mpsc, oneshot, watch};
 use tokio_util::sync::CancellationToken;
 use uuid::Uuid;
@@ -44,6 +48,8 @@ use uuid::Uuid;
 const EVENT_BUFFER: usize = 1024;
 const SERVER_STOP_TIMEOUT: Duration = Duration::from_secs(2);
 const DISCOVERY_STOP_TIMEOUT: Duration = Duration::from_secs(1);
+const SEND_PREPARE_TIMEOUT: Duration = Duration::from_secs(60);
+const AUTO_FINISH_DELAY: Duration = Duration::from_secs(3);
 
 #[derive(Debug, Clone)]
 pub struct ServicePaths {
@@ -72,6 +78,31 @@ pub fn service_paths() -> anyhow::Result<ServicePaths> {
         identity_file: base.join("identity.pem"),
         config_dir: base,
     })
+}
+
+fn multicast_groups_for(settings: &DesktopSettings) -> Vec<Ipv4Addr> {
+    let configured = settings
+        .multicast_group
+        .as_deref()
+        .filter(|value| !value.trim().is_empty())
+        .and_then(|value| value.parse().ok())
+        .unwrap_or(DEFAULT_MULTICAST_GROUP);
+    if configured == DEFAULT_MULTICAST_GROUP {
+        vec![configured]
+    } else {
+        vec![configured, DEFAULT_MULTICAST_GROUP]
+    }
+}
+
+fn interface_filter_for(settings: &DesktopSettings) -> InterfaceFilter {
+    InterfaceFilter {
+        whitelist: settings.interface_whitelist.clone(),
+        blacklist: settings.interface_blacklist.clone(),
+    }
+}
+
+fn discovery_timeout_for(settings: &DesktopSettings) -> Duration {
+    Duration::from_millis(settings.discovery_timeout_ms.max(1))
 }
 
 #[derive(Clone)]
@@ -196,7 +227,12 @@ enum InternalEvent {
         path: PathBuf,
         size: u64,
         alias: String,
+        message: Option<String>,
         result: Result<(), String>,
+    },
+    FinalizeSessionUploads {
+        transfer_id: String,
+        status: TransferStatus,
     },
 }
 
@@ -290,8 +326,28 @@ struct ServiceTask {
     web_decisions: HashMap<String, oneshot::Sender<bool>>,
     cancellations: HashMap<String, CancellationToken>,
     file_progress: HashMap<(String, String), u64>,
+    pending_upload_paths: HashMap<(String, String), PathBuf>,
     web_share: Option<WebShareRuntime>,
     web_auto_accept: bool,
+    http_clients: HashMap<HttpClientKey, Arc<LsHttpClient>>,
+}
+
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
+struct HttpClientKey {
+    https: bool,
+    v3: bool,
+    fingerprint: Option<String>,
+}
+
+impl HttpClientKey {
+    fn for_target(target: &DeviceInfo) -> Self {
+        let https = target.protocol == Protocol::Https;
+        Self {
+            https,
+            v3: target.version.starts_with('3'),
+            fingerprint: https.then(|| target.fingerprint.clone()),
+        }
+    }
 }
 
 struct WebShareRuntime {
@@ -338,8 +394,10 @@ impl ServiceTask {
             web_decisions: HashMap::new(),
             cancellations: HashMap::new(),
             file_progress: HashMap::new(),
+            pending_upload_paths: HashMap::new(),
             web_share: None,
             web_auto_accept: false,
+            http_clients: HashMap::new(),
         }
     }
 
@@ -349,6 +407,8 @@ impl ServiceTask {
                 self.set_error(format!("starting server: {error:#}"));
             }
         }
+        let mut discovery_expiry = tokio::time::interval(Duration::from_secs(5));
+        discovery_expiry.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
         loop {
             tokio::select! {
                 envelope = self.command_rx.recv() => {
@@ -364,6 +424,7 @@ impl ServiceTask {
                 Some(event) = self.discovery_rx.recv() => self.handle_discovery_event(event),
                 Some(event) = self.web_rx.recv() => self.handle_web_event(event),
                 Some(event) = self.internal_rx.recv() => self.handle_internal_event(event),
+                _ = discovery_expiry.tick() => self.expire_discovered_devices(),
             }
         }
         self.shutdown_tx.send_replace(true);
@@ -502,6 +563,19 @@ impl ServiceTask {
                 self.set_transfer_status(&transfer_id, TransferStatus::Cancelled, None);
                 Ok(CommandResult::Ok)
             }
+            ServiceCommand::DismissTransfer { transfer_id } => {
+                self.cancellations.remove(&transfer_id);
+                self.snapshot
+                    .write()
+                    .active_transfers
+                    .retain(|transfer| transfer.transfer_id != transfer_id);
+                self.file_progress
+                    .retain(|(session_id, _), _| session_id != &transfer_id);
+                self.emit(ServiceEvent::Snapshot {
+                    snapshot: self.snapshot(),
+                });
+                Ok(CommandResult::Ok)
+            }
             ServiceCommand::UpdateSettings {
                 expected_revision,
                 settings,
@@ -570,13 +644,13 @@ impl ServiceTask {
         let info = ClientInfo {
             alias: self.settings.alias.clone(),
             version: PROTOCOL_VERSION_V2.to_string(),
-            device_model: Some("localsend-next".to_string()),
+            device_model: Some(default_device_model()),
             device_type: Some(DeviceType::Desktop),
             token: self.identity.fingerprint.clone(),
         };
         let config = ServerConfigV2 {
             pin: self.settings.pin.clone(),
-            verify_checksums: true,
+            verify_checksums: self.settings.verify_checksums,
             event_tx: self.server_tx.clone(),
         };
         let handle = start_with_port(
@@ -616,7 +690,7 @@ impl ServiceTask {
             device: DeviceInfo {
                 alias: self.settings.alias.clone(),
                 version: PROTOCOL_VERSION_V2.to_string(),
-                device_model: Some("localsend-next".to_string()),
+                device_model: Some(default_device_model()),
                 device_type: Some(localsend_rpc::DeviceType::Desktop),
                 fingerprint: self.identity.fingerprint.clone(),
                 port,
@@ -673,22 +747,17 @@ impl ServiceTask {
 
     async fn start_discovery(&mut self, protocol: ProtocolType) -> anyhow::Result<()> {
         self.stop_discovery().await;
+        if std::env::var_os("LOCALSEND_TEST_DISABLE_DISCOVERY").is_some() {
+            return Ok(());
+        }
         let server_port = self
             .server
             .as_ref()
             .map(|server| server.handle.port())
             .unwrap_or(self.settings.port);
-        let configured_group = self
-            .settings
-            .multicast_group
-            .as_deref()
-            .filter(|value| !value.trim().is_empty())
-            .and_then(|value| value.parse().ok())
-            .unwrap_or(DEFAULT_MULTICAST_GROUP);
-        let mut groups = vec![configured_group];
-        if configured_group != DEFAULT_MULTICAST_GROUP {
-            groups.push(DEFAULT_MULTICAST_GROUP);
-        }
+        let groups = multicast_groups_for(&self.settings);
+        let interface_filter = interface_filter_for(&self.settings);
+        let timeout = discovery_timeout_for(&self.settings);
         for (index, group) in groups.into_iter().enumerate() {
             let (stop_tx, stop_rx) = oneshot::channel();
             let config = DiscoveryConfig {
@@ -697,14 +766,11 @@ impl ServiceTask {
                 // LocalSend always discovers on 53317. The advertised HTTP
                 // port below may be different and is carried in the payload.
                 port: DEFAULT_MULTICAST_PORT,
-                interface_filter: InterfaceFilter {
-                    whitelist: self.settings.interface_whitelist.clone(),
-                    blacklist: self.settings.interface_blacklist.clone(),
-                },
+                interface_filter: interface_filter.clone(),
                 device: MulticastDevice {
                     alias: self.settings.alias.clone(),
                     version: PROTOCOL_VERSION_V2.to_string(),
-                    device_model: Some("localsend-next".to_string()),
+                    device_model: Some(default_device_model()),
                     device_type: Some(DeviceType::Desktop),
                     fingerprint: self.identity.fingerprint.clone(),
                     port: server_port,
@@ -712,7 +778,7 @@ impl ServiceTask {
                     download: self.web_share.is_some(),
                 },
                 identity: self.identity.device_identity(),
-                timeout: DEFAULT_DISCOVERY_TIMEOUT,
+                timeout,
                 event_tx: Some(self.discovery_tx.clone()),
             };
             let handle = Arc::new(localsend_core::discovery::start(config, stop_rx).await);
@@ -739,32 +805,46 @@ impl ServiceTask {
     }
 
     async fn refresh_discovery(&mut self) {
+        let mut started_now = false;
         if self.discoveries.is_empty() {
             let protocol = protocol_type(self.settings.protocol);
             if let Err(error) = self.start_discovery(protocol).await {
                 self.set_error(format!("starting discovery: {error:#}"));
                 return;
             }
+            started_now = true;
         }
-        for discovery in &self.discoveries {
-            discovery.handle.announce().await;
+        let handles = self
+            .discoveries
+            .iter()
+            .map(|discovery| discovery.handle.clone())
+            .collect::<Vec<_>>();
+        if !started_now {
+            for handle in &handles {
+                let handle = handle.clone();
+                tokio::spawn(async move {
+                    handle.announce().await;
+                });
+            }
         }
-        if let Some(discovery) = self.discoveries.first() {
-            let channels = self
-                .snapshot()
-                .favorites
-                .into_iter()
-                .filter_map(|favorite| device_to_http_channel(&favorite.device))
-                .collect();
-            let _ = discovery
-                .handle
-                .discover_known_http_channels(channels)
-                .await;
+        let channels = self
+            .snapshot()
+            .favorites
+            .into_iter()
+            .filter_map(|favorite| device_to_http_channel(&favorite.device))
+            .collect::<Vec<_>>();
+        if let Some(handle) = handles.first().cloned() {
+            tokio::spawn(async move {
+                let _ = handle.discover_known_http_channels(channels).await;
+            });
         }
     }
 
     async fn add_manual_device(&mut self, target: &str) -> Result<(), String> {
         let (host, port) = parse_target(target, self.settings.port)?;
+        if std::env::var_os("LOCALSEND_TEST_DISABLE_DISCOVERY").is_some() {
+            return self.discover_manual_device(&host, port).await;
+        }
         if self.discoveries.is_empty() {
             self.start_discovery(protocol_type(self.settings.protocol))
                 .await
@@ -786,6 +866,84 @@ impl ServiceTask {
                     return Ok(());
                 }
                 Ok(None) => return Ok(()),
+                Err(error) => last_error = Some(error.to_string()),
+            }
+        }
+        Err(last_error.unwrap_or_else(|| "device did not answer".to_string()))
+    }
+
+    async fn discover_manual_device(&mut self, host: &str, port: u16) -> Result<(), String> {
+        let server_port = self
+            .server
+            .as_ref()
+            .map(|server| server.handle.port())
+            .unwrap_or(self.settings.port);
+        let mut last_error = None;
+        for protocol in [
+            protocol_type(self.settings.protocol),
+            ProtocolType::Http,
+            ProtocolType::Https,
+        ] {
+            let client = match LsHttpClientV2::try_new(
+                &self.identity.key_pem,
+                &self.identity.cert_pem,
+                None,
+                Some(Duration::from_millis(
+                    self.settings.discovery_timeout_ms.max(1),
+                )),
+            ) {
+                Ok(client) => client,
+                Err(error) => {
+                    last_error = Some(error.to_string());
+                    continue;
+                }
+            };
+            let register = localsend_core::http::dto_v2::RegisterDtoV2 {
+                alias: self.settings.alias.clone(),
+                version: PROTOCOL_VERSION_V2.to_string(),
+                device_model: Some(default_device_model()),
+                device_type: Some(DeviceType::Desktop),
+                fingerprint: self.identity.fingerprint.clone(),
+                port: server_port,
+                protocol,
+                download: false,
+            };
+            match client.register(protocol, host, port, register).await {
+                Ok(response) => {
+                    let fingerprint = if protocol == ProtocolType::Https {
+                        match response.cert_fingerprint {
+                            Some(fingerprint) => fingerprint,
+                            None => {
+                                last_error = Some("HTTPS register returned no certificate".into());
+                                continue;
+                            }
+                        }
+                    } else {
+                        response.body.fingerprint
+                    };
+                    let device = DiscoveredDevice {
+                        alias: response.body.alias,
+                        version: response.body.version,
+                        device_model: response.body.device_model,
+                        device_type: response.body.device_type,
+                        fingerprint,
+                        channel: localsend_core::discovery::DeviceChannel::Http(HttpChannel {
+                            host: host.to_string(),
+                            port,
+                            protocol,
+                        }),
+                        download: response.body.download,
+                    };
+                    let mut view = discovered_device_view(&device);
+                    view.source = "manual".to_string();
+                    self.snapshot
+                        .write()
+                        .devices
+                        .retain(|item| item.device.fingerprint != view.device.fingerprint);
+                    self.snapshot.write().devices.push(view.clone());
+                    self.emit(ServiceEvent::DeviceUpsert { device: view });
+                    return Ok(());
+                }
                 Err(error) => last_error = Some(error.to_string()),
             }
         }
@@ -943,6 +1101,7 @@ impl ServiceTask {
         if items.is_empty() {
             return Err("no readable files selected".to_string());
         }
+        let client = self.http_client_for(&target)?;
         let transfer_id = Uuid::new_v4().to_string();
         let total: u64 = items.iter().map(|item| item.file.size).sum();
         let transfer = TransferView {
@@ -969,12 +1128,14 @@ impl ServiceTask {
         let cancel = CancellationToken::new();
         self.cancellations
             .insert(transfer_id.clone(), cancel.clone());
+        let own_alias = self.settings.alias.clone();
         tokio::spawn(run_send_files(
-            self.identity.cert_pem.clone(),
-            self.identity.key_pem.clone(),
+            client,
             self.identity.fingerprint.clone(),
+            own_alias,
             target,
             items,
+            self.settings.create_checksums,
             pin,
             transfer_id,
             cancel,
@@ -991,13 +1152,20 @@ impl ServiceTask {
         pin: Option<String>,
     ) -> Result<TransferView, String> {
         let target = self.resolve_target(target_fingerprint.as_deref(), target)?;
+        let client = self.http_client_for(&target)?;
         let transfer_id = Uuid::new_v4().to_string();
+        let file_id = Uuid::new_v4().to_string();
+        let text_size = text.len() as u64;
+        let text_sha256 = self
+            .settings
+            .create_checksums
+            .then(|| sha256_hex(text.as_bytes()));
         let file = FileView {
-            id: Uuid::new_v4().to_string(),
+            id: file_id.clone(),
             file_name: "message.txt".to_string(),
-            size: 0,
-            file_type: "text".to_string(),
-            sha256: None,
+            size: text_size,
+            file_type: "text/plain".to_string(),
+            sha256: text_sha256.clone(),
             preview: Some(text.clone()),
         };
         let transfer = TransferView {
@@ -1008,7 +1176,7 @@ impl ServiceTask {
             files: vec![file],
             status: TransferStatus::Waiting,
             bytes_done: 0,
-            bytes_total: 0,
+            bytes_total: text_size,
             started_at_ms: unix_ms_now(),
             ended_at_ms: None,
             error: None,
@@ -1024,18 +1192,61 @@ impl ServiceTask {
         let cancel = CancellationToken::new();
         self.cancellations
             .insert(transfer_id.clone(), cancel.clone());
+        let own_alias = self.settings.alias.clone();
         tokio::spawn(run_send_text(
-            self.identity.cert_pem.clone(),
-            self.identity.key_pem.clone(),
+            client,
             self.identity.fingerprint.clone(),
+            own_alias,
             target,
             text,
+            file_id,
+            text_sha256,
             pin,
             transfer_id,
             cancel,
             self.internal_tx.clone(),
         ));
         Ok(transfer)
+    }
+
+    fn http_client_for(&mut self, target: &DeviceInfo) -> Result<Arc<LsHttpClient>, String> {
+        let key = HttpClientKey::for_target(target);
+        if let Some(client) = self.http_clients.get(&key) {
+            tracing::debug!(
+                alias = %target.alias,
+                protocol = ?target.protocol,
+                v3 = key.v3,
+                "reusing outbound HTTP client"
+            );
+            return Ok(client.clone());
+        }
+
+        let started = Instant::now();
+        let version = if key.v3 {
+            LsHttpClientVersion::V3
+        } else {
+            LsHttpClientVersion::V2
+        };
+        let client = LsHttpClient::new(
+            &self.identity.key_pem,
+            &self.identity.cert_pem,
+            version,
+            key.fingerprint.clone(),
+            None,
+        )
+        .map_err(|error| error.to_string())?;
+        let client = Arc::new(client);
+        self.http_clients.insert(key.clone(), client.clone());
+        tracing::info!(
+            alias = %target.alias,
+            host = target.ip.as_deref().unwrap_or("unknown"),
+            port = target.port,
+            protocol = ?target.protocol,
+            v3 = key.v3,
+            build_ms = started.elapsed().as_millis(),
+            "created outbound HTTP client"
+        );
+        Ok(client)
     }
 
     fn resolve_target(
@@ -1102,7 +1313,12 @@ impl ServiceTask {
         let restart = settings.alias != self.settings.alias
             || settings.port != self.settings.port
             || settings.protocol != self.settings.protocol
-            || settings.pin != self.settings.pin;
+            || settings.pin != self.settings.pin
+            || settings.verify_checksums != self.settings.verify_checksums
+            || settings.discovery_timeout_ms != self.settings.discovery_timeout_ms
+            || settings.multicast_group != self.settings.multicast_group
+            || settings.interface_whitelist != self.settings.interface_whitelist
+            || settings.interface_blacklist != self.settings.interface_blacklist;
         self.settings = settings.clone();
         self.snapshot.write().settings = settings.clone();
         self.emit(ServiceEvent::SettingsChanged {
@@ -1143,7 +1359,9 @@ impl ServiceTask {
                     ip: Some(ip.to_string()),
                 };
                 let file_views = files.values().map(file_view).collect::<Vec<_>>();
-                if let Some(message) = message_text(&files) {
+                if let Some(message) = message_text(&files)
+                    && files.values().all(|file| file.size == 0)
+                {
                     let _ = decision_tx.send(PrepareUploadDecisionV2::Accept(HashSet::new()));
                     self.emit(ServiceEvent::TextReceived {
                         sender_alias: sender.alias.clone(),
@@ -1167,12 +1385,16 @@ impl ServiceTask {
                     self.emit(ServiceEvent::HistoryAppended { entry });
                     return;
                 }
-                let auto_accept = !self.frontend_answers_requests
-                    && (self.settings.auto_save == AutoSaveMode::On
-                        || (self.settings.auto_save == AutoSaveMode::Favorites
-                            && self.snapshot.read().favorites.iter().any(|favorite| {
-                                favorite.device.fingerprint == sender.fingerprint
-                            })));
+                let message_request = message_text(&files).is_some();
+                let auto_accept = message_request
+                    || self.settings.auto_save == AutoSaveMode::On
+                    || (self.settings.auto_save == AutoSaveMode::Favorites
+                        && self
+                            .snapshot
+                            .read()
+                            .favorites
+                            .iter()
+                            .any(|favorite| favorite.device.fingerprint == sender.fingerprint));
                 let request = TransferRequestView {
                     request_id: session_id.clone(),
                     sender: sender.clone(),
@@ -1230,11 +1452,26 @@ impl ServiceTask {
                     .await
             }
             ServerEventV2::SessionEnd { session_id, reason } => {
-                let status = match reason {
-                    SessionEndReasonV2::Finished => TransferStatus::Finished,
-                    SessionEndReasonV2::Cancelled => TransferStatus::Cancelled,
+                let interrupted = self
+                    .pending_upload_paths
+                    .keys()
+                    .any(|(id, _)| id == &session_id);
+                let status = match (reason, interrupted) {
+                    (_, true) => TransferStatus::Failed,
+                    (SessionEndReasonV2::Finished, false) => TransferStatus::Finished,
+                    (SessionEndReasonV2::Cancelled, false) => TransferStatus::Cancelled,
                 };
-                self.set_transfer_status(&session_id, status, None);
+                if interrupted {
+                    self.schedule_session_finalize(
+                        &session_id,
+                        match reason {
+                            SessionEndReasonV2::Finished => TransferStatus::Finished,
+                            SessionEndReasonV2::Cancelled => TransferStatus::Cancelled,
+                        },
+                    );
+                } else {
+                    self.set_transfer_status(&session_id, status, None);
+                }
             }
             ServerEventV2::PrepareUploadAborted { session_id } => {
                 self.pending_receives.remove(&session_id);
@@ -1242,6 +1479,13 @@ impl ServiceTask {
                     .write()
                     .incoming_requests
                     .retain(|request| request.request_id != session_id);
+                if self
+                    .pending_upload_paths
+                    .keys()
+                    .any(|(id, _)| id == &session_id)
+                {
+                    self.schedule_session_finalize(&session_id, TransferStatus::Cancelled);
+                }
             }
             ServerEventV2::CancelReceived { session_id, .. } => {
                 if let Some(token) = self.cancellations.remove(&session_id) {
@@ -1262,11 +1506,17 @@ impl ServiceTask {
         file: FileDto,
         target_tx: oneshot::Sender<FileUploadTarget>,
     ) {
-        let destination = self
-            .settings
-            .destination_dir
-            .clone()
-            .unwrap_or_else(default_download_dir);
+        let message = (file.file_type == "text" || file.file_type.starts_with("text/"))
+            .then(|| file.preview.clone())
+            .flatten();
+        let destination = if message.is_some() {
+            self.paths.data_dir.join("messages")
+        } else {
+            self.settings
+                .destination_dir
+                .clone()
+                .unwrap_or_else(default_download_dir)
+        };
         if let Err(error) = std::fs::create_dir_all(&destination) {
             let _ = target_tx.send(FileUploadTarget::Path {
                 path: destination.join("invalid"),
@@ -1277,6 +1527,19 @@ impl ServiceTask {
             return;
         }
         let path = unique_path(&destination, &file.file_name);
+        if let Some(parent) = path.parent()
+            && let Err(error) = std::fs::create_dir_all(parent)
+        {
+            let _ = target_tx.send(FileUploadTarget::Path {
+                path: destination.join("invalid"),
+                result_tx: oneshot::channel().0,
+                progress_tx: None,
+            });
+            self.set_error(format!("creating receive subdirectory: {error}"));
+            return;
+        }
+        self.pending_upload_paths
+            .insert((session_id.clone(), file_id.clone()), path.clone());
         let (progress_tx, mut progress_rx) = mpsc::channel(32);
         let (result_tx, result_rx) = oneshot::channel();
         if target_tx
@@ -1328,6 +1591,7 @@ impl ServiceTask {
                 path: result_path,
                 size: result_size,
                 alias,
+                message,
                 result,
             });
         });
@@ -1337,7 +1601,12 @@ impl ServiceTask {
         match event {
             DiscoveryEvent::Discovered { device } | DiscoveryEvent::Updated { device } => {
                 let mut snapshot = self.snapshot.write();
-                let view = discovered_device_view(&device);
+                let mut view = discovered_device_view(&device);
+                if snapshot.devices.iter().any(|item| {
+                    item.device.fingerprint == view.device.fingerprint && item.source == "manual"
+                }) {
+                    view.source = "manual".to_string();
+                }
                 snapshot
                     .devices
                     .retain(|item| item.device.fingerprint != view.device.fingerprint);
@@ -1348,6 +1617,31 @@ impl ServiceTask {
             DiscoveryEvent::MulticastFailed => {
                 self.set_error("multicast discovery stopped".to_string());
             }
+        }
+    }
+
+    fn expire_discovered_devices(&self) {
+        let ttl_ms = self
+            .settings
+            .discovery_timeout_ms
+            .saturating_mul(30)
+            .max(120_000);
+        let now = unix_ms_now();
+        let removed = {
+            let mut snapshot = self.snapshot.write();
+            let mut removed = Vec::new();
+            snapshot.devices.retain(|device| {
+                let expired = device.source == "discovery"
+                    && now.saturating_sub(device.last_seen_ms) > ttl_ms;
+                if expired {
+                    removed.push(device.device.fingerprint.clone());
+                }
+                !expired
+            });
+            removed
+        };
+        for fingerprint in removed {
+            self.emit(ServiceEvent::DeviceRemoved { fingerprint });
         }
     }
 
@@ -1511,8 +1805,11 @@ impl ServiceTask {
                 path,
                 size,
                 alias,
+                message,
                 result,
             } => {
+                self.pending_upload_paths
+                    .remove(&(transfer_id.clone(), file_id.clone()));
                 self.file_progress
                     .remove(&(transfer_id.clone(), file_id.clone()));
                 let status = if result.is_ok() {
@@ -1522,24 +1819,39 @@ impl ServiceTask {
                 };
                 let failure = result.as_ref().err().cloned();
                 if let Err(error) = &result {
+                    // The official core validates the hash after writing the
+                    // target. Remove that unverified file before reporting the
+                    // failed receive so it cannot be mistaken for a valid one.
+                    let _ = std::fs::remove_file(&path);
                     self.set_error(format!("receiving {file_name}: {error}"));
+                }
+                let successful = result.is_ok();
+                let is_message = message.is_some();
+                if successful && is_message {
+                    let _ = std::fs::remove_file(&path);
                 }
                 let entry = HistoryEntry {
                     id: Uuid::new_v4().to_string(),
                     file_id: Some(file_id.clone()),
                     direction: TransferDirection::Receive,
-                    peer_alias: alias,
+                    peer_alias: alias.clone(),
                     file_name,
-                    path: result.as_ref().ok().map(|_| path),
+                    path: (successful && !is_message).then_some(path),
                     size,
                     timestamp_ms: unix_ms_now(),
                     status,
-                    message: None,
+                    message: message.clone(),
                 };
                 if self.settings.save_to_history {
                     self.record_history(entry.clone());
                 }
                 self.emit(ServiceEvent::HistoryAppended { entry });
+                if successful && let Some(text) = message {
+                    self.emit(ServiceEvent::TextReceived {
+                        sender_alias: alias,
+                        text,
+                    });
+                }
                 if let Some(error) = failure {
                     self.emit(ServiceEvent::TransferFailed {
                         transfer_id,
@@ -1547,6 +1859,39 @@ impl ServiceTask {
                         error_kind: Some(ServiceErrorKind::Io),
                         error,
                     });
+                }
+            }
+            InternalEvent::FinalizeSessionUploads {
+                transfer_id,
+                status,
+            } => {
+                let keys = self
+                    .pending_upload_paths
+                    .keys()
+                    .filter(|(session_id, _)| session_id == &transfer_id)
+                    .cloned()
+                    .collect::<Vec<_>>();
+                let mut removed_paths = 0_usize;
+                for key in keys {
+                    if let Some(path) = self.pending_upload_paths.remove(&key) {
+                        let _ = std::fs::remove_file(path);
+                        removed_paths += 1;
+                    }
+                }
+                if removed_paths > 0 {
+                    self.set_transfer_status(
+                        &transfer_id,
+                        TransferStatus::Failed,
+                        Some("upload interrupted".to_string()),
+                    );
+                    self.emit(ServiceEvent::TransferFailed {
+                        transfer_id,
+                        file_id: None,
+                        error_kind: Some(ServiceErrorKind::Io),
+                        error: "upload interrupted".to_string(),
+                    });
+                } else {
+                    self.set_transfer_status(&transfer_id, status, None);
                 }
             }
         }
@@ -1558,6 +1903,10 @@ impl ServiceTask {
         status: TransferStatus,
         error: Option<String>,
     ) {
+        let terminal = matches!(
+            status,
+            TransferStatus::Finished | TransferStatus::Failed | TransferStatus::Cancelled
+        );
         let transfer = {
             let mut snapshot = self.snapshot.write();
             let Some(transfer) = snapshot
@@ -1567,12 +1916,12 @@ impl ServiceTask {
             else {
                 return;
             };
+            if transfer.status == TransferStatus::Failed && status == TransferStatus::Finished {
+                return;
+            }
             transfer.status = status;
             transfer.error = error;
-            if matches!(
-                status,
-                TransferStatus::Finished | TransferStatus::Failed | TransferStatus::Cancelled
-            ) {
+            if terminal {
                 transfer.ended_at_ms = Some(unix_ms_now());
                 if transfer.bytes_done == 0 && status == TransferStatus::Finished {
                     transfer.bytes_done = transfer.bytes_total;
@@ -1580,7 +1929,38 @@ impl ServiceTask {
             }
             transfer.clone()
         };
+        if !terminal {
+            return;
+        }
         self.emit(ServiceEvent::TransferFinished { transfer });
+        if terminal && self.settings.auto_finish {
+            let snapshot = self.snapshot.clone();
+            let transfer_id = transfer_id.to_string();
+            tokio::spawn(async move {
+                tokio::time::sleep(AUTO_FINISH_DELAY).await;
+                snapshot.write().active_transfers.retain(|transfer| {
+                    !(transfer.transfer_id == transfer_id
+                        && matches!(
+                            transfer.status,
+                            TransferStatus::Finished
+                                | TransferStatus::Failed
+                                | TransferStatus::Cancelled
+                        ))
+                });
+            });
+        }
+    }
+
+    fn schedule_session_finalize(&self, transfer_id: &str, status: TransferStatus) {
+        let transfer_id = transfer_id.to_string();
+        let events = self.internal_tx.clone();
+        tokio::spawn(async move {
+            tokio::time::sleep(Duration::from_secs(1)).await;
+            let _ = events.send(InternalEvent::FinalizeSessionUploads {
+                transfer_id,
+                status,
+            });
+        });
     }
 
     fn record_history(&self, entry: HistoryEntry) {
@@ -1634,7 +2014,10 @@ impl ServiceTask {
     }
 
     fn upsert_discovered_device(&mut self, device: &StatefulDevice) {
-        let view = stateful_device_view(device);
+        let mut view = stateful_device_view(device);
+        // A successful manual address lookup is user intent and must not be
+        // downgraded to a short-lived discovery record.
+        view.source = "manual".to_string();
         self.snapshot
             .write()
             .devices
@@ -1889,43 +2272,70 @@ fn map_metadata(metadata: FileMetadataDetails) -> FileMetadata {
 
 #[allow(clippy::too_many_arguments)]
 async fn run_send_files(
-    cert_pem: String,
-    key_pem: String,
+    client: Arc<LsHttpClient>,
     own_fingerprint: String,
+    own_alias: String,
     target: DeviceInfo,
-    items: Vec<SendItem>,
+    mut items: Vec<SendItem>,
+    create_checksums: bool,
     pin: Option<String>,
     transfer_id: String,
     cancel: CancellationToken,
     events: mpsc::UnboundedSender<InternalEvent>,
 ) {
-    let client_version = if target.version.starts_with('3') {
-        LsHttpClientVersion::V3
-    } else {
-        LsHttpClientVersion::V2
-    };
-    let expected = (target.protocol == Protocol::Https).then(|| target.fingerprint.clone());
-    let client =
-        match LsHttpClient::new(&key_pem, &cert_pem, client_version, expected.clone(), None) {
-            Ok(client) => client,
-            Err(error) => {
-                let _ = events.send(InternalEvent::SendFailed {
-                    transfer_id,
-                    file_id: None,
-                    kind: ServiceErrorKind::Internal,
-                    error: error.to_string(),
-                });
-                return;
+    let total_started = Instant::now();
+    tracing::info!(
+        transfer_id,
+        alias = %target.alias,
+        host = target.ip.as_deref().unwrap_or("unknown"),
+        port = target.port,
+        protocol = ?target.protocol,
+        file_count = items.len(),
+        "outbound file send started"
+    );
+    if create_checksums {
+        let checksum_started = Instant::now();
+        for item in &mut items {
+            if item.file.sha256.is_some() {
+                continue;
             }
-        };
+            match sha256_file_content(FileContent::Path(item.path.clone()), &cancel, |_| {}).await {
+                Ok(checksum) => item.file.sha256 = Some(checksum),
+                Err(error) => {
+                    let (kind, message) = match error {
+                        HashError::Cancelled => (
+                            ServiceErrorKind::Rejected,
+                            "checksum calculation cancelled".to_string(),
+                        ),
+                        HashError::Io(error) => (
+                            ServiceErrorKind::Io,
+                            format!("failed to checksum {}: {error}", item.path.display()),
+                        ),
+                    };
+                    let _ = events.send(InternalEvent::SendFailed {
+                        transfer_id,
+                        file_id: Some(item.file.id.clone()),
+                        kind,
+                        error: message,
+                    });
+                    return;
+                }
+            }
+        }
+        tracing::info!(
+            transfer_id,
+            checksum_ms = checksum_started.elapsed().as_millis(),
+            "outbound file checksums ready"
+        );
+    }
     let files: HashMap<String, FileDto> = items
         .iter()
         .map(|item| (item.file.id.clone(), item.file.clone()))
         .collect();
     let register = RegisterDto {
-        alias: "localsend-next".to_string(),
+        alias: own_alias,
         version: PROTOCOL_VERSION_V2.to_string(),
-        device_model: Some("localsend-next".to_string()),
+        device_model: Some(default_device_model()),
         device_type: Some(DeviceType::Desktop),
         token: own_fingerprint,
         port: 0,
@@ -1945,20 +2355,26 @@ async fn run_send_files(
         });
         return;
     };
-    let prepared = match client
-        .prepare_upload(
+    let prepare_started = Instant::now();
+    let prepared = match tokio::time::timeout(
+        SEND_PREPARE_TIMEOUT,
+        client.prepare_upload(
             protocol_type(target.protocol),
             host,
             target.port,
-            expected.clone(),
+            // Fingerprint pinning is enforced during the TLS handshake. This
+            // parameter is an expected PEM public key, not a certificate
+            // fingerprint, and must remain empty unless the caller knows it.
+            None,
             payload,
             pin.as_deref(),
             cancel.clone(),
-        )
-        .await
+        ),
+    )
+    .await
     {
-        Ok(prepared) => prepared,
-        Err(error) => {
+        Ok(Ok(prepared)) => prepared,
+        Ok(Err(error)) => {
             let (kind, message) = classify_send_error(&error);
             let _ = events.send(InternalEvent::SendFailed {
                 transfer_id,
@@ -1968,7 +2384,26 @@ async fn run_send_files(
             });
             return;
         }
+        Err(_) => {
+            let _ = events.send(InternalEvent::SendFailed {
+                transfer_id,
+                file_id: None,
+                kind: ServiceErrorKind::Protocol,
+                error: "receiver did not answer the send request within 60 seconds".to_string(),
+            });
+            return;
+        }
     };
+    let prepare_ms = prepare_started.elapsed().as_millis();
+    if prepare_ms >= 1_000 {
+        tracing::warn!(
+            transfer_id,
+            alias = %target.alias,
+            prepare_ms,
+            "receiver took over one second to answer the file offer"
+        );
+    }
+    tracing::info!(transfer_id, prepare_ms, "outbound file offer answered");
     let Some(response) = prepared.response else {
         let _ = events.send(InternalEvent::SendFinished { transfer_id });
         return;
@@ -1984,6 +2419,7 @@ async fn run_send_files(
         accepted: accepted.iter().cloned().collect(),
         refused,
     });
+    let upload_started = Instant::now();
     for item in items {
         let Some(token) = response.files.get(&item.file.id).cloned() else {
             continue;
@@ -2007,7 +2443,7 @@ async fn run_send_files(
                 protocol_type(target.protocol),
                 host,
                 target.port,
-                expected.clone(),
+                None,
                 &response.session_id,
                 &item.file.id,
                 &token,
@@ -2027,59 +2463,75 @@ async fn run_send_files(
             return;
         }
     }
+    let upload_ms = upload_started.elapsed().as_millis();
+    let total_ms = total_started.elapsed().as_millis();
+    if upload_ms >= 1_000 {
+        tracing::warn!(
+            transfer_id,
+            alias = %target.alias,
+            prepare_ms,
+            upload_ms,
+            total_ms,
+            "outbound file upload took over one second"
+        );
+    }
+    tracing::info!(
+        transfer_id,
+        prepare_ms,
+        upload_ms,
+        total_ms,
+        "outbound file send finished"
+    );
     let _ = events.send(InternalEvent::SendFinished { transfer_id });
 }
 
 #[allow(clippy::too_many_arguments)]
 async fn run_send_text(
-    cert_pem: String,
-    key_pem: String,
+    client: Arc<LsHttpClient>,
     own_fingerprint: String,
+    own_alias: String,
     target: DeviceInfo,
     text: String,
+    file_id: String,
+    file_sha256: Option<String>,
     pin: Option<String>,
     transfer_id: String,
     cancel: CancellationToken,
     events: mpsc::UnboundedSender<InternalEvent>,
 ) {
-    let client_version = if target.version.starts_with('3') {
-        LsHttpClientVersion::V3
-    } else {
-        LsHttpClientVersion::V2
-    };
-    let expected = (target.protocol == Protocol::Https).then(|| target.fingerprint.clone());
-    let Ok(client) = LsHttpClient::new(&key_pem, &cert_pem, client_version, expected.clone(), None)
-    else {
-        let _ = events.send(InternalEvent::SendFailed {
-            transfer_id,
-            file_id: None,
-            kind: ServiceErrorKind::Internal,
-            error: "failed to create HTTP client".to_string(),
-        });
-        return;
-    };
-    let file_id = Uuid::new_v4().to_string();
+    let total_started = Instant::now();
+    tracing::info!(
+        transfer_id,
+        alias = %target.alias,
+        host = target.ip.as_deref().unwrap_or("unknown"),
+        port = target.port,
+        protocol = ?target.protocol,
+        bytes = text.len(),
+        "outbound text send started"
+    );
+    let bytes = Bytes::from(text.clone().into_bytes());
+    let file_size = bytes.len() as u64;
     let file = FileDto {
         id: file_id.clone(),
         file_name: "message.txt".to_string(),
-        size: 0,
-        file_type: "text".to_string(),
-        sha256: None,
+        size: file_size,
+        file_type: "text/plain".to_string(),
+        sha256: file_sha256,
         preview: Some(text),
         metadata: None,
     };
     let payload = PrepareUploadRequestDto {
         info: RegisterDto {
-            alias: "localsend-next".to_string(),
+            alias: own_alias,
             version: PROTOCOL_VERSION_V2.to_string(),
-            device_model: Some("localsend-next".to_string()),
+            device_model: Some(default_device_model()),
             device_type: Some(DeviceType::Desktop),
             token: own_fingerprint,
             port: 0,
             protocol: protocol_type(target.protocol),
             has_web_interface: false,
         },
-        files: HashMap::from([(file_id, file)]),
+        files: HashMap::from([(file_id.clone(), file)]),
     };
     let Some(host) = target.ip.as_deref() else {
         let _ = events.send(InternalEvent::SendFailed {
@@ -2090,22 +2542,23 @@ async fn run_send_text(
         });
         return;
     };
-    match client
-        .prepare_upload(
+    let prepare_started = Instant::now();
+    let prepared = match tokio::time::timeout(
+        SEND_PREPARE_TIMEOUT,
+        client.prepare_upload(
             protocol_type(target.protocol),
             host,
             target.port,
-            expected,
+            None,
             payload,
             pin.as_deref(),
-            cancel,
-        )
-        .await
+            cancel.clone(),
+        ),
+    )
+    .await
     {
-        Ok(_) => {
-            let _ = events.send(InternalEvent::SendFinished { transfer_id });
-        }
-        Err(error) => {
+        Ok(Ok(prepared)) => prepared,
+        Ok(Err(error)) => {
             let (kind, message) = classify_send_error(&error);
             let _ = events.send(InternalEvent::SendFailed {
                 transfer_id,
@@ -2113,8 +2566,117 @@ async fn run_send_text(
                 kind,
                 error: message,
             });
+            return;
         }
+        Err(_) => {
+            let _ = events.send(InternalEvent::SendFailed {
+                transfer_id,
+                file_id: None,
+                kind: ServiceErrorKind::Protocol,
+                error: "receiver did not answer the send request within 60 seconds".to_string(),
+            });
+            return;
+        }
+    };
+    let prepare_ms = prepare_started.elapsed().as_millis();
+    if prepare_ms >= 1_000 {
+        tracing::warn!(
+            transfer_id,
+            alias = %target.alias,
+            prepare_ms,
+            "receiver took over one second to answer the text offer"
+        );
     }
+    tracing::info!(transfer_id, prepare_ms, "outbound text offer answered");
+    if prepared.status_code == 204 || prepared.response.is_none() {
+        tracing::info!(
+            transfer_id,
+            status_code = prepared.status_code,
+            "receiver accepted text without a file upload"
+        );
+        let _ = events.send(InternalEvent::SendFinished { transfer_id });
+        return;
+    }
+    let Some(response) = prepared.response else {
+        unreachable!("a non-204 prepare response must contain a response body");
+    };
+    let Some(token) = response.files.get(&file_id).cloned() else {
+        let _ = events.send(InternalEvent::SendFailed {
+            transfer_id,
+            file_id: Some(file_id),
+            kind: ServiceErrorKind::Rejected,
+            error: "receiver did not accept the message file".to_string(),
+        });
+        return;
+    };
+    let (content_tx, content_rx) = mpsc::channel(1);
+    if content_tx.send(bytes).await.is_err() {
+        let _ = events.send(InternalEvent::SendFailed {
+            transfer_id,
+            file_id: Some(file_id),
+            kind: ServiceErrorKind::Internal,
+            error: "message content stream closed".to_string(),
+        });
+        return;
+    }
+    drop(content_tx);
+    let progress_events = events.clone();
+    let progress_transfer = transfer_id.clone();
+    let progress_file = file_id.clone();
+    let progress = move |done: u64| {
+        let _ = progress_events.send(InternalEvent::SendProgress {
+            transfer_id: progress_transfer.clone(),
+            file_id: progress_file.clone(),
+            file_name: "message.txt".to_string(),
+            bytes_done: done,
+            bytes_total: file_size,
+        });
+    };
+    let upload_started = Instant::now();
+    if let Err(error) = client
+        .upload(
+            protocol_type(target.protocol),
+            host,
+            target.port,
+            None,
+            &response.session_id,
+            &file_id,
+            &token,
+            FileContent::Stream(content_rx),
+            progress,
+            cancel,
+        )
+        .await
+    {
+        let (kind, message) = classify_send_error(&error);
+        let _ = events.send(InternalEvent::SendFailed {
+            transfer_id,
+            file_id: Some(file_id),
+            kind,
+            error: message,
+        });
+        return;
+    }
+    let upload_ms = upload_started.elapsed().as_millis();
+    let total_ms = total_started.elapsed().as_millis();
+    if upload_ms >= 1_000 {
+        tracing::warn!(
+            transfer_id,
+            alias = %target.alias,
+            prepare_ms,
+            upload_ms,
+            total_ms,
+            "outbound text upload took over one second"
+        );
+    }
+    tracing::info!(
+        transfer_id,
+        prepare_ms,
+        upload_ms,
+        total_ms,
+        "outbound text send finished"
+    );
+    let _ = events.send(InternalEvent::SendFinished { transfer_id });
 }
 
 fn classify_send_error(
@@ -2142,9 +2704,24 @@ fn default_download_dir() -> PathBuf {
         .unwrap_or_else(|| std::env::temp_dir().join("localsend-downloads"))
 }
 
+fn default_device_model() -> String {
+    match std::env::consts::OS {
+        "macos" => "macOS".to_string(),
+        "windows" => "Windows".to_string(),
+        "linux" => "Linux".to_string(),
+        other => other.to_string(),
+    }
+}
+
 fn unique_path(dir: &Path, file_name: &str) -> PathBuf {
-    let name = filename::sanitize_path(file_name, filename::Rules::current());
-    let candidate = dir.join(&name);
+    let relative = sanitized_relative_path(file_name);
+    let parent = relative.parent().unwrap_or_else(|| Path::new(""));
+    let name = relative
+        .file_name()
+        .map(|name| name.to_string_lossy().into_owned())
+        .unwrap_or_else(|| "untitled".to_string());
+    let target_dir = dir.join(parent);
+    let candidate = target_dir.join(&name);
     if !candidate.exists() {
         return candidate;
     }
@@ -2153,13 +2730,49 @@ fn unique_path(dir: &Path, file_name: &str) -> PathBuf {
         _ => (name.as_str(), String::new()),
     };
     (1..)
-        .map(|index| dir.join(format!("{stem} ({index}){extension}")))
+        .map(|index| target_dir.join(format!("{stem} ({index}){extension}")))
         .find(|candidate| !candidate.exists())
         .unwrap()
 }
 
+fn sanitized_relative_path(file_name: &str) -> PathBuf {
+    let mut relative = PathBuf::new();
+    for segment in file_name.split(['/', '\\']) {
+        if segment.is_empty() || matches!(segment, "." | "..") {
+            continue;
+        }
+        relative.push(filename::sanitize(segment, filename::Rules::Universal));
+    }
+    if relative.as_os_str().is_empty() {
+        relative.push("untitled");
+    }
+    relative
+}
+
 fn load_settings(path: &Path) -> DesktopSettings {
-    load_json(path).unwrap_or_default()
+    let Ok(bytes) = std::fs::read(path) else {
+        return DesktopSettings::default();
+    };
+    let Ok(mut value) = serde_json::from_slice::<serde_json::Value>(&bytes) else {
+        return DesktopSettings::default();
+    };
+    if let Some(object) = value.as_object_mut()
+        && !object.contains_key("discovery_timeout_ms")
+        && let Some(seconds) = object
+            .get("discovery_timeout_secs")
+            .and_then(|value| value.as_u64())
+    {
+        object.insert(
+            "discovery_timeout_ms".to_string(),
+            serde_json::Value::from(seconds.saturating_mul(1_000)),
+        );
+    }
+    if let Some(object) = value.as_object_mut() {
+        // `discovery_timeout_secs` is only an input alias. Removing it avoids a
+        // duplicate-field error when both the legacy and current keys exist.
+        object.remove("discovery_timeout_secs");
+    }
+    serde_json::from_value(value).unwrap_or_default()
 }
 
 fn load_json<T: serde::de::DeserializeOwned>(path: &Path) -> Option<T> {
@@ -2222,4 +2835,90 @@ fn write_private_file(path: &Path, contents: &[u8]) -> anyhow::Result<()> {
     #[cfg(not(unix))]
     std::fs::write(path, contents)?;
     Ok(())
+}
+
+#[cfg(test)]
+mod settings_tests {
+    use super::{
+        DEFAULT_MULTICAST_GROUP, DesktopSettings, discovery_timeout_for, interface_filter_for,
+        load_settings, multicast_groups_for,
+    };
+    use std::time::Duration;
+
+    #[test]
+    fn legacy_discovery_timeout_seconds_is_migrated_to_milliseconds() {
+        let directory = tempfile::tempdir().expect("tempdir");
+        let path = directory.path().join("settings.json");
+        std::fs::write(&path, r#"{"alias":"legacy","discovery_timeout_secs":10}"#)
+            .expect("write settings");
+
+        let settings = load_settings(&path);
+        assert_eq!(settings.alias, "legacy");
+        assert_eq!(settings.discovery_timeout_ms, 10_000);
+    }
+
+    #[test]
+    fn new_discovery_timeout_takes_precedence_over_legacy_key() {
+        let directory = tempfile::tempdir().expect("tempdir");
+        let path = directory.path().join("settings.json");
+        std::fs::write(
+            &path,
+            r#"{"discovery_timeout_ms":750,"discovery_timeout_secs":10}"#,
+        )
+        .expect("write settings");
+
+        let settings = load_settings(&path);
+        assert_eq!(settings.discovery_timeout_ms, 750);
+    }
+
+    #[test]
+    fn missing_settings_file_uses_official_500ms_timeout() {
+        let directory = tempfile::tempdir().expect("tempdir");
+        let settings = load_settings(&directory.path().join("missing.json"));
+        assert_eq!(settings.discovery_timeout_ms, 500);
+    }
+
+    #[test]
+    fn custom_multicast_group_keeps_official_group_as_compatibility_fallback() {
+        let settings = DesktopSettings {
+            multicast_group: Some("239.255.88.61".to_string()),
+            ..DesktopSettings::default()
+        };
+        assert_eq!(
+            multicast_groups_for(&settings),
+            vec!["239.255.88.61".parse().unwrap(), DEFAULT_MULTICAST_GROUP]
+        );
+    }
+
+    #[test]
+    fn invalid_or_empty_multicast_group_uses_official_default() {
+        for value in [
+            None,
+            Some(String::new()),
+            Some("not-an-address".to_string()),
+        ] {
+            let settings = DesktopSettings {
+                multicast_group: value,
+                ..DesktopSettings::default()
+            };
+            assert_eq!(
+                multicast_groups_for(&settings),
+                vec![DEFAULT_MULTICAST_GROUP]
+            );
+        }
+    }
+
+    #[test]
+    fn interface_filters_and_timeout_are_copied_into_discovery_configuration() {
+        let settings = DesktopSettings {
+            discovery_timeout_ms: 0,
+            interface_whitelist: Some(vec!["en0".to_string()]),
+            interface_blacklist: Some(vec!["utun*".to_string()]),
+            ..DesktopSettings::default()
+        };
+        let filter = interface_filter_for(&settings);
+        assert_eq!(filter.whitelist, Some(vec!["en0".to_string()]));
+        assert_eq!(filter.blacklist, Some(vec!["utun*".to_string()]));
+        assert_eq!(discovery_timeout_for(&settings), Duration::from_millis(1));
+    }
 }

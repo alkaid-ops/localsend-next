@@ -569,7 +569,7 @@ impl App {
             }
             InputMode::EditDiscoveryTimeout => match value.parse::<u64>() {
                 Ok(timeout) if timeout > 0 => {
-                    self.update_settings(|settings| settings.discovery_timeout_secs = timeout)
+                    self.update_settings(|settings| settings.discovery_timeout_ms = timeout)
                         .await
                 }
                 _ => self.status = "Discovery timeout must be a positive integer".to_string(),
@@ -1570,7 +1570,7 @@ fn draw_settings(frame: &mut Frame, app: &App, area: Rect) {
                 .unwrap_or_else(|| "<system downloads>".to_string())
         ),
         format!("Auto-save: {:?}", settings.auto_save),
-        format!("Discovery timeout: {} s", settings.discovery_timeout_secs),
+        format!("Discovery timeout: {} ms", settings.discovery_timeout_ms),
         format!(
             "Multicast group: {}",
             settings.multicast_group.as_deref().unwrap_or("<default>")
@@ -1623,7 +1623,7 @@ fn draw_input(frame: &mut Frame, mode: &InputMode, input: &str) {
         InputMode::EditPort => "Port",
         InputMode::EditPin => "PIN (use - to clear)",
         InputMode::EditDestination => "Receive directory (use - for default)",
-        InputMode::EditDiscoveryTimeout => "Discovery timeout seconds",
+        InputMode::EditDiscoveryTimeout => "Discovery timeout milliseconds",
         InputMode::EditMulticastGroup => "Multicast group (IPv4)",
         InputMode::EditWhitelist => "Interface whitelist (comma separated)",
         InputMode::EditBlacklist => "Interface blacklist (comma separated)",

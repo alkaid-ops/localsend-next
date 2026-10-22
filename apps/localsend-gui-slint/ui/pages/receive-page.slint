@@ -1,10 +1,11 @@
-import { ScrollView } from "std-widgets.slint";
+import { ProgressIndicator, ScrollView } from "std-widgets.slint";
 import {
     FlutterDialogButton,
     FlutterIconButton,
     FlutterOutlinedButton,
 } from "../components/common.slint";
 import { ThemeTokens } from "../theme.slint";
+import { UiText } from "../text.slint";
 import { RequestFileItem, TransferItem } from "../models.slint";
 
 export component ReceivePage inherits Rectangle {
@@ -16,6 +17,7 @@ export component ReceivePage inherits Rectangle {
     in property <string> port: "";
     in property <string> server-status: "";
     in property <bool> server-running: false;
+    in property <bool> animations: true;
     in property <string> request-id: "";
     in property <string> request-title: "";
     in property <[RequestFileItem]> request-files: [];
@@ -34,8 +36,20 @@ export component ReceivePage inherits Rectangle {
         1px,
         root.viewport-height - 162px - (root.request-files.length > 0 ? root.request-card-height + 8px : 0px)
     );
+    property <angle> logo-rotation: 0deg;
 
     background: ThemeTokens.surface;
+
+    Timer {
+        interval: 60ms;
+        running: root.animations && root.server-running;
+        triggered => {
+            root.logo-rotation = root.logo-rotation + 1.5deg;
+            if (root.logo-rotation >= 360deg) {
+                root.logo-rotation = root.logo-rotation - 360deg;
+            }
+        }
+    }
 
     VerticalLayout {
         width: parent.width;
@@ -86,6 +100,11 @@ export component ReceivePage inherits Rectangle {
                     content-height: max(self.visible-height, root.request-files.length * 28px);
                     VerticalLayout {
                         for file in root.request-files : Rectangle {
+                            accessible-role: checkbox;
+                            accessible-label: file.name;
+                            accessible-checked: file.selected;
+                            accessible-enabled: true;
+                            accessible-action-default => { root.toggle-request-file(file.file-id); }
                             height: 26px;
                             background: transparent;
                             HorizontalLayout {
@@ -112,16 +131,19 @@ export component ReceivePage inherits Rectangle {
                 HorizontalLayout {
                     spacing: 8px;
                     FlutterDialogButton {
-                        label: "拒绝";
+                        automation-id: "receive-reject";
+                        label: @tr("拒绝");
                         clicked => { root.respond-transfer(root.request-id, [], false); }
                     }
                     FlutterDialogButton {
-                        label: "接受所选";
+                        automation-id: "receive-accept-selected";
+                        label: @tr("接受所选");
                         primary: true;
                         clicked => { root.respond-transfer(root.request-id, root.selected-request-ids, true); }
                     }
                     FlutterDialogButton {
-                        label: "全部接受";
+                        automation-id: "receive-accept-all";
+                        label: @tr("全部接受");
                         clicked => { root.respond-transfer(root.request-id, [], true); }
                     }
                 }
@@ -139,14 +161,15 @@ export component ReceivePage inherits Rectangle {
                 spacing: 4px;
                 HorizontalLayout {
                     width: parent.width;
-                    height: min(200px, root.viewport-height * 0.28);
+                    height: min(174px, root.viewport-height * 0.28);
                     alignment: center;
                     Image {
-                        width: min(200px, root.viewport-height * 0.28);
+                        width: min(174px, root.viewport-height * 0.28);
                         height: parent.height;
                         source: @image-url("../images/flutter-logo-512.png");
                         colorize: ThemeTokens.primary;
                         image-fit: contain;
+                        transform-rotation: root.animations ? root.logo-rotation : 0deg;
                     }
                 }
                 Text {
@@ -157,12 +180,6 @@ export component ReceivePage inherits Rectangle {
                     horizontal-alignment: center;
                     overflow: elide;
                 }
-                Text {
-                    text: root.device-id;
-                    color: ThemeTokens.on-surface-variant;
-                    font-size: 24px;
-                    horizontal-alignment: center;
-                }
             }
         }
 
@@ -170,7 +187,7 @@ export component ReceivePage inherits Rectangle {
             horizontal-stretch: 1;
             spacing: 6px;
             for transfer in root.transfers : Rectangle {
-                height: 48px;
+                height: 68px;
                 border-radius: ThemeTokens.card-radius;
                 background: ThemeTokens.surface-container-low;
                 HorizontalLayout {
@@ -178,17 +195,31 @@ export component ReceivePage inherits Rectangle {
                     padding-right: 8px;
                     spacing: 10px;
                     alignment: center;
-                    Text {
-                        text: transfer.direction + " · " + transfer.peer + " · " + transfer.summary;
-                        color: ThemeTokens.on-surface;
-                        font-size: 13px;
+                    VerticalLayout {
                         horizontal-stretch: 1;
-                        overflow: elide;
+                        spacing: 5px;
+                        Text {
+                            text: UiText.transfer-direction(transfer.direction) + " · " + transfer.peer + " · " + transfer.summary;
+                            color: ThemeTokens.on-surface;
+                            font-size: 13px;
+                            overflow: elide;
+                        }
+                        ProgressIndicator {
+                            height: 4px;
+                            progress: transfer.progress-percent / 100.0;
+                            indeterminate: false;
+                        }
+                        Text {
+                            text: UiText.transfer-status(transfer.status) + " · " + transfer.progress-percent + "%";
+                            color: ThemeTokens.on-surface-variant;
+                            font-size: 11px;
+                        }
                     }
                     FlutterDialogButton {
                         width: 76px;
                         height: 34px;
-                        label: "取消";
+                        automation-id: "transfer-cancel";
+                        label: @tr("取消");
                         clicked => { root.cancel-transfer(transfer.transfer-id); }
                     }
                 }
@@ -199,18 +230,10 @@ export component ReceivePage inherits Rectangle {
             height: 42px;
             alignment: center;
             FlutterOutlinedButton {
-                label: "通过链接接收";
+                automation-id: "receive-web-share";
+                label: @tr("通过链接接收");
                 clicked => { root.open-web-share(); }
             }
-        }
-
-        Text {
-            text: root.server-status + (root.port == "" ? "" : " · " + root.port);
-            color: root.server-running ? ThemeTokens.primary : ThemeTokens.on-surface-variant;
-            font-size: 12px;
-            height: 16px;
-            horizontal-alignment: right;
-            overflow: elide;
         }
     }
 }

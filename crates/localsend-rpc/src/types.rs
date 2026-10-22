@@ -111,10 +111,26 @@ pub struct DesktopSettings {
     pub destination_dir: Option<PathBuf>,
     pub auto_accept: bool,
     pub auto_save: AutoSaveMode,
+    /// Independent favorites switch used by the desktop settings UI. The
+    /// effective receiver mode is still represented by `auto_save`.
+    #[serde(default)]
+    pub auto_save_from_favorites: bool,
     pub auto_finish: bool,
+    /// Compute SHA-256 while offering files and include it in the v2 payload.
+    #[serde(default = "default_true")]
+    pub create_checksums: bool,
+    /// Reject incoming files whose payload checksum does not match.
+    #[serde(default = "default_true")]
+    pub verify_checksums: bool,
     pub save_to_history: bool,
     pub start_server_on_launch: bool,
-    pub discovery_timeout_secs: u64,
+    /// Timeout for discovery register requests and manual probes, matching
+    /// LocalSend's setting and stored in milliseconds.
+    #[serde(
+        default = "default_discovery_timeout_ms",
+        alias = "discovery_timeout_secs"
+    )]
+    pub discovery_timeout_ms: u64,
     /// Multicast group the GUI asked for. `None` keeps LocalSend's default.
     pub multicast_group: Option<String>,
     /// IP patterns (`*` matches within one octet) of the interfaces to use and
@@ -142,10 +158,13 @@ impl Default for DesktopSettings {
             destination_dir: None,
             auto_accept: false,
             auto_save: AutoSaveMode::Off,
+            auto_save_from_favorites: false,
             auto_finish: true,
+            create_checksums: true,
+            verify_checksums: true,
             save_to_history: true,
             start_server_on_launch: true,
-            discovery_timeout_secs: 10,
+            discovery_timeout_ms: default_discovery_timeout_ms(),
             multicast_group: None,
             interface_whitelist: None,
             interface_blacklist: None,
@@ -168,6 +187,14 @@ fn default_alias() -> String {
         .ok()
         .filter(|value| !value.trim().is_empty())
         .unwrap_or_else(|| "LocalSend PC".to_string())
+}
+
+const fn default_true() -> bool {
+    true
+}
+
+const fn default_discovery_timeout_ms() -> u64 {
+    500
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -399,6 +426,9 @@ pub enum ServiceCommand {
     CancelTransfer {
         transfer_id: String,
     },
+    DismissTransfer {
+        transfer_id: String,
+    },
     UpdateSettings {
         expected_revision: u64,
         settings: DesktopSettings,
@@ -607,4 +637,24 @@ pub fn unix_ms_now() -> u64 {
 
 pub fn file_views(files: &HashMap<FileId, FileMetadata>) -> Vec<FileView> {
     files.values().map(FileView::from_metadata).collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::DesktopSettings;
+
+    #[test]
+    fn checksum_settings_default_to_enabled_for_legacy_configs() {
+        let settings: DesktopSettings =
+            serde_json::from_str(r#"{"alias":"legacy"}"#).expect("deserialize legacy settings");
+        assert!(settings.create_checksums);
+        assert!(settings.verify_checksums);
+    }
+
+    #[test]
+    fn discovery_timeout_defaults_to_official_milliseconds() {
+        let settings: DesktopSettings =
+            serde_json::from_str(r#"{"alias":"legacy"}"#).expect("deserialize legacy settings");
+        assert_eq!(settings.discovery_timeout_ms, 500);
+    }
 }

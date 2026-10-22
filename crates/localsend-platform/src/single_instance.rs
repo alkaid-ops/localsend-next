@@ -78,4 +78,22 @@ mod tests {
         assert_eq!(first, second);
         assert_ne!(first, different);
     }
+
+    #[test]
+    fn instance_lock_rejects_a_second_owner_until_released() {
+        let name = format!(
+            "localsend-lock-test-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        );
+        let first = InstanceLock::try_acquire(&name)
+            .unwrap()
+            .expect("first lock");
+        assert!(InstanceLock::try_acquire(&name).unwrap().is_none());
+        drop(first);
+        assert!(InstanceLock::try_acquire(&name).unwrap().is_some());
+    }
 }

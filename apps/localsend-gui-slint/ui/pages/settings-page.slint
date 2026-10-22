@@ -45,8 +45,12 @@ export component SettingsPage inherits Rectangle {
     in property <bool> minimize-to-tray: true;
     in property <bool> launch-on-login: false;
     in property <bool> animations: true;
-    in property <int> auto-save-index: 0;
+    in property <bool> auto-save-all: false;
+    in property <bool> auto-save-favorites: false;
     in property <bool> auto-finish: true;
+    in property <bool> send-auto-accept: false;
+    in property <bool> create-checksums: true;
+    in property <bool> verify-checksums: true;
     in property <bool> save-to-history: true;
     in property <bool> require-pin: false;
     in property <string> destination: "";
@@ -57,19 +61,21 @@ export component SettingsPage inherits Rectangle {
     in property <string> device-model: "";
     in property <bool> terms-supported: false;
     in property <string> port: "53317";
-    in property <string> discovery-timeout: "10";
+    in property <string> discovery-timeout: "500";
     in property <string> multicast-group: "";
-    in property <string> network-filter: "全部接口";
+    in property <string> network-filter: @tr("全部接口");
     in property <bool> encryption: true;
     in property <bool> advanced: false;
+    in property <bool> show-daemon-shutdown: false;
     in-out property <length> scroll-y: 0px;
     callback cycle-setting(string);
     callback set-toggle(string, bool);
-    callback set-auto-save(int);
+    callback set-auto-save(bool, bool);
     callback edit-setting(string);
     callback submit-setting(string, string);
     callback toggle-server();
     callback restart-server();
+    callback shutdown-daemon();
     callback pick-destination();
     callback open-about();
     callback open-support();
@@ -83,13 +89,13 @@ export component SettingsPage inherits Rectangle {
         width: parent.width;
         height: parent.height;
         content-width: self.visible-width;
-        content-height: max(self.visible-height, 1700px);
+        content-height: max(self.visible-height, 2200px);
         content-y <=> root.scroll-y;
 
         Rectangle {
             width: min(root.viewport-width, ThemeTokens.settings-max-width);
             x: (root.viewport-width - self.width) / 2;
-            height: max(parent.height, 1700px);
+            height: max(parent.height, 2200px);
             background: transparent;
             VerticalLayout {
                 spacing: 0px;
@@ -99,80 +105,88 @@ export component SettingsPage inherits Rectangle {
                 padding-bottom: 30px;
 
                 Text {
-                    text: "设置";
+                    text: @tr("设置");
                     color: ThemeTokens.on-surface;
                     font-size: 24px;
                     font-weight: 600;
                     horizontal-alignment: center;
                     height: 42px;
                 }
-                Text {
-                    text: root.status-message;
-                    height: root.status-message == "" ? 0px : 24px;
-                    color: ThemeTokens.primary;
-                    font-size: 13px;
-                    horizontal-alignment: center;
-                    overflow: elide;
+                SettingsSectionTitle { text: @tr("通用"); }
+                SettingsPanel {
+                    content-height: 7 * 63px + 16px;
+                    FlutterSettingsEntry { label: @tr("主题"); value: root.brightness; compact: root.viewport-width < 700px; clicked => { root.cycle-setting("theme"); } }
+                    FlutterSettingsEntry { label: @tr("颜色"); value: root.color-mode; compact: root.viewport-width < 700px; clicked => { root.cycle-setting("color"); } }
+                    FlutterSettingsEntry { label: @tr("语言"); value: root.language; compact: root.viewport-width < 700px; clicked => { root.cycle-setting("language"); } }
+                    FlutterBooleanEntry { label: @tr("退出时保存窗口位置"); checked: root.save-window-position; compact: root.viewport-width < 700px; toggled(value) => { root.set-toggle("save_window_position", value); } }
+                    FlutterBooleanEntry { label: @tr("关闭时最小化到系统托盘"); checked: root.minimize-to-tray; compact: root.viewport-width < 700px; toggled(value) => { root.set-toggle("minimize_to_tray", value); } }
+                    FlutterBooleanEntry { label: @tr("登录系统后自动启动程序"); checked: root.launch-on-login; compact: root.viewport-width < 700px; toggled(value) => { root.set-toggle("launch_on_login", value); } }
+                    FlutterBooleanEntry { label: @tr("动画效果"); checked: root.animations; compact: root.viewport-width < 700px; toggled(value) => { root.set-toggle("animations", value); } }
                 }
 
-                SettingsSectionTitle { text: "通用"; }
+                SettingsSectionTitle { text: @tr("接收"); }
                 SettingsPanel {
-                    content-height: 8 * 56px + 16px;
-                    FlutterSettingsEntry { label: "主题"; value: root.brightness; compact: root.viewport-width < 700px; clicked => { root.cycle-setting("theme"); } }
-                    FlutterSettingsEntry { label: "颜色"; value: root.color-mode; compact: root.viewport-width < 700px; clicked => { root.cycle-setting("color"); } }
-                    FlutterSettingsEntry { label: "语言"; value: root.language; compact: root.viewport-width < 700px; clicked => { root.cycle-setting("language"); } }
-                    FlutterBooleanEntry { label: "窗口置顶"; checked: root.always-on-top; compact: root.viewport-width < 700px; toggled(value) => { root.set-toggle("always_on_top", value); } }
-                    FlutterBooleanEntry { label: "退出时保存窗口位置"; checked: root.save-window-position; compact: root.viewport-width < 700px; toggled(value) => { root.set-toggle("save_window_position", value); } }
-                    FlutterBooleanEntry { label: "关闭时最小化到系统托盘"; checked: root.minimize-to-tray; compact: root.viewport-width < 700px; toggled(value) => { root.set-toggle("minimize_to_tray", value); } }
-                    FlutterBooleanEntry { label: "登录系统后自动启动程序"; checked: root.launch-on-login; compact: root.viewport-width < 700px; toggled(value) => { root.set-toggle("launch_on_login", value); } }
-                    FlutterBooleanEntry { label: "动画效果"; checked: root.animations; compact: root.viewport-width < 700px; toggled(value) => { root.set-toggle("animations", value); } }
-                }
-
-                SettingsSectionTitle { text: "接收"; }
-                SettingsPanel {
-                    content-height: 6 * 56px + 16px;
+                    content-height: 7 * 63px + 16px;
                     FlutterBooleanEntry {
-                        label: "快速保存";
-                        checked: root.auto-save-index == 2;
+                        label: @tr("自动保存");
+                        checked: root.auto-save-all;
                         compact: root.viewport-width < 700px;
                         toggled(value) => {
-                            root.set-auto-save(value ? 2 : (root.auto-save-index == 2 ? 0 : root.auto-save-index));
+                            root.set-auto-save(value, root.auto-save-favorites);
                         }
                     }
                     FlutterBooleanEntry {
-                        label: "从收藏设备快速保存";
-                        checked: root.auto-save-index == 1;
+                        label: @tr("自动保存来自“收藏夹(白名单)”设备的文件");
+                        checked: root.auto-save-favorites;
                         compact: root.viewport-width < 700px;
                         toggled(value) => {
-                            root.set-auto-save(value ? 1 : (root.auto-save-index == 1 ? 0 : root.auto-save-index));
+                            root.set-auto-save(root.auto-save-all, value);
                         }
                     }
                     FlutterBooleanEntry {
-                        label: "需要 PIN";
+                        label: @tr("启用 PIN 密码");
                         checked: root.require-pin;
                         compact: root.viewport-width < 700px;
                         toggled(value) => { root.edit-setting(value ? "pin-enable" : "pin-disable"); }
                     }
-                    FlutterBooleanEntry { label: "自动完成传输任务"; checked: root.auto-finish; compact: root.viewport-width < 700px; toggled(value) => { root.set-toggle("auto_finish", value); } }
                     FlutterSettingsEntry {
-                        label: "接收目录";
+                        label: @tr("保存目录");
                         value: root.destination == "" ? "Downloads" : root.destination;
                         compact: root.viewport-width < 700px;
                         clicked => { root.pick-destination(); }
                     }
-                    FlutterBooleanEntry { label: "保存到历史记录"; checked: root.save-to-history; compact: root.viewport-width < 700px; toggled(value) => { root.set-toggle("save_to_history", value); } }
+                    FlutterBooleanEntry { label: @tr("自动完成传输任务"); checked: root.auto-finish; compact: root.viewport-width < 700px; toggled(value) => { root.set-toggle("auto_finish", value); } }
+                    FlutterBooleanEntry { label: @tr("保存到历史记录"); checked: root.save-to-history; compact: root.viewport-width < 700px; toggled(value) => { root.set-toggle("save_to_history", value); } }
+                    FlutterBooleanEntry { label: @tr("接收文件时验证校验和"); checked: root.verify-checksums; compact: root.viewport-width < 700px; toggled(value) => { root.set-toggle("verify_checksums", value); } }
                 }
 
-                SettingsSectionTitle { text: "网络"; }
+                SettingsSectionTitle { text: @tr("发送"); }
                 SettingsPanel {
-                    content-height: (root.advanced ? 9 : 7) * 56px + 16px;
+                    content-height: 2 * 63px + 16px;
+                    FlutterBooleanEntry {
+                        label: @tr("通过链接分享：自动同意接收请求");
+                        checked: root.send-auto-accept;
+                        compact: root.viewport-width < 700px;
+                        toggled(value) => { root.set-toggle("send_auto_accept", value); }
+                    }
+                    FlutterBooleanEntry {
+                        label: @tr("发送文件时创建校验和");
+                        checked: root.create-checksums;
+                        compact: root.viewport-width < 700px;
+                        toggled(value) => { root.set-toggle("create_checksums", value); }
+                    }
+                }
+
+                SettingsSectionTitle { text: @tr("网络"); }
+                SettingsPanel {
+                    content-height: (root.advanced ? 9 : 7) * 63px + 16px;
                     HorizontalLayout {
-                        height: 56px;
+                        height: 63px;
                         padding-left: 16px;
                         padding-right: 8px;
                         spacing: 4px;
                         Text {
-                            text: "服务器";
+                            text: @tr("服务器");
                             color: ThemeTokens.on-surface;
                             font-size: 14px;
                             horizontal-stretch: 1;
@@ -197,31 +211,38 @@ export component SettingsPage inherits Rectangle {
                             clicked => { root.restart-server(); }
                         }
                     }
-                    FlutterInlineSettingEntry { label: "设备名称"; text: root.alias; compact: root.viewport-width < 700px; submitted(value) => { root.submit-setting("alias", value); } }
-                    if root.advanced : FlutterSettingsEntry { label: "设备类型（只读）"; value: root.device-type; enabled: false; compact: root.viewport-width < 700px; }
-                    if root.advanced : FlutterSettingsEntry { label: "设备型号（只读）"; value: root.device-model; enabled: false; compact: root.viewport-width < 700px; }
-                    FlutterInlineSettingEntry { label: "端口"; text: root.port; compact: root.viewport-width < 700px; submitted(value) => { root.submit-setting("port", value); } }
-                    FlutterInlineSettingEntry { label: "网络接口"; text: root.network-filter; compact: root.viewport-width < 700px; submitted(value) => { root.submit-setting("network-filter", value); } }
-                    FlutterInlineSettingEntry { label: "发现超时"; text: root.discovery-timeout; compact: root.viewport-width < 700px; submitted(value) => { root.submit-setting("discovery-timeout", value); } }
-                    FlutterBooleanEntry { label: "HTTPS 加密"; checked: root.encryption; compact: root.viewport-width < 700px; toggled(value) => { root.set-toggle("https", value); } }
-                    FlutterInlineSettingEntry { label: "组播地址"; text: root.multicast-group; compact: root.viewport-width < 700px; submitted(value) => { root.submit-setting("multicast-group", value); } }
+                    FlutterInlineSettingEntry { label: @tr("设备名称"); text: root.alias; compact: root.viewport-width < 700px; submitted(value) => { root.submit-setting("alias", value); } }
+                    if root.advanced : FlutterSettingsEntry { label: @tr("设备类型"); value: root.device-type; enabled: false; compact: root.viewport-width < 700px; }
+                    if root.advanced : FlutterSettingsEntry { label: @tr("设备型号"); value: root.device-model; enabled: false; compact: root.viewport-width < 700px; }
+                    FlutterInlineSettingEntry { label: @tr("端口"); text: root.port; compact: root.viewport-width < 700px; submitted(value) => { root.submit-setting("port", value); } }
+                    FlutterInlineSettingEntry { label: @tr("网络"); text: root.network-filter; compact: root.viewport-width < 700px; submitted(value) => { root.submit-setting("network-filter", value); } }
+                    FlutterInlineSettingEntry { label: @tr("搜索设备超时"); text: root.discovery-timeout; compact: root.viewport-width < 700px; submitted(value) => { root.submit-setting("discovery-timeout", value); } }
+                    FlutterBooleanEntry { label: @tr("加密"); checked: root.encryption; compact: root.viewport-width < 700px; toggled(value) => { root.set-toggle("https", value); } }
+                    FlutterInlineSettingEntry { label: @tr("多播"); text: root.multicast-group; compact: root.viewport-width < 700px; submitted(value) => { root.submit-setting("multicast-group", value); } }
                 }
 
-                SettingsSectionTitle { text: "其他"; }
+                SettingsSectionTitle { text: @tr("其他"); }
                 SettingsPanel {
-                    content-height: (root.terms-supported ? 5 : 4) * 56px + 16px;
-                    FlutterSettingsEntry { label: "关于 LocalSend"; value: "打开"; compact: root.viewport-width < 700px; clicked => { root.open-about(); } }
-                    FlutterSettingsEntry { label: "支持 LocalSend"; value: "打开"; compact: root.viewport-width < 700px; clicked => { root.open-support(); } }
-                    FlutterSettingsEntry { label: "隐私政策"; value: "打开"; compact: root.viewport-width < 700px; clicked => { root.open-privacy(); } }
-                    if root.terms-supported : FlutterSettingsEntry { label: "使用条款"; value: "打开"; compact: root.viewport-width < 700px; clicked => { root.open-terms(); } }
-                    FlutterSettingsEntry { label: "版本与更新日志"; value: "查看"; compact: root.viewport-width < 700px; clicked => { root.open-changelog(); } }
+                    content-height: (root.terms-supported ? 5 : 4) * 63px
+                        + (root.show-daemon-shutdown ? 63px : 0px) + 16px;
+                    FlutterSettingsEntry { label: @tr("关于 LocalSend"); value: "打开"; compact: root.viewport-width < 700px; clicked => { root.open-about(); } }
+                    FlutterSettingsEntry { label: @tr("支持 LocalSend"); value: "打开"; compact: root.viewport-width < 700px; clicked => { root.open-support(); } }
+                    FlutterSettingsEntry { label: @tr("隐私政策"); value: "打开"; compact: root.viewport-width < 700px; clicked => { root.open-privacy(); } }
+                    if root.terms-supported : FlutterSettingsEntry { label: @tr("使用条款"); value: "打开"; compact: root.viewport-width < 700px; clicked => { root.open-terms(); } }
+                    FlutterSettingsEntry { label: @tr("版本与更新日志"); value: "查看"; compact: root.viewport-width < 700px; clicked => { root.open-changelog(); } }
+                    if root.show-daemon-shutdown : FlutterSettingsEntry {
+                        label: @tr("关闭后台服务");
+                        value: @tr("执行");
+                        compact: root.viewport-width < 700px;
+                        clicked => { root.shutdown-daemon(); }
+                    }
                 }
                 Rectangle {
                     height: 54px;
                     HorizontalLayout {
                         horizontal-stretch: 1;
                         Rectangle { horizontal-stretch: 1; background: transparent; }
-                        Text { text: "高级设置"; color: ThemeTokens.on-surface; font-size: 14px; vertical-alignment: center; }
+                        Text { text: @tr("高级设置"); color: ThemeTokens.on-surface; font-size: 14px; vertical-alignment: center; }
                         FlutterBooleanEntry {
                             width: 184px;
                             label: "";

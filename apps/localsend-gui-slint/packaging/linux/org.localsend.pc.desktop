@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=LocalSend
+Comment=Share files, folders, and text with nearby devices
+Exec=localsend-launcher
+TryExec=localsend-launcher
+Icon=org.localsend.pc
+Terminal=false
+Categories=Utility;Network;
+Keywords=LocalSend;file transfer;LAN;
+StartupWMClass=LocalSend

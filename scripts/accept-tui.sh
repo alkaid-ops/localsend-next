@@ -8,8 +8,15 @@ mkdir -p "$OUT"
 
 cd "$ROOT"
 cargo build -p localsendd -p localsend-tui | tee "$OUT/build.log"
-cargo test -p localsend-service --test multicast_discovery -- --nocapture \
-    | tee "$OUT/multicast-discovery.log"
+if [[ "${LOCALSEND_RUN_REAL_MULTICAST_TEST:-0}" == "1" ]]; then
+    cargo test -p localsend-service --test multicast_discovery -- --ignored --nocapture \
+        | tee "$OUT/multicast-discovery.log"
+else
+    echo 'SKIPPED: set LOCALSEND_RUN_REAL_MULTICAST_TEST=1 with no production instance' \
+        | tee "$OUT/multicast-discovery.log"
+fi
+cargo test -p localsend-service --test https_send -- --nocapture \
+    | tee "$OUT/https-send.log"
 
 for run in 1 2 3; do
     LOCALSEND_ACCEPTANCE=1 cargo test -p localsend-tui -- --test-threads=1 --nocapture \

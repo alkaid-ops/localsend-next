@@ -1,6 +1,7 @@
 use localsend_rpc::{
-    AutoSaveMode, CommandResult, DaemonClient, DesktopSettings, ReceiverDecision, SendFileRequest,
-    ServiceCommand, ServiceErrorKind, ServiceEvent, ServiceSnapshot, TransferStatus, WebShareMode,
+    AutoSaveMode, CommandResult, DaemonClient, DesktopSettings, DeviceInfo, ReceiverDecision,
+    SendFileRequest, ServiceCommand, ServiceErrorKind, ServiceEvent, ServiceSnapshot,
+    TransferDirection, TransferStatus, WebShareMode,
 };
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -14,8 +15,12 @@ pub enum UiCommand {
     RefreshDiscovery,
     ToggleServer,
     RestartServer,
-    SetAutoSave(AutoSaveMode),
+    SetAutoSave {
+        all: bool,
+        favorites: bool,
+    },
     StartWebReceive,
+    RestartWebReceive,
     StopWebShare,
     AddManual(String),
     ToggleFavorite(String),
@@ -36,6 +41,7 @@ pub enum UiCommand {
         decision: ReceiverDecision,
     },
     CancelTransfer(String),
+    DismissTransfer(String),
     ClearHistory,
     UpdateSettings {
         expected_revision: u64,
@@ -62,11 +68,11 @@ pub struct DaemonWorker {
 #[derive(Debug, Clone)]
 enum PendingSend {
     Files {
-        fingerprint: String,
+        target: DeviceInfo,
         paths: Vec<PathBuf>,
     },
     Text {
-        fingerprint: String,
+        target: DeviceInfo,
         text: String,
     },
 }
@@ -166,13 +172,31 @@ async fn run_worker(
                                 } if pending_sends.contains_key(&transfer_id) => {
                                     let _ = events_out.send(WorkerEvent::PinRequired { transfer_id });
                                 }
-                                ServiceEvent::TransferFailed { transfer_id, .. } => {
+                                ServiceEvent::TransferFailed {
+                                    transfer_id, error, ..
+                                } => {
                                     pending_sends.remove(&transfer_id);
+                                    let _ = events_out.send(WorkerEvent::Notice(format!(
+                                        "传输失败：{error}"
+                                    )));
                                 }
                                 ServiceEvent::TransferFinished { transfer }
                                     if transfer.status != TransferStatus::Failed =>
                                 {
                                     pending_sends.remove(&transfer.transfer_id);
+                                    if transfer.status == TransferStatus::Finished
+                                        && transfer.direction == TransferDirection::Send
+                                    {
+                                        let is_text = transfer.files.iter().any(|file| {
+                                            file.file_type == "text"
+                                                || file.file_type.starts_with("text/")
+                                        });
+                                        let subject = if is_text { "文本" } else { "文件" };
+                                        let _ = events_out.send(WorkerEvent::Notice(format!(
+                                            "{subject}已发送给 {}",
+                                            transfer.peer_alias
+                                        )));
+                                    }
                                 }
                                 _ => {}
                             }
@@ -267,12 +291,39 @@ async fn handle_command(
                 .await
                 .map(|_| None)
         }
+        UiCommand::RestartWebReceive => {
+            let snapshot = match client.command(ServiceCommand::GetSnapshot).await {
+                Ok(CommandResult::Snapshot { snapshot }) => snapshot,
+                Ok(_) => return emit_error(events, "Daemon did not return a snapshot".into()),
+                Err(error) => return emit_error(events, error),
+            };
+            if let Err(error) = client.command(ServiceCommand::StopWebShare).await {
+                return emit_error(events, error);
+            }
+            client
+                .command(ServiceCommand::StartWebShare {
+                    files: Vec::new(),
+                    pin: snapshot.settings.pin,
+                    mode: WebShareMode::Receive,
+                    auto_accept: snapshot.settings.auto_accept,
+                    i18n: Default::default(),
+                })
+                .await
+                .map(|_| None)
+        }
         UiCommand::StopWebShare => client
             .command(ServiceCommand::StopWebShare)
             .await
             .map(|_| None),
-        UiCommand::SetAutoSave(mode) => update_settings(client, move |settings| {
-            settings.auto_save = mode;
+        UiCommand::SetAutoSave { all, favorites } => update_settings(client, move |settings| {
+            settings.auto_save_from_favorites = favorites;
+            settings.auto_save = if all {
+                AutoSaveMode::On
+            } else if favorites {
+                AutoSaveMode::Favorites
+            } else {
+                AutoSaveMode::Off
+            };
         })
         .await
         .map(|_| None),
@@ -321,8 +372,15 @@ async fn handle_command(
             }
         }
         UiCommand::SendFiles { fingerprint, paths } => {
+            let target = match resolve_target(client, &fingerprint).await {
+                Ok(target) => target,
+                Err(error) => {
+                    let _ = events.send(WorkerEvent::Notice(error));
+                    return false;
+                }
+            };
             let pending = PendingSend::Files {
-                fingerprint: fingerprint.clone(),
+                target: target.clone(),
                 paths: paths.clone(),
             };
             let files = paths
@@ -338,7 +396,7 @@ async fn handle_command(
                 client,
                 ServiceCommand::SendFiles {
                     target_fingerprint: Some(fingerprint),
-                    target: None,
+                    target: Some(target),
                     files,
                     pin: None,
                 },
@@ -347,15 +405,22 @@ async fn handle_command(
             .map(|transfer_id| Some((transfer_id, pending)))
         }
         UiCommand::SendText { fingerprint, text } => {
+            let target = match resolve_target(client, &fingerprint).await {
+                Ok(target) => target,
+                Err(error) => {
+                    let _ = events.send(WorkerEvent::Notice(error));
+                    return false;
+                }
+            };
             let pending = PendingSend::Text {
-                fingerprint: fingerprint.clone(),
+                target: target.clone(),
                 text: text.clone(),
             };
             send_command(
                 client,
                 ServiceCommand::SendText {
                     target_fingerprint: Some(fingerprint),
-                    target: None,
+                    target: Some(target),
                     text,
                     pin: None,
                 },
@@ -371,7 +436,7 @@ async fn handle_command(
                 return false;
             };
             match pending {
-                PendingSend::Files { fingerprint, paths } => {
+                PendingSend::Files { target, paths } => {
                     let files = paths
                         .iter()
                         .cloned()
@@ -385,26 +450,26 @@ async fn handle_command(
                     send_command(
                         client,
                         ServiceCommand::SendFiles {
-                            target_fingerprint: Some(fingerprint.clone()),
-                            target: None,
+                            target_fingerprint: Some(target.fingerprint.clone()),
+                            target: Some(target.clone()),
                             files,
                             pin: Some(pin),
                         },
                     )
                     .await
-                    .map(|new_id| Some((new_id, PendingSend::Files { fingerprint, paths })))
+                    .map(|new_id| Some((new_id, PendingSend::Files { target, paths })))
                 }
-                PendingSend::Text { fingerprint, text } => send_command(
+                PendingSend::Text { target, text } => send_command(
                     client,
                     ServiceCommand::SendText {
-                        target_fingerprint: Some(fingerprint.clone()),
-                        target: None,
+                        target_fingerprint: Some(target.fingerprint.clone()),
+                        target: Some(target.clone()),
                         text: text.clone(),
                         pin: Some(pin),
                     },
                 )
                 .await
-                .map(|new_id| Some((new_id, PendingSend::Text { fingerprint, text }))),
+                .map(|new_id| Some((new_id, PendingSend::Text { target, text }))),
             }
         }
         UiCommand::RespondTransfer {
@@ -419,6 +484,10 @@ async fn handle_command(
             .map(|_| None),
         UiCommand::CancelTransfer(transfer_id) => client
             .command(ServiceCommand::CancelTransfer { transfer_id })
+            .await
+            .map(|_| None),
+        UiCommand::DismissTransfer(transfer_id) => client
+            .command(ServiceCommand::DismissTransfer { transfer_id })
             .await
             .map(|_| None),
         UiCommand::ClearHistory => client
@@ -459,6 +528,28 @@ async fn handle_command(
         }
     }
     false
+}
+
+async fn resolve_target(client: &DaemonClient, fingerprint: &str) -> Result<DeviceInfo, String> {
+    let snapshot = match client.command(ServiceCommand::GetSnapshot).await? {
+        CommandResult::Snapshot { snapshot } => snapshot,
+        _ => return Err("daemon returned no snapshot while resolving send target".to_string()),
+    };
+    snapshot
+        .devices
+        .iter()
+        .find(|device| device.device.fingerprint == fingerprint)
+        .map(|device| device.device.clone())
+        .or_else(|| {
+            snapshot
+                .favorites
+                .iter()
+                .find(|favorite| favorite.device.fingerprint == fingerprint)
+                .map(|favorite| favorite.device.clone())
+        })
+        .ok_or_else(|| {
+            "target device is no longer available; refresh discovery and retry".to_string()
+        })
 }
 
 async fn send_command(client: &DaemonClient, command: ServiceCommand) -> Result<String, String> {

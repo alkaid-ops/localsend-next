@@ -12,10 +12,26 @@ pub struct DaemonFixture {
     endpoint: PathBuf,
     config_dir: PathBuf,
     destination: PathBuf,
+    discovery_enabled: bool,
 }
 
 impl DaemonFixture {
     pub async fn start(daemon_binary: &Path, settings: DesktopSettings) -> anyhow::Result<Self> {
+        Self::start_with_options(daemon_binary, settings, false).await
+    }
+
+    pub async fn start_with_discovery(
+        daemon_binary: &Path,
+        settings: DesktopSettings,
+    ) -> anyhow::Result<Self> {
+        Self::start_with_options(daemon_binary, settings, true).await
+    }
+
+    async fn start_with_options(
+        daemon_binary: &Path,
+        settings: DesktopSettings,
+        discovery_enabled: bool,
+    ) -> anyhow::Result<Self> {
         let root = tempfile::tempdir().context("creating daemon test directory")?;
         let config_dir = root.path().join("config");
         let destination = root.path().join("received");
@@ -29,15 +45,7 @@ impl DaemonFixture {
             config_dir.join("settings.json"),
             serde_json::to_vec_pretty(&settings)?,
         )?;
-        let child = Command::new(daemon_binary)
-            .env("LOCALSEND_CONFIG_DIR", &config_dir)
-            .env("LOCALSEND_RPC_SOCKET", &endpoint)
-            .env("RUST_LOG", "info")
-            .stdin(Stdio::null())
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
-            .spawn()
-            .with_context(|| format!("spawning {}", daemon_binary.display()))?;
+        let child = spawn_process(daemon_binary, &config_dir, &endpoint, discovery_enabled)?;
         let fixture = Self {
             root,
             child,
@@ -45,6 +53,7 @@ impl DaemonFixture {
             endpoint,
             config_dir,
             destination,
+            discovery_enabled,
         };
         fixture.wait_ready().await?;
         Ok(fixture)
@@ -109,7 +118,12 @@ impl DaemonFixture {
 
     pub async fn restart(&mut self) -> anyhow::Result<()> {
         self.kill()?;
-        self.child = spawn_process(&self.daemon_binary, &self.config_dir, &self.endpoint)?;
+        self.child = spawn_process(
+            &self.daemon_binary,
+            &self.config_dir,
+            &self.endpoint,
+            self.discovery_enabled,
+        )?;
         self.wait_ready().await
     }
 
@@ -138,14 +152,22 @@ fn spawn_process(
     daemon_binary: &Path,
     config_dir: &Path,
     endpoint: &Path,
+    discovery_enabled: bool,
 ) -> anyhow::Result<Child> {
-    Command::new(daemon_binary)
+    let mut command = Command::new(daemon_binary);
+    command
         .env("LOCALSEND_CONFIG_DIR", config_dir)
         .env("LOCALSEND_RPC_SOCKET", endpoint)
         .env("RUST_LOG", "info")
         .stdin(Stdio::null())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
+        .stdout(Stdio::null())
+        .stderr(Stdio::null());
+    if discovery_enabled {
+        command.env_remove("LOCALSEND_TEST_DISABLE_DISCOVERY");
+    } else {
+        command.env("LOCALSEND_TEST_DISABLE_DISCOVERY", "1");
+    }
+    command
         .spawn()
         .with_context(|| format!("spawning {}", daemon_binary.display()))
 }

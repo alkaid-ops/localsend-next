@@ -11,6 +11,16 @@ renderer-wgpu = ["eframe/wgpu"]
 
 [dependencies]
 anyhow = "1.0"
-eframe = { version = "0.37.0", default-features = false, features = ["clipboard", "default_fonts", "links", "wayland", "x11"] }
+arboard = { version = "3.7", default-features = false }
+directories = "6.0"
+eframe = { version = "0.37.0", default-features = false, features = ["accesskit", "clipboard", "default_fonts", "links", "persistence", "wayland", "x11"] }
 localsend-rpc = { path = "../../crates/localsend-rpc" }
+localsend-platform = { path = "../../crates/localsend-platform" }
+rfd = "0.17"
+serde = { version = "1.0", features = ["derive"] }
 tokio = { version = "1.49", features = ["full"] }
+
+[dev-dependencies]
+egui_kittest = "0.37.0"
+localsend-testkit = { path = "../../crates/localsend-testkit" }
+tempfile = "3.0"

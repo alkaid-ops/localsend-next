@@ -1,19 +1,23 @@
-import { ScrollView } from "std-widgets.slint";
+import { ProgressIndicator, ScrollView } from "std-widgets.slint";
 import {
     FlutterBigButton,
+    FlutterDialogButton,
     FlutterDeviceTile,
     FlutterIconButton,
 } from "../components/common.slint";
 import { ThemeTokens } from "../theme.slint";
-import { DeviceItem, SelectedFileItem } from "../models.slint";
+import { UiText } from "../text.slint";
+import { DeviceItem, SelectedFileItem, TransferItem } from "../models.slint";
 
 export component SendPage inherits Rectangle {
     in property <length> viewport-width: 800px;
     in property <[DeviceItem]> devices: [];
     in property <[SelectedFileItem]> selected-files: [];
+    in property <[TransferItem]> transfers: [];
     in property <string> selected-target: "";
     in property <string> selected-total-size: "0 B";
     in property <int> selected-file-count: 0;
+    in property <bool> sending-active: false;
     in property <int> send-mode: 0;
     in property <string> status-message: "";
     callback choose-file();
@@ -22,6 +26,7 @@ export component SendPage inherits Rectangle {
     callback send-clipboard();
     callback clear-selection();
     callback remove-selected(string);
+    callback edit-selection();
     callback refresh();
     callback add-manual();
     callback open-favorites();
@@ -30,6 +35,8 @@ export component SendPage inherits Rectangle {
     callback device-details(string);
     callback toggle-favorite(string);
     callback send-multi();
+    callback cancel-transfer(string);
+    callback dismiss-transfer(string);
     callback troubleshoot();
 
     background: ThemeTokens.surface;
@@ -41,7 +48,7 @@ export component SendPage inherits Rectangle {
         content-height: max(self.visible-height, 640px);
 
         Rectangle {
-            width: min(root.viewport-width, 600px);
+            width: min(root.viewport-width, 580px);
             x: (root.viewport-width - self.width) / 2;
             height: parent.height;
             background: transparent;
@@ -53,110 +60,197 @@ export component SendPage inherits Rectangle {
                 padding-bottom: 30px;
                 spacing: 12px;
 
-                Text {
-                    text: "选择";
+                if root.selected-file-count == 0 : Text {
+                    text: @tr("选择");
                     color: ThemeTokens.on-surface;
                     font-size: 20px;
                     font-weight: 500;
                     height: 28px;
                 }
 
-                if root.selected-files.length == 0 : HorizontalLayout {
+                if root.selected-file-count == 0 : HorizontalLayout {
                     spacing: 10px;
                     FlutterBigButton {
-                        label: "文件";
+                        automation-id: "send-file";
+                        label: @tr("文件");
                         icon: @image-url("../icons/file.svg");
                         clicked => { root.choose-file(); }
                     }
                     FlutterBigButton {
-                        label: "文件夹";
+                        automation-id: "send-folder";
+                        label: @tr("文件夹");
                         icon: @image-url("../icons/folder.svg");
                         clicked => { root.choose-folder(); }
                     }
                     FlutterBigButton {
-                        label: "文本";
+                        automation-id: "send-text";
+                        label: @tr("文本");
                         icon: @image-url("../icons/align-left.svg");
                         clicked => { root.open-text(); }
                     }
                     FlutterBigButton {
-                        label: "剪贴板";
+                        automation-id: "send-clipboard";
+                        label: @tr("剪贴板");
                         icon: @image-url("../icons/clipboard.svg");
                         clicked => { root.send-clipboard(); }
                     }
                 }
 
-                if root.selected-files.length > 0 : Rectangle {
-                    height: min(245px, 126px + root.selected-files.length * 34px);
+                if root.selected-file-count > 0 : Rectangle {
+                    height: 250px;
                     border-radius: ThemeTokens.card-radius;
                     background: ThemeTokens.surface-container-low;
 
                     VerticalLayout {
                         padding-left: 15px;
-                        padding-right: 12px;
-                        padding-top: 10px;
-                        padding-bottom: 10px;
-                        spacing: 7px;
+                        padding-right: 15px;
+                        padding-top: 15px;
+                        padding-bottom: 15px;
+                        spacing: 6px;
 
                         HorizontalLayout {
                             Text {
-                                text: "已选择 " + root.selected-files.length + " 项";
+                                text: @tr("选择");
                                 color: ThemeTokens.on-surface;
-                                font-size: 16px;
-                                font-weight: 600;
+                                font-size: 20px;
+                                font-weight: 500;
                                 horizontal-stretch: 1;
+                                vertical-alignment: center;
                             }
                             FlutterIconButton {
                                 icon: @image-url("../icons/close.svg");
-                                tooltip: "清除所选项";
+                                tooltip: @tr("清除所选项");
+                                automation-id: "send-clear-selection";
                                 clicked => { root.clear-selection(); }
                             }
                         }
-                        Text { text: root.selected-total-size; color: ThemeTokens.on-surface-variant; font-size: 13px; }
+                        Text {
+                            text: @tr("文件") + ": " + root.selected-files.length;
+                            color: ThemeTokens.on-surface;
+                            font-size: 17px;
+                            height: 23px;
+                        }
+                        Text {
+                            text: @tr("大小") + ": " + root.selected-total-size;
+                            color: ThemeTokens.on-surface;
+                            font-size: 17px;
+                            height: 23px;
+                        }
                         ScrollView {
-                            height: min(112px, root.selected-files.length * 34px);
-                            content-height: max(self.visible-height, root.selected-files.length * 34px);
-                            VerticalLayout {
-                                for file in root.selected-files : HorizontalLayout {
-                                    height: 30px;
-                                    spacing: 8px;
+                            height: 62px;
+                            content-height: self.visible-height;
+                            content-width: max(self.visible-width, root.selected-files.length * 60px);
+                            HorizontalLayout {
+                                spacing: 10px;
+                                for file in root.selected-files : Rectangle {
+                                    width: 50px;
+                                    height: 50px;
+                                    border-radius: 10px;
+                                    background: ThemeTokens.secondary-container;
                                     Image {
-                                        width: 20px;
-                                        height: 20px;
-                                        source: file.is-directory ? @image-url("../icons/folder.svg") : @image-url("../icons/file.svg");
-                                        colorize: ThemeTokens.primary;
+                                        width: 24px;
+                                        height: 24px;
+                                        x: (parent.width - self.width) / 2;
+                                        y: (parent.height - self.height) / 2;
+                                        source: file.is-text
+                                            ? @image-url("../icons/align-left.svg")
+                                            : file.is-directory ? @image-url("../icons/folder.svg") : @image-url("../icons/file.svg");
+                                        colorize: ThemeTokens.on-secondary-container;
                                         image-fit: contain;
                                     }
-                                    Text {
-                                        text: file.name + " · " + file.size;
-                                        color: ThemeTokens.on-surface;
-                                        font-size: 13px;
-                                        horizontal-stretch: 1;
-                                        overflow: elide;
-                                    }
-                                    FlutterIconButton {
-                                        icon: @image-url("../icons/close.svg");
-                                        tooltip: "移除所选项";
-                                        clicked => { root.remove-selected(file.path); }
+                                    TouchArea {
+                                        clicked => {
+                                            if file.is-text {
+                                                root.clear-selection();
+                                            } else {
+                                                root.remove-selected(file.path);
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
                         HorizontalLayout {
                             alignment: end;
-                            spacing: 8px;
-                            FlutterBigButton {
-                                width: 80px;
+                            spacing: 15px;
+                            Text {
+                                text: @tr("编辑");
+                                color: ThemeTokens.on-surface;
+                                font-size: 16px;
+                                vertical-alignment: center;
                                 height: 40px;
-                                label: "添加文件";
-                                icon: @image-url("../icons/file.svg");
-                                clicked => { root.choose-file(); }
+                                TouchArea { clicked => { root.edit-selection(); } }
                             }
-                            FlutterBigButton {
-                                width: 80px;
-                                height: 40px;
-                                label: "添加文件夹";
-                                icon: @image-url("../icons/folder.svg");
-                                clicked => { root.choose-folder(); }
+                            Rectangle {
+                                width: 112px;
+                                height: 42px;
+                                border-radius: 21px;
+                                background: ThemeTokens.primary;
+                                accessible-role: button;
+                                accessible-label: @tr("添加");
+                                accessible-id: "send-add";
+                                accessible-action-default => { root.choose-file(); }
+                                HorizontalLayout {
+                                    alignment: center;
+                                    spacing: 6px;
+                                    Text {
+                                        text: "+";
+                                        color: ThemeTokens.on-primary;
+                                        font-size: 24px;
+                                        vertical-alignment: center;
+                                    }
+                                    Text {
+                                        text: @tr("添加");
+                                        color: ThemeTokens.on-primary;
+                                        font-size: 17px;
+                                        vertical-alignment: center;
+                                    }
+                                }
+                                TouchArea { clicked => { root.choose-file(); } }
+                            }
+                        }
+                    }
+                }
+
+                if root.transfers.length > 0 : VerticalLayout {
+                    spacing: 6px;
+                    for transfer in root.transfers : Rectangle {
+                        if transfer.direction == "发送" : Rectangle {
+                            height: 68px;
+                            border-radius: ThemeTokens.card-radius;
+                            background: ThemeTokens.surface-container-low;
+                            HorizontalLayout {
+                                padding-left: 12px;
+                                padding-right: 8px;
+                                spacing: 10px;
+                                alignment: center;
+                                VerticalLayout {
+                                    horizontal-stretch: 1;
+                                    spacing: 5px;
+                                    Text {
+                                        text: transfer.peer + " · " + transfer.summary;
+                                        color: ThemeTokens.on-surface;
+                                        font-size: 13px;
+                                        overflow: elide;
+                                    }
+                                    ProgressIndicator {
+                                        height: 4px;
+                                        progress: transfer.progress-percent / 100.0;
+                                        indeterminate: false;
+                                    }
+                                    Text {
+                                        text: UiText.transfer-status(transfer.status) + " · " + transfer.progress-percent + "%";
+                                        color: ThemeTokens.on-surface-variant;
+                                        font-size: 11px;
+                                    }
+                                }
+                                FlutterDialogButton {
+                                    width: 76px;
+                                    height: 34px;
+                                    label: @tr("取消");
+                                    enabled: transfer.status == "等待中" || transfer.status == "传输中";
+                                    clicked => { root.cancel-transfer(transfer.transfer-id); }
+                                }
                             }
                         }
                     }
@@ -166,17 +260,17 @@ export component SendPage inherits Rectangle {
                     height: 44px;
                     spacing: 2px;
                     Text {
-                        text: "附近的设备";
+                        text: @tr("附近的设备");
                         color: ThemeTokens.on-surface;
                         font-size: 20px;
                         font-weight: 500;
                         horizontal-stretch: 1;
                         vertical-alignment: center;
                     }
-                    FlutterIconButton { icon: @image-url("../icons/refresh-cw.svg"); tooltip: "刷新设备"; clicked => { root.refresh(); } }
-                    FlutterIconButton { icon: @image-url("../icons/crosshair.svg"); tooltip: "手动添加设备"; clicked => { root.add-manual(); } }
-                    FlutterIconButton { icon: @image-url("../icons/heart.svg"); tooltip: "收藏设备"; clicked => { root.open-favorites(); } }
-                    FlutterIconButton { icon: @image-url("../icons/settings.svg"); tooltip: "发送模式"; clicked => { root.open-send-mode(); } }
+                    FlutterIconButton { automation-id: "send-refresh"; icon: @image-url("../icons/refresh-cw.svg"); tooltip: @tr("刷新设备"); clicked => { root.refresh(); } }
+                    FlutterIconButton { automation-id: "send-manual"; icon: @image-url("../icons/crosshair.svg"); tooltip: @tr("手动添加设备"); clicked => { root.add-manual(); } }
+                    FlutterIconButton { automation-id: "send-favorites"; icon: @image-url("../icons/heart.svg"); tooltip: @tr("收藏设备"); clicked => { root.open-favorites(); } }
+                    FlutterIconButton { automation-id: "send-mode"; icon: @image-url("../icons/settings.svg"); tooltip: @tr("发送模式"); clicked => { root.open-send-mode(); } }
                 }
 
                 if root.devices.length == 0 : Rectangle {
@@ -196,25 +290,48 @@ export component SendPage inherits Rectangle {
                         }
                         VerticalLayout {
                             spacing: 4px;
-                            Text { text: "正在查找设备"; color: ThemeTokens.on-surface; font-size: 16px; }
-                            Text { text: "设备需要连接到同一网络"; color: ThemeTokens.on-surface-variant; font-size: 13px; }
+                            Text { text: @tr("正在查找设备"); color: ThemeTokens.on-surface; font-size: 16px; }
+                            Text { text: @tr("设备需要连接到同一网络"); color: ThemeTokens.on-surface-variant; font-size: 13px; }
                         }
                     }
                 }
 
-                for device in root.devices : FlutterDeviceTile {
-                    alias: device.alias;
-                    ip: device.ip;
-                    protocol: device.protocol;
-                    model: device.model;
-                    device-type: device.device-type;
-                    fingerprint: device.fingerprint;
-                    favorite: device.favorite;
-                    selected: device.selected;
-                    multiple: root.send-mode == 1;
-                    clicked(fingerprint) => { root.send-to-device(fingerprint); }
-                    details(fingerprint) => { root.device-details(fingerprint); }
-                    favorite-clicked(fingerprint) => { root.toggle-favorite(fingerprint); }
+                for device in root.devices : HorizontalLayout {
+                    height: 84px;
+                    spacing: 2px;
+                    FlutterDeviceTile {
+                        horizontal-stretch: 1;
+                        alias: device.alias;
+                        ip: device.ip;
+                        protocol: device.protocol;
+                        model: device.model;
+                        device-type: device.device-type;
+                        fingerprint: device.fingerprint;
+                        favorite: device.favorite;
+                        selected: device.selected;
+                        multiple: root.send-mode == 1;
+                        device-clicked(fingerprint) => { root.send-to-device(fingerprint); }
+                    }
+                    FlutterIconButton {
+                        icon: @image-url("../icons/info.svg");
+                        tooltip: "Device details";
+                        automation-id: "device-info-" + device.fingerprint;
+                        clicked => { root.device-details(device.fingerprint); }
+                    }
+                    FlutterIconButton {
+                        icon: @image-url("../icons/heart.svg");
+                        tooltip: device.favorite ? "Remove favorite" : "Add favorite";
+                        automation-id: "device-favorite-" + device.fingerprint;
+                        icon-color: device.favorite ? ThemeTokens.primary : ThemeTokens.on-surface-variant;
+                        clicked => { root.toggle-favorite(device.fingerprint); }
+                    }
+                    FlutterIconButton {
+                        icon: @image-url("../icons/send.svg");
+                        tooltip: "Send to this device";
+                        automation-id: "device-send-" + device.fingerprint;
+                        icon-color: device.selected ? ThemeTokens.primary : ThemeTokens.on-surface;
+                        clicked => { root.send-to-device(device.fingerprint); }
+                    }
                 }
 
                 if root.send-mode == 1 && root.devices.length > 0 : HorizontalLayout {
@@ -229,7 +346,8 @@ export component SendPage inherits Rectangle {
                     FlutterBigButton {
                         width: 104px;
                         height: 40px;
-                        label: "发送";
+                        automation-id: "send-multiple";
+                        label: @tr("发送");
                         icon: @image-url("../icons/send.svg");
                         filled: true;
                         enabled: root.selected-file-count > 0;
@@ -238,20 +356,157 @@ export component SendPage inherits Rectangle {
                 }
 
                 Text {
-                    text: root.status-message;
-                    color: ThemeTokens.on-surface-variant;
-                    font-size: 13px;
-                    horizontal-alignment: center;
-                    wrap: word-wrap;
-                    height: root.status-message == "" ? 0px : 20px;
-                }
-                Text {
-                    text: "故障排除";
+                    text: @tr("故障排除");
                     color: ThemeTokens.primary;
                     font-size: 14px;
                     horizontal-alignment: center;
                     height: 24px;
                     TouchArea { clicked => { root.troubleshoot(); } }
+                }
+            }
+        }
+    }
+
+    if root.sending-active : Rectangle {
+        width: 100%;
+        height: 100%;
+        z: 50;
+        background: ThemeTokens.surface;
+
+        for transfer in root.transfers : Rectangle {
+            if transfer.direction == "发送" : VerticalLayout {
+                width: 100%;
+                height: 100%;
+                padding-left: 20px;
+                padding-right: 20px;
+                padding-top: 24px;
+                padding-bottom: 24px;
+                spacing: 10px;
+
+                HorizontalLayout {
+                    height: 44px;
+                    spacing: 8px;
+                    FlutterBigButton {
+                        width: 48px;
+                        height: 44px;
+                        label: "";
+                        icon: @image-url("../icons/back.svg");
+                        automation-id: "send-progress-back";
+                        filled: false;
+                        clicked => { root.dismiss-transfer(transfer.transfer-id); }
+                    }
+                    Text {
+                        text: @tr("正在发送文件");
+                        color: ThemeTokens.on-surface;
+                        font-size: 30px;
+                        font-weight: 500;
+                        vertical-alignment: center;
+                    }
+                }
+
+                ScrollView {
+                    vertical-stretch: 1;
+                    content-height: max(self.visible-height, transfer.files.length * 80px);
+                    VerticalLayout {
+                        spacing: 4px;
+                        for file in transfer.files : HorizontalLayout {
+                            height: 78px;
+                            spacing: 12px;
+                            alignment: start;
+                            Rectangle {
+                                width: 50px;
+                                height: 50px;
+                                border-radius: 10px;
+                                background: ThemeTokens.secondary-container;
+                                Image {
+                                    width: 24px;
+                                    height: 24px;
+                                    x: (parent.width - self.width) / 2;
+                                    y: (parent.height - self.height) / 2;
+                                    source: file.is-text ? @image-url("../icons/align-left.svg") : @image-url("../icons/file.svg");
+                                    colorize: ThemeTokens.on-secondary-container;
+                                    image-fit: contain;
+                                }
+                            }
+                            VerticalLayout {
+                                spacing: 2px;
+                                alignment: center;
+                                Text {
+                                    text: file.name + " (" + file.size + ")";
+                                    color: ThemeTokens.on-surface;
+                                    font-size: 21px;
+                                    overflow: elide;
+                                }
+                                Text {
+                                    text: transfer.status;
+                                    color: transfer.status == @tr("已完成") ? ThemeTokens.on-surface-variant : ThemeTokens.primary;
+                                    font-size: 16px;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Rectangle {
+                    height: 136px;
+                    border-radius: 14px;
+                    background: ThemeTokens.surface-container-low;
+                    VerticalLayout {
+                        padding-left: 18px;
+                        padding-right: 18px;
+                        padding-top: 16px;
+                        padding-bottom: 14px;
+                        spacing: 12px;
+                        Text {
+                            text: transfer.status == @tr("已完成") ? @tr("已完成") : transfer.status;
+                            color: ThemeTokens.on-surface;
+                            font-size: 24px;
+                            font-weight: 500;
+                        }
+                        Rectangle {
+                            height: 9px;
+                            border-radius: 5px;
+                            background: ThemeTokens.outline;
+                            Rectangle {
+                                width: parent.width * transfer.progress-percent / 100.0;
+                                height: parent.height;
+                                border-radius: 5px;
+                                background: ThemeTokens.primary;
+                            }
+                        }
+                        HorizontalLayout {
+                            alignment: end;
+                            spacing: 18px;
+                            FlutterBigButton {
+                                width: 104px;
+                                height: 40px;
+                                label: @tr("高级");
+                                icon: @image-url("../icons/info.svg");
+                                automation-id: "send-progress-advanced";
+                                filled: false;
+                                clicked => { root.troubleshoot(); }
+                            }
+                            FlutterBigButton {
+                                width: 112px;
+                                height: 42px;
+                                label: transfer.completion-countdown > 0
+                                    ? @tr("完成") + " (" + transfer.completion-countdown + ")"
+                                    : transfer.status == @tr("已完成") || transfer.status == @tr("失败")
+                                        ? @tr("完成")
+                                        : @tr("取消");
+                                icon: @image-url("../icons/check.svg");
+                                automation-id: "send-progress-finish";
+                                filled: true;
+                                clicked => {
+                                    if transfer.terminal {
+                                        root.dismiss-transfer(transfer.transfer-id);
+                                    } else {
+                                        root.cancel-transfer(transfer.transfer-id);
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

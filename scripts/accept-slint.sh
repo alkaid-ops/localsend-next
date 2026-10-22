@@ -11,6 +11,10 @@ mkdir -p "$OUT" "$SCREENS"
 
 cd "$ROOT"
 cargo build -p localsendd -p localsend-gui-slint | tee "$OUT/build.log"
+cargo test -p localsend-service --test https_send -- --nocapture \
+    | tee "$OUT/https-send.log"
+cargo test -p localsend-service --test auto_save_finish -- --nocapture \
+    | tee "$OUT/auto-save-finish.log"
 
 for run in 1 2 3; do
     LOCALSEND_ACCEPTANCE=1 cargo test -p localsend-gui-slint -- --test-threads=1 --nocapture \
@@ -18,40 +22,10 @@ for run in 1 2 3; do
     cat "$OUT/run-$run.log"
 done
 
-compare() {
-    local output="$1"
-    local golden="$2"
-    cmp "$output" "$golden" >/dev/null || {
-        printf 'golden mismatch: %s != %s\n' "$output" "$golden" >&2
-        exit 1
-    }
-}
-
-for page in receive send settings; do
-    for dimension in 800x600 1024x768 1440x900 700x700; do
-        width=${dimension%x*}
-        height=${dimension#*x}
-        for theme in light dark; do
-            name="$page-default-$dimension-$theme.png"
-            cargo run -q -p localsend-gui-slint --example render_reference -- \
-                --headless --page "$page" --state default --width "$width" --height "$height" \
-                --theme "$theme" --output "$SCREENS/$name"
-            compare "$SCREENS/$name" "$GOLDEN/$name"
-        done
-    done
-done
-
-for state_page in receive:request receive:transferring send:selected send:multiple; do
-    page=${state_page%%:*}
-    state=${state_page#*:}
-    for theme in light dark; do
-        name="$page-$state-1024x768-$theme.png"
-        cargo run -q -p localsend-gui-slint --example render_reference -- \
-            --headless --page "$page" --state "$state" --width 1024 --height 768 \
-            --theme "$theme" --output "$SCREENS/$name"
-        compare "$SCREENS/$name" "$GOLDEN/$name"
-    done
-done
+"$ROOT/scripts/check-slint-goldens.sh" --output "$OUT/goldens" | tee "$OUT/goldens.log"
+"$ROOT/scripts/accept-slint-pointer.sh" | tee "$OUT/pointer.log"
+"$ROOT/scripts/accept-slint-native.sh" | tee "$OUT/native-ax.log"
+"$ROOT/scripts/accept-slint-receive-settings.sh" | tee "$OUT/receive-settings-ax.log"
 
 cd "$APP_DIR"
 ./package-macos.sh | tee "$OUT/package.log"
@@ -126,4 +100,4 @@ kill -0 "$DAEMON_PID"
 LOCALSEND_CONFIG_DIR="$CFG" LOCALSEND_RPC_SOCKET="$SMOKE/daemon.sock" \
     cargo run -q -p localsendd --example rpc_probe -- shutdown
 wait "$DAEMON_PID" 2>/dev/null || true
-printf '{"suite":"slint","result":"passed","runs":3,"goldens":32,"ax":"passed","artifacts":"%s"}\n' "$OUT" | tee "$OUT/summary.json"
+printf '{"suite":"slint","result":"passed","runs":3,"goldens":38,"nativeAx":["file","folder","text","clipboard","receive","settings","pin"],"artifacts":"%s"}\n' "$OUT" | tee "$OUT/summary.json"

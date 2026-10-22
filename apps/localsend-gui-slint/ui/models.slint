@@ -30,19 +30,29 @@ export struct RequestFileItem {
     selected: bool,
 }
 
+export struct TransferFileItem {
+    name: string,
+    size: string,
+    is-text: bool,
+}
+
 export struct TransferItem {
     transfer-id: string,
     peer: string,
     summary: string,
     status: string,
     direction: string,
+    terminal: bool,
     progress-percent: int,
     file-count: int,
+    completion-countdown: int,
+    files: [TransferFileItem],
 }
 
 export struct SelectedFileItem {
     path: string,
     name: string,
     is-directory: bool,
+    is-text: bool,
     size: string,
 }

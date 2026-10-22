@@ -14,6 +14,9 @@ backend-skia-opengl = ["slint/renderer-skia-opengl"]
 [build-dependencies]
 slint-build = "1.18.1"
 
+[target.'cfg(windows)'.build-dependencies]
+winresource = "0.1"
+
 [dependencies]
 anyhow = "1.0"
 arboard = { version = "3.7", default-features = false }

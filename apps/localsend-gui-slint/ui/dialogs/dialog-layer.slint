@@ -24,7 +24,7 @@ component DialogShell inherits Rectangle {
             HorizontalLayout {
                 height: 40px;
                 Text { text: root.title; color: ThemeTokens.on-surface; font-size: 22px; font-weight: 600; horizontal-stretch: 1; }
-                FlutterIconButton { icon: @image-url("../icons/close.svg"); tooltip: "关闭"; clicked => { root.close-clicked(); } }
+                FlutterIconButton { icon: @image-url("../icons/close.svg"); tooltip: @tr("关闭"); clicked => { root.close-clicked(); } }
             }
             @children
         }
@@ -63,6 +63,14 @@ export component DialogLayer inherits Rectangle {
     in property <bool> web-share-open: false;
     in property <bool> web-share-running: false;
     in property <string> web-share-url: "";
+    in property <bool> web-share-encryption: false;
+    in property <bool> web-share-auto-accept: false;
+    in property <bool> web-share-pin-enabled: false;
+    in property <bool> completion-open: false;
+    in property <string> completion-file-name: "";
+    in property <string> completion-file-path: "";
+    in-out property <int> completion-countdown: 0;
+    in property <bool> auto-save-help-open: false;
 
     callback send-text(string);
     callback cancel-text();
@@ -90,11 +98,31 @@ export component DialogLayer inherits Rectangle {
     callback start-web-share();
     callback stop-web-share();
     callback copy-web-share-url();
+    callback open-web-share-url();
     callback close-web-share();
+    callback toggle-web-share-encryption(bool);
+    callback toggle-web-share-auto-accept(bool);
+    callback toggle-web-share-pin(bool);
+    callback open-completion();
+    callback reveal-completion();
+    callback close-completion();
+    callback close-auto-save-help();
 
     width: 100%;
     height: 100%;
     background: transparent;
+
+    Timer {
+        interval: 1s;
+        running: root.completion-open && root.completion-countdown > 0;
+        triggered => {
+            if root.completion-countdown <= 1 {
+                root.close-completion();
+            } else {
+                root.completion-countdown -= 1;
+            }
+        }
+    }
 
     if root.text-open : Rectangle {
         width: parent.width;
@@ -110,7 +138,7 @@ export component DialogLayer inherits Rectangle {
             VerticalLayout {
                 padding: 24px;
                 spacing: 12px;
-                Text { text: "发送文本"; color: ThemeTokens.on-surface; font-size: 22px; font-weight: 600; }
+                Text { text: @tr("发送文本"); color: ThemeTokens.on-surface; font-size: 22px; font-weight: 600; }
                 Rectangle {
                     height: 120px;
                     border-radius: ThemeTokens.input-radius;
@@ -121,6 +149,10 @@ export component DialogLayer inherits Rectangle {
                         width: parent.width - 24px;
                         height: parent.height - 20px;
                         text <=> root.text-value;
+                        accessible-role: text-input;
+                        accessible-label: @tr("发送文本内容");
+                        accessible-value <=> root.text-value;
+                        accessible-action-set-value(value) => { root.text-value = value; }
                         single-line: false;
                         wrap: word-wrap;
                         color: ThemeTokens.on-surface;
@@ -132,8 +164,8 @@ export component DialogLayer inherits Rectangle {
                 HorizontalLayout {
                     horizontal-stretch: 1;
                     Rectangle { horizontal-stretch: 1; background: transparent; }
-                    FlutterDialogButton { label: "取消"; clicked => { root.cancel-text(); } }
-                    FlutterDialogButton { label: "发送"; primary: true; enabled: root.text-value != ""; clicked => { root.send-text(root.text-value); } }
+                    FlutterDialogButton { automation-id: "text-cancel"; label: @tr("取消"); clicked => { root.cancel-text(); } }
+                    FlutterDialogButton { automation-id: "text-send"; label: @tr("确定"); primary: true; enabled: root.text-value != ""; clicked => { root.send-text(root.text-value); } }
                 }
             }
         }
@@ -155,15 +187,15 @@ export component DialogLayer inherits Rectangle {
                 spacing: 12px;
                 HorizontalLayout {
                     height: 40px;
-                    Text { text: "接收历史"; color: ThemeTokens.on-surface; font-size: 22px; font-weight: 600; horizontal-stretch: 1; }
-                    FlutterIconButton { icon: @image-url("../icons/close.svg"); tooltip: "关闭"; clicked => { root.close-history(); } }
+                    Text { text: @tr("接收历史"); color: ThemeTokens.on-surface; font-size: 22px; font-weight: 600; horizontal-stretch: 1; }
+                    FlutterIconButton { icon: @image-url("../icons/close.svg"); tooltip: @tr("关闭"); clicked => { root.close-history(); } }
                 }
                 ScrollView {
                     vertical-stretch: 1;
                     content-height: max(self.visible-height, root.history-items.length * 74px);
                     VerticalLayout {
                         spacing: 6px;
-                        if root.history-items.length == 0 : Text { text: "还没有接收记录"; color: ThemeTokens.on-surface-variant; font-size: 15px; }
+                        if root.history-items.length == 0 : Text { text: @tr("还没有接收记录"); color: ThemeTokens.on-surface-variant; font-size: 15px; }
                         for item in root.history-items : Rectangle {
                             height: item.is-message ? 86px : 66px;
                             border-radius: ThemeTokens.card-radius;
@@ -190,17 +222,17 @@ export component DialogLayer inherits Rectangle {
                 }
                 HorizontalLayout {
                     horizontal-stretch: 1;
-                    FlutterDialogButton { label: "打开接收目录"; clicked => { root.open-destination(); } }
+                    FlutterDialogButton { label: @tr("打开接收目录"); clicked => { root.open-destination(); } }
                     Rectangle { horizontal-stretch: 1; background: transparent; }
-                    FlutterDialogButton { label: "清空历史"; enabled: root.history-items.length > 0; clicked => { root.clear-history(); } }
-                    FlutterDialogButton { label: "关闭"; primary: true; clicked => { root.close-history(); } }
+                    FlutterDialogButton { label: @tr("清空历史"); enabled: root.history-items.length > 0; clicked => { root.clear-history(); } }
+                    FlutterDialogButton { label: @tr("关闭"); primary: true; clicked => { root.close-history(); } }
                 }
             }
         }
     }
 
     if root.message-open : DialogShell {
-        title: "文本消息";
+        title: @tr("文本消息");
         viewport-width: root.viewport-width;
         viewport-height: root.viewport-height;
         close-clicked => { root.close-message(); }
@@ -234,22 +266,22 @@ export component DialogLayer inherits Rectangle {
             horizontal-stretch: 1;
             spacing: 8px;
             Rectangle { horizontal-stretch: 1; background: transparent; }
-            FlutterDialogButton { label: "复制"; primary: true; clicked => { root.copy-message(); } }
-            FlutterDialogButton { label: "关闭"; clicked => { root.close-message(); } }
+            FlutterDialogButton { label: @tr("复制"); primary: true; clicked => { root.copy-message(); } }
+            FlutterDialogButton { label: @tr("关闭"); clicked => { root.close-message(); } }
         }
     }
 
     if root.info-open : DialogShell {
-        title: "网络信息";
+        title: @tr("网络信息");
         viewport-width: root.viewport-width;
         viewport-height: root.viewport-height;
         close-clicked => { root.close-info(); }
         VerticalLayout {
             spacing: 14px;
-            Text { text: "设备名称：" + root.info-alias; color: ThemeTokens.on-surface; font-size: 15px; }
-            Text { text: "IP 地址：" + root.info-ip; color: ThemeTokens.on-surface; font-size: 15px; wrap: word-wrap; }
-            Text { text: "端口：" + root.info-port; color: ThemeTokens.on-surface; font-size: 15px; }
-            Text { text: "状态：" + root.info-status; color: ThemeTokens.on-surface-variant; font-size: 13px; wrap: word-wrap; }
+            Text { text: @tr("设备名称：") + root.info-alias; color: ThemeTokens.on-surface; font-size: 15px; }
+            Text { text: @tr("IP 地址：") + root.info-ip; color: ThemeTokens.on-surface; font-size: 15px; wrap: word-wrap; }
+            Text { text: @tr("端口：") + root.info-port; color: ThemeTokens.on-surface; font-size: 15px; }
+            Text { text: @tr("状态：") + root.info-status; color: ThemeTokens.on-surface-variant; font-size: 13px; wrap: word-wrap; }
         }
     }
 
@@ -267,7 +299,7 @@ export component DialogLayer inherits Rectangle {
             VerticalLayout {
                 padding: 24px;
                 spacing: 12px;
-                Text { text: "手动添加设备"; color: ThemeTokens.on-surface; font-size: 22px; font-weight: 600; }
+                Text { text: @tr("手动添加设备"); color: ThemeTokens.on-surface; font-size: 22px; font-weight: 600; }
                 Rectangle {
                     height: 48px;
                     border-radius: ThemeTokens.input-radius;
@@ -277,8 +309,8 @@ export component DialogLayer inherits Rectangle {
                 HorizontalLayout {
                     horizontal-stretch: 1;
                     Rectangle { horizontal-stretch: 1; background: transparent; }
-                    FlutterDialogButton { label: "取消"; clicked => { root.close-manual(); } }
-                    FlutterDialogButton { label: "添加"; primary: true; enabled: root.manual-target != ""; clicked => { root.add-manual(root.manual-target); } }
+                    FlutterDialogButton { label: @tr("取消"); clicked => { root.close-manual(); } }
+                    FlutterDialogButton { label: @tr("添加"); primary: true; enabled: root.manual-target != ""; clicked => { root.add-manual(root.manual-target); } }
                 }
             }
         }
@@ -300,10 +332,10 @@ export component DialogLayer inherits Rectangle {
                 spacing: 10px;
                 HorizontalLayout {
                     height: 40px;
-                    Text { text: "收藏设备"; color: ThemeTokens.on-surface; font-size: 22px; font-weight: 600; horizontal-stretch: 1; }
-                    FlutterIconButton { icon: @image-url("../icons/close.svg"); tooltip: "关闭"; clicked => { root.close-favorites(); } }
+                    Text { text: @tr("收藏设备"); color: ThemeTokens.on-surface; font-size: 22px; font-weight: 600; horizontal-stretch: 1; }
+                    FlutterIconButton { icon: @image-url("../icons/close.svg"); tooltip: @tr("关闭"); clicked => { root.close-favorites(); } }
                 }
-                Text { text: "收藏设备可用于自动保存规则。"; color: ThemeTokens.on-surface-variant; font-size: 13px; }
+                Text { text: @tr("收藏设备可用于自动保存规则。"); color: ThemeTokens.on-surface-variant; font-size: 13px; }
                 ScrollView {
                     vertical-stretch: 1;
                     content-height: max(self.visible-height, (root.favorites.length + root.devices.length) * 58px);
@@ -316,7 +348,7 @@ export component DialogLayer inherits Rectangle {
                             spacing: 8px;
                             Image { width: 20px; height: 20px; source: @image-url("../icons/heart.svg"); colorize: ThemeTokens.primary; image-fit: contain; }
                             Text { text: favorite.alias; color: ThemeTokens.on-surface; horizontal-stretch: 1; vertical-alignment: center; overflow: elide; }
-                            FlutterDialogButton { label: "移除"; clicked => { root.toggle-favorite(favorite.fingerprint); } }
+                            FlutterDialogButton { label: @tr("移除"); clicked => { root.toggle-favorite(favorite.fingerprint); } }
                         }
                         for device in root.devices : HorizontalLayout {
                             visible: !device.favorite;
@@ -326,74 +358,130 @@ export component DialogLayer inherits Rectangle {
                             spacing: 8px;
                             Image { width: 20px; height: 20px; source: @image-url("../icons/heart.svg"); colorize: ThemeTokens.on-surface-variant; image-fit: contain; }
                             Text { text: device.alias + " · " + device.ip; color: ThemeTokens.on-surface; horizontal-stretch: 1; vertical-alignment: center; overflow: elide; }
-                            FlutterDialogButton { label: "收藏"; primary: true; clicked => { root.toggle-favorite(device.fingerprint); } }
+                            FlutterDialogButton { label: @tr("收藏"); primary: true; clicked => { root.toggle-favorite(device.fingerprint); } }
                         }
                     }
                 }
                 HorizontalLayout {
                     horizontal-stretch: 1;
                     Rectangle { horizontal-stretch: 1; background: transparent; }
-                    FlutterDialogButton { label: "关闭"; primary: true; clicked => { root.close-favorites(); } }
+                    FlutterDialogButton { label: @tr("关闭"); primary: true; clicked => { root.close-favorites(); } }
                 }
             }
         }
     }
 
     if root.send-mode-open : DialogShell {
-        title: "发送模式";
+        title: @tr("发送模式");
         viewport-width: root.viewport-width;
         viewport-height: root.viewport-height;
         close-clicked => { root.close-send-mode(); }
         VerticalLayout {
             spacing: 12px;
-            Text { text: root.send-mode == 0 ? "单选模式：点击设备后立即发送。" : "多选模式：选择设备后按发送按钮。"; color: ThemeTokens.on-surface-variant; font-size: 14px; wrap: word-wrap; }
+            Text { text: root.send-mode == 0 ? @tr("单选模式：点击设备后立即发送。") : @tr("多选模式：选择设备后按发送按钮。"); color: ThemeTokens.on-surface-variant; font-size: 14px; wrap: word-wrap; }
             HorizontalLayout {
                 spacing: 10px;
-                FlutterDialogButton { label: "单选"; primary: root.send-mode == 0; clicked => { root.set-send-mode(0); } }
-                FlutterDialogButton { label: "多选"; primary: root.send-mode == 1; clicked => { root.set-send-mode(1); } }
-                FlutterDialogButton { label: "发送"; primary: true; enabled: root.send-mode == 1; clicked => { root.send-multi(); } }
+                FlutterDialogButton { label: @tr("单选"); primary: root.send-mode == 0; clicked => { root.set-send-mode(0); } }
+                FlutterDialogButton { label: @tr("多选"); primary: root.send-mode == 1; clicked => { root.set-send-mode(1); } }
+                FlutterDialogButton { label: @tr("发送"); primary: true; enabled: root.send-mode == 1; clicked => { root.send-multi(); } }
+            }
+        }
+    }
+
+    if root.completion-open : DialogShell {
+        title: @tr("打开文件");
+        viewport-width: root.viewport-width;
+        viewport-height: root.viewport-height;
+        close-clicked => { root.close-completion(); }
+        VerticalLayout {
+            spacing: 12px;
+            Text { text: @tr("您是否要打开接收的文件？"); color: ThemeTokens.on-surface-variant; font-size: 14px; }
+            Text { text: root.completion-file-name; color: ThemeTokens.on-surface; font-size: 17px; font-weight: 600; overflow: elide; }
+            HorizontalLayout {
+                horizontal-stretch: 1;
+                spacing: 8px;
+                FlutterDialogButton { label: @tr("打开"); primary: true; enabled: root.completion-file-path != ""; clicked => { root.open-completion(); } }
+                FlutterDialogButton { label: @tr("在文件管理器中显示"); enabled: root.completion-file-path != ""; clicked => { root.reveal-completion(); } }
+                Rectangle { horizontal-stretch: 1; background: transparent; }
+                FlutterDialogButton {
+                    label: root.completion-countdown > 0 ? @tr("关闭 (") + root.completion-countdown + ")" : @tr("关闭");
+                    clicked => { root.close-completion(); }
+                }
+            }
+        }
+    }
+
+    if root.auto-save-help-open : DialogShell {
+        title: @tr("自动保存");
+        viewport-width: root.viewport-width;
+        viewport-height: root.viewport-height;
+        close-clicked => { root.close-auto-save-help(); }
+        VerticalLayout {
+            spacing: 12px;
+            Text {
+                text: @tr("自动接受所有文件传输请求。请注意，这会让此网络中的所有人都可以向你发送文件。");
+                color: ThemeTokens.on-surface;
+                font-size: 14px;
+                wrap: word-wrap;
+            }
+            HorizontalLayout {
+                horizontal-stretch: 1;
+                Rectangle { horizontal-stretch: 1; background: transparent; }
+                FlutterDialogButton { label: @tr("关闭"); primary: true; clicked => { root.close-auto-save-help(); } }
             }
         }
     }
 
     if root.troubleshoot-open : DialogShell {
-        title: "故障排除";
+        title: @tr("故障排除");
         viewport-width: root.viewport-width;
         viewport-height: root.viewport-height;
         close-clicked => { root.close-troubleshoot(); }
         VerticalLayout {
             spacing: 12px;
-            Text { text: "设备不可见：确认设备连接到同一 Wi-Fi 或局域网，并检查防火墙权限。"; color: ThemeTokens.on-surface; font-size: 14px; wrap: word-wrap; }
-            Text { text: "连接失败：检查端口、HTTPS、PIN 和目标设备的网络隔离设置。"; color: ThemeTokens.on-surface; font-size: 14px; wrap: word-wrap; }
-            FlutterDialogButton { label: "打开防火墙设置"; clicked => { root.open-firewall(); } }
+            Text { text: @tr("设备不可见：确认设备连接到同一 Wi-Fi 或局域网，并检查防火墙权限。"); color: ThemeTokens.on-surface; font-size: 14px; wrap: word-wrap; }
+            Text { text: @tr("连接失败：检查端口、HTTPS、PIN 和目标设备的网络隔离设置。"); color: ThemeTokens.on-surface; font-size: 14px; wrap: word-wrap; }
+            FlutterDialogButton { label: @tr("打开防火墙设置"); clicked => { root.open-firewall(); } }
         }
     }
 
     if root.pin-open : DialogShell {
-        title: "输入接收方 PIN";
+        title: @tr("输入接收方 PIN");
         viewport-width: root.viewport-width;
         viewport-height: root.viewport-height;
         close-clicked => { root.cancel-pin(); }
         VerticalLayout {
             spacing: 12px;
-            Text { text: "目标设备要求 PIN 才会接收传输。"; color: ThemeTokens.on-surface-variant; font-size: 14px; wrap: word-wrap; }
+            Text { text: @tr("目标设备要求 PIN 才会接收传输。"); color: ThemeTokens.on-surface-variant; font-size: 14px; wrap: word-wrap; }
             Rectangle {
                 height: 48px;
                 border-radius: ThemeTokens.input-radius;
                 background: ThemeTokens.surface-container-highest;
-                TextInput { x: 10px; y: 8px; width: parent.width - 20px; height: 32px; text <=> root.pin-value; color: ThemeTokens.on-surface; font-size: 16px; }
+                TextInput {
+                    x: 10px;
+                    y: 8px;
+                    width: parent.width - 20px;
+                    height: 32px;
+                    text <=> root.pin-value;
+                    accessible-role: text-input;
+                    accessible-label: @tr("PIN 值");
+                    accessible-value <=> root.pin-value;
+                    accessible-action-set-value(value) => { root.pin-value = value; }
+                    color: ThemeTokens.on-surface;
+                    font-size: 16px;
+                }
             }
             HorizontalLayout {
                 horizontal-stretch: 1;
                 Rectangle { horizontal-stretch: 1; background: transparent; }
-                FlutterDialogButton { label: "取消"; clicked => { root.cancel-pin(); } }
-                FlutterDialogButton { label: "重试"; primary: true; enabled: root.pin-value != ""; clicked => { root.retry-pin(root.pin-transfer-id, root.pin-value); } }
+                FlutterDialogButton { automation-id: "pin-cancel"; label: @tr("取消"); clicked => { root.cancel-pin(); } }
+                FlutterDialogButton { automation-id: "pin-retry"; label: @tr("重试"); primary: true; enabled: root.pin-value != ""; clicked => { root.retry-pin(root.pin-transfer-id, root.pin-value); } }
             }
         }
     }
 
     if root.setting-open : DialogShell {
-        title: "编辑设置";
+        title: @tr("编辑设置");
         viewport-width: root.viewport-width;
         viewport-height: root.viewport-height;
         close-clicked => { root.cancel-setting(); }
@@ -404,30 +492,123 @@ export component DialogLayer inherits Rectangle {
                 height: 48px;
                 border-radius: ThemeTokens.input-radius;
                 background: ThemeTokens.surface-container-highest;
-                TextInput { x: 10px; y: 8px; width: parent.width - 20px; height: 32px; text <=> root.setting-value; color: ThemeTokens.on-surface; font-size: 15px; }
+                TextInput {
+                    x: 10px;
+                    y: 8px;
+                    width: parent.width - 20px;
+                    height: 32px;
+                    text <=> root.setting-value;
+                    accessible-role: text-input;
+                    accessible-label: @tr("设置值");
+                    accessible-value <=> root.setting-value;
+                    accessible-action-set-value(value) => { root.setting-value = value; }
+                    color: ThemeTokens.on-surface;
+                    font-size: 15px;
+                }
             }
             HorizontalLayout {
                 horizontal-stretch: 1;
                 Rectangle { horizontal-stretch: 1; background: transparent; }
-                FlutterDialogButton { label: "取消"; clicked => { root.cancel-setting(); } }
-                FlutterDialogButton { label: "保存"; primary: true; clicked => { root.submit-setting(root.setting-key, root.setting-value); } }
+                FlutterDialogButton { automation-id: "setting-cancel"; label: @tr("取消"); clicked => { root.cancel-setting(); } }
+                FlutterDialogButton { automation-id: "setting-save"; label: @tr("保存"); primary: true; clicked => { root.submit-setting(root.setting-key, root.setting-value); } }
             }
         }
     }
 
-    if root.web-share-open : DialogShell {
-        title: "通过链接接收";
-        viewport-width: root.viewport-width;
-        viewport-height: root.viewport-height;
-        close-clicked => { root.close-web-share(); }
+    if root.web-share-open : Rectangle {
+        width: 100%;
+        height: 100%;
+        background: ThemeTokens.surface;
         VerticalLayout {
-            spacing: 12px;
-            Text { text: root.web-share-running ? "浏览器可以使用此链接发送文件。" : "启动后，浏览器可通过此链接发送文件。"; color: ThemeTokens.on-surface-variant; font-size: 14px; wrap: word-wrap; }
-            Text { text: root.web-share-url; color: ThemeTokens.primary; font-size: 15px; wrap: word-wrap; }
+            width: parent.width;
+            height: parent.height;
+            spacing: 0px;
             HorizontalLayout {
+                height: 56px;
+                padding-left: 12px;
+                padding-right: 12px;
                 spacing: 8px;
-                FlutterDialogButton { label: root.web-share-running ? "停止" : "启动"; primary: !root.web-share-running; clicked => { if (root.web-share-running) { root.stop-web-share(); } else { root.start-web-share(); } } }
-                FlutterDialogButton { label: "复制链接"; enabled: root.web-share-url != ""; clicked => { root.copy-web-share-url(); } }
+                FlutterIconButton {
+                    icon: @image-url("../icons/back.svg");
+                    tooltip: @tr("返回");
+                    clicked => { root.close-web-share(); }
+                }
+                Text {
+                    text: @tr("通过链接接收");
+                    color: ThemeTokens.on-surface;
+                    font-size: 22px;
+                    horizontal-stretch: 1;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+                Rectangle { width: 40px; background: transparent; }
+            }
+            Rectangle {
+                vertical-stretch: 1;
+                background: transparent;
+                VerticalLayout {
+                    x: (parent.width - min(580px, parent.width - 48px)) / 2;
+                    y: 24px;
+                    width: min(580px, parent.width - 48px);
+                    height: 300px;
+                    spacing: 18px;
+                    Text { text: @tr("在浏览器中打开链接："); color: ThemeTokens.on-surface; font-size: 18px; font-weight: 600; }
+                    Rectangle {
+                        height: 64px;
+                        border-radius: ThemeTokens.input-radius;
+                        background: ThemeTokens.surface-container-high;
+                        HorizontalLayout {
+                            padding-left: 18px;
+                            padding-right: 10px;
+                            spacing: 8px;
+                            Text { text: root.web-share-url; color: ThemeTokens.on-surface; font-size: 16px; horizontal-stretch: 1; vertical-alignment: center; overflow: elide; }
+                            FlutterDialogButton { label: @tr("复制"); enabled: root.web-share-url != ""; clicked => { root.copy-web-share-url(); } }
+                            FlutterDialogButton { label: @tr("打开"); enabled: root.web-share-url != ""; clicked => { root.open-web-share-url(); } }
+                        }
+                    }
+                    HorizontalLayout {
+                        height: 36px; spacing: 8px;
+                        accessible-role: checkbox; accessible-label: @tr("加密");
+                        accessible-checked: root.web-share-encryption;
+                        accessible-action-default => { root.toggle-web-share-encryption(!root.web-share-encryption); }
+                        Text { text: @tr("加密"); color: ThemeTokens.on-surface; font-size: 16px; vertical-alignment: center; }
+                        Rectangle {
+                            width: 20px; height: 20px; border-radius: 3px; border-width: 1px;
+                            border-color: root.web-share-encryption ? ThemeTokens.primary : ThemeTokens.outline;
+                            background: root.web-share-encryption ? ThemeTokens.primary : transparent;
+                            if root.web-share-encryption : Image { width: 14px; height: 14px; x: 3px; y: 3px; source: @image-url("../icons/check.svg"); colorize: ThemeTokens.on-primary; image-fit: contain; }
+                        }
+                        TouchArea { clicked => { root.toggle-web-share-encryption(!root.web-share-encryption); } }
+                    }
+                    HorizontalLayout {
+                        height: 36px; spacing: 8px;
+                        accessible-role: checkbox; accessible-label: @tr("自动接受请求");
+                        accessible-checked: root.web-share-auto-accept;
+                        accessible-action-default => { root.toggle-web-share-auto-accept(!root.web-share-auto-accept); }
+                        Text { text: @tr("自动接受请求"); color: ThemeTokens.on-surface; font-size: 16px; vertical-alignment: center; }
+                        Rectangle {
+                            width: 20px; height: 20px; border-radius: 3px; border-width: 1px;
+                            border-color: root.web-share-auto-accept ? ThemeTokens.primary : ThemeTokens.outline;
+                            background: root.web-share-auto-accept ? ThemeTokens.primary : transparent;
+                            if root.web-share-auto-accept : Image { width: 14px; height: 14px; x: 3px; y: 3px; source: @image-url("../icons/check.svg"); colorize: ThemeTokens.on-primary; image-fit: contain; }
+                        }
+                        TouchArea { clicked => { root.toggle-web-share-auto-accept(!root.web-share-auto-accept); } }
+                    }
+                    HorizontalLayout {
+                        height: 36px; spacing: 8px;
+                        accessible-role: checkbox; accessible-label: @tr("启用 PIN 密码");
+                        accessible-checked: root.web-share-pin-enabled;
+                        accessible-action-default => { root.toggle-web-share-pin(!root.web-share-pin-enabled); }
+                        Text { text: @tr("启用 PIN 密码"); color: ThemeTokens.on-surface; font-size: 16px; vertical-alignment: center; }
+                        Rectangle {
+                            width: 20px; height: 20px; border-radius: 3px; border-width: 1px;
+                            border-color: root.web-share-pin-enabled ? ThemeTokens.primary : ThemeTokens.outline;
+                            background: root.web-share-pin-enabled ? ThemeTokens.primary : transparent;
+                            if root.web-share-pin-enabled : Image { width: 14px; height: 14px; x: 3px; y: 3px; source: @image-url("../icons/check.svg"); colorize: ThemeTokens.on-primary; image-fit: contain; }
+                        }
+                        TouchArea { clicked => { root.toggle-web-share-pin(!root.web-share-pin-enabled); } }
+                    }
+                }
             }
         }
     }

@@ -5,8 +5,11 @@ use localsend_rpc::{
     CommandResult, DaemonLifecycle, RPC_VERSION, RpcClientMessage, RpcServerMessage, ServiceCommand,
 };
 use localsend_service::ServiceHandle;
-use std::sync::Arc;
+use std::fs::{File, OpenOptions};
+use std::io::Write;
+use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Arc, Mutex as StdMutex};
 use std::time::Duration;
 use tokio::io::{AsyncRead, AsyncWrite};
 use tokio::sync::{Mutex, mpsc};
@@ -15,14 +18,68 @@ const OWNER_START_TIMEOUT: Duration = Duration::from_secs(3);
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    init_tracing();
+    run_daemon().await
+}
+
+#[derive(Clone)]
+struct LogWriter(Arc<StdMutex<File>>);
+
+impl Write for LogWriter {
+    fn write(&mut self, buffer: &[u8]) -> std::io::Result<usize> {
+        self.0
+            .lock()
+            .map_err(|_| std::io::Error::other("daemon log lock poisoned"))?
+            .write(buffer)
+    }
+
+    fn flush(&mut self) -> std::io::Result<()> {
+        self.0
+            .lock()
+            .map_err(|_| std::io::Error::other("daemon log lock poisoned"))?
+            .flush()
+    }
+}
+
+impl<'a> tracing_subscriber::fmt::MakeWriter<'a> for LogWriter {
+    type Writer = Self;
+
+    fn make_writer(&'a self) -> Self::Writer {
+        self.clone()
+    }
+}
+
+fn init_tracing() {
+    let env_filter = || {
+        tracing_subscriber::EnvFilter::try_from_default_env()
+            .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("info"))
+    };
+    if let Some(path) = daemon_log_path() {
+        match OpenOptions::new().create(true).append(true).open(&path) {
+            Ok(file) => {
+                tracing_subscriber::fmt()
+                    .with_env_filter(env_filter())
+                    .with_target(false)
+                    .with_ansi(false)
+                    .with_writer(LogWriter(Arc::new(StdMutex::new(file))))
+                    .init();
+                tracing::info!(log = %path.display(), pid = std::process::id(), "localsendd log opened");
+                return;
+            }
+            Err(error) => eprintln!("cannot open daemon log {}: {error}", path.display()),
+        }
+    }
     tracing_subscriber::fmt()
-        .with_env_filter(
-            tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("info")),
-        )
+        .with_env_filter(env_filter())
         .with_target(false)
         .init();
-    run_daemon().await
+}
+
+fn daemon_log_path() -> Option<PathBuf> {
+    let paths = localsend_service::service_paths().ok()?;
+    let logs = paths.config_dir.join("logs");
+    std::fs::create_dir_all(&logs).ok()?;
+    Some(logs.join("localsendd.log"))
 }
 
 pub async fn run_daemon() -> anyhow::Result<()> {

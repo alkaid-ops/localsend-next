@@ -1,0 +1,14 @@
+export global UiText {
+    public pure function transfer-status(status: string) -> string {
+        return status == "等待中" ? @tr("等待中")
+            : status == "传输中" ? @tr("传输中")
+            : status == "已完成" ? @tr("已完成")
+            : status == "失败" ? @tr("失败")
+            : status == "已取消" ? @tr("已取消")
+            : status;
+    }
+
+    public pure function transfer-direction(direction: string) -> string {
+        return direction == "发送" ? @tr("发送") : @tr("接收");
+    }
+}

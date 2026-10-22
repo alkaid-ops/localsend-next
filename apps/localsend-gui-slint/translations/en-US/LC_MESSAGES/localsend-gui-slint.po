@@ -1,0 +1,331 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: en-US\n"
+
+msgid "IP 地址："
+msgstr "IP address: "
+
+msgid "PIN 值"
+msgstr "PIN value"
+
+msgid "主题"
+msgstr "Theme"
+
+msgid "传输中"
+msgstr "Transferring"
+
+msgid "使用条款"
+msgstr "Terms of Use"
+
+msgid "保存"
+msgstr "Save"
+
+msgid "保存到历史记录"
+msgstr "Save to history"
+
+msgid "保存目录"
+msgstr "Save folder"
+
+msgid "全部接受"
+msgstr "Accept all"
+
+msgid "全部接口"
+msgstr "All interfaces"
+
+msgid "关于 LocalSend"
+msgstr "About LocalSend"
+
+msgid "关闭"
+msgstr "Close"
+
+msgid "关闭 ("
+msgstr "Close ("
+
+msgid "关闭时最小化到系统托盘"
+msgstr "Minimize to tray when closed"
+
+msgid "其他"
+msgstr "Other"
+
+msgid "刷新设备"
+msgstr "Refresh devices"
+
+msgid "剪贴板"
+msgstr "Clipboard"
+
+msgid "加密"
+msgstr "Encryption"
+
+msgid "动画效果"
+msgstr "Animations"
+
+msgid "单选"
+msgstr "Single"
+
+msgid "单选模式：点击设备后立即发送。"
+msgstr "Single-recipient mode: send immediately after selecting a device."
+
+msgid "发送"
+msgstr "Send"
+
+msgid "发送文件时创建校验和"
+msgstr "Create checksums when sending files"
+
+msgid "发送文本"
+msgstr "Send text"
+
+msgid "发送文本内容"
+msgstr "Message"
+
+msgid "发送模式"
+msgstr "Send mode"
+
+msgid "取消"
+msgstr "Cancel"
+
+msgid "启用 PIN 密码"
+msgstr "Require PIN"
+
+msgid "在文件管理器中显示"
+msgstr "Show in file manager"
+
+msgid "在浏览器中打开链接："
+msgstr "Open link in browser:"
+
+msgid "复制"
+msgstr "Copy"
+
+msgid "多播"
+msgstr "Multicast"
+
+msgid "多选"
+msgstr "Multiple"
+
+msgid "多选模式：选择设备后按发送按钮。"
+msgstr "Multiple-recipient mode: select devices, then press Send."
+
+msgid "失败"
+msgstr "Failed"
+
+msgid "已取消"
+msgstr "Cancelled"
+
+msgid "已完成"
+msgstr "Completed"
+
+msgid "已选择 "
+msgstr "Selected "
+
+msgid "您是否要打开接收的文件？"
+msgstr "Do you want to open the received file?"
+
+msgid "手动添加设备"
+msgstr "Add device manually"
+
+msgid "打开"
+msgstr "Open"
+
+msgid "打开接收目录"
+msgstr "Open receive folder"
+
+msgid "打开文件"
+msgstr "Open file"
+
+msgid "打开防火墙设置"
+msgstr "Open firewall settings"
+
+msgid "拒绝"
+msgstr "Decline"
+
+msgid "接受所选"
+msgstr "Accept selected"
+
+msgid "接收"
+msgstr "Receive"
+
+msgid "接收历史"
+msgstr "History"
+
+msgid "接收文件时验证校验和"
+msgstr "Verify checksums when receiving files"
+
+msgid "搜索设备超时"
+msgstr "Discovery timeout"
+
+msgid "支持 LocalSend"
+msgstr "Support LocalSend"
+
+msgid "收藏"
+msgstr "Favorite"
+
+msgid "收藏设备"
+msgstr "Favorite devices"
+
+msgid "收藏设备可用于自动保存规则。"
+msgstr "Favorite devices can be used for auto-save rules."
+
+msgid "故障排除"
+msgstr "Troubleshooting"
+
+msgid "文件"
+msgstr "File"
+
+msgid "文件夹"
+msgstr "Folder"
+
+msgid "文本"
+msgstr "Text"
+
+msgid "文本消息"
+msgstr "Text message"
+
+msgid "服务器"
+msgstr "Server"
+
+msgid "正在查找设备"
+msgstr "Looking for devices"
+
+msgid "正在连接 localsendd..."
+msgstr "Connecting to localsendd..."
+
+msgid "添加"
+msgstr "Add"
+
+msgid "添加文件"
+msgstr "Add files"
+
+msgid "添加文件夹"
+msgstr "Add folder"
+
+msgid "清空历史"
+msgstr "Clear history"
+
+msgid "清除所选项"
+msgstr "Clear selection"
+
+msgid "版本与更新日志"
+msgstr "Version and changelog"
+
+msgid "状态："
+msgstr "Status:"
+
+msgid "登录系统后自动启动程序"
+msgstr "Launch automatically after login"
+
+msgid "目标设备要求 PIN 才会接收传输。"
+msgstr "The target device requires a PIN before accepting transfers."
+
+msgid "确定"
+msgstr "OK"
+
+msgid "移除"
+msgstr "Remove"
+
+msgid "移除所选项"
+msgstr "Remove selected"
+
+msgid "端口"
+msgstr "Port"
+
+msgid "端口："
+msgstr "Port:"
+
+msgid "等待中"
+msgstr "Waiting"
+
+msgid "编辑设置"
+msgstr "Edit setting"
+
+msgid "网络"
+msgstr "Network"
+
+msgid "网络信息"
+msgstr "Network info"
+
+msgid "自动保存"
+msgstr "Auto save"
+
+msgid "自动保存来自“收藏夹(白名单)”设备的文件"
+msgstr "Auto-save files from favorite (allowlist) devices"
+
+msgid "自动完成传输任务"
+msgstr "Auto finish transfers"
+
+msgid "自动接受所有文件传输请求。请注意，这会让此网络中的所有人都可以向你发送文件。"
+msgstr "Automatically accept all file transfer requests. Anyone on this network can send you files."
+
+msgid "自动接受请求"
+msgstr "Auto accept requests"
+
+msgid "设备不可见：确认设备连接到同一 Wi-Fi 或局域网，并检查防火墙权限。"
+msgstr "Device not visible: make sure both devices are on the same Wi-Fi or LAN, and check firewall permissions."
+
+msgid "设备名称"
+msgstr "Device name"
+
+msgid "设备名称："
+msgstr "Device name:"
+
+msgid "设备型号"
+msgstr "Device model"
+
+msgid "设备类型"
+msgstr "Device type"
+
+msgid "设备需要连接到同一网络"
+msgstr "Devices must be on the same network"
+
+msgid "设置"
+msgstr "Settings"
+
+msgid "设置值"
+msgstr "Setting value"
+
+msgid "语言"
+msgstr "Language"
+
+msgid "跟随系统"
+msgstr "System"
+
+msgid "输入接收方 PIN"
+msgstr "Enter receiver PIN"
+
+msgid "返回"
+msgstr "Back"
+
+msgid "还没有接收记录"
+msgstr "No received items yet"
+
+msgid "连接失败：检查端口、HTTPS、PIN 和目标设备的网络隔离设置。"
+msgstr "Connection failed: check the port, HTTPS, PIN, and target network isolation settings."
+
+msgid "退出时保存窗口位置"
+msgstr "Save window position on exit"
+
+msgid "选择"
+msgstr "Select"
+
+msgid "通用"
+msgstr "General"
+
+msgid "通过链接分享：自动同意接收请求"
+msgstr "Share via link: automatically accept receive requests"
+
+msgid "通过链接接收"
+msgstr "Receive via link"
+
+msgid "重试"
+msgstr "Retry"
+
+msgid "附近的设备"
+msgstr "Nearby devices"
+
+msgid "隐私政策"
+msgstr "Privacy policy"
+
+msgid "颜色"
+msgstr "Color"
+
+msgid "高级设置"
+msgstr "Advanced settings"

@@ -1,6 +1,10 @@
+#![cfg_attr(target_os = "windows", windows_subsystem = "windows")]
+
 use anyhow::Context;
-use localsend_platform::{InstanceLock, scoped_lock_name};
-use localsend_rpc::{DaemonClient, ServiceCommand, ServiceSnapshot};
+use localsend_platform::{
+    InstanceLock, TrayPidGuard, scoped_lock_name, terminate_gui_process, terminate_tray_process,
+};
+use localsend_rpc::{DaemonClient, DaemonLifecycle, ServiceCommand, ServiceSnapshot};
 use std::process::{Command, Stdio};
 use std::time::{Duration, Instant};
 use tray_icon::menu::{Menu, MenuEvent, MenuItem};
@@ -14,6 +18,9 @@ const RESTART_APP: &str = "localsend.restart";
 const QUIT_APP: &str = "localsend.quit";
 
 pub fn run_tray() -> anyhow::Result<()> {
+    if std::env::args().any(|argument| argument == "--quit") {
+        return quit_instance_request();
+    }
     initialize_macos_tray()?;
     if std::env::args().any(|argument| argument == "--open-main") {
         return open_app(std::env::args().any(|argument| argument == "--minimized"));
@@ -22,6 +29,7 @@ pub fn run_tray() -> anyhow::Result<()> {
     let Some(_lock) = InstanceLock::try_acquire(&lock_name)? else {
         return Ok(());
     };
+    let _tray_pid = TrayPidGuard::acquire()?;
     let runtime = tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()?;
@@ -51,7 +59,10 @@ pub fn run_tray() -> anyhow::Result<()> {
     #[cfg(target_os = "macos")]
     let tray = builder.with_icon_templated(icon).build()?;
     #[cfg(not(target_os = "macos"))]
-    let tray = builder.with_icon(icon).build()?;
+    let tray = builder.with_icon(icon).build().context(
+        "failed to create system tray; Linux users may need GTK3 and AppIndicator support \
+         (for GNOME also enable an AppIndicator extension)",
+    )?;
     let _menu_keepalive = tray.clone();
     let mut last_snapshot = client.snapshot();
     update_tooltip(&tray, last_snapshot.as_ref());
@@ -124,12 +135,19 @@ pub fn run_tray() -> anyhow::Result<()> {
                     if !confirm_shutdown(last_snapshot.as_ref(), "Quit LocalSend") {
                         continue;
                     }
+                    terminate_gui_process();
                     cancel_active_transfers(&runtime, &client);
                     if client.owns_lifecycle() {
-                        runtime
-                            .block_on(client.command(ServiceCommand::Shutdown))
-                            .map_err(anyhow::Error::msg)?;
-                        runtime.block_on(client.wait_closed());
+                        let _ = runtime.block_on(async {
+                            tokio::time::timeout(
+                                Duration::from_secs(5),
+                                client.command(ServiceCommand::Shutdown),
+                            )
+                            .await
+                        });
+                        let _ = runtime.block_on(async {
+                            tokio::time::timeout(Duration::from_secs(5), client.wait_closed()).await
+                        });
                     }
                     break;
                 }
@@ -137,6 +155,34 @@ pub fn run_tray() -> anyhow::Result<()> {
             }
         }
     }
+    terminate_gui_process();
+    Ok(())
+}
+
+fn quit_instance_request() -> anyhow::Result<()> {
+    terminate_gui_process();
+    let runtime = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()?;
+    let Ok(client) = runtime.block_on(DaemonClient::connect()) else {
+        return Ok(());
+    };
+    if client
+        .connection_info()
+        .is_some_and(|info| info.lifecycle == DaemonLifecycle::Owned)
+    {
+        let _ = runtime.block_on(async {
+            tokio::time::timeout(
+                Duration::from_secs(5),
+                client.command(ServiceCommand::Shutdown),
+            )
+            .await
+        });
+        let _ = runtime.block_on(async {
+            tokio::time::timeout(Duration::from_secs(5), client.wait_closed()).await
+        });
+    }
+    terminate_tray_process();
     Ok(())
 }
 
@@ -271,7 +317,7 @@ fn open_app(start_minimized: bool) -> anyhow::Result<()> {
     #[cfg(windows)]
     {
         use std::os::windows::process::CommandExt;
-        command.creation_flags(0x00000010); // CREATE_NEW_CONSOLE
+        command.creation_flags(0x08000000); // CREATE_NO_WINDOW
     }
     command.spawn()?;
     Ok(())
@@ -281,7 +327,7 @@ fn find_gui_executable(current: &std::path::Path) -> Option<std::path::PathBuf> 
     let gui_name = if cfg!(windows) {
         "LocalSend.exe"
     } else {
-        "LocalSend"
+        "localsend"
     };
     let dev_gui_name = if cfg!(windows) {
         "localsend-gui-slint.exe"
@@ -290,7 +336,13 @@ fn find_gui_executable(current: &std::path::Path) -> Option<std::path::PathBuf> 
     };
     current
         .parent()
-        .map(|parent| [parent.join(gui_name), parent.join(dev_gui_name)])
+        .map(|parent| {
+            [
+                parent.join(gui_name),
+                parent.join("LocalSend"),
+                parent.join(dev_gui_name),
+            ]
+        })
         .into_iter()
         .flatten()
         .chain(std::iter::once(

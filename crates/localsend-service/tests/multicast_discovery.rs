@@ -7,6 +7,7 @@ use std::time::Duration;
 use tokio::time::{Instant, sleep};
 
 #[tokio::test(flavor = "multi_thread")]
+#[ignore = "uses real LocalSend multicast groups; run only with no production instance"]
 async fn discovery_uses_fixed_port_and_official_group_compatibility() -> anyhow::Result<()> {
     let first_listener = TcpListener::bind("127.0.0.1:0")?;
     let second_listener = TcpListener::bind("127.0.0.1:0")?;
@@ -14,7 +15,7 @@ async fn discovery_uses_fixed_port_and_official_group_compatibility() -> anyhow:
     let default_port = second_listener.local_addr()?.port();
     drop(first_listener);
     drop(second_listener);
-    let mut custom = DaemonFixture::start(
+    let mut custom = DaemonFixture::start_with_discovery(
         &daemon_binary_for_tests()?,
         DesktopSettings {
             alias: "custom-group-peer".to_string(),
@@ -26,7 +27,7 @@ async fn discovery_uses_fixed_port_and_official_group_compatibility() -> anyhow:
         },
     )
     .await?;
-    let mut default = DaemonFixture::start(
+    let mut default = DaemonFixture::start_with_discovery(
         &daemon_binary_for_tests()?,
         DesktopSettings {
             alias: "official-group-peer".to_string(),

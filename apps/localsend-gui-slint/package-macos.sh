@@ -4,6 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 BUILD_DIR="$REPO_ROOT/target/release/bundle/macos"
+PACKAGES_DIR="$REPO_ROOT/target/release/packages"
 APP_DIR="$BUILD_DIR/LocalSend.app"
 CONTENTS_DIR="$APP_DIR/Contents"
 MACOS_DIR="$CONTENTS_DIR/MacOS"
@@ -16,7 +17,7 @@ cargo build --release --manifest-path "$REPO_ROOT/Cargo.toml" -p localsendd
 cargo build --release --manifest-path "$REPO_ROOT/Cargo.toml" -p localsend-tray
 cargo build --release --manifest-path "$REPO_ROOT/Cargo.toml" -p localsend-gui-slint --no-default-features --features backend-femtovg
 
-mkdir -p "$MACOS_DIR" "$RESOURCES_DIR" "$ICON_WORK_DIR/raw" "$ICON_WORK_DIR/AppIcon.iconset"
+mkdir -p "$MACOS_DIR" "$RESOURCES_DIR" "$ICON_WORK_DIR/raw" "$ICON_WORK_DIR/AppIcon.iconset" "$PACKAGES_DIR"
 
 cp "$REPO_ROOT/target/release/localsend-gui-slint" "$MACOS_DIR/LocalSend"
 cp "$REPO_ROOT/target/release/localsendd" "$MACOS_DIR/localsendd"
@@ -52,10 +53,11 @@ iconutil -c icns "$ICON_WORK_DIR/AppIcon.iconset" -o "$RESOURCES_DIR/AppIcon.icn
 
 codesign --force --deep --sign - "$APP_DIR" >/dev/null
 
-if [ -e "$BUILD_DIR/LocalSend-macos-arm64.zip" ]; then
-    unlink "$BUILD_DIR/LocalSend-macos-arm64.zip"
+ZIP="$PACKAGES_DIR/LocalSend-macos-arm64.zip"
+if [ -e "$ZIP" ]; then
+    unlink "$ZIP"
 fi
-ditto -c -k --sequesterRsrc --keepParent "$APP_DIR" "$BUILD_DIR/LocalSend-macos-arm64.zip"
+ditto -c -k --sequesterRsrc --keepParent "$APP_DIR" "$ZIP"
 
 echo "$APP_DIR"
-echo "$BUILD_DIR/LocalSend-macos-arm64.zip"
+echo "$ZIP"

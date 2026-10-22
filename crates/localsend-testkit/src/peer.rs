@@ -30,6 +30,13 @@ pub struct PeerFile {
     pub remote_name: String,
 }
 
+#[derive(Debug, Clone)]
+pub enum PeerChecksum {
+    Correct,
+    None,
+    Fixed(String),
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum PeerAcceptance {
     All,
@@ -50,6 +57,7 @@ pub struct PeerRequest {
     pub alias: String,
     pub session_id: String,
     pub file_names: Vec<String>,
+    pub previews: Vec<Option<String>>,
     pub accepted_file_ids: Vec<String>,
 }
 
@@ -128,12 +136,22 @@ impl ReceiverPeer {
                         ..
                     } => {
                         let file_ids = files.keys().cloned().collect::<Vec<_>>();
-                        let accepted = match acceptance {
-                            PeerAcceptance::All => file_ids.clone(),
-                            PeerAcceptance::First(count) => {
-                                file_ids.iter().take(count).cloned().collect()
+                        // Legacy preview-only text requests carry no upload
+                        // body. Current LocalSend text messages also include
+                        // the UTF-8 bytes and must be accepted for upload.
+                        let preview_only = files
+                            .values()
+                            .all(|file| file.preview.is_some() && file.size == 0);
+                        let accepted = if preview_only {
+                            Vec::new()
+                        } else {
+                            match acceptance {
+                                PeerAcceptance::All => file_ids.clone(),
+                                PeerAcceptance::First(count) => {
+                                    file_ids.iter().take(count).cloned().collect()
+                                }
+                                PeerAcceptance::Reject => Vec::new(),
                             }
-                            PeerAcceptance::Reject => Vec::new(),
                         };
                         {
                             let mut status = status_for_task.lock().await;
@@ -144,6 +162,7 @@ impl ReceiverPeer {
                                     .values()
                                     .map(|file| file.file_name.clone())
                                     .collect(),
+                                previews: files.values().map(|file| file.preview.clone()).collect(),
                                 accepted_file_ids: accepted.clone(),
                             });
                         }
@@ -318,6 +337,27 @@ impl SenderPeer {
         files: Vec<PeerFile>,
         cancel: CancellationToken,
     ) -> Result<SendReport, ClientError> {
+        Self::send_files_with_checksum(
+            host,
+            port,
+            protocol,
+            pin,
+            files,
+            PeerChecksum::Correct,
+            cancel,
+        )
+        .await
+    }
+
+    pub async fn send_files_with_checksum(
+        host: &str,
+        port: u16,
+        protocol: ProtocolType,
+        pin: Option<&str>,
+        files: Vec<PeerFile>,
+        checksum: PeerChecksum,
+        cancel: CancellationToken,
+    ) -> Result<SendReport, ClientError> {
         let identity = generate_self_signed()?;
         let client = LsHttpClient::new(
             &identity.private_key_pem,
@@ -331,7 +371,11 @@ impl SenderPeer {
         for file in files {
             let metadata = std::fs::metadata(&file.path)?;
             let file_id = Uuid::new_v4().to_string();
-            let sha256 = sha256_file(&file.path)?;
+            let sha256 = match &checksum {
+                PeerChecksum::Correct => Some(sha256_file(&file.path)?),
+                PeerChecksum::None => None,
+                PeerChecksum::Fixed(value) => Some(value.clone()),
+            };
             payload_files.insert(
                 file_id.clone(),
                 FileDto {
@@ -341,7 +385,7 @@ impl SenderPeer {
                     file_type: mime_guess::from_path(&file.path)
                         .first_or_octet_stream()
                         .to_string(),
-                    sha256: Some(sha256),
+                    sha256,
                     preview: None,
                     metadata: FileMetadata::from_fs_metadata(&metadata),
                 },
@@ -409,6 +453,158 @@ impl SenderPeer {
                 .filter(|id| !accepted.contains(*id))
                 .cloned()
                 .collect(),
+        })
+    }
+
+    pub async fn send_text(
+        host: &str,
+        port: u16,
+        protocol: ProtocolType,
+        pin: Option<&str>,
+        text: impl Into<String>,
+    ) -> Result<SendReport, ClientError> {
+        let identity = generate_self_signed()?;
+        let client = LsHttpClient::new(
+            &identity.private_key_pem,
+            &identity.certificate_pem,
+            LsHttpClientVersion::V2,
+            None,
+            Some(Duration::from_secs(20)),
+        )?;
+        let file_id = Uuid::new_v4().to_string();
+        let text = text.into();
+        let file_bytes = Bytes::from(text.clone().into_bytes());
+        let file_hash = Sha256::digest(&file_bytes)
+            .iter()
+            .map(|byte| format!("{byte:02x}"))
+            .collect::<String>();
+        let payload = PrepareUploadRequestDto {
+            info: RegisterDto {
+                alias: "deterministic-sender".to_string(),
+                version: PROTOCOL_VERSION_V2.to_string(),
+                device_model: Some("localsend-testkit".to_string()),
+                device_type: Some(DeviceType::Headless),
+                token: identity.fingerprint,
+                port: 0,
+                protocol,
+                has_web_interface: false,
+            },
+            files: HashMap::from([(
+                file_id.clone(),
+                FileDto {
+                    id: file_id.clone(),
+                    file_name: "message.txt".to_string(),
+                    size: file_bytes.len() as u64,
+                    file_type: "text/plain".to_string(),
+                    sha256: Some(file_hash),
+                    preview: Some(text),
+                    metadata: None,
+                },
+            )]),
+        };
+        let prepared = client
+            .prepare_upload(
+                protocol,
+                host,
+                port,
+                None,
+                payload.clone(),
+                pin,
+                CancellationToken::new(),
+            )
+            .await?;
+        let Some(response) = prepared.response else {
+            return Ok(SendReport {
+                session_id: None,
+                accepted_file_ids: Vec::new(),
+                refused_file_ids: vec![file_id],
+            });
+        };
+        let Some(token) = response.files.get(&file_id).cloned() else {
+            return Ok(SendReport {
+                session_id: Some(response.session_id),
+                accepted_file_ids: Vec::new(),
+                refused_file_ids: vec![file_id],
+            });
+        };
+        let (content_tx, content_rx) = mpsc::channel(1);
+        let _ = content_tx.send(file_bytes).await;
+        drop(content_tx);
+        client
+            .upload(
+                protocol,
+                host,
+                port,
+                None,
+                &response.session_id,
+                &file_id,
+                &token,
+                localsend_core::model::transfer::FileContent::Stream(content_rx),
+                |_| {},
+                CancellationToken::new(),
+            )
+            .await?;
+        Ok(SendReport {
+            session_id: Some(response.session_id),
+            accepted_file_ids: vec![file_id],
+            refused_file_ids: Vec::new(),
+        })
+    }
+
+    pub async fn send_legacy_preview_text(
+        host: &str,
+        port: u16,
+        protocol: ProtocolType,
+        text: impl Into<String>,
+    ) -> Result<SendReport, ClientError> {
+        let identity = generate_self_signed()?;
+        let client = LsHttpClient::new(
+            &identity.private_key_pem,
+            &identity.certificate_pem,
+            LsHttpClientVersion::V2,
+            None,
+            Some(Duration::from_secs(20)),
+        )?;
+        let file_id = Uuid::new_v4().to_string();
+        let payload = PrepareUploadRequestDto {
+            info: RegisterDto {
+                alias: "legacy-preview-sender".to_string(),
+                version: PROTOCOL_VERSION_V2.to_string(),
+                device_model: Some("localsend-testkit".to_string()),
+                device_type: Some(DeviceType::Headless),
+                token: identity.fingerprint,
+                port: 0,
+                protocol,
+                has_web_interface: false,
+            },
+            files: HashMap::from([(
+                file_id.clone(),
+                FileDto {
+                    id: file_id.clone(),
+                    file_name: "message.txt".to_string(),
+                    size: 0,
+                    file_type: "text/plain".to_string(),
+                    sha256: None,
+                    preview: Some(text.into()),
+                    metadata: None,
+                },
+            )]),
+        };
+        let prepared = client
+            .prepare_upload(
+                protocol,
+                host,
+                port,
+                None,
+                payload,
+                None,
+                CancellationToken::new(),
+            )
+            .await?;
+        Ok(SendReport {
+            session_id: prepared.response.map(|response| response.session_id),
+            accepted_file_ids: Vec::new(),
+            refused_file_ids: vec![file_id],
         })
     }
 }

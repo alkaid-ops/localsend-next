@@ -57,11 +57,26 @@ fn wait_for_pin_required(worker: &DaemonWorker, deadline: std::time::Instant) ->
     }
 }
 
+fn wait_for_notice(worker: &DaemonWorker, deadline: std::time::Instant, needle: &str) -> String {
+    loop {
+        let remaining = deadline.saturating_duration_since(std::time::Instant::now());
+        assert!(!remaining.is_zero(), "timed out waiting for notice");
+        match worker.events.recv_timeout(remaining).expect("worker event") {
+            WorkerEvent::Notice(message) if message.contains(needle) => return message,
+            WorkerEvent::Connection {
+                connected: false,
+                message,
+            } => panic!("worker disconnected: {message}"),
+            _ => {}
+        }
+    }
+}
+
 #[tokio::test(flavor = "multi_thread")]
 async fn worker_send_receive_and_settings_flow() -> anyhow::Result<()> {
     let mut daemon =
         DaemonFixture::start(&daemon_binary_for_tests()?, default_daemon_settings()).await?;
-    let peer = ReceiverPeer::start(ProtocolType::Http, PeerAcceptance::All, None, None).await?;
+    let peer = ReceiverPeer::start(ProtocolType::Https, PeerAcceptance::All, None, None).await?;
     let worker = DaemonWorker::spawn_with_endpoint(daemon.endpoint().to_string_lossy());
     let initial = wait_for_snapshot(&worker, |snapshot| snapshot.server_running);
     assert!(!initial.daemon_instance_id.is_empty());
@@ -131,6 +146,45 @@ async fn worker_send_receive_and_settings_flow() -> anyhow::Result<()> {
     })?;
     wait_for_snapshot(&worker, |snapshot| {
         snapshot.settings.alias == "worker-persisted"
+    });
+
+    let snapshot = wait_for_snapshot(&worker, |snapshot| snapshot.server_running);
+    let mut settings = snapshot.settings;
+    settings.create_checksums = false;
+    settings.verify_checksums = false;
+    worker.commands.send(UiCommand::UpdateSettings {
+        expected_revision: settings.revision,
+        settings: Box::new(settings),
+    })?;
+    wait_for_snapshot(&worker, |snapshot| {
+        snapshot.server_running
+            && !snapshot.settings.create_checksums
+            && !snapshot.settings.verify_checksums
+    });
+
+    worker.commands.send(UiCommand::SetAutoSave {
+        all: false,
+        favorites: true,
+    })?;
+    wait_for_snapshot(&worker, |snapshot| {
+        snapshot.settings.auto_save == localsend_rpc::AutoSaveMode::Favorites
+            && snapshot.settings.auto_save_from_favorites
+    });
+    worker.commands.send(UiCommand::SetAutoSave {
+        all: true,
+        favorites: true,
+    })?;
+    wait_for_snapshot(&worker, |snapshot| {
+        snapshot.settings.auto_save == localsend_rpc::AutoSaveMode::On
+            && snapshot.settings.auto_save_from_favorites
+    });
+    worker.commands.send(UiCommand::SetAutoSave {
+        all: false,
+        favorites: false,
+    })?;
+    wait_for_snapshot(&worker, |snapshot| {
+        snapshot.settings.auto_save == localsend_rpc::AutoSaveMode::Off
+            && !snapshot.settings.auto_save_from_favorites
     });
 
     worker.commands.send(UiCommand::ShutdownDaemon)?;
@@ -215,6 +269,55 @@ async fn worker_retries_pin_and_rejects_incoming_request() -> anyhow::Result<()>
 }
 
 #[tokio::test(flavor = "multi_thread")]
+async fn worker_sends_text_bytes_and_reports_completion() -> anyhow::Result<()> {
+    let mut daemon =
+        DaemonFixture::start(&daemon_binary_for_tests()?, default_daemon_settings()).await?;
+    let peer = ReceiverPeer::start(ProtocolType::Http, PeerAcceptance::All, None, None).await?;
+    let worker = DaemonWorker::spawn_with_endpoint(daemon.endpoint().to_string_lossy());
+    wait_for_snapshot(&worker, |snapshot| snapshot.server_running);
+    worker
+        .commands
+        .send(UiCommand::AddManual(PeerTarget::format(peer.port())))?;
+    let snapshot = wait_for_snapshot(&worker, |snapshot| {
+        snapshot
+            .devices
+            .iter()
+            .any(|device| device.device.alias == "deterministic-peer")
+    });
+    let fingerprint = snapshot
+        .devices
+        .iter()
+        .find(|device| device.device.alias == "deterministic-peer")
+        .expect("peer device")
+        .device
+        .fingerprint
+        .clone();
+
+    let text = "text through daemon";
+    worker.commands.send(UiCommand::SendText {
+        fingerprint,
+        text: text.to_string(),
+    })?;
+    let notice = wait_for_notice(
+        &worker,
+        std::time::Instant::now() + Duration::from_secs(15),
+        "文本已发送给",
+    );
+    assert!(notice.contains("deterministic-peer"), "{notice}");
+    let received = peer.wait_for_files(1, Duration::from_secs(5)).await?;
+    assert_eq!(received[0].size, text.len() as u64);
+    assert_eq!(
+        std::fs::read(received[0].path.as_ref().unwrap())?,
+        text.as_bytes()
+    );
+
+    worker.commands.send(UiCommand::ShutdownDaemon)?;
+    peer.shutdown().await;
+    let _ = daemon.shutdown().await;
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
 async fn worker_starts_web_receive_page() -> anyhow::Result<()> {
     let mut daemon =
         DaemonFixture::start(&daemon_binary_for_tests()?, default_daemon_settings()).await?;
@@ -248,8 +351,87 @@ async fn worker_starts_web_receive_page() -> anyhow::Result<()> {
     })
     .await??;
     assert!(response.contains("LocalSend") || response.contains("upload"));
+
+    let settings = daemon.snapshot().await?.settings;
+    worker.commands.send(UiCommand::UpdateSettings {
+        expected_revision: settings.revision,
+        settings: Box::new(localsend_rpc::DesktopSettings {
+            auto_accept: true,
+            ..settings
+        }),
+    })?;
+    worker.commands.send(UiCommand::RestartWebReceive)?;
+    wait_for_snapshot(&worker, |snapshot| {
+        snapshot.settings.auto_accept
+            && snapshot
+                .devices
+                .iter()
+                .find(|device| device.source == "local")
+                .is_some_and(|device| device.device.download)
+    });
+
     worker.commands.send(UiCommand::StopWebShare)?;
     worker.commands.send(UiCommand::ShutdownDaemon)?;
+    let _ = daemon.shutdown().await;
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn worker_surfaces_rejected_outgoing_transfer() -> anyhow::Result<()> {
+    let mut daemon =
+        DaemonFixture::start(&daemon_binary_for_tests()?, default_daemon_settings()).await?;
+    let peer = ReceiverPeer::start(ProtocolType::Http, PeerAcceptance::Reject, None, None).await?;
+    let worker = DaemonWorker::spawn_with_endpoint(daemon.endpoint().to_string_lossy());
+    wait_for_snapshot(&worker, |snapshot| snapshot.server_running);
+    worker
+        .commands
+        .send(UiCommand::AddManual(format!("127.0.0.1:{}", peer.port())))?;
+    let snapshot = wait_for_snapshot(&worker, |snapshot| {
+        snapshot
+            .devices
+            .iter()
+            .any(|device| device.device.port == peer.port())
+    });
+    let fingerprint = snapshot
+        .devices
+        .iter()
+        .find(|device| device.device.port == peer.port())
+        .expect("reject peer")
+        .device
+        .fingerprint
+        .clone();
+    let source = TempDir::new()?;
+    let rejected = source.path().join("rejected.bin");
+    std::fs::write(&rejected, vec![7_u8; 4096])?;
+    worker.commands.send(UiCommand::SendFiles {
+        fingerprint,
+        paths: vec![rejected],
+    })?;
+    let notice = wait_for_notice(
+        &worker,
+        std::time::Instant::now() + Duration::from_secs(15),
+        "传输失败",
+    );
+    assert!(notice.contains("403") || notice.contains("Rejected"));
+    let snapshot = wait_for_snapshot(&worker, |snapshot| {
+        snapshot.active_transfers.iter().any(|transfer| {
+            transfer.direction == localsend_rpc::TransferDirection::Send
+                && transfer.status == localsend_rpc::TransferStatus::Failed
+        })
+    });
+    let failed = snapshot
+        .active_transfers
+        .iter()
+        .find(|transfer| transfer.status == localsend_rpc::TransferStatus::Failed)
+        .expect("failed transfer");
+    assert!(failed.error.is_some());
+    let peer_status = peer.status().await;
+    assert_eq!(peer_status.requests.len(), 1);
+    assert!(peer_status.requests[0].accepted_file_ids.is_empty());
+    assert!(peer_status.received_files.is_empty());
+
+    worker.commands.send(UiCommand::ShutdownDaemon)?;
+    peer.shutdown().await;
     let _ = daemon.shutdown().await;
     Ok(())
 }

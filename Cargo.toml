@@ -6,9 +6,10 @@ members = [
     "apps/localsend-tray",
     "apps/localsend-tui",
     "apps/localsend-gui-slint",
+    "apps/localsend-launcher",
+    "apps/localsend-gui-egui",
 ]
 exclude = [
-    "apps/localsend-gui-egui",
     "apps/localsend-gui-fltk",
     "apps/localsend-gui-iced",
     "apps/localsend-gui-tauri",
@@ -18,6 +19,7 @@ default-members = [
     "apps/localsend-tray",
     "apps/localsend-tui",
     "apps/localsend-gui-slint",
+    "apps/localsend-launcher",
 ]
 
 [workspace.package]

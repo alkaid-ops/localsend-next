@@ -26,20 +26,25 @@ export component AppWindow inherits Window {
     always-on-top: root.settings-always-on-top;
     background: ThemeTokens.surface;
 
-    in-out property <length> requested-window-width: 1120px;
-    in-out property <length> requested-window-height: 760px;
+    in-out property <length> requested-window-width: 900px;
+    in-out property <length> requested-window-height: 600px;
     in-out property <string> selected-tab: "receive";
-    in-out property <string> server-status: "正在连接 localsendd...";
+    in-out property <string> server-status: @tr("正在连接 localsendd...");
     in-out property <string> devices-text: "";
     in-out property <string> message: "";
 
     in-out property <string> device-alias: "LocalSend PC";
     in-out property <string> device-id: "#80";
-    in-out property <int> auto-save-index: 2;
+    in-out property <bool> settings-auto-save-all: false;
+    in-out property <bool> settings-auto-save-favorites: false;
     in-out property <bool> settings-auto-finish: true;
+    in-out property <bool> settings-send-auto-accept: false;
+    in-out property <bool> settings-create-checksums: true;
+    in-out property <bool> settings-verify-checksums: true;
     in-out property <bool> settings-save-to-history: true;
     in-out property <int> device-count: 0;
     in-out property <int> active-transfer-count: 0;
+    in-out property <bool> sending-active: false;
     in-out property <int> history-count: 0;
     in-out property <bool> server-running: false;
     in-out property <[DeviceItem]> devices: [];
@@ -49,13 +54,14 @@ export component AppWindow inherits Window {
     in-out property <[RequestFileItem]> incoming-files: [];
     in-out property <[string]> selected-request-ids: [];
     in-out property <[TransferItem]> transfer-items: [];
-    in-out property <string> settings-theme: "跟随系统";
+    in-out property <string> settings-theme: @tr("跟随系统");
     in-out property <string> settings-color: "LocalSend";
-    in-out property <string> settings-language: "跟随系统";
+    in-out property <string> settings-language: @tr("跟随系统");
     in-out property <bool> save-window-position: true;
     in-out property <bool> minimize-to-tray: true;
     in-out property <bool> launch-on-login: false;
     in-out property <bool> animations-enabled: true;
+    in-out property <bool> settings-daemon-shutdown-supported: false;
     in-out property <bool> text-dialog-open: false;
     in-out property <string> text-message: "";
     in-out property <bool> history-dialog-open: false;
@@ -89,13 +95,13 @@ export component AppWindow inherits Window {
     in-out property <string> settings-device-type: "Desktop";
     in-out property <string> settings-device-model: "";
     in-out property <bool> settings-terms-supported: false;
-    in-out property <string> settings-discovery-timeout: "10";
+    in-out property <string> settings-discovery-timeout: "500";
     in-out property <string> settings-multicast-group: "";
-    in-out property <string> settings-network-filter: "全部接口";
+    in-out property <string> settings-network-filter: @tr("全部接口");
     in-out property <bool> settings-encryption: true;
     in-out property <bool> settings-always-on-top: false;
     in-out property <bool> settings-require-pin: false;
-    in-out property <bool> settings-advanced: false;
+    in-out property <bool> settings-advanced: true;
     in-out property <length> settings-scroll-y: 0px;
     in-out property <bool> setting-dialog-open: false;
     in-out property <string> setting-edit-key: "";
@@ -106,6 +112,12 @@ export component AppWindow inherits Window {
     in-out property <bool> web-share-dialog-open: false;
     in-out property <bool> web-share-running: false;
     in-out property <string> web-share-url: "";
+    in-out property <bool> settings-pin-enabled: false;
+    in-out property <bool> completion-dialog-open: false;
+    in-out property <string> completion-file-name: "";
+    in-out property <string> completion-file-path: "";
+    in-out property <int> completion-countdown: 0;
+    in-out property <bool> auto-save-help-dialog-open: false;
 
     out property <length> viewport-width: 1120px;
     out property <length> viewport-height: 760px;
@@ -116,7 +128,7 @@ export component AppWindow inherits Window {
 
     callback refresh();
     callback toggle-server();
-    callback set-auto-save(int);
+    callback set-auto-save(bool, bool);
     callback choose-file();
     callback choose-folder();
     callback send-text(string);
@@ -137,18 +149,21 @@ export component AppWindow inherits Window {
     callback respond-transfer(string, [string], bool);
     callback toggle-request-file(string);
     callback cancel-transfer(string);
+    callback dismiss-transfer(string);
     callback retry-pin(string, string);
     callback dismiss-pin();
     callback open-web-share();
     callback start-web-share();
     callback stop-web-share();
     callback copy-web-share-url();
+    callback open-web-share-url();
     callback open-about();
     callback open-support();
     callback open-privacy();
     callback open-terms();
     callback open-changelog();
     callback restart-server();
+    callback shutdown-daemon();
     callback edit-setting(string);
     callback submit-setting(string, string);
     callback cancel-setting();
@@ -157,9 +172,19 @@ export component AppWindow inherits Window {
     callback edit-selection();
     callback open-history-path(string);
     callback show-device-details(string);
+    callback open-completion-file();
+    callback reveal-completion-file();
+    callback close-completion();
+    callback close-auto-save-help();
 
     changed width => { root.viewport-width = root.width; }
     changed height => { root.viewport-height = root.height; }
+
+    message-timeout := Timer {
+        interval: 4s;
+        running: root.message != "";
+        triggered => { root.message = ""; }
+    }
 
     Rectangle {
         width: root.viewport-width;
@@ -173,17 +198,18 @@ export component AppWindow inherits Window {
             height: root.viewport-height;
             spacing: 0px;
             Rectangle {
-                height: root.viewport-height - (root.narrow ? 72px : 0px);
+                height: root.viewport-height - (root.narrow && !root.sending-active ? 72px : 0px);
                 vertical-stretch: 1;
                 horizontal-stretch: 1;
                 background: ThemeTokens.surface;
 
                 HorizontalLayout {
                     spacing: 0px;
-                    if !root.narrow : Rectangle {
+                    if !root.narrow && !root.sending-active : Rectangle {
                         width: root.sidebar-width;
                         background: ThemeTokens.surface-container-low;
                         VerticalLayout {
+                            width: parent.width;
                             padding-left: root.compact-sidebar ? 10px : 20px;
                             padding-right: root.compact-sidebar ? 10px : 20px;
                             padding-top: 20px;
@@ -200,34 +226,37 @@ export component AppWindow inherits Window {
                             if !root.compact-sidebar : Text {
                                 text: "LocalSend";
                                 color: ThemeTokens.on-surface;
-                                font-size: 32px;
+                                font-size: 36px;
                                 font-weight: 700;
                                 horizontal-alignment: center;
-                                height: 76px;
+                                height: 90px;
                             }
                             FlutterNavItem {
                                 width: parent.width;
-                                label: "接收";
+                                automation-id: "nav-receive";
+                                label: @tr("接收");
                                 icon: @image-url("icons/wifi.svg");
                                 active: root.selected-tab == "receive";
                                 compact: root.compact-sidebar;
-                                clicked => { root.selected-tab = "receive"; root.refresh(); }
+                                clicked => { root.selected-tab = "receive"; root.message = ""; root.refresh(); }
                             }
                             FlutterNavItem {
                                 width: parent.width;
-                                label: "发送";
+                                automation-id: "nav-send";
+                                label: @tr("发送");
                                 icon: @image-url("icons/send.svg");
                                 active: root.selected-tab == "send";
                                 compact: root.compact-sidebar;
-                                clicked => { root.selected-tab = "send"; root.refresh(); }
+                                clicked => { root.selected-tab = "send"; root.message = ""; root.refresh(); }
                             }
                             FlutterNavItem {
                                 width: parent.width;
-                                label: "设置";
+                                automation-id: "nav-settings";
+                                label: @tr("设置");
                                 icon: @image-url("icons/settings.svg");
                                 active: root.selected-tab == "settings";
                                 compact: root.compact-sidebar;
-                                clicked => { root.selected-tab = "settings"; }
+                                clicked => { root.selected-tab = "settings"; root.message = ""; }
                             }
                         }
                     }
@@ -248,6 +277,7 @@ export component AppWindow inherits Window {
                             port: root.info-port;
                             server-status: root.server-status;
                             server-running: root.server-running;
+                            animations: root.animations-enabled;
                             request-id: root.incoming-request-id;
                             request-title: root.incoming-request-title;
                             request-files: root.incoming-files;
@@ -261,15 +291,17 @@ export component AppWindow inherits Window {
                             cancel-transfer(transfer-id) => { root.cancel-transfer(transfer-id); }
                         }
                         if root.selected-tab == "send" : SendPage {
-                            width: root.viewport-width - (root.narrow ? 0px : root.sidebar-width);
-                            height: root.viewport-height - (root.narrow ? 72px : 0px);
+                            width: root.viewport-width - ((root.narrow || root.sending-active) ? 0px : root.sidebar-width);
+                            height: root.viewport-height - (root.narrow && !root.sending-active ? 72px : 0px);
                             vertical-stretch: 1;
-                            viewport-width: root.viewport-width - (root.narrow ? 0px : root.sidebar-width);
+                            viewport-width: root.viewport-width - ((root.narrow || root.sending-active) ? 0px : root.sidebar-width);
                             devices: root.devices;
                             selected-files: root.selected-files;
+                            transfers: root.transfer-items;
                             selected-target: root.selected-target-label;
                             selected-total-size: root.selected-total-size;
                             selected-file-count: root.selected-file-count;
+                            sending-active: root.sending-active;
                             send-mode: root.send-mode;
                             status-message: root.message;
                             choose-file => { root.choose-file(); }
@@ -278,6 +310,7 @@ export component AppWindow inherits Window {
                             send-clipboard => { root.send-clipboard(); }
                             clear-selection => { root.clear-selection(); }
                             remove-selected(path) => { root.remove-selected(path); }
+                            edit-selection => { root.edit-selection(); }
                             refresh => { root.refresh(); }
                             add-manual => { root.manual-dialog-open = true; }
                             open-favorites => { root.favorites-dialog-open = true; }
@@ -286,6 +319,8 @@ export component AppWindow inherits Window {
                             device-details(fingerprint) => { root.show-device-details(fingerprint); }
                             toggle-favorite(fingerprint) => { root.toggle-favorite(fingerprint); }
                             send-multi => { root.send-multi(); }
+                            cancel-transfer(transfer-id) => { root.cancel-transfer(transfer-id); }
+                            dismiss-transfer(transfer-id) => { root.dismiss-transfer(transfer-id); }
                             troubleshoot => { root.troubleshoot-dialog-open = true; }
                         }
                         if root.selected-tab == "settings" : SettingsPage {
@@ -302,8 +337,12 @@ export component AppWindow inherits Window {
                             minimize-to-tray: root.minimize-to-tray;
                             launch-on-login: root.launch-on-login;
                             animations: root.animations-enabled;
-                            auto-save-index: root.auto-save-index;
+                            auto-save-all: root.settings-auto-save-all;
+                            auto-save-favorites: root.settings-auto-save-favorites;
                             auto-finish: root.settings-auto-finish;
+                            send-auto-accept: root.settings-send-auto-accept;
+                            create-checksums: root.settings-create-checksums;
+                            verify-checksums: root.settings-verify-checksums;
                             save-to-history: root.settings-save-to-history;
                             require-pin: root.settings-require-pin;
                             destination: root.destination-dir;
@@ -319,14 +358,16 @@ export component AppWindow inherits Window {
                             network-filter: root.settings-network-filter;
                             encryption: root.settings-encryption;
                             advanced: root.settings-advanced;
+                            show-daemon-shutdown: root.settings-daemon-shutdown-supported;
                             scroll-y <=> root.settings-scroll-y;
                             cycle-setting(name) => { root.cycle-setting(name); }
                             set-toggle(name, value) => { root.set-toggle(name, value); }
-                            set-auto-save(index) => { root.set-auto-save(index); }
+                            set-auto-save(all, favorites) => { root.set-auto-save(all, favorites); }
                             edit-setting(key) => { root.edit-setting(key); }
                             submit-setting(key, value) => { root.submit-setting(key, value); }
                             toggle-server => { root.toggle-server(); }
                             restart-server => { root.restart-server(); }
+                            shutdown-daemon => { root.shutdown-daemon(); }
                             pick-destination => { root.pick-destination(); }
                             open-about => { root.open-about(); }
                             open-support => { root.open-support(); }
@@ -338,34 +379,63 @@ export component AppWindow inherits Window {
                 }
             }
 
-            if root.narrow : Rectangle {
+            if root.narrow && !root.sending-active : Rectangle {
                 height: 72px;
                 background: ThemeTokens.surface-container-low;
                 HorizontalLayout {
                     spacing: 4px;
                     FlutterNavItem {
                         horizontal-stretch: 1;
-                        label: "接收";
+                        automation-id: "nav-receive";
+                        label: @tr("接收");
                         icon: @image-url("icons/wifi.svg");
                         active: root.selected-tab == "receive";
-                        clicked => { root.selected-tab = "receive"; root.refresh(); }
+                        clicked => { root.selected-tab = "receive"; root.message = ""; root.refresh(); }
                     }
                     FlutterNavItem {
                         horizontal-stretch: 1;
-                        label: "发送";
+                        automation-id: "nav-send";
+                        label: @tr("发送");
                         icon: @image-url("icons/send.svg");
                         active: root.selected-tab == "send";
-                        clicked => { root.selected-tab = "send"; root.refresh(); }
+                        clicked => { root.selected-tab = "send"; root.message = ""; root.refresh(); }
                     }
                     FlutterNavItem {
                         horizontal-stretch: 1;
-                        label: "设置";
+                        automation-id: "nav-settings";
+                        label: @tr("设置");
                         icon: @image-url("icons/settings.svg");
                         active: root.selected-tab == "settings";
-                        clicked => { root.selected-tab = "settings"; }
+                        clicked => { root.selected-tab = "settings"; root.message = ""; }
                     }
                 }
             }
+        }
+    }
+
+    if root.message != "" && !root.sending-active : Rectangle {
+        width: min(root.viewport-width - 40px, 620px);
+        height: 48px;
+        x: (root.viewport-width - self.width) / 2;
+        y: root.viewport-height - self.height - (root.narrow ? 88px : 20px);
+        border-radius: 10px;
+        border-width: 1px;
+        border-color: ThemeTokens.outline-variant;
+        background: ThemeTokens.surface-container-highest;
+        drop-shadow-blur: 12px;
+        drop-shadow-color: #00000033;
+
+        Text {
+            x: 16px;
+            width: parent.width - 32px;
+            height: parent.height;
+            text: root.message;
+            color: ThemeTokens.on-surface;
+            font-size: 14px;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+            wrap: word-wrap;
+            overflow: elide;
         }
     }
 
@@ -403,6 +473,14 @@ export component AppWindow inherits Window {
         web-share-open: root.web-share-dialog-open;
         web-share-running: root.web-share-running;
         web-share-url: root.web-share-url;
+        web-share-encryption: root.settings-encryption;
+        web-share-auto-accept: root.settings-send-auto-accept;
+        web-share-pin-enabled: root.settings-pin-enabled;
+        completion-open: root.completion-dialog-open;
+        completion-file-name: root.completion-file-name;
+        completion-file-path: root.completion-file-path;
+        completion-countdown <=> root.completion-countdown;
+        auto-save-help-open: root.auto-save-help-dialog-open;
         send-text(text) => { root.send-text(text); }
         cancel-text => { root.text-dialog-open = false; root.text-message = ""; }
         clear-history => { root.clear-history(); }
@@ -433,6 +511,20 @@ export component AppWindow inherits Window {
         start-web-share => { root.start-web-share(); }
         stop-web-share => { root.stop-web-share(); }
         copy-web-share-url => { root.copy-web-share-url(); }
-        close-web-share => { root.web-share-dialog-open = false; }
+        open-web-share-url => { root.open-web-share-url(); }
+        close-web-share => { root.stop-web-share(); root.web-share-dialog-open = false; }
+        toggle-web-share-encryption(value) => { root.set-toggle("https", value); }
+        toggle-web-share-auto-accept(value) => { root.set-toggle("send_auto_accept", value); }
+        toggle-web-share-pin(value) => {
+            if value {
+                root.edit-setting("pin-enable");
+            } else {
+                root.edit-setting("pin-disable");
+            }
+        }
+        open-completion => { root.open-completion-file(); root.completion-dialog-open = false; }
+        reveal-completion => { root.reveal-completion-file(); root.completion-dialog-open = false; }
+        close-completion => { root.close-completion(); }
+        close-auto-save-help => { root.close-auto-save-help(); }
     }
 }
