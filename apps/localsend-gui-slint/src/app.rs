@@ -2366,6 +2366,8 @@ fn spawn_tray_process(extra_args: &[String]) -> anyhow::Result<()> {
     let current = std::env::current_exe()?;
     let binary = if cfg!(windows) {
         "localsend-tray.exe"
+    } else if cfg!(target_os = "macos") {
+        "LocalSendTray"
     } else {
         "localsend-tray"
     };
@@ -2380,7 +2382,7 @@ fn spawn_tray_process(extra_args: &[String]) -> anyhow::Result<()> {
                 .join(binary),
         ))
         .find(|path| path.exists())
-        .ok_or_else(|| anyhow::anyhow!("localsend-tray helper was not found next to the GUI"))?;
+        .ok_or_else(|| anyhow::anyhow!("tray helper was not found next to the GUI"))?;
 
     let mut command = Command::new(executable);
     if let Some(endpoint) = transport::configured_endpoint() {

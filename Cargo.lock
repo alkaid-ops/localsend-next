@@ -4375,6 +4375,7 @@ dependencies = [
  "fs2",
  "if-addrs",
  "libc",
+ "objc2-foundation 0.3.2",
  "serde",
  "serde_json",
  "sha2 0.11.0",

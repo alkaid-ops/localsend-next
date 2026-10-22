@@ -326,6 +326,8 @@ fn open_app(start_minimized: bool) -> anyhow::Result<()> {
 fn find_gui_executable(current: &std::path::Path) -> Option<std::path::PathBuf> {
     let gui_name = if cfg!(windows) {
         "LocalSend.exe"
+    } else if cfg!(target_os = "macos") {
+        "LocalSend"
     } else {
         "localsend"
     };
@@ -401,6 +403,7 @@ async fn connect_or_start_daemon() -> anyhow::Result<DaemonClient> {
 }
 
 fn main() -> anyhow::Result<()> {
+    localsend_platform::set_current_process_name("LocalSendTray");
     tracing_subscriber::fmt()
         .with_env_filter(
             tracing_subscriber::EnvFilter::try_from_default_env()
@@ -454,7 +457,7 @@ mod tests {
         let root = tempfile::tempdir().expect("temp root");
         let macos = root.path().join("Contents/MacOS");
         std::fs::create_dir_all(&macos).expect("create macOS dir");
-        let tray = macos.join("localsend-tray");
+        let tray = macos.join("LocalSendTray");
         let gui = macos.join("LocalSend");
         std::fs::write(&tray, b"tray").expect("write tray");
         std::fs::write(&gui, b"gui").expect("write gui");

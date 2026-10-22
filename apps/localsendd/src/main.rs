@@ -18,6 +18,7 @@ const OWNER_START_TIMEOUT: Duration = Duration::from_secs(3);
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    localsend_platform::set_current_process_name("localsendd");
     init_tracing();
     run_daemon().await
 }

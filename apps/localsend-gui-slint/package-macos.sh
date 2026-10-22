@@ -19,11 +19,17 @@ cargo build --release --manifest-path "$REPO_ROOT/Cargo.toml" -p localsend-gui-s
 
 mkdir -p "$MACOS_DIR" "$RESOURCES_DIR" "$ICON_WORK_DIR/raw" "$ICON_WORK_DIR/AppIcon.iconset" "$PACKAGES_DIR"
 
+for stale in LocalSend LocalSendTray localsend-tray localsendd; do
+    if [ -e "$MACOS_DIR/$stale" ]; then
+        unlink "$MACOS_DIR/$stale"
+    fi
+done
+
 cp "$REPO_ROOT/target/release/localsend-gui-slint" "$MACOS_DIR/LocalSend"
 cp "$REPO_ROOT/target/release/localsendd" "$MACOS_DIR/localsendd"
-cp "$REPO_ROOT/target/release/localsend-tray" "$MACOS_DIR/localsend-tray"
+cp "$REPO_ROOT/target/release/localsend-tray" "$MACOS_DIR/LocalSendTray"
 cp "$SCRIPT_DIR/packaging/macos/Info.plist" "$CONTENTS_DIR/Info.plist"
-chmod +x "$MACOS_DIR/LocalSend" "$MACOS_DIR/localsendd" "$MACOS_DIR/localsend-tray"
+chmod +x "$MACOS_DIR/LocalSend" "$MACOS_DIR/localsendd" "$MACOS_DIR/LocalSendTray"
 printf 'APPL????' > "$CONTENTS_DIR/PkgInfo"
 
 qlmanage -t -s 1024 -o "$ICON_WORK_DIR/raw" "$SCRIPT_DIR/packaging/macos/app-icon.svg" >/dev/null 2>&1

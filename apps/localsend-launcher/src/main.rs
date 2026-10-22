@@ -12,6 +12,7 @@ const START_TIMEOUT: Duration = Duration::from_secs(8);
 const SHUTDOWN_TIMEOUT: Duration = Duration::from_secs(5);
 
 fn main() -> anyhow::Result<()> {
+    localsend_platform::set_current_process_name("LocalSendLauncher");
     tracing_subscriber::fmt()
         .with_env_filter(
             tracing_subscriber::EnvFilter::try_from_default_env()

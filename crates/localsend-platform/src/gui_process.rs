@@ -190,7 +190,10 @@ fn process_is_tray(pid: u32) -> bool {
     else {
         return false;
     };
-    output.status.success() && String::from_utf8_lossy(&output.stdout).contains("localsend-tray")
+    output.status.success()
+        && ["localsend-tray", "LocalSendTray"]
+            .iter()
+            .any(|name| String::from_utf8_lossy(&output.stdout).contains(name))
 }
 
 #[cfg(windows)]

@@ -95,7 +95,7 @@ Linux tar/deb 在对应架构的 Linux 主机中生成：
 
 所有发布物统一输出到 `target/release/packages/`。Linux 无托盘环境从桌面菜单启动 `localsend-launcher`；需要 StatusNotifier/AppIndicator 时可单独运行 `localsend-tray`。GNOME 用户如果没有托盘图标，需要安装并启用 AppIndicator 扩展。
 
-Windows GUI、tray 和 launcher 使用 GUI subsystem；daemon 子进程使用无窗口创建标志。开机自启动在 Windows 指向 `localsend-tray.exe --minimized`，在 Linux 指向 `localsend-launcher --background`。
+macOS 包内的 tray 可执行文件名为 `LocalSendTray`，GUI 为 `LocalSend`。Windows GUI、tray 和 launcher 使用 GUI subsystem；daemon 子进程使用无窗口创建标志。开机自启动在 Windows 指向 `localsend-tray.exe --minimized`，在 Linux 指向 `localsend-launcher --background`。
 
 ## 当前范围
 
