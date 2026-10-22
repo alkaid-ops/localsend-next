@@ -78,6 +78,7 @@ pub enum WorkerEvent {
     },
     TextReceived {
         sender_alias: String,
+        sender_device_model: Option<String>,
         text: String,
     },
     WebShareRequested {
@@ -194,9 +195,14 @@ async fn run_worker(
                     match event {
                         Ok(event) => {
                             match event.event {
-                                ServiceEvent::TextReceived { sender_alias, text } => {
+                                ServiceEvent::TextReceived {
+                                    sender_alias,
+                                    sender_device_model,
+                                    text,
+                                } => {
                                     let _ = events_out.send(WorkerEvent::TextReceived {
                                         sender_alias,
+                                        sender_device_model,
                                         text,
                                     });
                                 }

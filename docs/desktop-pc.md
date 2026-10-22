@@ -42,7 +42,7 @@ localsend-gui-slint / localsend-tui / localsend-tray
 
 ## 前端
 
-正式 GUI 是 `apps/localsend-gui-slint`，release 固定使用 `winit-femtovg`。接收、发送、设置三页保持原 LocalSend 结构。
+正式 GUI 是 `apps/localsend-gui-slint`，release 固定使用 `winit-femtovg-wgpu`。macOS 上 wgpu 使用 Metal 后端。接收、发送、设置三页保持原 LocalSend 结构。
 
 `localsend-gui-egui`、`localsend-gui-fltk`、`localsend-gui-iced` 和
 `localsend-gui-tauri` 保留为实验目录，暂不进入 workspace 和发布链路。
@@ -61,7 +61,7 @@ cargo check --workspace
 cargo run -p localsendd
 cargo run -p localsend-tui
 cargo run -p localsend-tray
-cargo run -p localsend-gui-slint --no-default-features --features backend-femtovg
+cargo run -p localsend-gui-slint --no-default-features --features backend-femtovg-wgpu
 ```
 
 全流程本地验收：

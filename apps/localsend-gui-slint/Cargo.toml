@@ -5,7 +5,7 @@ edition = "2024"
 publish = false
 
 [features]
-default = ["backend-femtovg"]
+default = ["backend-femtovg-wgpu"]
 backend-software = ["slint/renderer-software"]
 backend-femtovg = ["slint/renderer-femtovg"]
 backend-femtovg-wgpu = ["slint/renderer-femtovg-wgpu"]
@@ -33,6 +33,12 @@ tokio = { version = "1.49", features = ["full"] }
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+block2 = "0.6"
+objc2 = "0.6"
+objc2-foundation = "0.3"
+objc2-user-notifications = "0.3.2"
 
 [dev-dependencies]
 i-slint-backend-testing = { version = "1.18.1", features = ["renderer-software"] }

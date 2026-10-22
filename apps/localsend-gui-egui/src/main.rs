@@ -195,7 +195,9 @@ impl DesktopApp {
                         || format!("Transfer {short_id} created"),
                     );
                 }
-                WorkerEvent::TextReceived { sender_alias, text } => {
+                WorkerEvent::TextReceived {
+                    sender_alias, text, ..
+                } => {
                     self.message_dialog = Some((sender_alias, text));
                 }
                 WorkerEvent::WebShareRequested {

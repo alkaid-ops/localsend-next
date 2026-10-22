@@ -24,7 +24,7 @@ $Required = @(
     -p localsendd -p localsend-tray -p localsend-launcher
 if ($LASTEXITCODE -ne 0) { throw "cargo build failed for daemon and tray" }
 & cargo build --locked --release --target $Target `
-    -p localsend-gui-slint --no-default-features --features backend-femtovg
+    -p localsend-gui-slint --no-default-features --features backend-femtovg-wgpu
 if ($LASTEXITCODE -ne 0) { throw "cargo build failed for GUI" }
 
 foreach ($Path in $Required) {

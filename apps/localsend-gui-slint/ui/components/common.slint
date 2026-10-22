@@ -290,6 +290,7 @@ export component FlutterSettingsEntry inherits Rectangle {
     in property <string> value;
     in property <bool> compact: false;
     in property <bool> enabled: true;
+    in property <bool> show-dropdown: true;
     callback clicked;
 
     accessible-role: button;
@@ -335,6 +336,7 @@ export component FlutterSettingsEntry inherits Rectangle {
                 source: @image-url("../icons/chevron-down.svg");
                 colorize: ThemeTokens.on-surface-variant;
                 image-fit: contain;
+                visible: root.show-dropdown;
             }
         }
     }
@@ -425,6 +427,8 @@ export component FlutterDeviceTile inherits Rectangle {
     in property <bool> favorite: false;
     in property <bool> selected: false;
     in property <bool> multiple: false;
+    in property <bool> show-favorite: true;
+    in property <color> tile-background: selected ? ThemeTokens.secondary-container : ThemeTokens.surface-container-low;
     callback device-clicked(string);
 
     accessible-role: button;
@@ -437,20 +441,20 @@ export component FlutterDeviceTile inherits Rectangle {
     border-radius: ThemeTokens.card-radius;
     border-width: selected ? 1px : 0px;
     border-color: ThemeTokens.primary;
-    background: selected ? ThemeTokens.secondary-container : ThemeTokens.surface-container-low;
+    background: root.tile-background;
 
     HorizontalLayout {
         width: parent.width;
         height: parent.height;
         padding-left: 14px;
-        padding-right: 8px;
+        padding-right: 18px;
         spacing: 12px;
         alignment: center;
         Image {
-            width: 42px;
-            height: 42px;
+            width: 56px;
+            height: 48px;
             source: @image-url("../icons/smartphone.svg");
-            colorize: root.favorite ? ThemeTokens.primary : ThemeTokens.on-surface-variant;
+            colorize: ThemeTokens.on-surface;
             image-fit: contain;
         }
         Rectangle {
@@ -459,29 +463,42 @@ export component FlutterDeviceTile inherits Rectangle {
             background: transparent;
 
             VerticalLayout {
-                spacing: 4px;
+                spacing: 8px;
                 Text {
                     text: root.alias;
                     color: ThemeTokens.on-surface;
-                    font-size: 20px;
+                    font-size: 22px;
                     overflow: elide;
                 }
                 HorizontalLayout {
                     spacing: 6px;
                     Text {
-                        text: root.ip + " · " + root.protocol;
+                        text: root.protocol;
+                        color: ThemeTokens.on-surface-variant;
+                        font-size: 12px;
+                        visible: root.protocol != "";
+                    }
+                    Text {
+                        text: root.model;
                         color: ThemeTokens.on-surface-variant;
                         font-size: 12px;
                         overflow: elide;
                     }
-                    if root.model != "" : Text {
-                        text: root.model;
+                    Text {
+                        text: root.ip;
                         color: ThemeTokens.on-surface-variant;
                         font-size: 12px;
                         overflow: elide;
                     }
                 }
             }
+        }
+        if root.favorite && root.show-favorite : Image {
+            width: 24px;
+            height: 24px;
+            source: @image-url("../icons/heart.svg");
+            colorize: ThemeTokens.primary;
+            image-fit: contain;
         }
     }
 

@@ -83,6 +83,7 @@ async fn current_official_text_protocol_is_received_and_not_left_on_disk() {
             if let ServiceEvent::TextReceived {
                 sender_alias,
                 text: received,
+                ..
             } = event
             {
                 return (sender_alias, received);

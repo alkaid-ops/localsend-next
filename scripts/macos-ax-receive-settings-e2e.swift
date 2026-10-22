@@ -223,7 +223,8 @@ do {
         "kind": "send_text",
         "text": message
     ])
-    guard waitFor(app, equals: "文本消息") != nil, waitFor(app, contains: message) != nil else {
+    guard waitFor(app, contains: "发送给你了一条消息") != nil,
+          waitFor(app, contains: message) != nil else {
         throw NSError(domain: "LocalSendReceiveE2E", code: 10, userInfo: [NSLocalizedDescriptionKey: "incoming text message did not appear"])
     }
     try press(app, "关闭")

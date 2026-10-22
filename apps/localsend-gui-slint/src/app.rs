@@ -1,4 +1,5 @@
 use crate::daemon_worker::{DaemonWorker, UiCommand, WorkerEvent};
+use crate::notifications::{self, NotificationAction};
 use crate::view_model;
 use crate::*;
 use localsend_platform::{
@@ -268,7 +269,12 @@ pub fn build_app(
 ) -> anyhow::Result<AppWindow> {
     let latest_snapshot = Rc::new(RefCell::new(None::<ServiceSnapshot>));
     let launch_setting = Rc::new(Cell::new(None::<bool>));
+    let (notification_tx, notification_rx) = std::sync::mpsc::channel();
+    if options.restore_window {
+        notifications::init(notification_tx);
+    }
     let ui = AppWindow::new()?;
+    ui.set_app_version(env!("CARGO_PKG_VERSION").into());
     if let Some(tab) = options.initial_tab.as_deref() {
         ui.set_selected_tab(tab.into());
     }
@@ -508,6 +514,130 @@ pub fn build_app(
         }
     });
 
+    ui.on_show_device_details({
+        let weak = weak.clone();
+        let latest_snapshot = latest_snapshot.clone();
+        move |fingerprint| {
+            let Some(ui) = weak.upgrade() else {
+                return;
+            };
+            let fingerprint = fingerprint.to_string();
+            let snapshot = latest_snapshot.borrow();
+            let live = snapshot.as_ref().and_then(|snapshot| {
+                snapshot
+                    .devices
+                    .iter()
+                    .find(|device| device.device.fingerprint == fingerprint)
+                    .map(|device| {
+                        let is_favorite = snapshot
+                            .favorites
+                            .iter()
+                            .any(|favorite| favorite.device.fingerprint == fingerprint);
+                        (
+                            device.device.alias.clone(),
+                            device.device.version.clone(),
+                            device.device.ip.clone().unwrap_or_default(),
+                            device.device.port,
+                            device.device.protocol.to_string(),
+                            is_favorite,
+                            device.source.clone(),
+                        )
+                    })
+            });
+            let device = if let Some(live) = live {
+                live
+            } else {
+                let Some(device) = ui
+                    .get_devices()
+                    .iter()
+                    .find(|device| device.fingerprint.as_str() == fingerprint)
+                else {
+                    update_message(&weak, "设备已离线，请刷新设备列表");
+                    return;
+                };
+                (
+                    device.alias.to_string(),
+                    String::new(),
+                    device.ip.to_string(),
+                    0,
+                    device.protocol.to_string(),
+                    device.favorite,
+                    "snapshot".to_string(),
+                )
+            };
+            ui.set_device_details_fingerprint(fingerprint.into());
+            ui.set_device_details_alias(device.0.clone().into());
+            ui.set_device_details_version(device.1.clone().into());
+            ui.set_device_details_protocol(device.4.clone().to_uppercase().into());
+            let address = if device.3 == 0 {
+                device.2.clone()
+            } else {
+                format!("{}:{}", device.2, device.3)
+            };
+            ui.set_device_details_address(address.into());
+            ui.set_device_details_favorite(device.5);
+            let log = format!(
+                "{} · {} · {} ({})",
+                if ui_is_english() {
+                    "Recent discovery"
+                } else {
+                    "最近发现"
+                },
+                device.6,
+                device.4,
+                if device.2.is_empty() {
+                    "unknown"
+                } else {
+                    &device.2
+                }
+            );
+            ui.set_device_details_logs(ModelRc::new(VecModel::from(vec![crate::DeviceLogItem {
+                text: log.into(),
+            }])));
+            ui.set_device_details_open(true);
+        }
+    });
+
+    ui.on_close_device_details({
+        let weak = weak.clone();
+        move || {
+            if let Some(ui) = weak.upgrade() {
+                ui.set_device_details_open(false);
+            }
+        }
+    });
+
+    ui.on_toggle_device_details_favorite({
+        let weak = weak.clone();
+        let commands = commands.clone();
+        move |fingerprint| {
+            let Some(ui) = weak.upgrade() else {
+                return;
+            };
+            let favorite = !ui.get_device_details_favorite();
+            ui.set_device_details_favorite(favorite);
+            dispatch_command(
+                &commands,
+                UiCommand::ToggleFavorite(fingerprint.to_string()),
+            );
+        }
+    });
+
+    ui.on_verify_device_details({
+        let weak = weak.clone();
+        let commands = commands.clone();
+        move |fingerprint| {
+            if let Some(ui) = weak.upgrade() {
+                ui.set_device_details_logs(ModelRc::new(VecModel::from(vec![
+                    crate::DeviceLogItem {
+                        text: "正在刷新设备连接…".into(),
+                    },
+                ])));
+            }
+            dispatch_command(&commands, UiCommand::VerifyDevice(fingerprint.to_string()));
+        }
+    });
+
     ui.on_send_to_device({
         let weak = weak.clone();
         let commands = commands.clone();
@@ -617,7 +747,10 @@ pub fn build_app(
             };
             let text = ui.get_message_received_text().to_string();
             match arboard::Clipboard::new().and_then(|mut clipboard| clipboard.set_text(text)) {
-                Ok(()) => update_message(&weak, "消息已复制"),
+                Ok(()) => {
+                    ui.set_message_received_open(false);
+                    update_message(&weak, "消息已复制");
+                }
                 Err(error) => update_message(&weak, &format!("复制消息失败：{error}")),
             }
         }
@@ -959,41 +1092,6 @@ pub fn build_app(
         }
     });
 
-    ui.on_show_device_details({
-        let weak = weak.clone();
-        let latest_snapshot = latest_snapshot.clone();
-        move |fingerprint| {
-            let fingerprint = fingerprint.to_string();
-            let Some(snapshot) = latest_snapshot.borrow().as_ref().cloned() else {
-                return;
-            };
-            if let Some(device) = snapshot
-                .devices
-                .iter()
-                .find(|device| device.device.fingerprint == fingerprint)
-                && let Some(ui) = weak.upgrade()
-            {
-                ui.set_info_alias(device.device.alias.clone().into());
-                ui.set_info_ip(
-                    device
-                        .device
-                        .ip
-                        .clone()
-                        .unwrap_or_else(|| {
-                            if ui_is_english() {
-                                "Unknown".into()
-                            } else {
-                                "未知".into()
-                            }
-                        })
-                        .into(),
-                );
-                ui.set_info_port(device.device.port.to_string().into());
-                ui.set_info_dialog_open(true);
-            }
-        }
-    });
-
     ui.on_open_history_path({
         let weak = weak.clone();
         move |path| {
@@ -1239,7 +1337,11 @@ pub fn build_app(
         let selection = selection.clone();
         let events = Rc::new(RefCell::new(worker_events));
         let events_for_timer = events.clone();
+        let notification_rx = notification_rx;
         move || {
+            while let Ok(action) = notification_rx.try_recv() {
+                handle_notification_action(&weak, action);
+            }
             loop {
                 let event = events_for_timer.borrow().try_recv();
                 let Ok(event) = event else { break };
@@ -1280,7 +1382,11 @@ pub fn build_app(
                             update_message(&weak, &message);
                         }
                     }
-                    WorkerEvent::TextReceived { sender_alias, text } => {
+                    WorkerEvent::TextReceived {
+                        sender_alias,
+                        sender_device_model,
+                        text,
+                    } => {
                         let title = if ui_is_english() {
                             "New message received"
                         } else {
@@ -1291,15 +1397,25 @@ pub fn build_app(
                         } else {
                             format!("{sender_alias}：{text}")
                         };
+                        let device = sender_device_model.unwrap_or_default();
                         if let Some(ui) = weak.upgrade() {
                             ui.set_message_received_sender(sender_alias.clone().into());
+                            ui.set_message_received_device(device.clone().into());
                             ui.set_message_received_text(text.clone().into());
                             ui.set_message_received_open(true);
                             ui.set_last_received_title(title.into());
                             ui.set_last_received_body(body.clone().into());
                             ui.set_last_received_visible(true);
                         }
-                        show_notification(title, &body);
+                        show_notification(
+                            NotificationAction::Message {
+                                sender: sender_alias,
+                                device,
+                                text,
+                            },
+                            title,
+                            &body,
+                        );
                     }
                     WorkerEvent::PinRequired { transfer_id } => {
                         if let Some(ui) = weak.upgrade() {
@@ -1916,7 +2032,17 @@ fn update_snapshot(weak: &Weak<AppWindow>, snapshot: &ServiceSnapshot, selection
                 ui.set_last_received_title(title.clone().into());
                 ui.set_last_received_body(body.clone().into());
                 ui.set_last_received_visible(true);
-                show_notification(&title, &body);
+                let receive_directory = entry
+                    .path
+                    .as_ref()
+                    .and_then(|path| path.parent().map(Path::to_path_buf))
+                    .or_else(|| snapshot.settings.destination_dir.clone())
+                    .unwrap_or_else(default_download_dir);
+                show_notification(
+                    NotificationAction::OpenReceiveFolder(receive_directory),
+                    &title,
+                    &body,
+                );
                 if entry.direction == localsend_rpc::TransferDirection::Receive
                     && let Some(path) = entry.path.as_ref()
                 {
@@ -2459,25 +2585,34 @@ fn format_bytes(bytes: u64) -> String {
     }
 }
 
-fn show_notification(title: &str, body: &str) {
-    #[cfg(target_os = "macos")]
-    {
-        let script = format!(
-            "display notification \"{}\" with title \"{}\"",
-            applescript_escape(body),
-            applescript_escape(title)
-        );
-        let _ = Command::new("osascript").args(["-e", &script]).spawn();
-    }
-    #[cfg(not(target_os = "macos"))]
-    {
-        let _ = (title, body);
-    }
+fn show_notification(action: NotificationAction, title: &str, body: &str) {
+    let _ = notifications::show(action, title, body);
 }
 
-#[cfg(target_os = "macos")]
-fn applescript_escape(value: &str) -> String {
-    value.replace('\\', "\\\\").replace('"', "\\\"")
+fn handle_notification_action(weak: &Weak<AppWindow>, action: NotificationAction) {
+    match action {
+        NotificationAction::Message {
+            sender,
+            device,
+            text,
+        } => {
+            let Some(ui) = weak.upgrade() else {
+                return;
+            };
+            let _ = ui.show();
+            ui.window().set_minimized(false);
+            ui.set_selected_tab("receive".into());
+            ui.set_message_received_sender(sender.into());
+            ui.set_message_received_device(device.into());
+            ui.set_message_received_text(text.into());
+            ui.set_message_received_open(true);
+        }
+        NotificationAction::OpenReceiveFolder(path) => {
+            if let Err(error) = open_path(&path) {
+                update_message(weak, &error);
+            }
+        }
+    }
 }
 
 fn language_label(language: &str) -> &'static str {

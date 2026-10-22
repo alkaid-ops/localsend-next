@@ -23,6 +23,7 @@ pub enum UiCommand {
     RestartWebReceive,
     StopWebShare,
     AddManual(String),
+    VerifyDevice(String),
     ToggleFavorite(String),
     SendFiles {
         fingerprint: String,
@@ -54,10 +55,22 @@ pub enum UiCommand {
 pub enum WorkerEvent {
     Snapshot(Box<ServiceSnapshot>),
     Notice(String),
-    Connection { connected: bool, message: String },
-    PinRequired { transfer_id: String },
-    TransferCreated { transfer_id: String, files: bool },
-    TextReceived { sender_alias: String, text: String },
+    Connection {
+        connected: bool,
+        message: String,
+    },
+    PinRequired {
+        transfer_id: String,
+    },
+    TransferCreated {
+        transfer_id: String,
+        files: bool,
+    },
+    TextReceived {
+        sender_alias: String,
+        sender_device_model: Option<String>,
+        text: String,
+    },
 }
 
 pub struct DaemonWorker {
@@ -159,9 +172,14 @@ async fn run_worker(
                     match event {
                         Ok(event) => {
                             match event.event {
-                                ServiceEvent::TextReceived { sender_alias, text } => {
+                                ServiceEvent::TextReceived {
+                                    sender_alias,
+                                    sender_device_model,
+                                    text,
+                                } => {
                                     let _ = events_out.send(WorkerEvent::TextReceived {
                                         sender_alias,
+                                        sender_device_model,
                                         text,
                                     });
                                 }
@@ -331,6 +349,19 @@ async fn handle_command(
             .command(ServiceCommand::AddManualDevice { target })
             .await
             .map(|_| None),
+        UiCommand::VerifyDevice(fingerprint) => {
+            let result = client
+                .command(ServiceCommand::RefreshDiscovery)
+                .await
+                .map(|_| None);
+            if result.is_ok() {
+                let _ = events.send(WorkerEvent::Notice(format!(
+                    "已刷新设备连接：{}",
+                    fingerprint.chars().take(12).collect::<String>()
+                )));
+            }
+            result
+        }
         UiCommand::ToggleFavorite(fingerprint) => {
             let snapshot = match client.command(ServiceCommand::GetSnapshot).await {
                 Ok(CommandResult::Snapshot { snapshot }) => snapshot,

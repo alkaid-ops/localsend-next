@@ -36,6 +36,7 @@ component SettingsPanel inherits Rectangle {
 
 export component SettingsPage inherits Rectangle {
     in property <length> viewport-width: 800px;
+    in property <string> app-version: "";
     in property <string> status-message: "";
     in property <string> brightness: "system";
     in property <string> color-mode: "localsend";
@@ -223,13 +224,50 @@ export component SettingsPage inherits Rectangle {
 
                 SettingsSectionTitle { text: @tr("其他"); }
                 SettingsPanel {
-                    content-height: (root.terms-supported ? 5 : 4) * 63px
+                    content-height: (root.terms-supported ? 5 : 4) * 63px + 112px
                         + (root.show-daemon-shutdown ? 63px : 0px) + 16px;
-                    FlutterSettingsEntry { label: @tr("关于 LocalSend"); value: "打开"; compact: root.viewport-width < 700px; clicked => { root.open-about(); } }
-                    FlutterSettingsEntry { label: @tr("支持 LocalSend"); value: "打开"; compact: root.viewport-width < 700px; clicked => { root.open-support(); } }
-                    FlutterSettingsEntry { label: @tr("隐私政策"); value: "打开"; compact: root.viewport-width < 700px; clicked => { root.open-privacy(); } }
-                    if root.terms-supported : FlutterSettingsEntry { label: @tr("使用条款"); value: "打开"; compact: root.viewport-width < 700px; clicked => { root.open-terms(); } }
-                    FlutterSettingsEntry { label: @tr("版本与更新日志"); value: "查看"; compact: root.viewport-width < 700px; clicked => { root.open-changelog(); } }
+                    FlutterSettingsEntry { label: @tr("关于 LocalSend"); value: @tr("打开"); show-dropdown: false; compact: root.viewport-width < 700px; clicked => { root.open-about(); } }
+                    FlutterSettingsEntry { label: @tr("支持 LocalSend"); value: @tr("捐赠"); show-dropdown: false; compact: root.viewport-width < 700px; clicked => { root.open-support(); } }
+                    FlutterSettingsEntry { label: @tr("隐私政策"); value: @tr("打开"); show-dropdown: false; compact: root.viewport-width < 700px; clicked => { root.open-privacy(); } }
+                    if root.terms-supported : FlutterSettingsEntry { label: @tr("使用条款"); value: @tr("打开"); show-dropdown: false; compact: root.viewport-width < 700px; clicked => { root.open-terms(); } }
+                    FlutterSettingsEntry { label: @tr("更新日志"); value: @tr("打开"); show-dropdown: false; compact: root.viewport-width < 700px; clicked => { root.open-changelog(); } }
+                    VerticalLayout {
+                        height: 112px;
+                        alignment: center;
+                        spacing: 3px;
+                        Text {
+                            text: "LocalSend";
+                            color: ThemeTokens.on-surface;
+                            font-size: 18px;
+                            font-weight: 600;
+                            horizontal-alignment: center;
+                        }
+                        Text {
+                            text: @tr("版本：") + root.app-version;
+                            color: ThemeTokens.on-surface-variant;
+                            font-size: 13px;
+                            horizontal-alignment: center;
+                        }
+                        Text {
+                            text: "© 2026 LocalSend PC";
+                            color: ThemeTokens.on-surface-variant;
+                            font-size: 13px;
+                            horizontal-alignment: center;
+                        }
+                        TouchArea {
+                            height: 24px;
+                            width: changelog-link.preferred-width;
+                            mouse-cursor: pointer;
+                            clicked => { root.open-changelog(); }
+                            changelog-link := Text {
+                                text: @tr("更新日志");
+                                color: ThemeTokens.primary;
+                                font-size: 13px;
+                                horizontal-alignment: center;
+                                vertical-alignment: center;
+                            }
+                        }
+                    }
                     if root.show-daemon-shutdown : FlutterSettingsEntry {
                         label: @tr("关闭后台服务");
                         value: @tr("执行");

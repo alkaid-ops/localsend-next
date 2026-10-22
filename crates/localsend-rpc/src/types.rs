@@ -480,6 +480,8 @@ pub enum ServiceEvent {
     },
     TextReceived {
         sender_alias: String,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        sender_device_model: Option<String>,
         text: String,
     },
     WebShareRequested {

@@ -36,7 +36,7 @@ command -v tar >/dev/null 2>&1 || { echo 'tar is required' >&2; exit 1; }
 cargo build --locked --release --target "$TARGET" \
     -p localsendd -p localsend-tray -p localsend-launcher -p localsend-tui
 cargo build --locked --release --target "$TARGET" \
-    -p localsend-gui-slint --no-default-features --features backend-femtovg
+    -p localsend-gui-slint --no-default-features --features backend-femtovg-wgpu
 
 for binary in localsend-gui-slint localsendd localsend-tray localsend-launcher localsend-tui; do
     if [ ! -x "$RELEASE/$binary" ]; then

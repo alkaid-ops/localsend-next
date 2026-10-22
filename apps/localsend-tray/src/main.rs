@@ -11,11 +11,156 @@ use tray_icon::menu::{Menu, MenuEvent, MenuItem};
 use tray_icon::{Icon, TrayIconBuilder};
 
 const OPEN_APP: &str = "localsend.open-app";
-const TOGGLE_SERVER: &str = "localsend.toggle-server";
-const SHOW_STATUS: &str = "localsend.show-status";
 const OPEN_DOWNLOADS: &str = "localsend.open-downloads";
 const RESTART_APP: &str = "localsend.restart";
 const QUIT_APP: &str = "localsend.quit";
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum TrayLanguage {
+    English,
+    SimplifiedChinese,
+}
+
+impl TrayLanguage {
+    fn from_settings(language: &str) -> Self {
+        if language.starts_with("zh") {
+            Self::SimplifiedChinese
+        } else if language.starts_with("en") {
+            Self::English
+        } else if sys_locale::get_locale().is_some_and(|locale| locale.starts_with("zh")) {
+            Self::SimplifiedChinese
+        } else {
+            Self::English
+        }
+    }
+
+    fn from_snapshot(snapshot: Option<&ServiceSnapshot>) -> Self {
+        snapshot
+            .map(|snapshot| Self::from_settings(&snapshot.settings.language))
+            .unwrap_or_else(|| Self::from_settings("system"))
+    }
+
+    fn open_app(self) -> &'static str {
+        match self {
+            Self::English => "Open main window",
+            Self::SimplifiedChinese => "打开主界面",
+        }
+    }
+
+    fn open_downloads(self) -> &'static str {
+        match self {
+            Self::English => "Open receive folder",
+            Self::SimplifiedChinese => "打开接收文件夹",
+        }
+    }
+
+    fn restart_app(self) -> &'static str {
+        match self {
+            Self::English => "Restart",
+            Self::SimplifiedChinese => "重启",
+        }
+    }
+
+    fn quit_app(self) -> &'static str {
+        match self {
+            Self::English => "Quit",
+            Self::SimplifiedChinese => "退出",
+        }
+    }
+
+    fn restart_unavailable(self) -> &'static str {
+        match self {
+            Self::English => "Restart unavailable",
+            Self::SimplifiedChinese => "无法重启",
+        }
+    }
+
+    fn externally_managed_daemon(self) -> &'static str {
+        match self {
+            Self::English => "LocalSend is using an externally managed daemon.",
+            Self::SimplifiedChinese => "LocalSend 正在使用外部管理的后台服务。",
+        }
+    }
+
+    fn active_transfers_confirm(self) -> &'static str {
+        match self {
+            Self::English => "Active transfers will be cancelled. Continue?",
+            Self::SimplifiedChinese => "有活动传输将被取消，是否继续？",
+        }
+    }
+
+    fn daemon_unavailable(self) -> &'static str {
+        match self {
+            Self::English => "Daemon unavailable",
+            Self::SimplifiedChinese => "后台服务不可用",
+        }
+    }
+
+    fn server_running(self, port: u16) -> String {
+        match self {
+            Self::English => format!("Server: running on port {port}"),
+            Self::SimplifiedChinese => format!("服务器：运行中，端口 {port}"),
+        }
+    }
+
+    fn server_stopped(self) -> &'static str {
+        match self {
+            Self::English => "Server: stopped",
+            Self::SimplifiedChinese => "服务器：已停止",
+        }
+    }
+
+    fn devices(self, count: usize) -> String {
+        match self {
+            Self::English => format!("Devices: {count}"),
+            Self::SimplifiedChinese => format!("设备：{count}"),
+        }
+    }
+
+    fn active_transfers(self, count: usize) -> String {
+        match self {
+            Self::English => format!("Active transfers: {count}"),
+            Self::SimplifiedChinese => format!("活动传输：{count}"),
+        }
+    }
+}
+
+struct TrayMenu {
+    open_app: MenuItem,
+    open_downloads: MenuItem,
+    restart_app: MenuItem,
+    quit_app: MenuItem,
+}
+
+impl TrayMenu {
+    fn new(language: TrayLanguage) -> anyhow::Result<(Self, Menu)> {
+        let items = Self {
+            open_app: MenuItem::with_id(OPEN_APP, language.open_app(), true, None),
+            open_downloads: MenuItem::with_id(
+                OPEN_DOWNLOADS,
+                language.open_downloads(),
+                true,
+                None,
+            ),
+            restart_app: MenuItem::with_id(RESTART_APP, language.restart_app(), true, None),
+            quit_app: MenuItem::with_id(QUIT_APP, language.quit_app(), true, None),
+        };
+        let menu = Menu::with_items(&[
+            &items.open_app,
+            &items.open_downloads,
+            &items.restart_app,
+            &items.quit_app,
+        ])?;
+        Ok((items, menu))
+    }
+
+    fn apply_language(&self, language: TrayLanguage) {
+        self.open_app.set_text(language.open_app());
+        self.open_downloads.set_text(language.open_downloads());
+        self.restart_app.set_text(language.restart_app());
+        self.quit_app.set_text(language.quit_app());
+    }
+}
 
 pub fn run_tray() -> anyhow::Result<()> {
     if std::env::args().any(|argument| argument == "--quit") {
@@ -43,14 +188,9 @@ pub fn run_tray() -> anyhow::Result<()> {
         return Ok(());
     }
 
-    let menu = Menu::with_items(&[
-        &MenuItem::with_id(OPEN_APP, "Open LocalSend", true, None),
-        &MenuItem::with_id(TOGGLE_SERVER, "Start / stop receiving", true, None),
-        &MenuItem::with_id(SHOW_STATUS, "Show status", true, None),
-        &MenuItem::with_id(OPEN_DOWNLOADS, "Open receive folder", true, None),
-        &MenuItem::with_id(RESTART_APP, "Restart LocalSend", true, None),
-        &MenuItem::with_id(QUIT_APP, "Quit LocalSend", true, None),
-    ])?;
+    let mut last_snapshot = client.snapshot();
+    let mut language = TrayLanguage::from_snapshot(last_snapshot.as_ref());
+    let (menu_items, menu) = TrayMenu::new(language)?;
     let icon = Icon::from_rgba(tray_icon_rgba(32), 32, 32)?;
     let builder = TrayIconBuilder::new()
         .with_menu(Box::new(menu))
@@ -64,16 +204,23 @@ pub fn run_tray() -> anyhow::Result<()> {
          (for GNOME also enable an AppIndicator extension)",
     )?;
     let _menu_keepalive = tray.clone();
-    let mut last_snapshot = client.snapshot();
-    update_tooltip(&tray, last_snapshot.as_ref());
-    let mut tooltip_due: Option<Instant> = None;
+    update_tooltip(&tray, last_snapshot.as_ref(), language);
+    let mut tooltip_due = Some(Instant::now() + Duration::from_secs(1));
 
     loop {
         pump_macos_events();
+        last_snapshot = client.snapshot();
+        let current_language = TrayLanguage::from_snapshot(last_snapshot.as_ref());
+        if current_language != language {
+            language = current_language;
+            menu_items.apply_language(language);
+            update_tooltip(&tray, last_snapshot.as_ref(), language);
+            tooltip_due = Some(Instant::now() + Duration::from_secs(1));
+        }
         if tooltip_due.is_some_and(|due| Instant::now() >= due) {
             last_snapshot = client.snapshot();
-            update_tooltip(&tray, last_snapshot.as_ref());
-            tooltip_due = None;
+            update_tooltip(&tray, last_snapshot.as_ref(), language);
+            tooltip_due = Some(Instant::now() + Duration::from_secs(1));
         }
         if client.is_connection_closed() {
             break;
@@ -81,25 +228,6 @@ pub fn run_tray() -> anyhow::Result<()> {
         if let Ok(event) = MenuEvent::receiver().recv_timeout(Duration::from_millis(100)) {
             match event.id.as_ref() {
                 OPEN_APP => open_app(false)?,
-                TOGGLE_SERVER => {
-                    let running = client
-                        .snapshot()
-                        .map(|snapshot| snapshot.server_running)
-                        .unwrap_or(false);
-                    let command = if running {
-                        ServiceCommand::StopServer
-                    } else {
-                        ServiceCommand::StartServer
-                    };
-                    runtime
-                        .block_on(client.command(command))
-                        .map_err(anyhow::Error::msg)?;
-                    tooltip_due = Some(Instant::now() + Duration::from_millis(300));
-                }
-                SHOW_STATUS => {
-                    last_snapshot = client.snapshot();
-                    tooltip_due = Some(Instant::now() + Duration::from_millis(300));
-                }
                 OPEN_DOWNLOADS => {
                     if let Some(path) = receive_directory(last_snapshot.as_ref()) {
                         open_path(&path);
@@ -108,12 +236,12 @@ pub fn run_tray() -> anyhow::Result<()> {
                 RESTART_APP => {
                     if !client.owns_lifecycle() {
                         show_message(
-                            "Restart unavailable",
-                            "LocalSend is using an externally managed daemon.",
+                            language.restart_unavailable(),
+                            language.externally_managed_daemon(),
                         );
                         continue;
                     }
-                    if !confirm_shutdown(last_snapshot.as_ref(), "Restart LocalSend") {
+                    if !confirm_shutdown(last_snapshot.as_ref(), language.restart_app(), language) {
                         continue;
                     }
                     let old_instance = client.instance_id();
@@ -132,7 +260,7 @@ pub fn run_tray() -> anyhow::Result<()> {
                     tooltip_due = Some(Instant::now() + Duration::from_millis(300));
                 }
                 QUIT_APP => {
-                    if !confirm_shutdown(last_snapshot.as_ref(), "Quit LocalSend") {
+                    if !confirm_shutdown(last_snapshot.as_ref(), language.quit_app(), language) {
                         continue;
                     }
                     terminate_gui_process();
@@ -227,7 +355,11 @@ fn pump_macos_events() {
 #[cfg(not(target_os = "macos"))]
 fn pump_macos_events() {}
 
-fn confirm_shutdown(snapshot: Option<&ServiceSnapshot>, title: &str) -> bool {
+fn confirm_shutdown(
+    snapshot: Option<&ServiceSnapshot>,
+    title: &str,
+    language: TrayLanguage,
+) -> bool {
     let has_transfers = snapshot.is_some_and(|snapshot| !snapshot.active_transfers.is_empty());
     if !has_transfers {
         return true;
@@ -237,7 +369,7 @@ fn confirm_shutdown(snapshot: Option<&ServiceSnapshot>, title: &str) -> bool {
     }
     rfd::MessageDialog::new()
         .set_title(title)
-        .set_description("Active transfers will be cancelled. Continue?")
+        .set_description(language.active_transfers_confirm())
         .set_buttons(rfd::MessageButtons::YesNo)
         .show()
         == rfd::MessageDialogResult::Yes
@@ -262,24 +394,25 @@ fn cancel_active_transfers(runtime: &tokio::runtime::Runtime, client: &DaemonCli
     }
 }
 
-fn update_tooltip(tray: &tray_icon::TrayIcon, snapshot: Option<&ServiceSnapshot>) {
+fn update_tooltip(
+    tray: &tray_icon::TrayIcon,
+    snapshot: Option<&ServiceSnapshot>,
+    language: TrayLanguage,
+) {
     let text = snapshot
         .map(|snapshot| {
             format!(
-                "LocalSend PC\nServer: {}\nDevices: {}\nActive transfers: {}",
+                "LocalSend PC\n{}\n{}\n{}",
                 if snapshot.server_running {
-                    format!(
-                        "running on port {}",
-                        snapshot.server_port.unwrap_or_default()
-                    )
+                    language.server_running(snapshot.server_port.unwrap_or_default())
                 } else {
-                    "stopped".to_string()
+                    language.server_stopped().to_string()
                 },
-                snapshot.devices.len(),
-                snapshot.active_transfers.len()
+                language.devices(snapshot.devices.len()),
+                language.active_transfers(snapshot.active_transfers.len())
             )
         })
-        .unwrap_or_else(|| "LocalSend PC\nDaemon unavailable".to_string());
+        .unwrap_or_else(|| format!("LocalSend PC\n{}", language.daemon_unavailable()));
     let _ = tray.set_tooltip(Some(text));
 }
 
@@ -462,5 +595,24 @@ mod tests {
         std::fs::write(&tray, b"tray").expect("write tray");
         std::fs::write(&gui, b"gui").expect("write gui");
         assert_eq!(find_gui_executable(&tray), Some(gui));
+    }
+
+    #[test]
+    fn tray_language_honors_explicit_settings() {
+        assert_eq!(
+            TrayLanguage::from_settings("zh-CN"),
+            TrayLanguage::SimplifiedChinese
+        );
+        assert_eq!(TrayLanguage::from_settings("en-US"), TrayLanguage::English);
+        assert_eq!(
+            TrayLanguage::from_settings("zh-CN").open_app(),
+            "打开主界面"
+        );
+        assert_eq!(TrayLanguage::from_settings("zh-CN").restart_app(), "重启");
+        assert_eq!(TrayLanguage::from_settings("zh-CN").quit_app(), "退出");
+        assert_eq!(
+            TrayLanguage::from_settings("en-US").active_transfers(2),
+            "Active transfers: 2"
+        );
     }
 }

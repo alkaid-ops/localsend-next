@@ -227,6 +227,7 @@ enum InternalEvent {
         path: PathBuf,
         size: u64,
         alias: String,
+        device_model: Option<String>,
         message: Option<String>,
         result: Result<(), String>,
     },
@@ -323,6 +324,7 @@ struct ServiceTask {
     server: Option<RunningServer>,
     discoveries: Vec<RunningDiscovery>,
     pending_receives: HashMap<String, PendingReceive>,
+    receive_peers: HashMap<String, DeviceInfo>,
     web_decisions: HashMap<String, oneshot::Sender<bool>>,
     cancellations: HashMap<String, CancellationToken>,
     file_progress: HashMap<(String, String), u64>,
@@ -391,6 +393,7 @@ impl ServiceTask {
             server: None,
             discoveries: Vec::new(),
             pending_receives: HashMap::new(),
+            receive_peers: HashMap::new(),
             web_decisions: HashMap::new(),
             cancellations: HashMap::new(),
             file_progress: HashMap::new(),
@@ -1358,6 +1361,8 @@ impl ServiceTask {
                     download: info.download,
                     ip: Some(ip.to_string()),
                 };
+                self.receive_peers
+                    .insert(session_id.clone(), sender.clone());
                 let file_views = files.values().map(file_view).collect::<Vec<_>>();
                 if let Some(message) = message_text(&files)
                     && files.values().all(|file| file.size == 0)
@@ -1365,6 +1370,7 @@ impl ServiceTask {
                     let _ = decision_tx.send(PrepareUploadDecisionV2::Accept(HashSet::new()));
                     self.emit(ServiceEvent::TextReceived {
                         sender_alias: sender.alias.clone(),
+                        sender_device_model: sender.device_model.clone(),
                         text: message.clone(),
                     });
                     let entry = HistoryEntry {
@@ -1383,6 +1389,7 @@ impl ServiceTask {
                         self.record_history(entry.clone());
                     }
                     self.emit(ServiceEvent::HistoryAppended { entry });
+                    self.receive_peers.remove(&session_id);
                     return;
                 }
                 let message_request = message_text(&files).is_some();
@@ -1472,9 +1479,11 @@ impl ServiceTask {
                 } else {
                     self.set_transfer_status(&session_id, status, None);
                 }
+                self.receive_peers.remove(&session_id);
             }
             ServerEventV2::PrepareUploadAborted { session_id } => {
                 self.pending_receives.remove(&session_id);
+                self.receive_peers.remove(&session_id);
                 self.snapshot
                     .write()
                     .incoming_requests
@@ -1553,14 +1562,21 @@ impl ServiceTask {
             self.set_error("receiver dropped upload target".to_string());
             return;
         }
-        let alias = self
-            .snapshot
-            .read()
-            .active_transfers
-            .iter()
-            .find(|transfer| transfer.transfer_id == session_id)
-            .map(|transfer| transfer.peer_alias.clone())
-            .unwrap_or_else(|| "Peer".to_string());
+        let (alias, device_model) = self
+            .receive_peers
+            .get(&session_id)
+            .map(|sender| (sender.alias.clone(), sender.device_model.clone()))
+            .unwrap_or_else(|| {
+                let alias = self
+                    .snapshot
+                    .read()
+                    .active_transfers
+                    .iter()
+                    .find(|transfer| transfer.transfer_id == session_id)
+                    .map(|transfer| transfer.peer_alias.clone())
+                    .unwrap_or_else(|| "Peer".to_string());
+                (alias, None)
+            });
         let progress_events = self.internal_tx.clone();
         let progress_transfer = session_id.clone();
         let progress_file_id = file_id.clone();
@@ -1591,6 +1607,7 @@ impl ServiceTask {
                 path: result_path,
                 size: result_size,
                 alias,
+                device_model,
                 message,
                 result,
             });
@@ -1805,6 +1822,7 @@ impl ServiceTask {
                 path,
                 size,
                 alias,
+                device_model,
                 message,
                 result,
             } => {
@@ -1849,6 +1867,7 @@ impl ServiceTask {
                 if successful && let Some(text) = message {
                     self.emit(ServiceEvent::TextReceived {
                         sender_alias: alias,
+                        sender_device_model: device_model,
                         text,
                     });
                 }

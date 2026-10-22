@@ -15,7 +15,7 @@ export PATH="$HOME/.cargo/bin:$PATH"
 
 cargo build --release --manifest-path "$REPO_ROOT/Cargo.toml" -p localsendd
 cargo build --release --manifest-path "$REPO_ROOT/Cargo.toml" -p localsend-tray
-cargo build --release --manifest-path "$REPO_ROOT/Cargo.toml" -p localsend-gui-slint --no-default-features --features backend-femtovg
+cargo build --release --manifest-path "$REPO_ROOT/Cargo.toml" -p localsend-gui-slint --no-default-features --features backend-femtovg-wgpu
 
 mkdir -p "$MACOS_DIR" "$RESOURCES_DIR" "$ICON_WORK_DIR/raw" "$ICON_WORK_DIR/AppIcon.iconset" "$PACKAGES_DIR"
 

@@ -40,6 +40,7 @@ export component DialogLayer inherits Rectangle {
     in property <[HistoryItem]> history-items: [];
     in property <bool> message-open: false;
     in property <string> message-sender: "";
+    in property <string> message-device: "";
     in property <string> message-text: "";
     in property <bool> info-open: false;
     in property <string> info-alias: "";
@@ -231,43 +232,85 @@ export component DialogLayer inherits Rectangle {
         }
     }
 
-    if root.message-open : DialogShell {
-        title: @tr("文本消息");
-        viewport-width: root.viewport-width;
-        viewport-height: root.viewport-height;
-        close-clicked => { root.close-message(); }
-        Text {
-            text: root.message-sender;
-            color: ThemeTokens.on-surface-variant;
-            font-size: 13px;
-            overflow: elide;
-        }
-        Rectangle {
-            vertical-stretch: 1;
-            border-radius: ThemeTokens.card-radius;
-            background: ThemeTokens.surface-container;
-            ScrollView {
-                width: parent.width;
-                height: parent.height;
-                content-width: self.visible-width;
-                content-height: max(self.visible-height, message-body.preferred-height + 24px);
-                message-body := Text {
-                    x: 12px;
-                    y: 10px;
-                    width: parent.width - 24px;
-                    text: root.message-text;
-                    color: ThemeTokens.on-surface;
+    if root.message-open : Rectangle {
+        width: parent.width;
+        height: parent.height;
+        background: ThemeTokens.surface;
+
+        VerticalLayout {
+            width: 100%;
+            height: 100%;
+            padding-left: 48px;
+            padding-right: 48px;
+            padding-top: 36px;
+            padding-bottom: 36px;
+            spacing: 14px;
+            alignment: center;
+
+            Text {
+                text: root.message-sender;
+                color: ThemeTokens.on-surface;
+                font-size: 42px;
+                font-weight: 400;
+                horizontal-alignment: center;
+                overflow: elide;
+            }
+            if root.message-device != "" : Rectangle {
+                height: 32px;
+                width: device-label.preferred-width + 24px;
+                border-radius: 7px;
+                background: ThemeTokens.secondary-container;
+                device-label := Text {
+                    text: root.message-device;
+                    color: ThemeTokens.on-secondary-container;
                     font-size: 15px;
-                    wrap: word-wrap;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
                 }
             }
-        }
-        HorizontalLayout {
-            horizontal-stretch: 1;
-            spacing: 8px;
-            Rectangle { horizontal-stretch: 1; background: transparent; }
-            FlutterDialogButton { label: @tr("复制"); primary: true; clicked => { root.copy-message(); } }
-            FlutterDialogButton { label: @tr("关闭"); clicked => { root.close-message(); } }
+            Text {
+                text: @tr("发送给你了一条消息：");
+                color: ThemeTokens.on-surface;
+                font-size: 16px;
+                horizontal-alignment: center;
+            }
+            Rectangle {
+                width: min(640px, parent.width - 48px);
+                height: 180px;
+                border-radius: 16px;
+                background: ThemeTokens.surface-container-high;
+                ScrollView {
+                    width: parent.width;
+                    height: parent.height;
+                    content-width: self.visible-width;
+                    content-height: max(self.visible-height, message-body.preferred-height + 28px);
+                    message-body := Text {
+                        x: 16px;
+                        y: 14px;
+                        width: parent.width - 32px;
+                        text: root.message-text;
+                        color: ThemeTokens.on-surface;
+                        font-size: 18px;
+                        wrap: word-wrap;
+                    }
+                }
+            }
+            HorizontalLayout {
+                height: 48px;
+                spacing: 18px;
+                alignment: center;
+                FlutterDialogButton {
+                    automation-id: "message-copy";
+                    label: @tr("复制");
+                    primary: true;
+                    clicked => { root.copy-message(); }
+                }
+                FlutterDialogButton {
+                    automation-id: "message-close";
+                    label: @tr("关闭");
+                    clicked => { root.close-message(); }
+                }
+            }
         }
     }
 

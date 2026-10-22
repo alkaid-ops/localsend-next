@@ -1,6 +1,6 @@
 import { ScrollView } from "std-widgets.slint";
 import { ThemeTokens } from "theme.slint";
-import { DeviceItem, FavoriteItem, HistoryItem, RequestFileItem, SelectedFileItem, TransferItem } from "models.slint";
+import { DeviceItem, DeviceLogItem, FavoriteItem, HistoryItem, RequestFileItem, SelectedFileItem, TransferItem } from "models.slint";
 import {
     FlutterBooleanEntry,
     FlutterBigButton,
@@ -15,10 +15,11 @@ import { SendPage } from "pages/send-page.slint";
 import { SettingsPage } from "pages/settings-page.slint";
 import { DialogLayer } from "dialogs/dialog-layer.slint";
 export { ThemeTokens }
-export { DeviceItem, FavoriteItem, HistoryItem, RequestFileItem, SelectedFileItem, TransferItem }
+export { DeviceItem, DeviceLogItem, FavoriteItem, HistoryItem, RequestFileItem, SelectedFileItem, TransferItem }
 
 export component AppWindow inherits Window {
     title: "LocalSend";
+    in property <string> app-version: "0.1.0";
     preferred-width: root.requested-window-width;
     preferred-height: root.requested-window-height;
     min-width: 600px;
@@ -48,6 +49,14 @@ export component AppWindow inherits Window {
     in-out property <int> history-count: 0;
     in-out property <bool> server-running: false;
     in-out property <[DeviceItem]> devices: [];
+    in-out property <bool> device-details-open: false;
+    in-out property <string> device-details-fingerprint: "";
+    in-out property <string> device-details-alias: "";
+    in-out property <string> device-details-version: "";
+    in-out property <string> device-details-address: "";
+    in-out property <string> device-details-protocol: "";
+    in-out property <bool> device-details-favorite: false;
+    in-out property <[DeviceLogItem]> device-details-logs: [];
     in-out property <[FavoriteItem]> favorites: [];
     in-out property <[SelectedFileItem]> selected-files: [];
     in-out property <[HistoryItem]> history-items: [];
@@ -67,6 +76,7 @@ export component AppWindow inherits Window {
     in-out property <bool> history-dialog-open: false;
     in-out property <bool> message-received-open: false;
     in-out property <string> message-received-sender: "";
+    in-out property <string> message-received-device: "";
     in-out property <string> message-received-text: "";
     in-out property <bool> info-dialog-open: false;
     in-out property <bool> manual-dialog-open: false;
@@ -172,6 +182,9 @@ export component AppWindow inherits Window {
     callback edit-selection();
     callback open-history-path(string);
     callback show-device-details(string);
+    callback close-device-details();
+    callback toggle-device-details-favorite(string);
+    callback verify-device-details(string);
     callback open-completion-file();
     callback reveal-completion-file();
     callback close-completion();
@@ -291,6 +304,7 @@ export component AppWindow inherits Window {
                             cancel-transfer(transfer-id) => { root.cancel-transfer(transfer-id); }
                         }
                         if root.selected-tab == "send" : SendPage {
+                            visible: !root.device-details-open;
                             width: root.viewport-width - ((root.narrow || root.sending-active) ? 0px : root.sidebar-width);
                             height: root.viewport-height - (root.narrow && !root.sending-active ? 72px : 0px);
                             vertical-stretch: 1;
@@ -323,12 +337,60 @@ export component AppWindow inherits Window {
                             dismiss-transfer(transfer-id) => { root.dismiss-transfer(transfer-id); }
                             troubleshoot => { root.troubleshoot-dialog-open = true; }
                         }
+                        if root.device-details-open : Rectangle {
+                            width: root.viewport-width - (root.narrow ? 0px : root.sidebar-width);
+                            height: root.viewport-height - (root.narrow ? 72px : 0px);
+                            background: ThemeTokens.surface;
+                            VerticalLayout {
+                                width: min(parent.width, 900px);
+                                height: parent.height;
+                                x: (parent.width - self.width) / 2;
+                                padding: 28px;
+                                spacing: 22px;
+                                HorizontalLayout {
+                                    height: 48px;
+                                    FlutterIconButton { automation-id: "device-details-back"; icon: @image-url("icons/back.svg"); tooltip: @tr("返回"); clicked => { root.close-device-details(); } }
+                                    Text { text: @tr("设备详情"); color: ThemeTokens.on-surface; font-size: 26px; horizontal-stretch: 1; horizontal-alignment: center; vertical-alignment: center; }
+                                    Rectangle { width: 40px; background: transparent; }
+                                }
+                                HorizontalLayout {
+                                    height: 112px;
+                                    spacing: 20px;
+                                    alignment: center;
+                                    FlutterBigButton { width: 220px; height: 112px; automation-id: "device-details-favorite"; label: root.device-details-favorite ? @tr("取消收藏") : @tr("收藏"); icon: @image-url("icons/heart.svg"); clicked => { root.toggle-device-details-favorite(root.device-details-fingerprint); } }
+                                    FlutterBigButton { width: 220px; height: 112px; automation-id: "device-details-verify"; label: @tr("验证"); icon: @image-url("icons/info.svg"); clicked => { root.verify-device-details(root.device-details-fingerprint); } }
+                                }
+                                VerticalLayout {
+                                    width: min(parent.width, 680px);
+                                    x: (parent.width - self.width) / 2;
+                                    spacing: 8px;
+                                    HorizontalLayout { Text { text: @tr("名称"); width: 88px; color: ThemeTokens.on-surface-variant; font-size: 17px; } Text { text: root.device-details-alias; color: ThemeTokens.on-surface; font-size: 17px; } }
+                                    HorizontalLayout { Text { text: @tr("版本"); width: 88px; color: ThemeTokens.on-surface-variant; font-size: 17px; } Text { text: @tr("协议 ") + root.device-details-version; color: ThemeTokens.on-surface; font-size: 17px; } }
+                                    HorizontalLayout { Text { text: @tr("地址"); width: 88px; color: ThemeTokens.on-surface-variant; font-size: 17px; } Text { text: root.device-details-address; color: ThemeTokens.on-surface; font-size: 17px; overflow: elide; } }
+                                }
+                                VerticalLayout {
+                                    width: min(parent.width, 680px);
+                                    x: (parent.width - self.width) / 2;
+                                    spacing: 6px;
+                                    Text { text: @tr("日志"); color: ThemeTokens.on-surface; font-size: 19px; font-weight: 600; }
+                                    ScrollView {
+                                        vertical-stretch: 1;
+                                        content-height: max(self.visible-height, root.device-details-logs.length * 32px);
+                                        VerticalLayout {
+                                            spacing: 2px;
+                                            for item in root.device-details-logs : Text { text: item.text; color: ThemeTokens.on-surface; font-size: 15px; wrap: word-wrap; }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                         if root.selected-tab == "settings" : SettingsPage {
                             width: root.viewport-width - (root.narrow ? 0px : root.sidebar-width);
                             height: root.viewport-height - (root.narrow ? 72px : 0px);
                             vertical-stretch: 1;
                             status-message: root.message;
                             viewport-width: root.viewport-width - (root.narrow ? 0px : root.sidebar-width);
+                            app-version: root.app-version;
                             brightness: root.settings-theme;
                             color-mode: root.settings-color;
                             language: root.settings-language;
@@ -379,7 +441,7 @@ export component AppWindow inherits Window {
                 }
             }
 
-            if root.narrow && !root.sending-active : Rectangle {
+            if root.narrow && !root.sending-active && !root.device-details-open : Rectangle {
                 height: 72px;
                 background: ThemeTokens.surface-container-low;
                 HorizontalLayout {
@@ -450,6 +512,7 @@ export component AppWindow inherits Window {
         history-items: root.history-items;
         message-open: root.message-received-open;
         message-sender: root.message-received-sender;
+        message-device: root.message-received-device;
         message-text: root.message-received-text;
         info-open: root.info-dialog-open;
         info-alias: root.info-alias;
@@ -490,6 +553,7 @@ export component AppWindow inherits Window {
         open-history-message(message, sender) => {
             root.message-received-text = message;
             root.message-received-sender = sender;
+            root.message-received-device = "";
             root.message-received-open = true;
         }
         close-message => { root.dismiss-message-received(); }

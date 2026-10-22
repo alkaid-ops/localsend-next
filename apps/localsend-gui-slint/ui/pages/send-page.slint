@@ -296,41 +296,34 @@ export component SendPage inherits Rectangle {
                     }
                 }
 
-                for device in root.devices : HorizontalLayout {
-                    height: 84px;
-                    spacing: 2px;
-                    FlutterDeviceTile {
-                        horizontal-stretch: 1;
-                        alias: device.alias;
-                        ip: device.ip;
-                        protocol: device.protocol;
-                        model: device.model;
-                        device-type: device.device-type;
-                        fingerprint: device.fingerprint;
-                        favorite: device.favorite;
-                        selected: device.selected;
-                        multiple: root.send-mode == 1;
-                        device-clicked(fingerprint) => { root.send-to-device(fingerprint); }
-                    }
-                    FlutterIconButton {
-                        icon: @image-url("../icons/info.svg");
-                        tooltip: "Device details";
-                        automation-id: "device-info-" + device.fingerprint;
-                        clicked => { root.device-details(device.fingerprint); }
-                    }
-                    FlutterIconButton {
-                        icon: @image-url("../icons/heart.svg");
-                        tooltip: device.favorite ? "Remove favorite" : "Add favorite";
-                        automation-id: "device-favorite-" + device.fingerprint;
-                        icon-color: device.favorite ? ThemeTokens.primary : ThemeTokens.on-surface-variant;
-                        clicked => { root.toggle-favorite(device.fingerprint); }
-                    }
-                    FlutterIconButton {
-                        icon: @image-url("../icons/send.svg");
-                        tooltip: "Send to this device";
-                        automation-id: "device-send-" + device.fingerprint;
-                        icon-color: device.selected ? ThemeTokens.primary : ThemeTokens.on-surface;
-                        clicked => { root.send-to-device(device.fingerprint); }
+                for device in root.devices : Rectangle {
+                    height: 112px;
+                    border-radius: ThemeTokens.card-radius;
+                    background: device.selected ? ThemeTokens.secondary-container : ThemeTokens.surface-container-low;
+                    HorizontalLayout {
+                        spacing: 0px;
+                        FlutterDeviceTile {
+                            horizontal-stretch: 1;
+                            height: 96px;
+                            tile-background: transparent;
+                            alias: device.alias;
+                            ip: device.ip;
+                            protocol: device.protocol;
+                            model: device.model;
+                            device-type: device.device-type;
+                            fingerprint: device.fingerprint;
+                            favorite: device.favorite;
+                            selected: device.selected;
+                            multiple: root.send-mode == 1;
+                            show-favorite: false;
+                            device-clicked(fingerprint) => { root.send-to-device(fingerprint); }
+                        }
+                        FlutterIconButton {
+                            icon: @image-url("../icons/info.svg");
+                            tooltip: @tr("设备详情");
+                            automation-id: "device-info-" + device.fingerprint;
+                            clicked => { root.device-details(device.fingerprint); }
+                        }
                     }
                 }
 

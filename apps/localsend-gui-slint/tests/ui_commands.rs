@@ -80,6 +80,7 @@ fn gui_pointer_and_action_command_matrix() {
     send_progress_buttons_dismiss_transfer();
     send_progress_cancel_button_cancels_active_transfer();
     send_progress_advanced_button_opens_diagnostics();
+    received_message_buttons_copy_and_close();
 }
 
 fn send_progress_buttons_dismiss_transfer() {
@@ -164,6 +165,30 @@ fn send_progress_advanced_button_opens_diagnostics() {
     assert!(app.ui.get_troubleshoot_dialog_open());
 }
 
+fn received_message_buttons_copy_and_close() {
+    let app = app_with_inputs(Vec::new(), None);
+    app.ui.set_message_received_sender("Test Sender".into());
+    app.ui.set_message_received_device("Test Phone".into());
+    app.ui.set_message_received_text("copy this message".into());
+    app.ui.set_message_received_open(true);
+    i_slint_backend_testing::mock_elapsed_time(Duration::from_millis(50));
+
+    element_by_id(&app.ui, "message-copy").mock_single_click(PointerEventButton::Left);
+    let mut clipboard = arboard::Clipboard::new().expect("clipboard");
+    assert_eq!(
+        clipboard.get_text().expect("copied text"),
+        "copy this message"
+    );
+    i_slint_backend_testing::mock_elapsed_time(Duration::from_millis(50));
+    assert!(!app.ui.get_message_received_open());
+
+    app.ui.set_message_received_open(true);
+    i_slint_backend_testing::mock_elapsed_time(Duration::from_millis(50));
+    element_by_id(&app.ui, "message-close").mock_single_click(PointerEventButton::Left);
+    i_slint_backend_testing::mock_elapsed_time(Duration::from_millis(50));
+    assert!(!app.ui.get_message_received_open());
+}
+
 fn device_card_pointer_regions_emit_send_text() {
     for fraction in [0.12_f32, 0.35, 0.68] {
         let mut app = app_with_inputs(Vec::new(), Some("pointer text".to_string()));
@@ -215,22 +240,13 @@ fn device_action_buttons_do_not_cross_fire() {
     let mut info_app = app_with_inputs(vec![path.clone()], None);
     element_by_id(&info_app.ui, "device-info-pointer-peer")
         .mock_single_click(PointerEventButton::Left);
-    assert!(info_app.commands.try_recv().is_err());
+    assert!(info_app.ui.get_device_details_open());
+    assert_eq!(info_app.ui.get_device_details_alias(), "Pointer Peer");
 
-    let mut favorite_app = app_with_inputs(vec![path.clone()], None);
-    element_by_id(&favorite_app.ui, "device-favorite-pointer-peer")
+    element_by_id(&info_app.ui, "device-details-favorite")
         .mock_single_click(PointerEventButton::Left);
     assert!(matches!(
-        next_command(&mut favorite_app.commands),
+        next_command(&mut info_app.commands),
         UiCommand::ToggleFavorite(fingerprint) if fingerprint == "pointer-peer"
-    ));
-
-    let mut send_app = app_with_inputs(vec![path.clone()], None);
-    element_by_id(&send_app.ui, "device-send-pointer-peer")
-        .mock_single_click(PointerEventButton::Left);
-    assert!(matches!(
-        next_command(&mut send_app.commands),
-        UiCommand::SendFiles { fingerprint, paths }
-            if fingerprint == "pointer-peer" && paths == vec![path]
     ));
 }
