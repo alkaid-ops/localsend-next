@@ -8,6 +8,7 @@ publish = false
 default = ["backend-femtovg"]
 backend-software = ["slint/renderer-software"]
 backend-femtovg = ["slint/renderer-femtovg"]
+backend-femtovg-wgpu = ["slint/renderer-femtovg-wgpu"]
 backend-skia = ["slint/renderer-skia"]
 backend-skia-opengl = ["slint/renderer-skia-opengl"]
 

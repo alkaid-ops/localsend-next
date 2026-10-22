@@ -1831,6 +1831,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "drm"
+version = "0.15.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7a41816e58f47f49acfd956651055ddcf137c4882c2098c30c448817af21183a"
+dependencies = [
+ "bitflags 2.13.2",
+ "bytemuck",
+ "bytemuck_derive",
+ "drm-ffi",
+ "drm-fourcc",
+ "libc",
+ "rustix 1.1.5",
+]
+
+[[package]]
 name = "drm-ffi"
 version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2306,6 +2321,7 @@ dependencies = [
  "swash",
  "wasm-bindgen",
  "web-sys",
+ "wgpu",
 ]
 
 [[package]]
@@ -2628,7 +2644,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ce852e998d3ca5e4a97014fb31c940dc5ef344ec7d364984525fd11e8a547e6a"
 dependencies = [
  "bitflags 2.13.2",
- "drm",
+ "drm 0.14.1",
  "drm-fourcc",
  "gbm-sys",
  "libc",
@@ -3334,7 +3350,7 @@ dependencies = [
  "bytemuck",
  "calloop 0.14.4",
  "cfg_aliases 0.2.2",
- "drm",
+ "drm 0.14.1",
  "gbm",
  "glutin",
  "i-slint-common",
@@ -3345,6 +3361,7 @@ dependencies = [
  "memmap2",
  "nix 0.31.3",
  "raw-window-handle",
+ "wgpu",
 ]
 
 [[package]]
@@ -3559,6 +3576,7 @@ dependencies = [
  "rgb",
  "wasm-bindgen",
  "web-sys",
+ "wgpu",
 ]
 
 [[package]]
@@ -7561,7 +7579,7 @@ checksum = "aac18da81ebbf05109ab275b157c22a653bb3c12cf884450179942f81bcbf6c3"
 dependencies = [
  "as-raw-xcb-connection",
  "bytemuck",
- "drm",
+ "drm 0.14.1",
  "fastrand",
  "js-sys",
  "memmap2",
@@ -9493,6 +9511,7 @@ dependencies = [
  "bytemuck",
  "cfg-if",
  "cfg_aliases 0.2.2",
+ "drm 0.15.0",
  "glow 0.17.0",
  "glutin_wgl_sys",
  "gpu-allocator",
