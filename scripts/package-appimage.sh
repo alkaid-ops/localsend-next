@@ -21,6 +21,7 @@ TOOLS="$ROOT/target/release/tools"
 APPIMAGETOOL=${APPIMAGETOOL:-"$TOOLS/appimagetool-$ARCH.AppImage"}
 RUNTIME=${APPIMAGE_RUNTIME_FILE:-"$TOOLS/runtime-$ARCH"}
 RUNTIME_URL=${APPIMAGE_RUNTIME_URL:-"https://github.com/AppImage/type2-runtime/releases/download/continuous/runtime-$ARCH"}
+GUI_FEATURES=${LOCALSEND_GUI_FEATURES:-backend-femtovg-wgpu}
 DESKTOP="$ROOT/apps/localsend-gui-slint/packaging/linux/org.localsend.pc.desktop"
 METAINFO="$ROOT/apps/localsend-gui-slint/packaging/linux/org.localsend.pc.metainfo.xml"
 ICON="$ROOT/apps/localsend-gui-slint/packaging/macos/app-icon.svg"
@@ -31,7 +32,7 @@ command -v curl >/dev/null 2>&1 || { echo 'curl is required' >&2; exit 1; }
 cargo build --locked --release --target "$TARGET" \
     -p localsendd -p localsend-tray -p localsend-launcher -p localsend-tui
 cargo build --locked --release --target "$TARGET" \
-    -p localsend-gui-slint --no-default-features --features backend-femtovg-wgpu
+    -p localsend-gui-slint --no-default-features --features "$GUI_FEATURES"
 
 for binary in localsend-gui-slint localsendd localsend-tray localsend-launcher localsend-tui; do
     [ -x "$RELEASE/$binary" ] || { echo "missing build output: $RELEASE/$binary" >&2; exit 1; }
