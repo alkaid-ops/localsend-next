@@ -124,6 +124,7 @@ pub fn run_tray() -> anyhow::Result<()> {
         return Ok(());
     }
 
+    initialize_linux_gtk()?;
     let language = TrayLanguage::from_settings("system");
     notifications::init(gui_action_tx);
     let (_menu_items, menu) = TrayMenu::new(language)?;
@@ -155,6 +156,7 @@ pub fn run_tray() -> anyhow::Result<()> {
 
     loop {
         pump_macos_events();
+        pump_linux_events();
         if client.is_connection_closed() {
             let was_lifecycle_owner = client.owns_lifecycle();
             drop(notification_client.take());
@@ -402,6 +404,26 @@ fn pump_macos_events() {
 
 #[cfg(not(target_os = "macos"))]
 fn pump_macos_events() {}
+
+#[cfg(target_os = "linux")]
+fn initialize_linux_gtk() -> anyhow::Result<()> {
+    gtk::init().context("GTK initialization failed; tray requires a running X11 or Wayland session")
+}
+
+#[cfg(not(target_os = "linux"))]
+fn initialize_linux_gtk() -> anyhow::Result<()> {
+    Ok(())
+}
+
+#[cfg(target_os = "linux")]
+fn pump_linux_events() {
+    while gtk::events_pending() {
+        gtk::main_iteration_do(false);
+    }
+}
+
+#[cfg(not(target_os = "linux"))]
+fn pump_linux_events() {}
 
 fn show_message(title: &str, description: &str) {
     rfd::MessageDialog::new()

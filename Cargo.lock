@@ -4471,6 +4471,7 @@ dependencies = [
  "anyhow",
  "block2 0.6.2",
  "directories",
+ "gtk",
  "libc",
  "localsend-platform",
  "localsend-rpc",
