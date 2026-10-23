@@ -20,12 +20,23 @@ $Required = @(
     (Join-Path $Release "localsend-launcher.exe")
 )
 
-& cargo build --locked --release --target $Target `
-    -p localsendd -p localsend-tray -p localsend-launcher
-if ($LASTEXITCODE -ne 0) { throw "cargo build failed for daemon and tray" }
-& cargo build --locked --release --target $Target `
-    -p localsend-gui-slint --no-default-features --features backend-femtovg-wgpu
-if ($LASTEXITCODE -ne 0) { throw "cargo build failed for GUI" }
+$PreviousRustFlags = $env:RUSTFLAGS
+$StaticCrt = "-C target-feature=+crt-static"
+$env:RUSTFLAGS = if ([string]::IsNullOrWhiteSpace($PreviousRustFlags)) {
+    $StaticCrt
+} else {
+    "$PreviousRustFlags $StaticCrt"
+}
+try {
+    & cargo build --locked --release --target $Target `
+        -p localsendd -p localsend-tray -p localsend-launcher
+    if ($LASTEXITCODE -ne 0) { throw "cargo build failed for daemon and tray" }
+    & cargo build --locked --release --target $Target `
+        -p localsend-gui-slint --no-default-features --features backend-femtovg-wgpu
+    if ($LASTEXITCODE -ne 0) { throw "cargo build failed for GUI" }
+} finally {
+    $env:RUSTFLAGS = $PreviousRustFlags
+}
 
 foreach ($Path in $Required) {
     if (-not (Test-Path $Path)) { throw "missing build output: $Path" }

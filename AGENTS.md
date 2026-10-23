@@ -12,6 +12,9 @@
   vendored official LocalSend core.
 - Frontends must not depend on the vendored core and must not spawn `localsendd`.
 - `localsend-tray` owns daemon and GUI process lifecycle.
+- System notifications are emitted only by `localsend-tray`. Windows and Linux use
+  `notify-rust`; Windows notification identity and history cleanup are owned by
+  `localsend-platform`. Do not add a second notification path in the GUI.
 - The daemon owns settings, identity, favorites, history, transfers, and TLS
   identity persistence.
 - Keep `crates/localsend-official-core` byte-for-byte identical to the recorded

@@ -26,7 +26,30 @@ localsend-gui-slint / localsend-tui / localsend-tray
 - 直接运行 `localsend-tui` 只连接已有 daemon；daemon 未运行时显示错误并重试。
 - 直接运行 `localsendd` 创建 Persistent daemon，不跟随 tray 或 GUI 退出。
 - tray 退出时取消活动传输、请求 owned daemon 退出并等待 IPC endpoint 释放。
-- `Open LocalSend` 只打开 GUI；`Show status` 只刷新托盘状态，不创建窗口；`Quit` 不打开 GUI。
+- tray 菜单只保留“打开主界面”“重启”“退出”。打开主界面不启动第二个 GUI；退出不创建 GUI。
+
+## 系统通知
+
+- tray 是系统通知的唯一发送者，GUI 不重复发送通知。
+- macOS 使用 `UNUserNotificationCenter` + 系统默认声音。
+- Windows/Linux 使用 `notify-rust`。Windows Toast 使用固定 AUMID
+  `org.localsend.pc.prototype`、开始菜单快捷方式和默认提示音；Linux 使用
+  `org.freedesktop.Notifications`，提示音 hint 由桌面通知服务决定是否播放。
+- 文本通知来自 `TextReceived`；文件通知只来自非消息类型的成功
+  `HistoryAppended`。消息历史不会重复通知。
+- 点击通知通过 `GuiAction` 路由。GUI 未运行时先写入持久 action queue，再启动 GUI。
+- Linux/Windows 的本地 GUI 控制通道分别是 Unix socket 和 named pipe；Windows 在
+  named pipe 不可用时回退到 action queue。
+
+通知真机冒烟：
+
+```powershell
+./scripts/accept-windows-notifications.ps1
+```
+
+```sh
+./scripts/accept-linux-notifications.sh
+```
 
 ## 数据目录
 
@@ -102,4 +125,5 @@ macOS 包内的 tray 可执行文件名为 `LocalSendTray`，GUI 为 `LocalSend`
 - 仅 PC；不迁移 Flutter、Iced 和 CrossCopy 自建协议栈。
 - 文件字节不经过 RPC；daemon 负责路径展开、接收目录、哈希与历史。
 - 官方 core 目录保持上游 `v1.18.2` 字节一致，升级流程见 `VENDORED_CORE.md`。
-- Windows/Linux 本轮只完成代码和打包脚本；macOS 编译通过不代表 Windows/Linux 已做运行验收。
+- Windows/Linux 通知、named pipe 和打包代码可进行静态检查；没有对应真机结果时，
+  对应平台仍标记为 `UNVERIFIED`。

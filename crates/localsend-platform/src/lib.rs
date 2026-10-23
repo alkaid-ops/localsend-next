@@ -1,7 +1,9 @@
 pub mod gui_actions;
 pub mod gui_process;
 pub mod launch;
+#[cfg(target_os = "macos")]
 pub mod macos_dialog_services;
+pub mod notification_identity;
 pub mod single_instance;
 
 pub use gui_actions::{
@@ -13,7 +15,15 @@ pub use gui_process::{
     terminate_gui_process, terminate_tray_process, tray_pid_path,
 };
 pub use launch::apply_launch_on_login;
+#[cfg(target_os = "macos")]
 pub use macos_dialog_services::with_native_file_dialog_cleanup;
+#[cfg(not(target_os = "macos"))]
+pub fn with_native_file_dialog_cleanup<T>(operation: impl FnOnce() -> T) -> T {
+    operation()
+}
+pub use notification_identity::{
+    NOTIFICATION_APP_ID, clear_notification_history, ensure_notification_identity,
+};
 pub use single_instance::{InstanceLock, scoped_lock_name};
 
 pub fn set_current_process_name(name: &str) {

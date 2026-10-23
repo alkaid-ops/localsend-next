@@ -34,3 +34,9 @@ block2 = "0.6"
 objc2-app-kit = { version = "0.3", features = ["NSApplication", "NSEvent"] }
 objc2-foundation = "0.3"
 objc2-user-notifications = "0.3.2"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+notify-rust = { version = "4.18.2", default-features = false, features = ["z-with-tokio"] }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+notify-rust = "4.18.2"

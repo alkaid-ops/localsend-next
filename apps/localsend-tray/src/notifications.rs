@@ -1,15 +1,54 @@
 use localsend_platform::GuiAction;
+use std::sync::OnceLock;
+
+static ACTION_TX: OnceLock<std::sync::mpsc::Sender<GuiAction>> = OnceLock::new();
 
 pub fn init(sender: std::sync::mpsc::Sender<GuiAction>) {
-    platform::init(sender);
+    let _ = ACTION_TX.set(sender);
+    platform::init();
 }
 
-pub fn show(action: GuiAction, title: &str, body: &str) {
-    platform::show(action, title, body);
+pub fn show(action: GuiAction, title: &str, body: &str, action_label: &str) {
+    platform::show(action, title, body, action_label);
 }
 
 pub fn clear_delivered() {
     platform::clear_delivered();
+}
+
+fn dispatch_action(action: GuiAction) {
+    if let Some(sender) = ACTION_TX.get() {
+        let _ = sender.send(action);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::GuiAction;
+    use std::path::PathBuf;
+
+    fn round_trip(action: GuiAction) -> GuiAction {
+        let payload = serde_json::to_vec(&action).expect("serialize GUI action");
+        serde_json::from_slice(&payload).expect("deserialize GUI action")
+    }
+
+    #[test]
+    fn notification_actions_round_trip_message_payload() {
+        let action = GuiAction::OpenMessage {
+            sender: "sender".to_string(),
+            device: "device".to_string(),
+            text: "hello\nworld".to_string(),
+        };
+        assert_eq!(round_trip(action.clone()), action);
+    }
+
+    #[test]
+    fn notification_actions_round_trip_folder_payload() {
+        let action = GuiAction::OpenReceiveFolder {
+            path: PathBuf::from("/tmp/received"),
+        };
+        assert_eq!(round_trip(action.clone()), action);
+    }
 }
 
 #[cfg(target_os = "macos")]
@@ -26,10 +65,8 @@ mod platform {
     };
     use std::cell::RefCell;
     use std::sync::atomic::{AtomicU64, Ordering};
-    use std::sync::{OnceLock, mpsc};
 
     const ACTION_PAYLOAD_KEY: &str = "localsend.gui_action";
-    static ACTION_TX: OnceLock<mpsc::Sender<GuiAction>> = OnceLock::new();
     static NEXT_ID: AtomicU64 = AtomicU64::new(1);
 
     thread_local! {
@@ -87,10 +124,8 @@ mod platform {
                     .and_then(|value| value.downcast_ref::<NSString>())
                     .map(ToString::to_string);
                 let action = payload.and_then(|payload| serde_json::from_str(&payload).ok());
-                if let Some(action) = action
-                    && let Some(sender) = ACTION_TX.get()
-                {
-                    let _ = sender.send(action);
+                if let Some(action) = action {
+                    super::dispatch_action(action);
                 }
                 completion_handler.call(());
             }
@@ -104,9 +139,8 @@ mod platform {
         }
     }
 
-    pub fn init(sender: mpsc::Sender<GuiAction>) {
+    pub fn init() {
         tracing::debug!("notification runtime init");
-        let _ = ACTION_TX.set(sender);
         RUNTIME.with(|runtime| {
             if runtime.borrow().is_some() {
                 return;
@@ -137,7 +171,7 @@ mod platform {
         });
     }
 
-    pub fn show(action: GuiAction, title: &str, body: &str) {
+    pub fn show(action: GuiAction, title: &str, body: &str, _action_label: &str) {
         tracing::debug!(title, "submitting desktop notification");
         let Some(payload) = serde_json::to_string(&action).ok() else {
             return;
@@ -199,11 +233,232 @@ mod platform {
     }
 }
 
-#[cfg(not(target_os = "macos"))]
+#[cfg(all(unix, not(target_os = "macos")))]
+mod platform {
+    use super::{GuiAction, dispatch_action};
+    use notify_rust::{Notification, NotificationResponse};
+    use std::collections::HashMap;
+    use std::sync::atomic::{AtomicU64, Ordering};
+    use std::sync::{Mutex, OnceLock};
+    use std::thread;
+    use tokio::sync::oneshot;
+
+    static NEXT_ID: AtomicU64 = AtomicU64::new(1);
+    static ACTIVE: OnceLock<Mutex<HashMap<u64, oneshot::Sender<()>>>> = OnceLock::new();
+
+    fn active_notifications() -> &'static Mutex<HashMap<u64, oneshot::Sender<()>>> {
+        ACTIVE.get_or_init(|| Mutex::new(HashMap::new()))
+    }
+
+    fn response_opens_notification(response: &NotificationResponse) -> bool {
+        match response {
+            NotificationResponse::Default => true,
+            NotificationResponse::Action(action) => action == "open",
+            _ => false,
+        }
+    }
+
+    fn build_linux_notification(title: &str, body: &str, action_label: &str) -> Notification {
+        let mut notification = Notification::new();
+        notification
+            .appname("LocalSend")
+            .summary(title)
+            .body(body)
+            .action("open", action_label)
+            .sound_name("message-new-instant");
+        notification
+    }
+
+    pub fn init() {
+        tracing::debug!("notification runtime init");
+    }
+
+    pub fn show(action: GuiAction, title: &str, body: &str, action_label: &str) {
+        let id = NEXT_ID.fetch_add(1, Ordering::Relaxed);
+        let (cancel, cancelled) = oneshot::channel();
+        active_notifications()
+            .lock()
+            .expect("notification registry poisoned")
+            .insert(id, cancel);
+
+        let title = title.to_string();
+        let body = body.to_string();
+        let action_label = action_label.to_string();
+        let spawn = thread::Builder::new()
+            .name("localsend-linux-notification".to_string())
+            .spawn(move || {
+                let runtime = match tokio::runtime::Builder::new_current_thread()
+                    .enable_all()
+                    .build()
+                {
+                    Ok(runtime) => runtime,
+                    Err(error) => {
+                        tracing::warn!(%error, "could not create notification runtime");
+                        active_notifications()
+                            .lock()
+                            .expect("notification registry poisoned")
+                            .remove(&id);
+                        return;
+                    }
+                };
+
+                let result = runtime.block_on(async {
+                    let notification = build_linux_notification(&title, &body, &action_label);
+                    let handle = notification
+                        .show_async()
+                        .await
+                        .map_err(|error| error.to_string())?;
+                    tokio::select! {
+                        _ = handle.wait_for_action_async(|response: &NotificationResponse| {
+                            if response_opens_notification(response) {
+                                dispatch_action(action.clone());
+                            }
+                        }) => {}
+                        _ = cancelled => handle.close_async().await,
+                    }
+                    Ok::<(), String>(())
+                });
+                if let Err(error) = result {
+                    tracing::warn!(%error, "could not show Linux notification");
+                }
+                active_notifications()
+                    .lock()
+                    .expect("notification registry poisoned")
+                    .remove(&id);
+            });
+        if let Err(error) = spawn {
+            tracing::warn!(%error, "could not spawn Linux notification thread");
+            active_notifications()
+                .lock()
+                .expect("notification registry poisoned")
+                .remove(&id);
+        }
+    }
+
+    pub fn clear_delivered() {
+        let senders = {
+            let mut active = active_notifications()
+                .lock()
+                .expect("notification registry poisoned");
+            active.drain().map(|(_, sender)| sender).collect::<Vec<_>>()
+        };
+        for sender in senders {
+            let _ = sender.send(());
+        }
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+        use notify_rust::CloseReason;
+
+        #[test]
+        fn default_and_open_actions_are_accepted() {
+            assert!(response_opens_notification(&NotificationResponse::Default));
+            assert!(response_opens_notification(&NotificationResponse::Action(
+                "open".to_string()
+            )));
+            assert!(!response_opens_notification(&NotificationResponse::Closed(
+                CloseReason::Dismissed
+            )));
+        }
+
+        #[test]
+        fn notification_builder_uses_message_sound_and_open_action() {
+            let notification = build_linux_notification("Title", "Body", "Open");
+            assert_eq!(notification.summary, "Title");
+            assert_eq!(notification.body, "Body");
+            assert_eq!(notification.actions, vec!["open", "Open"]);
+            assert!(notification.hints.contains(&notify_rust::Hint::SoundName(
+                "message-new-instant".to_string()
+            )));
+        }
+    }
+}
+
+#[cfg(windows)]
+mod platform {
+    use super::{GuiAction, dispatch_action};
+    use localsend_platform::{NOTIFICATION_APP_ID, clear_notification_history};
+    use notify_rust::{Notification, NotificationResponse};
+    use std::thread;
+
+    fn response_opens_notification(response: &NotificationResponse) -> bool {
+        match response {
+            NotificationResponse::Default => true,
+            NotificationResponse::Action(action) => action == "open",
+            _ => false,
+        }
+    }
+
+    pub fn init() {
+        if let Err(error) = localsend_platform::ensure_notification_identity() {
+            tracing::warn!(%error, "could not register Windows notification identity");
+        }
+    }
+
+    pub fn show(action: GuiAction, title: &str, body: &str, action_label: &str) {
+        let mut notification = Notification::new();
+        notification
+            .appname("LocalSend")
+            .app_id(NOTIFICATION_APP_ID)
+            .summary(title)
+            .body(body)
+            .action("open", action_label)
+            .sound_name("Default");
+        let handle = match notification.show() {
+            Ok(handle) => handle,
+            Err(error) => {
+                tracing::warn!(%error, "could not show Windows notification");
+                return;
+            }
+        };
+        let spawned = thread::Builder::new()
+            .name("localsend-windows-notification".to_string())
+            .spawn(move || {
+                let result = handle.wait_for_response(|response: &NotificationResponse| {
+                    if response_opens_notification(response) {
+                        dispatch_action(action.clone());
+                    }
+                });
+                if let Err(error) = result {
+                    tracing::warn!(%error, "Windows notification response failed");
+                }
+            });
+        if let Err(error) = spawned {
+            tracing::warn!(%error, "could not spawn Windows notification thread");
+        }
+    }
+
+    pub fn clear_delivered() {
+        if let Err(error) = clear_notification_history() {
+            tracing::warn!(%error, "could not clear Windows notification history");
+        }
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+        use notify_rust::CloseReason;
+
+        #[test]
+        fn default_and_open_actions_are_accepted() {
+            assert!(response_opens_notification(&NotificationResponse::Default));
+            assert!(response_opens_notification(&NotificationResponse::Action(
+                "open".to_string()
+            )));
+            assert!(!response_opens_notification(&NotificationResponse::Closed(
+                CloseReason::Dismissed
+            )));
+        }
+    }
+}
+
+#[cfg(not(any(target_os = "macos", unix, windows)))]
 mod platform {
     use super::GuiAction;
 
-    pub fn init(_sender: std::sync::mpsc::Sender<GuiAction>) {}
-    pub fn show(_action: GuiAction, _title: &str, _body: &str) {}
+    pub fn init() {}
+    pub fn show(_action: GuiAction, _title: &str, _body: &str, _action_label: &str) {}
     pub fn clear_delivered() {}
 }

@@ -99,7 +99,7 @@ pub async fn run_daemon() -> anyhow::Result<()> {
     let instance_id = service.snapshot().daemon_instance_id.clone();
     let (lifecycle, owner_disconnected) = LifecycleTracker::new(require_owner, instance_id);
     let _runtime_manifest = transport::write_runtime_manifest(
-        &listener.path().to_string_lossy(),
+        &listener.endpoint_display(),
         &lifecycle.instance_id,
         lifecycle.lifecycle(),
     )?;

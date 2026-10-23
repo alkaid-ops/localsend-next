@@ -2517,6 +2517,7 @@ fn spawn_launcher_process() -> anyhow::Result<()> {
     Ok(())
 }
 
+#[cfg(not(target_os = "linux"))]
 fn spawn_tray_process(extra_args: &[String]) -> anyhow::Result<()> {
     let current = std::env::current_exe()?;
     let binary = if cfg!(windows) {

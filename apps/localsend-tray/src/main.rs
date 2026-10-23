@@ -219,6 +219,11 @@ pub fn run_tray() -> anyhow::Result<()> {
                     } else {
                         ("收到新消息", format!("{sender_alias}：{text}"))
                     };
+                    let action_label = if language == TrayLanguage::English {
+                        "Open"
+                    } else {
+                        "打开"
+                    };
                     notifications::show(
                         GuiAction::OpenMessage {
                             sender: sender_alias,
@@ -227,13 +232,10 @@ pub fn run_tray() -> anyhow::Result<()> {
                         },
                         title,
                         &body,
+                        action_label,
                     );
                 }
-                ServiceEvent::HistoryAppended { entry }
-                    if entry.direction == TransferDirection::Receive
-                        && entry.status == TransferStatus::Finished
-                        && entry.message.is_none() =>
-                {
+                ServiceEvent::HistoryAppended { entry } if should_notify_received_file(&entry) => {
                     let folder = entry
                         .path
                         .as_ref()
@@ -261,10 +263,16 @@ pub fn run_tray() -> anyhow::Result<()> {
                                 ),
                             )
                         };
+                        let action_label = if language == TrayLanguage::English {
+                            "Open"
+                        } else {
+                            "打开"
+                        };
                         notifications::show(
                             GuiAction::OpenReceiveFolder { path: folder },
                             title,
                             &body,
+                            action_label,
                         );
                     }
                 }
@@ -420,6 +428,12 @@ fn format_bytes(bytes: u64) -> String {
     } else {
         format!("{value:.1} {}", UNITS[unit])
     }
+}
+
+fn should_notify_received_file(entry: &localsend_rpc::HistoryEntry) -> bool {
+    entry.direction == TransferDirection::Receive
+        && entry.status == TransferStatus::Finished
+        && entry.message.is_none()
 }
 
 fn route_gui_action(action: GuiAction) {
@@ -780,5 +794,34 @@ mod tests {
         );
         assert_eq!(TrayLanguage::from_settings("zh-CN").restart_app(), "重启");
         assert_eq!(TrayLanguage::from_settings("zh-CN").quit_app(), "退出");
+    }
+
+    #[test]
+    fn only_successful_non_message_history_entries_create_file_notifications() {
+        let base = localsend_rpc::HistoryEntry {
+            id: "history".to_string(),
+            file_id: None,
+            direction: TransferDirection::Receive,
+            peer_alias: "peer".to_string(),
+            file_name: "file.txt".to_string(),
+            path: Some("/tmp/file.txt".into()),
+            size: 1,
+            timestamp_ms: 0,
+            status: TransferStatus::Finished,
+            message: None,
+        };
+        assert!(should_notify_received_file(&base));
+        assert!(!should_notify_received_file(&localsend_rpc::HistoryEntry {
+            message: Some("hello".to_string()),
+            ..base.clone()
+        }));
+        assert!(!should_notify_received_file(&localsend_rpc::HistoryEntry {
+            status: TransferStatus::Failed,
+            ..base.clone()
+        }));
+        assert!(!should_notify_received_file(&localsend_rpc::HistoryEntry {
+            direction: TransferDirection::Send,
+            ..base
+        }));
     }
 }

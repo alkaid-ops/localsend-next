@@ -1,12 +1,14 @@
 LocalSend for Windows
 =====================
 
-Run LocalSend.exe to start the GUI. The tray process owns the daemon, and both
-helpers must remain next to LocalSend.exe:
+Run localsend-tray.exe to start LocalSend. The tray starts the daemon and opens
+the GUI when requested. The GUI can also be started directly when a daemon is
+already running. Keep all helpers next to LocalSend.exe:
 
   LocalSend.exe
   localsend-tray.exe
   localsendd.exe
+  localsend-launcher.exe
 
 The package is portable. Settings and TLS identity are stored in the current
 user's application data directory. Allow LocalSend through Windows Defender

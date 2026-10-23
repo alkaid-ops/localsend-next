@@ -24,6 +24,9 @@
 - `localsendd` 是 LocalSend core、设置、传输、历史和身份的唯一权威。
 - `localsend-tray` 只负责打开 GUI、重启、退出和系统通知，不维护设备、历史、设置或
   传输状态，不读取完整 snapshot。
+- 系统通知由 tray 独占：macOS 使用 UserNotifications，Windows/Linux 使用
+  notify-rust；Windows 的 AUMID、开始菜单快捷方式和 Toast history 清理由
+  `localsend-platform` 负责。
 - tray 菜单只保留“打开主界面”“重启”“退出”，不增加服务器启停、状态展示或
   “打开接收文件夹”；接收目录由通知动作打开。
 - 正式 GUI 固定 Slint + winit + FemtoVG；当前 release 使用
@@ -135,6 +138,8 @@
 - LaunchServices `open -n -a ... --args --window` 的显示行为不同。
 - 已有 GUI 时又启动新进程，只靠单实例锁退出，没有先通过 control socket 唤起。
 - 半失效 GUI 仍有 PID，但 control socket 已不可用。
+- Windows 使用配置目录哈希命名的 named pipe；pipe 失败时才回退到 250ms action
+  queue。不要把 queue 当作 Windows 的默认控制通道。
 
 当前正确方向：
 
@@ -252,8 +257,12 @@ CoreGraphics/AppKit 等只读 API；需要真实点击时使用 AX 定位、CGEv
 - PIN、拒绝、失败、进度不产生成功文件通知。
 - 通知点击通过持久 action queue + GUI control socket 路由。
 - GUI 未运行时由 tray 启动，GUI 启动后消费队列。
-- 文本和文件通知使用 macOS 系统默认提示音；通知内容必须显式设置
-  `UNNotificationSound::defaultSound()`，前台展示选项也必须包含 `Sound`。
+- 文本和文件通知使用系统默认提示音。macOS 显式设置
+  `UNNotificationSound::defaultSound()` 和前台展示 `Sound`；Windows 使用
+  notify-rust 的 `Default` 声音；Linux 使用 `message-new-instant` hint，是否播放由桌面
+  通知服务器决定。
+- Windows Toast 必须使用固定 AUMID、开始菜单快捷方式和 WinRT history clear。Linux
+  使用 D-Bus `org.freedesktop.Notifications`，退出 tray 时关闭本次进程创建的活跃通知。
 - macOS tray helper 必须使用自己的 bundle id 和 `TrayInfo.plist`；不要把 tray 可执行文件
   直接塞回 GUI 的 `Contents/MacOS`。
 
@@ -471,6 +480,7 @@ cargo fmt -p localsend-gui-slint -p localsend-tray -p localsend-platform \
 - tray 生命周期和通知：`apps/localsend-tray/src/main.rs`
 - tray 系统通知实现：`apps/localsend-tray/src/notifications.rs`
 - GUI action/control socket：`crates/localsend-platform/src/gui_actions.rs`
+- Windows AUMID 与 Toast history：`crates/localsend-platform/src/notification_identity.rs`
 - GUI/tray PID 管理：`crates/localsend-platform/src/gui_process.rs`
 - daemon RPC server：`apps/localsendd/src/main.rs`
 - RPC 类型和客户端：`crates/localsend-rpc/src/`

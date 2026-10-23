@@ -191,6 +191,10 @@ impl LocalListener {
         &self.path
     }
 
+    pub fn endpoint_display(&self) -> String {
+        self.path.to_string_lossy().into_owned()
+    }
+
     pub async fn accept(&self) -> io::Result<BoxedIo> {
         let (stream, _) = self.inner.accept().await?;
         Ok(Box::new(stream))
@@ -239,6 +243,10 @@ impl LocalListener {
 
     pub fn path(&self) -> &str {
         &self.name
+    }
+
+    pub fn endpoint_display(&self) -> String {
+        self.name.clone()
     }
 
     pub async fn accept(&self) -> io::Result<BoxedIo> {

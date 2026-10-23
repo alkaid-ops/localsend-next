@@ -4,7 +4,7 @@ use std::fs::{self, OpenOptions};
 use std::io;
 use std::path::{Path, PathBuf};
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "action", rename_all = "snake_case")]
 pub enum GuiAction {
     ShowMain,
@@ -203,10 +203,210 @@ mod tests {
     }
 }
 
-#[cfg(not(unix))]
+#[cfg(all(test, windows))]
+mod windows_tests {
+    use super::*;
+    use std::time::{Duration, Instant};
+
+    fn test_pipe_name(suffix: &str) -> String {
+        format!(
+            r"\\.\pipe\localsend-gui-test-{}-{suffix}",
+            std::process::id()
+        )
+    }
+
+    fn write_raw_pipe(name: &str, payload: &[u8]) {
+        use tokio::io::AsyncWriteExt;
+        use tokio::net::windows::named_pipe::ClientOptions;
+
+        let runtime = tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .expect("runtime");
+        runtime.block_on(async move {
+            let mut client = ClientOptions::new().open(name).expect("open pipe");
+            client.write_all(payload).await.expect("write pipe");
+            client.shutdown().await.expect("close pipe");
+        });
+    }
+
+    #[test]
+    fn named_pipe_round_trip_and_shutdown_are_bounded() {
+        let name = test_pipe_name("round-trip");
+        let (sender, receiver) = std::sync::mpsc::channel();
+        let server = GuiControlServer::start_at_pipe(name.clone(), sender).expect("start server");
+
+        send_gui_control_action_at(&name, &GuiAction::ShowMain).expect("send action");
+        assert!(matches!(
+            receiver.recv_timeout(Duration::from_secs(1)),
+            Ok(GuiAction::ShowMain)
+        ));
+
+        let started = Instant::now();
+        drop(server);
+        assert!(started.elapsed() < Duration::from_millis(200));
+    }
+
+    #[test]
+    fn oversized_pipe_message_is_discarded_without_stopping_server() {
+        let name = test_pipe_name("oversized");
+        let (sender, receiver) = std::sync::mpsc::channel();
+        let server = GuiControlServer::start_at_pipe(name.clone(), sender).expect("start server");
+
+        write_raw_pipe(&name, &vec![b'x'; 1024 * 1024 + 1]);
+        assert!(receiver.recv_timeout(Duration::from_millis(200)).is_err());
+
+        send_gui_control_action_at(&name, &GuiAction::ShowMain).expect("send valid action");
+        assert!(matches!(
+            receiver.recv_timeout(Duration::from_secs(1)),
+            Ok(GuiAction::ShowMain)
+        ));
+        drop(server);
+    }
+
+    #[test]
+    fn concurrent_pipe_clients_are_serialized_by_the_server() {
+        let name = test_pipe_name("concurrent");
+        let (sender, receiver) = std::sync::mpsc::channel();
+        let server = GuiControlServer::start_at_pipe(name.clone(), sender).expect("start server");
+
+        let clients = (0..4)
+            .map(|index| {
+                let name = name.clone();
+                std::thread::spawn(move || {
+                    send_gui_control_action_at(
+                        &name,
+                        &GuiAction::OpenReceiveFolder {
+                            path: format!("/tmp/received-{index}").into(),
+                        },
+                    )
+                })
+            })
+            .collect::<Vec<_>>();
+        for client in clients {
+            client.join().expect("client thread").expect("send action");
+        }
+
+        let mut paths = (0..4)
+            .map(|_| match receiver.recv_timeout(Duration::from_secs(2)) {
+                Ok(GuiAction::OpenReceiveFolder { path }) => path,
+                other => panic!("unexpected action: {other:?}"),
+            })
+            .collect::<Vec<_>>();
+        paths.sort();
+        assert_eq!(paths.len(), 4);
+        drop(server);
+    }
+}
+
+#[cfg(windows)]
+pub struct GuiControlServer {
+    shutdown: tokio::sync::watch::Sender<bool>,
+    thread: Option<std::thread::JoinHandle<()>>,
+}
+
+#[cfg(windows)]
+impl GuiControlServer {
+    pub fn start(sender: std::sync::mpsc::Sender<GuiAction>) -> io::Result<Self> {
+        Self::start_at_pipe(gui_control_pipe_name(), sender)
+    }
+
+    fn start_at_pipe(name: String, sender: std::sync::mpsc::Sender<GuiAction>) -> io::Result<Self> {
+        use tokio::net::windows::named_pipe::ServerOptions;
+
+        let (ready_tx, ready_rx) = std::sync::mpsc::sync_channel(1);
+        let (shutdown, shutdown_rx) = tokio::sync::watch::channel(false);
+        let thread = std::thread::Builder::new()
+            .name("localsend-gui-control-pipe".to_string())
+            .spawn(move || {
+                let runtime = match tokio::runtime::Builder::new_current_thread()
+                    .enable_all()
+                    .build()
+                {
+                    Ok(runtime) => runtime,
+                    Err(error) => {
+                        let _ = ready_tx.send(Err(io::Error::other(error.to_string())));
+                        return;
+                    }
+                };
+                runtime.block_on(async move {
+                    let mut shutdown = shutdown_rx;
+                    let mut first_instance = true;
+                    loop {
+                        let server = ServerOptions::new()
+                            .first_pipe_instance(first_instance)
+                            .create(&name);
+                        first_instance = false;
+                        let mut server = match server {
+                            Ok(server) => server,
+                            Err(error) => {
+                                let _ = ready_tx.send(Err(error));
+                                return;
+                            }
+                        };
+                        let _ = ready_tx.send(Ok(()));
+
+                        let connected = tokio::select! {
+                            result = server.connect() => result,
+                            _ = shutdown.changed() => break,
+                        };
+                        if connected.is_err() {
+                            continue;
+                        }
+
+                        let read = tokio::select! {
+                            result = tokio::time::timeout(
+                                std::time::Duration::from_secs(2),
+                                read_limited(&mut server),
+                            ) => result,
+                            _ = shutdown.changed() => break,
+                        };
+                        let Ok(Ok(payload)) = read else {
+                            continue;
+                        };
+                        if payload.is_empty() {
+                            continue;
+                        }
+                        if let Ok(action) = serde_json::from_slice::<GuiAction>(&payload) {
+                            let _ = sender.send(action);
+                        }
+                    }
+                });
+            })?;
+
+        match ready_rx.recv() {
+            Ok(Ok(())) => Ok(Self {
+                shutdown,
+                thread: Some(thread),
+            }),
+            Ok(Err(error)) => {
+                let _ = shutdown.send_replace(true);
+                let _ = thread.join();
+                Err(error)
+            }
+            Err(error) => {
+                let _ = shutdown.send_replace(true);
+                let _ = thread.join();
+                Err(io::Error::other(error))
+            }
+        }
+    }
+}
+
+#[cfg(windows)]
+impl Drop for GuiControlServer {
+    fn drop(&mut self) {
+        let _ = self.shutdown.send_replace(true);
+        if let Some(thread) = self.thread.take() {
+            let _ = thread.join();
+        }
+    }
+}
+
+#[cfg(all(not(unix), not(windows)))]
 pub struct GuiControlServer;
 
-#[cfg(not(unix))]
+#[cfg(all(not(unix), not(windows)))]
 impl GuiControlServer {
     pub fn start(_sender: std::sync::mpsc::Sender<GuiAction>) -> io::Result<Self> {
         Ok(Self)
@@ -224,12 +424,99 @@ pub fn send_gui_control_action(action: &GuiAction) -> io::Result<()> {
     stream.shutdown(std::net::Shutdown::Write)
 }
 
-#[cfg(not(unix))]
+#[cfg(windows)]
+pub fn send_gui_control_action(action: &GuiAction) -> io::Result<()> {
+    send_gui_control_action_at(&gui_control_pipe_name(), action)
+}
+
+#[cfg(windows)]
+fn send_gui_control_action_at(name: &str, action: &GuiAction) -> io::Result<()> {
+    use tokio::io::AsyncWriteExt;
+    use tokio::net::windows::named_pipe::ClientOptions;
+
+    let payload = serde_json::to_vec(action).map_err(io::Error::other)?;
+    let runtime = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .map_err(io::Error::other)?;
+    runtime.block_on(async move {
+        let mut last_error = None;
+        let mut client = None;
+        for attempt in 0..10 {
+            match ClientOptions::new().open(name) {
+                Ok(connected) => {
+                    client = Some(connected);
+                    break;
+                }
+                Err(error) => {
+                    last_error = Some(error);
+                    if attempt < 9 {
+                        tokio::time::sleep(std::time::Duration::from_millis(20)).await;
+                    }
+                }
+            }
+        }
+        let mut client = client.ok_or_else(|| {
+            last_error.unwrap_or_else(|| {
+                io::Error::new(
+                    io::ErrorKind::NotConnected,
+                    "could not open GUI control pipe",
+                )
+            })
+        })?;
+        client.write_all(&payload).await?;
+        client.shutdown().await
+    })
+}
+
+#[cfg(all(not(unix), not(windows)))]
 pub fn send_gui_control_action(_action: &GuiAction) -> io::Result<()> {
     Err(io::Error::new(
         io::ErrorKind::Unsupported,
         "GUI control socket is unavailable on this platform",
     ))
+}
+
+#[cfg(windows)]
+fn gui_control_pipe_name() -> String {
+    use sha2::{Digest, Sha256};
+
+    let mut identity = config_dir().to_string_lossy().into_owned();
+    if let Some(endpoint) = std::env::var_os("LOCALSEND_RPC_SOCKET") {
+        identity.push('|');
+        identity.push_str(&endpoint.to_string_lossy());
+    }
+    let digest = Sha256::digest(identity.as_bytes());
+    let suffix = digest[..8]
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect::<String>();
+    format!(r"\\.\pipe\localsend-gui-{suffix}")
+}
+
+#[cfg(windows)]
+async fn read_limited(
+    stream: &mut tokio::net::windows::named_pipe::NamedPipeServer,
+) -> io::Result<Vec<u8>> {
+    use tokio::io::AsyncReadExt;
+
+    const MAX_PAYLOAD: usize = 1024 * 1024;
+    let mut payload = Vec::new();
+    let mut buffer = [0_u8; 8192];
+    loop {
+        let read = stream.read(&mut buffer).await?;
+        if read == 0 {
+            break;
+        }
+        if payload.len().saturating_add(read) > MAX_PAYLOAD {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                "GUI control message exceeds 1 MiB",
+            ));
+        }
+        payload.extend_from_slice(&buffer[..read]);
+    }
+    Ok(payload)
 }
 
 fn with_queue_lock<T>(operation: impl FnOnce(&Path) -> io::Result<T>) -> io::Result<T> {

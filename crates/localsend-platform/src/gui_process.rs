@@ -2,6 +2,7 @@ use std::fs;
 use std::io;
 use std::path::PathBuf;
 use std::process::Command;
+#[cfg(unix)]
 use std::time::Duration;
 
 pub struct GuiPidGuard {
