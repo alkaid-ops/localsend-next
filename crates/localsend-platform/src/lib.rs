@@ -1,11 +1,16 @@
+pub mod gui_actions;
 pub mod gui_process;
 pub mod launch;
 pub mod macos_dialog_services;
 pub mod single_instance;
 
+pub use gui_actions::{
+    GuiAction, GuiControlServer, gui_action_queue_path, queue_gui_action, send_gui_control_action,
+    take_queued_gui_actions,
+};
 pub use gui_process::{
-    GuiPidGuard, TrayPidGuard, gui_pid_path, read_gui_pid, read_tray_pid, terminate_gui_process,
-    terminate_tray_process, tray_pid_path,
+    GuiPidGuard, TrayPidGuard, gui_pid_path, gui_process_is_running, read_gui_pid, read_tray_pid,
+    terminate_gui_process, terminate_tray_process, tray_pid_path,
 };
 pub use launch::apply_launch_on_login;
 pub use macos_dialog_services::with_native_file_dialog_cleanup;
@@ -36,6 +41,24 @@ pub fn set_current_process_name(name: &str) {
     #[cfg(not(unix))]
     {
         let _ = name;
+    }
+}
+
+pub fn activate_current_application_window() {
+    #[cfg(target_os = "macos")]
+    {
+        use objc2_app_kit::NSApplication;
+        use objc2_foundation::MainThreadMarker;
+
+        let Some(mtm) = MainThreadMarker::new() else {
+            return;
+        };
+        let app = NSApplication::sharedApplication(mtm);
+        app.activate();
+        if let Some(window) = app.mainWindow().or_else(|| app.windows().iter().next()) {
+            window.setAlphaValue(1.0);
+            window.makeKeyAndOrderFront(None);
+        }
     }
 }
 

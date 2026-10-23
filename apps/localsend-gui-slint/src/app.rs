@@ -1,11 +1,12 @@
 use crate::daemon_worker::{DaemonWorker, UiCommand, WorkerEvent};
-use crate::notifications::{self, NotificationAction};
 use crate::view_model;
 use crate::*;
 use localsend_platform::{
-    GuiPidGuard, InstanceLock, apply_launch_on_login, local_ipv4_addresses, scoped_lock_name,
-    with_native_file_dialog_cleanup,
+    GuiAction, GuiControlServer, GuiPidGuard, InstanceLock, activate_current_application_window,
+    apply_launch_on_login, local_ipv4_addresses, scoped_lock_name, send_gui_control_action,
+    take_queued_gui_actions, with_native_file_dialog_cleanup,
 };
+use localsend_rpc::snapshot_store::{EventApply, SnapshotStore};
 use localsend_rpc::transport;
 use localsend_rpc::{
     AutoSaveMode, DEFAULT_MULTICAST_ADDRESS, DesktopSettings, Protocol, ReceiverDecision,
@@ -247,12 +248,13 @@ pub fn run_main() -> anyhow::Result<()> {
     let arguments: Vec<String> = std::env::args().collect();
     if !arguments.iter().any(|argument| argument == "--window") {
         launch_tray_window(arguments.iter().any(|argument| argument == "--minimized"))?;
+        #[cfg(target_os = "linux")]
         return Ok(());
     }
     let gui_identity = transport::endpoint_path().to_string_lossy().into_owned();
     let gui_lock_name = scoped_lock_name("localsend-gui", &gui_identity);
     let Some(_gui_lock) = InstanceLock::try_acquire(&gui_lock_name)? else {
-        eprintln!("LocalSend GUI is already running");
+        let _ = send_gui_control_action(&GuiAction::ShowMain);
         return Ok(());
     };
     let _gui_pid = GuiPidGuard::acquire()?;
@@ -268,11 +270,18 @@ pub fn build_app(
     options: AppOptions,
 ) -> anyhow::Result<AppWindow> {
     let latest_snapshot = Rc::new(RefCell::new(None::<ServiceSnapshot>));
+    let local_state = Rc::new(RefCell::new(None::<SnapshotStore>));
     let launch_setting = Rc::new(Cell::new(None::<bool>));
-    let (notification_tx, notification_rx) = std::sync::mpsc::channel();
-    if options.restore_window {
-        notifications::init(notification_tx);
-    }
+    let (gui_action_tx, gui_action_rx) = std::sync::mpsc::channel();
+    let control_server = if options.restore_window {
+        let server = GuiControlServer::start(gui_action_tx.clone())?;
+        for action in take_queued_gui_actions()? {
+            let _ = gui_action_tx.send(action);
+        }
+        Some(server)
+    } else {
+        None
+    };
     let ui = AppWindow::new()?;
     ui.set_app_version(env!("CARGO_PKG_VERSION").into());
     if let Some(tab) = options.initial_tab.as_deref() {
@@ -306,16 +315,7 @@ pub fn build_app(
                 persistence.apply_setting(&ui, save_window_position);
                 persistence.persist_if_changed(&ui, true);
             }
-            let minimize_to_tray = latest_snapshot
-                .borrow()
-                .as_ref()
-                .is_some_and(|snapshot| snapshot.settings.minimize_to_tray);
-            if minimize_to_tray {
-                let _ = slint::quit_event_loop();
-                return CloseRequestResponse::HideWindow;
-            }
-            // The tray owns the daemon lifecycle. Closing a frontend must not
-            // stop incoming transfers or make the daemon disappear.
+            // GUI exit is independent from the tray-owned daemon lifecycle.
             let _ = slint::quit_event_loop();
             CloseRequestResponse::HideWindow
         }
@@ -892,7 +892,6 @@ pub fn build_app(
             let mut settings = snapshot.settings;
             match name.as_str() {
                 "save_window_position" => settings.save_window_position = value,
-                "minimize_to_tray" => settings.minimize_to_tray = value,
                 "launch_on_login" => settings.launch_on_login = value,
                 "animations" => settings.animations = value,
                 "auto_finish" => settings.auto_finish = value,
@@ -1332,35 +1331,66 @@ pub fn build_app(
     poll_timer.start(slint::TimerMode::Repeated, Duration::from_millis(50), {
         let weak = weak.clone();
         let latest_snapshot = latest_snapshot.clone();
+        let local_state = local_state.clone();
         let launch_setting = launch_setting.clone();
         let window_persistence = window_persistence.clone();
         let selection = selection.clone();
         let events = Rc::new(RefCell::new(worker_events));
         let events_for_timer = events.clone();
-        let notification_rx = notification_rx;
+        let gui_actions = Rc::new(RefCell::new(gui_action_rx));
+        let gui_actions_for_timer = gui_actions.clone();
+        let _control_server = control_server;
+        #[cfg(not(unix))]
+        let mut next_queue_scan = Instant::now();
         move || {
-            while let Ok(action) = notification_rx.try_recv() {
-                handle_notification_action(&weak, action);
+            let _ = &_control_server;
+            #[cfg(not(unix))]
+            if Instant::now() >= next_queue_scan {
+                if let Ok(actions) = take_queued_gui_actions() {
+                    for action in actions {
+                        handle_gui_action(&weak, action);
+                    }
+                }
+                next_queue_scan = Instant::now() + Duration::from_millis(250);
+            }
+            while let Ok(action) = gui_actions_for_timer.borrow().try_recv() {
+                handle_gui_action(&weak, action);
             }
             loop {
                 let event = events_for_timer.borrow().try_recv();
                 let Ok(event) = event else { break };
                 match event {
                     WorkerEvent::Snapshot(snapshot) => {
-                        if let Some(ui) = weak.upgrade() {
-                            window_persistence
-                                .borrow_mut()
-                                .apply_setting(&ui, snapshot.settings.save_window_position);
+                        local_state
+                            .borrow_mut()
+                            .replace(SnapshotStore::new((*snapshot).clone()));
+                        publish_ui_snapshot(
+                            &weak,
+                            *snapshot,
+                            &latest_snapshot,
+                            &selection,
+                            &launch_setting,
+                            &window_persistence,
+                        );
+                    }
+                    WorkerEvent::DaemonEvent(event) => {
+                        let snapshot = {
+                            let mut state = local_state.borrow_mut();
+                            state.as_mut().and_then(|state| match state.apply(&event) {
+                                EventApply::Applied => Some(state.snapshot().clone()),
+                                EventApply::Duplicate | EventApply::Gap => None,
+                            })
+                        };
+                        if let Some(snapshot) = snapshot {
+                            publish_ui_snapshot(
+                                &weak,
+                                snapshot,
+                                &latest_snapshot,
+                                &selection,
+                                &launch_setting,
+                                &window_persistence,
+                            );
                         }
-                        update_snapshot(&weak, &snapshot, &selection);
-                        let launch_on_login = snapshot.settings.launch_on_login;
-                        if launch_setting.get() != Some(launch_on_login) {
-                            if let Err(error) = apply_launch_on_login(launch_on_login) {
-                                update_message(&weak, &error);
-                            }
-                            launch_setting.set(Some(launch_on_login));
-                        }
-                        *latest_snapshot.borrow_mut() = Some(*snapshot);
                     }
                     WorkerEvent::Notice(message) => update_message(&weak, &message),
                     WorkerEvent::TransferCreated { transfer_id, files } => {
@@ -1374,11 +1404,15 @@ pub fn build_app(
                         *selection.pending_text.borrow_mut() = None;
                         let _ = files;
                     }
-                    WorkerEvent::Connection { connected, message } => {
+                    WorkerEvent::Connection {
+                        connected,
+                        message,
+                        show_notice,
+                    } => {
                         if let Some(ui) = weak.upgrade() {
                             ui.set_server_status(message.clone().into());
                         }
-                        if !connected {
+                        if !connected && show_notice {
                             update_message(&weak, &message);
                         }
                     }
@@ -1397,25 +1431,12 @@ pub fn build_app(
                         } else {
                             format!("{sender_alias}：{text}")
                         };
-                        let device = sender_device_model.unwrap_or_default();
+                        let _device = sender_device_model.unwrap_or_default();
                         if let Some(ui) = weak.upgrade() {
-                            ui.set_message_received_sender(sender_alias.clone().into());
-                            ui.set_message_received_device(device.clone().into());
-                            ui.set_message_received_text(text.clone().into());
-                            ui.set_message_received_open(true);
                             ui.set_last_received_title(title.into());
                             ui.set_last_received_body(body.clone().into());
                             ui.set_last_received_visible(true);
                         }
-                        show_notification(
-                            NotificationAction::Message {
-                                sender: sender_alias,
-                                device,
-                                text,
-                            },
-                            title,
-                            &body,
-                        );
                     }
                     WorkerEvent::PinRequired { transfer_id } => {
                         if let Some(ui) = weak.upgrade() {
@@ -1606,6 +1627,30 @@ fn update_selection(weak: &Weak<AppWindow>, selection: &SelectionState) {
     );
 }
 
+fn publish_ui_snapshot(
+    weak: &Weak<AppWindow>,
+    snapshot: ServiceSnapshot,
+    latest_snapshot: &Rc<RefCell<Option<ServiceSnapshot>>>,
+    selection: &SelectionState,
+    launch_setting: &Cell<Option<bool>>,
+    window_persistence: &Rc<RefCell<WindowPersistence>>,
+) {
+    if let Some(ui) = weak.upgrade() {
+        window_persistence
+            .borrow_mut()
+            .apply_setting(&ui, snapshot.settings.save_window_position);
+    }
+    update_snapshot(weak, &snapshot, selection);
+    let launch_on_login = snapshot.settings.launch_on_login;
+    if launch_setting.get() != Some(launch_on_login) {
+        if let Err(error) = apply_launch_on_login(launch_on_login) {
+            update_message(weak, &error);
+        }
+        launch_setting.set(Some(launch_on_login));
+    }
+    *latest_snapshot.borrow_mut() = Some(snapshot);
+}
+
 fn send_selected_paths_to(
     weak: &Weak<AppWindow>,
     commands: &tokio::sync::mpsc::UnboundedSender<UiCommand>,
@@ -1792,7 +1837,6 @@ fn update_snapshot(weak: &Weak<AppWindow>, snapshot: &ServiceSnapshot, selection
     ui.set_settings_color(color_label(&snapshot.settings.color).into());
     ui.set_settings_language(language_label(&snapshot.settings.language).into());
     ui.set_save_window_position(snapshot.settings.save_window_position);
-    ui.set_minimize_to_tray(snapshot.settings.minimize_to_tray);
     ui.set_launch_on_login(snapshot.settings.launch_on_login);
     ui.set_animations_enabled(snapshot.settings.animations);
     let local_device = snapshot
@@ -2032,17 +2076,6 @@ fn update_snapshot(weak: &Weak<AppWindow>, snapshot: &ServiceSnapshot, selection
                 ui.set_last_received_title(title.clone().into());
                 ui.set_last_received_body(body.clone().into());
                 ui.set_last_received_visible(true);
-                let receive_directory = entry
-                    .path
-                    .as_ref()
-                    .and_then(|path| path.parent().map(Path::to_path_buf))
-                    .or_else(|| snapshot.settings.destination_dir.clone())
-                    .unwrap_or_else(default_download_dir);
-                show_notification(
-                    NotificationAction::OpenReceiveFolder(receive_directory),
-                    &title,
-                    &body,
-                );
                 if entry.direction == localsend_rpc::TransferDirection::Receive
                     && let Some(path) = entry.path.as_ref()
                 {
@@ -2444,12 +2477,8 @@ fn launch_tray_window(start_minimized: bool) -> anyhow::Result<()> {
 
     #[cfg(not(target_os = "linux"))]
     {
-        spawn_tray_process(&[])?;
-        let mut args = vec!["--open-main".to_string()];
-        if start_minimized {
-            args.push("--minimized".to_string());
-        }
-        spawn_tray_process(&args)
+        let _ = start_minimized;
+        spawn_tray_process(&[])
     }
 }
 
@@ -2497,18 +2526,43 @@ fn spawn_tray_process(extra_args: &[String]) -> anyhow::Result<()> {
     } else {
         "localsend-tray"
     };
-    let executable = current
-        .parent()
-        .map(|parent| parent.join(binary))
-        .into_iter()
-        .chain(std::iter::once(
-            PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-                .join("../..")
-                .join("target/debug")
+    let mut candidates = Vec::new();
+    #[cfg(target_os = "macos")]
+    if let Some(contents) = current.parent().and_then(std::path::Path::parent) {
+        candidates.push(
+            contents
+                .join("Helpers/LocalSendTray.app/Contents/MacOS")
                 .join(binary),
-        ))
+        );
+    }
+    if let Some(parent) = current.parent() {
+        candidates.push(parent.join(binary));
+    }
+    candidates.push(
+        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../..")
+            .join("target/debug")
+            .join(binary),
+    );
+    let executable = candidates
+        .into_iter()
         .find(|path| path.exists())
         .ok_or_else(|| anyhow::anyhow!("tray helper was not found next to the GUI"))?;
+
+    #[cfg(target_os = "macos")]
+    if let Some(helper_app) = executable
+        .ancestors()
+        .find(|path| path.extension().is_some_and(|extension| extension == "app"))
+    {
+        let mut command = Command::new("/usr/bin/open");
+        command.arg("-n").arg("-a").arg(helper_app).arg("--args");
+        if let Some(endpoint) = transport::configured_endpoint() {
+            command.arg("--endpoint").arg(endpoint);
+        }
+        command.args(extra_args);
+        command.spawn()?;
+        return Ok(());
+    }
 
     let mut command = Command::new(executable);
     if let Some(endpoint) = transport::configured_endpoint() {
@@ -2585,13 +2639,12 @@ fn format_bytes(bytes: u64) -> String {
     }
 }
 
-fn show_notification(action: NotificationAction, title: &str, body: &str) {
-    let _ = notifications::show(action, title, body);
-}
-
-fn handle_notification_action(weak: &Weak<AppWindow>, action: NotificationAction) {
+fn handle_gui_action(weak: &Weak<AppWindow>, action: GuiAction) {
     match action {
-        NotificationAction::Message {
+        GuiAction::ShowMain => {
+            present_main_window(weak);
+        }
+        GuiAction::OpenMessage {
             sender,
             device,
             text,
@@ -2599,20 +2652,38 @@ fn handle_notification_action(weak: &Weak<AppWindow>, action: NotificationAction
             let Some(ui) = weak.upgrade() else {
                 return;
             };
-            let _ = ui.show();
-            ui.window().set_minimized(false);
+            present_main_window(weak);
             ui.set_selected_tab("receive".into());
+            ui.set_last_received_visible(false);
             ui.set_message_received_sender(sender.into());
             ui.set_message_received_device(device.into());
             ui.set_message_received_text(text.into());
             ui.set_message_received_open(true);
         }
-        NotificationAction::OpenReceiveFolder(path) => {
+        GuiAction::OpenReceiveFolder { path } => {
             if let Err(error) = open_path(&path) {
                 update_message(weak, &error);
             }
         }
     }
+}
+
+fn present_main_window(weak: &Weak<AppWindow>) {
+    let Some(ui) = weak.upgrade() else {
+        return;
+    };
+    let _ = ui.show();
+    ui.window().set_minimized(false);
+    activate_current_application_window();
+
+    let weak = ui.as_weak();
+    slint::Timer::single_shot(Duration::from_millis(150), move || {
+        if let Some(ui) = weak.upgrade() {
+            let _ = ui.show();
+            ui.window().set_minimized(false);
+            activate_current_application_window();
+        }
+    });
 }
 
 fn language_label(language: &str) -> &'static str {

@@ -1,10 +1,10 @@
 use localsend_rpc::{
-    AutoSaveMode, DesktopSettings, ServiceCommand, TransferDirection, TransferStatus,
+    AutoSaveMode, DesktopSettings, ServiceCommand, ServiceEvent, TransferDirection, TransferStatus,
 };
 use localsend_service::ServiceHandle;
 use localsend_testkit::{PeerFile, ProtocolType, SenderPeer};
 use std::ffi::OsString;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 use tempfile::TempDir;
 
 struct EnvRestore {
@@ -73,6 +73,8 @@ async fn auto_save_receives_without_frontend_and_auto_finish_clears_the_transfer
     .await
     .expect("server did not start");
 
+    let mut events = service.subscribe();
+
     let source = root.path().join("auto-save.txt");
     std::fs::write(&source, b"quick save").expect("write source");
     SenderPeer::send_files(
@@ -103,23 +105,67 @@ async fn auto_save_receives_without_frontend_and_auto_finish_clears_the_transfer
         b"quick save"
     );
 
+    let mut terminal_at = None;
+    let mut removal_at = None;
+    let mut snapshots_before_terminal = 0;
+    let mut removal_snapshots = 0;
     tokio::time::timeout(Duration::from_secs(8), async {
         loop {
-            let snapshot = service.snapshot();
-            let receive_finished = snapshot.active_transfers.iter().any(|transfer| {
-                transfer.direction == TransferDirection::Receive
-                    && transfer.status == TransferStatus::Finished
-            });
-            if receive_finished {
-                break;
+            let event = events.recv().await.expect("service event stream closed");
+            match event.event {
+                ServiceEvent::TransferFinished { transfer }
+                    if transfer.direction == TransferDirection::Receive =>
+                {
+                    terminal_at.get_or_insert_with(Instant::now);
+                }
+                ServiceEvent::Snapshot { snapshot }
+                    if !snapshot.active_transfers.iter().any(|transfer| {
+                        transfer.direction == TransferDirection::Receive
+                            && transfer.status == TransferStatus::Finished
+                    }) =>
+                {
+                    if terminal_at.is_none() {
+                        snapshots_before_terminal += 1;
+                    } else {
+                        removal_snapshots += 1;
+                        removal_at.get_or_insert_with(Instant::now);
+                        break;
+                    }
+                }
+                _ => {}
             }
-            tokio::time::sleep(Duration::from_millis(50)).await;
         }
     })
     .await
-    .expect("receive transfer did not finish");
+    .expect("auto-finish Snapshot was not broadcast");
 
-    tokio::time::sleep(Duration::from_secs(4)).await;
+    let terminal_at = terminal_at.expect("receive transfer never reached a terminal event");
+    let removal_at = removal_at.expect("auto-finish Snapshot was not observed");
+    let delay = removal_at.saturating_duration_since(terminal_at);
+    assert!(
+        delay >= Duration::from_millis(2_800),
+        "auto-finish fired too early after {delay:?}"
+    );
+    assert!(
+        delay <= Duration::from_secs(5),
+        "auto-finish fired too late after {delay:?}"
+    );
+    assert_eq!(snapshots_before_terminal, 0);
+
+    let drain_deadline = Instant::now() + Duration::from_secs(1);
+    while let Some(remaining) = drain_deadline.checked_duration_since(Instant::now()) {
+        match tokio::time::timeout(remaining, events.recv()).await {
+            Ok(Ok(event)) if matches!(event.event, ServiceEvent::Snapshot { .. }) => {
+                removal_snapshots += 1;
+            }
+            Ok(Ok(_)) => {}
+            Ok(Err(_)) | Err(_) => break,
+        }
+    }
+    assert_eq!(
+        removal_snapshots, 1,
+        "auto-finish must broadcast exactly one Snapshot"
+    );
     assert!(
         !service
             .snapshot()

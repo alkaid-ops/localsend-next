@@ -236,7 +236,6 @@ fn seed_common_state(ui: &AppWindow, english: bool) {
     ui.set_settings_require_pin(false);
     ui.set_settings_always_on_top(false);
     ui.set_save_window_position(true);
-    ui.set_minimize_to_tray(true);
     ui.set_launch_on_login(false);
     ui.set_animations_enabled(true);
     ui.set_settings_auto_save_all(true);

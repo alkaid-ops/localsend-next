@@ -43,7 +43,6 @@ export component SettingsPage inherits Rectangle {
     in property <string> language: "system";
     in property <bool> always-on-top: false;
     in property <bool> save-window-position: true;
-    in property <bool> minimize-to-tray: true;
     in property <bool> launch-on-login: false;
     in property <bool> animations: true;
     in property <bool> auto-save-all: false;
@@ -120,7 +119,6 @@ export component SettingsPage inherits Rectangle {
                     FlutterSettingsEntry { label: @tr("颜色"); value: root.color-mode; compact: root.viewport-width < 700px; clicked => { root.cycle-setting("color"); } }
                     FlutterSettingsEntry { label: @tr("语言"); value: root.language; compact: root.viewport-width < 700px; clicked => { root.cycle-setting("language"); } }
                     FlutterBooleanEntry { label: @tr("退出时保存窗口位置"); checked: root.save-window-position; compact: root.viewport-width < 700px; toggled(value) => { root.set-toggle("save_window_position", value); } }
-                    FlutterBooleanEntry { label: @tr("关闭时最小化到系统托盘"); checked: root.minimize-to-tray; compact: root.viewport-width < 700px; toggled(value) => { root.set-toggle("minimize_to_tray", value); } }
                     FlutterBooleanEntry { label: @tr("登录系统后自动启动程序"); checked: root.launch-on-login; compact: root.viewport-width < 700px; toggled(value) => { root.set-toggle("launch_on_login", value); } }
                     FlutterBooleanEntry { label: @tr("动画效果"); checked: root.animations; compact: root.viewport-width < 700px; toggled(value) => { root.set-toggle("animations", value); } }
                 }

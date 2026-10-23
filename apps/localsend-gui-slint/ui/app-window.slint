@@ -67,7 +67,6 @@ export component AppWindow inherits Window {
     in-out property <string> settings-color: "LocalSend";
     in-out property <string> settings-language: @tr("跟随系统");
     in-out property <bool> save-window-position: true;
-    in-out property <bool> minimize-to-tray: true;
     in-out property <bool> launch-on-login: false;
     in-out property <bool> animations-enabled: true;
     in-out property <bool> settings-daemon-shutdown-supported: false;
@@ -396,7 +395,6 @@ export component AppWindow inherits Window {
                             language: root.settings-language;
                             always-on-top: root.settings-always-on-top;
                             save-window-position: root.save-window-position;
-                            minimize-to-tray: root.minimize-to-tray;
                             launch-on-login: root.launch-on-login;
                             animations: root.animations-enabled;
                             auto-save-all: root.settings-auto-save-all;

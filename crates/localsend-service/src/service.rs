@@ -235,6 +235,9 @@ enum InternalEvent {
         transfer_id: String,
         status: TransferStatus,
     },
+    AutoFinishTransfer {
+        transfer_id: String,
+    },
 }
 
 struct RunningServer {
@@ -602,11 +605,17 @@ impl ServiceTask {
         self.snapshot.read().clone()
     }
 
-    fn emit(&self, event: ServiceEvent) -> u64 {
+    fn emit(&self, mut event: ServiceEvent) -> u64 {
         let mut snapshot = self.snapshot.write();
         snapshot.last_event_seq = snapshot.last_event_seq.saturating_add(1);
         snapshot.revision = snapshot.revision.saturating_add(1);
         let seq = snapshot.last_event_seq;
+        if let ServiceEvent::Snapshot {
+            snapshot: event_snapshot,
+        } = &mut event
+        {
+            *event_snapshot = snapshot.clone();
+        }
         drop(snapshot);
         let _ = self.events.send(SequencedEvent { seq, event });
         seq
@@ -1723,30 +1732,32 @@ impl ServiceTask {
                 bytes_done,
                 bytes_total,
             } => {
-                self.file_progress
-                    .insert((transfer_id.clone(), file_id.clone()), bytes_done);
-                let total_done = self
-                    .file_progress
-                    .iter()
-                    .filter(|((id, _), _)| id == &transfer_id)
-                    .map(|(_, bytes)| *bytes)
-                    .sum::<u64>();
-                if let Some(transfer) = self
-                    .snapshot
-                    .write()
-                    .active_transfers
-                    .iter_mut()
-                    .find(|transfer| transfer.transfer_id == transfer_id)
-                {
-                    transfer.bytes_done = total_done.min(transfer.bytes_total);
-                    transfer.status = TransferStatus::Transferring;
-                }
+                let total_done = record_file_progress(
+                    &mut self.file_progress,
+                    &transfer_id,
+                    &file_id,
+                    bytes_done,
+                );
+                let totals = {
+                    let mut snapshot = self.snapshot.write();
+                    snapshot
+                        .active_transfers
+                        .iter_mut()
+                        .find(|transfer| transfer.transfer_id == transfer_id)
+                        .map(|transfer| {
+                            transfer.bytes_done = total_done.min(transfer.bytes_total);
+                            transfer.status = TransferStatus::Transferring;
+                            (transfer.bytes_done, transfer.bytes_total)
+                        })
+                };
                 self.emit(ServiceEvent::TransferProgress {
                     transfer_id,
                     file_id: Some(file_id),
                     file_name: Some(file_name),
                     bytes_done,
                     bytes_total,
+                    transfer_bytes_done: totals.map(|(done, _)| done),
+                    transfer_bytes_total: totals.map(|(_, total)| total),
                 });
             }
             InternalEvent::SendFinished { transfer_id } => {
@@ -1789,30 +1800,32 @@ impl ServiceTask {
                 bytes_done,
                 bytes_total,
             } => {
-                self.file_progress
-                    .insert((transfer_id.clone(), file_id.clone()), bytes_done);
-                let total_done = self
-                    .file_progress
-                    .iter()
-                    .filter(|((id, _), _)| id == &transfer_id)
-                    .map(|(_, bytes)| *bytes)
-                    .sum::<u64>();
-                if let Some(transfer) = self
-                    .snapshot
-                    .write()
-                    .active_transfers
-                    .iter_mut()
-                    .find(|transfer| transfer.transfer_id == transfer_id)
-                {
-                    transfer.bytes_done = total_done.min(transfer.bytes_total);
-                    transfer.status = TransferStatus::Transferring;
-                }
+                let total_done = record_file_progress(
+                    &mut self.file_progress,
+                    &transfer_id,
+                    &file_id,
+                    bytes_done,
+                );
+                let totals = {
+                    let mut snapshot = self.snapshot.write();
+                    snapshot
+                        .active_transfers
+                        .iter_mut()
+                        .find(|transfer| transfer.transfer_id == transfer_id)
+                        .map(|transfer| {
+                            transfer.bytes_done = total_done.min(transfer.bytes_total);
+                            transfer.status = TransferStatus::Transferring;
+                            (transfer.bytes_done, transfer.bytes_total)
+                        })
+                };
                 self.emit(ServiceEvent::TransferProgress {
                     transfer_id,
                     file_id: Some(file_id),
                     file_name: Some(file_name),
                     bytes_done,
                     bytes_total,
+                    transfer_bytes_done: totals.map(|(done, _)| done),
+                    transfer_bytes_total: totals.map(|(_, total)| total),
                 });
             }
             InternalEvent::ReceiveFileDone {
@@ -1913,6 +1926,27 @@ impl ServiceTask {
                     self.set_transfer_status(&transfer_id, status, None);
                 }
             }
+            InternalEvent::AutoFinishTransfer { transfer_id } => {
+                let removed = {
+                    let mut snapshot = self.snapshot.write();
+                    let before = snapshot.active_transfers.len();
+                    snapshot.active_transfers.retain(|transfer| {
+                        !(transfer.transfer_id == transfer_id
+                            && matches!(
+                                transfer.status,
+                                TransferStatus::Finished
+                                    | TransferStatus::Failed
+                                    | TransferStatus::Cancelled
+                            ))
+                    });
+                    snapshot.active_transfers.len() != before
+                };
+                if removed {
+                    self.emit(ServiceEvent::Snapshot {
+                        snapshot: self.snapshot(),
+                    });
+                }
+            }
         }
     }
 
@@ -1953,19 +1987,11 @@ impl ServiceTask {
         }
         self.emit(ServiceEvent::TransferFinished { transfer });
         if terminal && self.settings.auto_finish {
-            let snapshot = self.snapshot.clone();
             let transfer_id = transfer_id.to_string();
+            let events = self.internal_tx.clone();
             tokio::spawn(async move {
                 tokio::time::sleep(AUTO_FINISH_DELAY).await;
-                snapshot.write().active_transfers.retain(|transfer| {
-                    !(transfer.transfer_id == transfer_id
-                        && matches!(
-                            transfer.status,
-                            TransferStatus::Finished
-                                | TransferStatus::Failed
-                                | TransferStatus::Cancelled
-                        ))
-                });
+                let _ = events.send(InternalEvent::AutoFinishTransfer { transfer_id });
             });
         }
     }
@@ -2836,6 +2862,23 @@ fn append_history(path: &Path, entry: &HistoryEntry) -> anyhow::Result<()> {
     Ok(())
 }
 
+fn record_file_progress(
+    progress: &mut HashMap<(String, String), u64>,
+    transfer_id: &str,
+    file_id: &str,
+    bytes_done: u64,
+) -> u64 {
+    progress
+        .entry((transfer_id.to_string(), file_id.to_string()))
+        .and_modify(|current| *current = (*current).max(bytes_done))
+        .or_insert(bytes_done);
+    progress
+        .iter()
+        .filter(|((id, _), _)| id == transfer_id)
+        .map(|(_, bytes)| *bytes)
+        .sum()
+}
+
 fn write_private_file(path: &Path, contents: &[u8]) -> anyhow::Result<()> {
     if let Some(parent) = path.parent() {
         std::fs::create_dir_all(parent)?;
@@ -2939,5 +2982,40 @@ mod settings_tests {
         assert_eq!(filter.whitelist, Some(vec!["en0".to_string()]));
         assert_eq!(filter.blacklist, Some(vec!["utun*".to_string()]));
         assert_eq!(discovery_timeout_for(&settings), Duration::from_millis(1));
+    }
+}
+
+#[cfg(test)]
+mod progress_tests {
+    use super::record_file_progress;
+    use std::collections::HashMap;
+
+    #[test]
+    fn aggregate_file_progress_is_monotonic_across_files() {
+        let mut progress = HashMap::new();
+        assert_eq!(
+            record_file_progress(&mut progress, "transfer", "first", 40),
+            40
+        );
+        assert_eq!(
+            record_file_progress(&mut progress, "transfer", "second", 30),
+            70
+        );
+        assert_eq!(
+            record_file_progress(&mut progress, "transfer", "first", 25),
+            70
+        );
+        assert_eq!(
+            record_file_progress(&mut progress, "transfer", "first", 60),
+            90
+        );
+        assert_eq!(
+            record_file_progress(&mut progress, "other", "first", 10),
+            10
+        );
+        assert_eq!(
+            record_file_progress(&mut progress, "transfer", "second", 30),
+            90
+        );
     }
 }

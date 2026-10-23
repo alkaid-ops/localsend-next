@@ -35,6 +35,10 @@ pub fn terminate_gui_process() -> bool {
     terminate_pid_file(gui_pid_path(), process_is_gui)
 }
 
+pub fn gui_process_is_running() -> bool {
+    read_gui_pid().is_some_and(process_is_gui)
+}
+
 pub struct TrayPidGuard {
     path: PathBuf,
     pid: u32,

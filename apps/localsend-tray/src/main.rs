@@ -1,17 +1,21 @@
 #![cfg_attr(target_os = "windows", windows_subsystem = "windows")]
 
+mod notifications;
+
 use anyhow::Context;
 use localsend_platform::{
-    InstanceLock, TrayPidGuard, scoped_lock_name, terminate_gui_process, terminate_tray_process,
+    GuiAction, InstanceLock, TrayPidGuard, gui_pid_path, gui_process_is_running, queue_gui_action,
+    scoped_lock_name, send_gui_control_action, terminate_gui_process, terminate_tray_process,
 };
-use localsend_rpc::{DaemonClient, DaemonLifecycle, ServiceCommand, ServiceSnapshot};
+use localsend_rpc::{
+    DaemonClient, DaemonLifecycle, ServiceCommand, ServiceEvent, TransferDirection, TransferStatus,
+};
 use std::process::{Command, Stdio};
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use tray_icon::menu::{Menu, MenuEvent, MenuItem};
 use tray_icon::{Icon, TrayIconBuilder};
 
 const OPEN_APP: &str = "localsend.open-app";
-const OPEN_DOWNLOADS: &str = "localsend.open-downloads";
 const RESTART_APP: &str = "localsend.restart";
 const QUIT_APP: &str = "localsend.quit";
 
@@ -34,23 +38,10 @@ impl TrayLanguage {
         }
     }
 
-    fn from_snapshot(snapshot: Option<&ServiceSnapshot>) -> Self {
-        snapshot
-            .map(|snapshot| Self::from_settings(&snapshot.settings.language))
-            .unwrap_or_else(|| Self::from_settings("system"))
-    }
-
     fn open_app(self) -> &'static str {
         match self {
             Self::English => "Open main window",
             Self::SimplifiedChinese => "打开主界面",
-        }
-    }
-
-    fn open_downloads(self) -> &'static str {
-        match self {
-            Self::English => "Open receive folder",
-            Self::SimplifiedChinese => "打开接收文件夹",
         }
     }
 
@@ -81,53 +72,10 @@ impl TrayLanguage {
             Self::SimplifiedChinese => "LocalSend 正在使用外部管理的后台服务。",
         }
     }
-
-    fn active_transfers_confirm(self) -> &'static str {
-        match self {
-            Self::English => "Active transfers will be cancelled. Continue?",
-            Self::SimplifiedChinese => "有活动传输将被取消，是否继续？",
-        }
-    }
-
-    fn daemon_unavailable(self) -> &'static str {
-        match self {
-            Self::English => "Daemon unavailable",
-            Self::SimplifiedChinese => "后台服务不可用",
-        }
-    }
-
-    fn server_running(self, port: u16) -> String {
-        match self {
-            Self::English => format!("Server: running on port {port}"),
-            Self::SimplifiedChinese => format!("服务器：运行中，端口 {port}"),
-        }
-    }
-
-    fn server_stopped(self) -> &'static str {
-        match self {
-            Self::English => "Server: stopped",
-            Self::SimplifiedChinese => "服务器：已停止",
-        }
-    }
-
-    fn devices(self, count: usize) -> String {
-        match self {
-            Self::English => format!("Devices: {count}"),
-            Self::SimplifiedChinese => format!("设备：{count}"),
-        }
-    }
-
-    fn active_transfers(self, count: usize) -> String {
-        match self {
-            Self::English => format!("Active transfers: {count}"),
-            Self::SimplifiedChinese => format!("活动传输：{count}"),
-        }
-    }
 }
 
 struct TrayMenu {
     open_app: MenuItem,
-    open_downloads: MenuItem,
     restart_app: MenuItem,
     quit_app: MenuItem,
 }
@@ -136,29 +84,11 @@ impl TrayMenu {
     fn new(language: TrayLanguage) -> anyhow::Result<(Self, Menu)> {
         let items = Self {
             open_app: MenuItem::with_id(OPEN_APP, language.open_app(), true, None),
-            open_downloads: MenuItem::with_id(
-                OPEN_DOWNLOADS,
-                language.open_downloads(),
-                true,
-                None,
-            ),
             restart_app: MenuItem::with_id(RESTART_APP, language.restart_app(), true, None),
             quit_app: MenuItem::with_id(QUIT_APP, language.quit_app(), true, None),
         };
-        let menu = Menu::with_items(&[
-            &items.open_app,
-            &items.open_downloads,
-            &items.restart_app,
-            &items.quit_app,
-        ])?;
+        let menu = Menu::with_items(&[&items.open_app, &items.restart_app, &items.quit_app])?;
         Ok((items, menu))
-    }
-
-    fn apply_language(&self, language: TrayLanguage) {
-        self.open_app.set_text(language.open_app());
-        self.open_downloads.set_text(language.open_downloads());
-        self.restart_app.set_text(language.restart_app());
-        self.quit_app.set_text(language.quit_app());
     }
 }
 
@@ -167,15 +97,21 @@ pub fn run_tray() -> anyhow::Result<()> {
         return quit_instance_request();
     }
     initialize_macos_tray()?;
+    let (gui_action_tx, gui_action_rx) = std::sync::mpsc::channel();
     if std::env::args().any(|argument| argument == "--open-main") {
-        return open_app(std::env::args().any(|argument| argument == "--minimized"));
+        if std::env::args().any(|argument| argument == "--minimized") {
+            return open_app(true);
+        }
+        route_gui_action(GuiAction::ShowMain);
+        return Ok(());
     }
     let lock_name = scoped_lock_name("localsend-tray", "tray");
     let Some(_lock) = InstanceLock::try_acquire(&lock_name)? else {
         return Ok(());
     };
     let _tray_pid = TrayPidGuard::acquire()?;
-    let runtime = tokio::runtime::Builder::new_current_thread()
+    let runtime = tokio::runtime::Builder::new_multi_thread()
+        .worker_threads(2)
         .enable_all()
         .build()?;
     let mut client = runtime
@@ -188,9 +124,9 @@ pub fn run_tray() -> anyhow::Result<()> {
         return Ok(());
     }
 
-    let mut last_snapshot = client.snapshot();
-    let mut language = TrayLanguage::from_snapshot(last_snapshot.as_ref());
-    let (menu_items, menu) = TrayMenu::new(language)?;
+    let language = TrayLanguage::from_settings("system");
+    notifications::init(gui_action_tx);
+    let (_menu_items, menu) = TrayMenu::new(language)?;
     let icon = Icon::from_rgba(tray_icon_rgba(32), 32, 32)?;
     let builder = TrayIconBuilder::new()
         .with_menu(Box::new(menu))
@@ -204,35 +140,144 @@ pub fn run_tray() -> anyhow::Result<()> {
          (for GNOME also enable an AppIndicator extension)",
     )?;
     let _menu_keepalive = tray.clone();
-    update_tooltip(&tray, last_snapshot.as_ref(), language);
-    let mut tooltip_due = Some(Instant::now() + Duration::from_secs(1));
+    let mut notification_client = match runtime.block_on(DaemonClient::connect_notifications()) {
+        Ok(client) => Some(client),
+        Err(error) => {
+            tracing::warn!(%error, "notification stream connection failed");
+            None
+        }
+    };
+    let mut daemon_events = notification_client
+        .as_ref()
+        .map(DaemonClient::subscribe)
+        .unwrap_or_else(|| client.subscribe());
+    tracing::info!("notification event stream active");
 
     loop {
         pump_macos_events();
-        last_snapshot = client.snapshot();
-        let current_language = TrayLanguage::from_snapshot(last_snapshot.as_ref());
-        if current_language != language {
-            language = current_language;
-            menu_items.apply_language(language);
-            update_tooltip(&tray, last_snapshot.as_ref(), language);
-            tooltip_due = Some(Instant::now() + Duration::from_secs(1));
-        }
-        if tooltip_due.is_some_and(|due| Instant::now() >= due) {
-            last_snapshot = client.snapshot();
-            update_tooltip(&tray, last_snapshot.as_ref(), language);
-            tooltip_due = Some(Instant::now() + Duration::from_secs(1));
-        }
         if client.is_connection_closed() {
-            break;
+            let was_lifecycle_owner = client.owns_lifecycle();
+            drop(notification_client.take());
+            drop(client);
+            client = runtime
+                .block_on(reconnect_daemon(was_lifecycle_owner))
+                .context("reconnecting to localsendd")?;
+            notification_client = runtime.block_on(DaemonClient::connect_notifications()).ok();
+            daemon_events = notification_client
+                .as_ref()
+                .map(DaemonClient::subscribe)
+                .unwrap_or_else(|| client.subscribe());
+            continue;
+        }
+        loop {
+            let event = match daemon_events.try_recv() {
+                Ok(event) => event,
+                Err(tokio::sync::broadcast::error::TryRecvError::Lagged(skipped)) => {
+                    tracing::warn!("tray notification stream missed {skipped} events");
+                    match runtime.block_on(DaemonClient::connect_notifications()) {
+                        Ok(reconnected) => {
+                            daemon_events = reconnected.subscribe();
+                            notification_client = Some(reconnected);
+                        }
+                        Err(error) => {
+                            tracing::warn!("could not reconnect tray notification stream: {error}");
+                        }
+                    }
+                    break;
+                }
+                Err(tokio::sync::broadcast::error::TryRecvError::Empty) => break,
+                Err(tokio::sync::broadcast::error::TryRecvError::Closed) => {
+                    if !client.is_connection_closed() {
+                        match runtime.block_on(DaemonClient::connect_notifications()) {
+                            Ok(reconnected) => {
+                                daemon_events = reconnected.subscribe();
+                                notification_client = Some(reconnected);
+                            }
+                            Err(error) => {
+                                tracing::warn!(
+                                    "could not reconnect tray notification stream: {error}"
+                                );
+                            }
+                        }
+                    }
+                    break;
+                }
+            };
+            match event.event {
+                ServiceEvent::TextReceived {
+                    sender_alias,
+                    sender_device_model,
+                    text,
+                } => {
+                    tracing::debug!(
+                        sender = %sender_alias,
+                        characters = text.chars().count(),
+                        "received text notification event"
+                    );
+                    let (title, body) = if language == TrayLanguage::English {
+                        ("New message received", format!("{sender_alias}: {text}"))
+                    } else {
+                        ("收到新消息", format!("{sender_alias}：{text}"))
+                    };
+                    notifications::show(
+                        GuiAction::OpenMessage {
+                            sender: sender_alias,
+                            device: sender_device_model.unwrap_or_default(),
+                            text,
+                        },
+                        title,
+                        &body,
+                    );
+                }
+                ServiceEvent::HistoryAppended { entry }
+                    if entry.direction == TransferDirection::Receive
+                        && entry.status == TransferStatus::Finished
+                        && entry.message.is_none() =>
+                {
+                    let folder = entry
+                        .path
+                        .as_ref()
+                        .and_then(|path| path.parent().map(std::path::Path::to_path_buf))
+                        .or_else(download_directory);
+                    if let Some(folder) = folder {
+                        let (title, body) = if language == TrayLanguage::English {
+                            (
+                                "File received",
+                                format!(
+                                    "{} · {} · {}",
+                                    entry.peer_alias,
+                                    entry.file_name,
+                                    format_bytes(entry.size)
+                                ),
+                            )
+                        } else {
+                            (
+                                "收到文件",
+                                format!(
+                                    "{} · {} · {}",
+                                    entry.peer_alias,
+                                    entry.file_name,
+                                    format_bytes(entry.size)
+                                ),
+                            )
+                        };
+                        notifications::show(
+                            GuiAction::OpenReceiveFolder { path: folder },
+                            title,
+                            &body,
+                        );
+                    }
+                }
+                ServiceEvent::DaemonStopping => {}
+                _ => {}
+            }
+        }
+        while let Ok(action) = gui_action_rx.try_recv() {
+            route_gui_action(action);
         }
         if let Ok(event) = MenuEvent::receiver().recv_timeout(Duration::from_millis(100)) {
             match event.id.as_ref() {
-                OPEN_APP => open_app(false)?,
-                OPEN_DOWNLOADS => {
-                    if let Some(path) = receive_directory(last_snapshot.as_ref()) {
-                        open_path(&path);
-                    }
-                }
+                OPEN_APP => route_gui_action(GuiAction::ShowMain),
                 RESTART_APP => {
                     if !client.owns_lifecycle() {
                         show_message(
@@ -241,11 +286,8 @@ pub fn run_tray() -> anyhow::Result<()> {
                         );
                         continue;
                     }
-                    if !confirm_shutdown(last_snapshot.as_ref(), language.restart_app(), language) {
-                        continue;
-                    }
                     let old_instance = client.instance_id();
-                    cancel_active_transfers(&runtime, &client);
+                    drop(notification_client.take());
                     runtime
                         .block_on(client.command(ServiceCommand::Shutdown))
                         .map_err(anyhow::Error::msg)?;
@@ -257,14 +299,15 @@ pub fn run_tray() -> anyhow::Result<()> {
                     if client.instance_id() == old_instance {
                         anyhow::bail!("localsendd restart returned the previous instance");
                     }
-                    tooltip_due = Some(Instant::now() + Duration::from_millis(300));
+                    notification_client =
+                        runtime.block_on(DaemonClient::connect_notifications()).ok();
+                    daemon_events = notification_client
+                        .as_ref()
+                        .map(DaemonClient::subscribe)
+                        .unwrap_or_else(|| client.subscribe());
                 }
                 QUIT_APP => {
-                    if !confirm_shutdown(last_snapshot.as_ref(), language.quit_app(), language) {
-                        continue;
-                    }
                     terminate_gui_process();
-                    cancel_active_transfers(&runtime, &client);
                     if client.owns_lifecycle() {
                         let _ = runtime.block_on(async {
                             tokio::time::timeout(
@@ -277,6 +320,7 @@ pub fn run_tray() -> anyhow::Result<()> {
                             tokio::time::timeout(Duration::from_secs(5), client.wait_closed()).await
                         });
                     }
+                    notifications::clear_delivered();
                     break;
                 }
                 _ => {}
@@ -284,33 +328,29 @@ pub fn run_tray() -> anyhow::Result<()> {
         }
     }
     terminate_gui_process();
+    notifications::clear_delivered();
     Ok(())
 }
 
 fn quit_instance_request() -> anyhow::Result<()> {
     terminate_gui_process();
-    let runtime = tokio::runtime::Builder::new_current_thread()
+    let runtime = tokio::runtime::Builder::new_multi_thread()
+        .worker_threads(2)
         .enable_all()
         .build()?;
-    let Ok(client) = runtime.block_on(DaemonClient::connect()) else {
+    let Ok(client) = runtime.block_on(DaemonClient::connect_notifications()) else {
+        terminate_tray_process();
         return Ok(());
     };
-    if client
+    let owned_daemon = client
         .connection_info()
-        .is_some_and(|info| info.lifecycle == DaemonLifecycle::Owned)
-    {
-        let _ = runtime.block_on(async {
-            tokio::time::timeout(
-                Duration::from_secs(5),
-                client.command(ServiceCommand::Shutdown),
-            )
-            .await
-        });
+        .is_some_and(|info| info.lifecycle == DaemonLifecycle::Owned);
+    terminate_tray_process();
+    if owned_daemon {
         let _ = runtime.block_on(async {
             tokio::time::timeout(Duration::from_secs(5), client.wait_closed()).await
         });
     }
-    terminate_tray_process();
     Ok(())
 }
 
@@ -355,26 +395,6 @@ fn pump_macos_events() {
 #[cfg(not(target_os = "macos"))]
 fn pump_macos_events() {}
 
-fn confirm_shutdown(
-    snapshot: Option<&ServiceSnapshot>,
-    title: &str,
-    language: TrayLanguage,
-) -> bool {
-    let has_transfers = snapshot.is_some_and(|snapshot| !snapshot.active_transfers.is_empty());
-    if !has_transfers {
-        return true;
-    }
-    if let Ok(value) = std::env::var("LOCALSEND_TEST_CONFIRM_QUIT") {
-        return matches!(value.as_str(), "accept" | "yes" | "1");
-    }
-    rfd::MessageDialog::new()
-        .set_title(title)
-        .set_description(language.active_transfers_confirm())
-        .set_buttons(rfd::MessageButtons::YesNo)
-        .show()
-        == rfd::MessageDialogResult::Yes
-}
-
 fn show_message(title: &str, description: &str) {
     rfd::MessageDialog::new()
         .set_title(title)
@@ -383,61 +403,81 @@ fn show_message(title: &str, description: &str) {
         .show();
 }
 
-fn cancel_active_transfers(runtime: &tokio::runtime::Runtime, client: &DaemonClient) {
-    let Some(snapshot) = client.snapshot() else {
-        return;
-    };
-    for transfer in snapshot.active_transfers {
-        let _ = runtime.block_on(client.command(ServiceCommand::CancelTransfer {
-            transfer_id: transfer.transfer_id,
-        }));
+fn download_directory() -> Option<std::path::PathBuf> {
+    directories::UserDirs::new().and_then(|dirs| dirs.download_dir().map(Into::into))
+}
+
+fn format_bytes(bytes: u64) -> String {
+    const UNITS: [&str; 5] = ["B", "KiB", "MiB", "GiB", "TiB"];
+    let mut value = bytes as f64;
+    let mut unit = 0;
+    while value >= 1024.0 && unit + 1 < UNITS.len() {
+        value /= 1024.0;
+        unit += 1;
+    }
+    if unit == 0 {
+        format!("{bytes} {}", UNITS[unit])
+    } else {
+        format!("{value:.1} {}", UNITS[unit])
     }
 }
 
-fn update_tooltip(
-    tray: &tray_icon::TrayIcon,
-    snapshot: Option<&ServiceSnapshot>,
-    language: TrayLanguage,
-) {
-    let text = snapshot
-        .map(|snapshot| {
-            format!(
-                "LocalSend PC\n{}\n{}\n{}",
-                if snapshot.server_running {
-                    language.server_running(snapshot.server_port.unwrap_or_default())
-                } else {
-                    language.server_stopped().to_string()
-                },
-                language.devices(snapshot.devices.len()),
-                language.active_transfers(snapshot.active_transfers.len())
-            )
-        })
-        .unwrap_or_else(|| format!("LocalSend PC\n{}", language.daemon_unavailable()));
-    let _ = tray.set_tooltip(Some(text));
-}
-
-fn receive_directory(snapshot: Option<&ServiceSnapshot>) -> Option<std::path::PathBuf> {
-    snapshot
-        .and_then(|snapshot| snapshot.settings.destination_dir.clone())
-        .or_else(|| {
-            directories::UserDirs::new().and_then(|dirs| dirs.download_dir().map(Into::into))
-        })
+fn route_gui_action(action: GuiAction) {
+    if send_gui_control_action(&action).is_ok() {
+        return;
+    }
+    if gui_process_is_running() && gui_pid_is_stale() {
+        tracing::warn!("GUI control socket unavailable; replacing the GUI process");
+        terminate_gui_process();
+    }
+    if let Err(error) = queue_gui_action(action) {
+        tracing::warn!("could not queue GUI action: {error}");
+    }
+    if let Err(error) = open_app(false) {
+        show_message("LocalSend", &error.to_string());
+    }
 }
 
 fn open_app(start_minimized: bool) -> anyhow::Result<()> {
     let current = std::env::current_exe()?;
     let executable = find_gui_executable(&current)
         .ok_or_else(|| anyhow::anyhow!("LocalSend GUI executable was not found"))?;
-    let mut command = Command::new(executable);
+
+    #[cfg(target_os = "macos")]
+    if let Some(bundle) = app_bundle_for(&executable) {
+        let mut command = Command::new("/usr/bin/open");
+        command
+            .arg("-n")
+            .arg("-a")
+            .arg(&bundle)
+            .arg("--args")
+            .arg("--window");
+        if start_minimized {
+            command.arg("--minimized");
+        }
+        let output = command.output()?;
+        if !output.status.success() {
+            anyhow::bail!(
+                "macOS could not launch the LocalSend window: {}",
+                String::from_utf8_lossy(&output.stderr).trim()
+            );
+        }
+        tracing::info!(bundle = %bundle.display(), "LocalSend GUI launch requested");
+        return Ok(());
+    }
+
+    let mut command = Command::new(&executable);
     command.arg("--window");
     if start_minimized {
         command.arg("--minimized");
     }
-    command
-        .stdin(Stdio::null())
-        .stdout(Stdio::null())
-        .stderr(Stdio::null());
-    #[cfg(unix)]
+    command.stdin(Stdio::null());
+    if let Some((stdout, stderr)) = gui_log_streams() {
+        command.stdout(stdout).stderr(stderr);
+    } else {
+        command.stdout(Stdio::null()).stderr(Stdio::null());
+    }
+    #[cfg(all(unix, not(target_os = "macos")))]
     {
         use std::os::unix::process::CommandExt;
         unsafe {
@@ -452,8 +492,43 @@ fn open_app(start_minimized: bool) -> anyhow::Result<()> {
         use std::os::windows::process::CommandExt;
         command.creation_flags(0x08000000); // CREATE_NO_WINDOW
     }
-    command.spawn()?;
+    let mut child = command.spawn()?;
+    let pid = child.id();
+    tracing::info!(path = %executable.display(), pid, "LocalSend GUI launch requested");
+    std::thread::spawn(move || match child.wait() {
+        Ok(status) => tracing::warn!(pid, %status, "LocalSend GUI exited"),
+        Err(error) => tracing::warn!(pid, %error, "could not wait for LocalSend GUI"),
+    });
     Ok(())
+}
+
+fn gui_pid_is_stale() -> bool {
+    std::fs::metadata(gui_pid_path())
+        .and_then(|metadata| metadata.modified())
+        .ok()
+        .and_then(|modified| modified.elapsed().ok())
+        .is_some_and(|age| age > Duration::from_secs(2))
+}
+
+fn gui_log_streams() -> Option<(Stdio, Stdio)> {
+    let config_dir = config_dir()?;
+    let log_dir = config_dir.join("logs");
+    std::fs::create_dir_all(&log_dir).ok()?;
+    let file = std::fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(log_dir.join("localsend-gui.log"))
+        .ok()?;
+    let stderr = file.try_clone().ok()?;
+    Some((Stdio::from(file), Stdio::from(stderr)))
+}
+
+#[cfg(target_os = "macos")]
+fn app_bundle_for(executable: &std::path::Path) -> Option<std::path::PathBuf> {
+    executable
+        .ancestors()
+        .find(|path| path.extension().is_some_and(|extension| extension == "app"))
+        .map(std::path::Path::to_path_buf)
 }
 
 fn find_gui_executable(current: &std::path::Path) -> Option<std::path::PathBuf> {
@@ -469,27 +544,30 @@ fn find_gui_executable(current: &std::path::Path) -> Option<std::path::PathBuf> 
     } else {
         "localsend-gui-slint"
     };
-    current
-        .parent()
-        .map(|parent| {
-            [
-                parent.join(gui_name),
-                parent.join("LocalSend"),
-                parent.join(dev_gui_name),
-            ]
-        })
-        .into_iter()
-        .flatten()
-        .chain(std::iter::once(
-            std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-                .join("target/debug")
-                .join(dev_gui_name),
-        ))
-        .find(|path| path.exists())
+    let mut candidates = Vec::new();
+    #[cfg(target_os = "macos")]
+    if let Some(main_app) = current
+        .ancestors()
+        .filter(|path| path.extension().is_some_and(|extension| extension == "app"))
+        .nth(1)
+    {
+        candidates.push(main_app.join("Contents/MacOS").join(gui_name));
+    }
+    if let Some(parent) = current.parent() {
+        candidates.push(parent.join(gui_name));
+        candidates.push(parent.join("LocalSend"));
+        candidates.push(parent.join(dev_gui_name));
+    }
+    candidates.push(
+        std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("target/debug")
+            .join(dev_gui_name),
+    );
+    candidates.into_iter().find(|path| path.exists())
 }
 
 async fn connect_or_start_daemon() -> anyhow::Result<DaemonClient> {
-    if let Ok(client) = DaemonClient::connect().await {
+    if let Ok(client) = DaemonClient::connect_notifications().await {
         return Ok(client);
     }
     let current = std::env::current_exe()?;
@@ -498,11 +576,8 @@ async fn connect_or_start_daemon() -> anyhow::Result<DaemonClient> {
     } else {
         "localsendd"
     };
-    let executable = current
-        .parent()
-        .map(|parent| parent.join(daemon_name))
-        .filter(|path| path.exists())
-        .unwrap_or_else(|| daemon_name.into());
+    let executable =
+        find_daemon_executable(&current, daemon_name).unwrap_or_else(|| daemon_name.into());
     let mut command = Command::new(executable);
     command.arg("--require-owner").stdin(Stdio::null());
     #[cfg(unix)]
@@ -522,7 +597,7 @@ async fn connect_or_start_daemon() -> anyhow::Result<DaemonClient> {
     }
     let mut child = command.spawn()?;
     for _ in 0..50 {
-        if let Ok(client) = DaemonClient::connect_owned_interactive().await {
+        if let Ok(client) = DaemonClient::connect_owned_notifications().await {
             return Ok(client);
         }
         if let Some(status) = child.try_wait()? {
@@ -535,25 +610,89 @@ async fn connect_or_start_daemon() -> anyhow::Result<DaemonClient> {
     anyhow::bail!("timed out starting localsendd")
 }
 
+fn find_daemon_executable(
+    current: &std::path::Path,
+    daemon_name: &str,
+) -> Option<std::path::PathBuf> {
+    let mut candidates = Vec::new();
+    #[cfg(target_os = "macos")]
+    if let Some(main_app) = current
+        .ancestors()
+        .filter(|path| path.extension().is_some_and(|extension| extension == "app"))
+        .nth(1)
+    {
+        candidates.push(main_app.join("Contents/MacOS").join(daemon_name));
+    }
+    if let Some(parent) = current.parent() {
+        candidates.push(parent.join(daemon_name));
+    }
+    candidates.into_iter().find(|path| path.exists())
+}
+
+async fn reconnect_daemon(previously_owned: bool) -> anyhow::Result<DaemonClient> {
+    for attempt in 0..100 {
+        match connect_or_start_daemon().await {
+            Ok(client) => {
+                let still_owned_daemon = client
+                    .connection_info()
+                    .is_some_and(|info| info.lifecycle == DaemonLifecycle::Owned)
+                    && !client.owns_lifecycle();
+                if !previously_owned || !still_owned_daemon {
+                    return Ok(client);
+                }
+                drop(client);
+            }
+            Err(error) => tracing::warn!("daemon reconnect attempt failed: {error}"),
+        }
+        if attempt < 99 {
+            tokio::time::sleep(Duration::from_millis(200)).await;
+        }
+    }
+    anyhow::bail!("timed out reconnecting to localsendd")
+}
+
 fn main() -> anyhow::Result<()> {
     localsend_platform::set_current_process_name("LocalSendTray");
-    tracing_subscriber::fmt()
-        .with_env_filter(
-            tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("info")),
-        )
-        .with_target(false)
-        .init();
+    init_logging();
     run_tray()
 }
 
-fn open_path(path: &std::path::Path) {
-    #[cfg(target_os = "macos")]
-    let _ = Command::new("open").arg(path).spawn();
-    #[cfg(target_os = "windows")]
-    let _ = Command::new("explorer").arg(path).spawn();
-    #[cfg(all(unix, not(target_os = "macos")))]
-    let _ = Command::new("xdg-open").arg(path).spawn();
+fn init_logging() {
+    let filter = tracing_subscriber::EnvFilter::try_from_default_env()
+        .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("info"));
+    if let Some(log) = config_dir()
+        .and_then(|dir| std::fs::create_dir_all(dir.join("logs")).ok().map(|_| dir))
+        .and_then(|dir| {
+            std::fs::OpenOptions::new()
+                .create(true)
+                .append(true)
+                .open(dir.join("logs/localsend-tray.log"))
+                .ok()
+        })
+        && tracing_subscriber::fmt()
+            .with_env_filter(filter.clone())
+            .with_target(false)
+            .with_writer(log)
+            .try_init()
+            .is_ok()
+    {
+        tracing::info!(pid = std::process::id(), "localsend-tray started");
+        return;
+    }
+    let _ = tracing_subscriber::fmt()
+        .with_env_filter(filter)
+        .with_target(false)
+        .try_init();
+    tracing::info!(pid = std::process::id(), "localsend-tray started");
+}
+
+fn config_dir() -> Option<std::path::PathBuf> {
+    std::env::var_os("LOCALSEND_CONFIG_DIR")
+        .map(std::path::PathBuf::from)
+        .or_else(|| {
+            directories::ProjectDirs::from("org", "LocalSend", "localsend-rs")
+                .map(|dirs| dirs.config_dir().to_path_buf())
+        })
 }
 
 fn tray_icon_rgba(size: u32) -> Vec<u8> {
@@ -597,6 +736,37 @@ mod tests {
         assert_eq!(find_gui_executable(&tray), Some(gui));
     }
 
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn helper_bundle_finds_gui_in_enclosing_app() {
+        let root = tempfile::tempdir().expect("temp root");
+        let main_app = root.path().join("LocalSend.app");
+        let helper_macos = main_app.join("Contents/Helpers/LocalSendTray.app/Contents/MacOS");
+        std::fs::create_dir_all(&helper_macos).expect("create helper macOS dir");
+        let tray = helper_macos.join("LocalSendTray");
+        let gui = main_app.join("Contents/MacOS/LocalSend");
+        std::fs::create_dir_all(gui.parent().expect("gui parent")).expect("create GUI dir");
+        std::fs::write(&tray, b"tray").expect("write tray");
+        std::fs::write(&gui, b"gui").expect("write gui");
+        assert_eq!(find_gui_executable(&tray), Some(gui));
+    }
+
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn helper_bundle_finds_daemon_in_enclosing_app() {
+        let root = tempfile::tempdir().expect("temp root");
+        let main_app = root.path().join("LocalSend.app");
+        let helper_macos = main_app.join("Contents/Helpers/LocalSendTray.app/Contents/MacOS");
+        std::fs::create_dir_all(&helper_macos).expect("create helper macOS dir");
+        let tray = helper_macos.join("LocalSendTray");
+        let daemon = main_app.join("Contents/MacOS/localsendd");
+        std::fs::create_dir_all(daemon.parent().expect("daemon parent"))
+            .expect("create daemon dir");
+        std::fs::write(&tray, b"tray").expect("write tray");
+        std::fs::write(&daemon, b"daemon").expect("write daemon");
+        assert_eq!(find_daemon_executable(&tray, "localsendd"), Some(daemon));
+    }
+
     #[test]
     fn tray_language_honors_explicit_settings() {
         assert_eq!(
@@ -610,9 +780,5 @@ mod tests {
         );
         assert_eq!(TrayLanguage::from_settings("zh-CN").restart_app(), "重启");
         assert_eq!(TrayLanguage::from_settings("zh-CN").quit_app(), "退出");
-        assert_eq!(
-            TrayLanguage::from_settings("en-US").active_transfers(2),
-            "Active transfers: 2"
-        );
     }
 }

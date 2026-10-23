@@ -9,6 +9,10 @@ APP_DIR="$BUILD_DIR/LocalSend.app"
 CONTENTS_DIR="$APP_DIR/Contents"
 MACOS_DIR="$CONTENTS_DIR/MacOS"
 RESOURCES_DIR="$CONTENTS_DIR/Resources"
+HELPERS_DIR="$CONTENTS_DIR/Helpers"
+TRAY_APP_DIR="$HELPERS_DIR/LocalSendTray.app"
+TRAY_CONTENTS_DIR="$TRAY_APP_DIR/Contents"
+TRAY_MACOS_DIR="$TRAY_CONTENTS_DIR/MacOS"
 ICON_WORK_DIR="$BUILD_DIR/icon-work"
 
 export PATH="$HOME/.cargo/bin:$PATH"
@@ -17,7 +21,7 @@ cargo build --release --manifest-path "$REPO_ROOT/Cargo.toml" -p localsendd
 cargo build --release --manifest-path "$REPO_ROOT/Cargo.toml" -p localsend-tray
 cargo build --release --manifest-path "$REPO_ROOT/Cargo.toml" -p localsend-gui-slint --no-default-features --features backend-femtovg-wgpu
 
-mkdir -p "$MACOS_DIR" "$RESOURCES_DIR" "$ICON_WORK_DIR/raw" "$ICON_WORK_DIR/AppIcon.iconset" "$PACKAGES_DIR"
+mkdir -p "$MACOS_DIR" "$RESOURCES_DIR" "$TRAY_MACOS_DIR" "$ICON_WORK_DIR/raw" "$ICON_WORK_DIR/AppIcon.iconset" "$PACKAGES_DIR"
 
 for stale in LocalSend LocalSendTray localsend-tray localsendd; do
     if [ -e "$MACOS_DIR/$stale" ]; then
@@ -27,9 +31,10 @@ done
 
 cp "$REPO_ROOT/target/release/localsend-gui-slint" "$MACOS_DIR/LocalSend"
 cp "$REPO_ROOT/target/release/localsendd" "$MACOS_DIR/localsendd"
-cp "$REPO_ROOT/target/release/localsend-tray" "$MACOS_DIR/LocalSendTray"
+cp "$REPO_ROOT/target/release/localsend-tray" "$TRAY_MACOS_DIR/LocalSendTray"
+cp "$SCRIPT_DIR/packaging/macos/TrayInfo.plist" "$TRAY_CONTENTS_DIR/Info.plist"
 cp "$SCRIPT_DIR/packaging/macos/Info.plist" "$CONTENTS_DIR/Info.plist"
-chmod +x "$MACOS_DIR/LocalSend" "$MACOS_DIR/localsendd" "$MACOS_DIR/LocalSendTray"
+chmod +x "$MACOS_DIR/LocalSend" "$MACOS_DIR/localsendd" "$TRAY_MACOS_DIR/LocalSendTray"
 printf 'APPL????' > "$CONTENTS_DIR/PkgInfo"
 
 qlmanage -t -s 1024 -o "$ICON_WORK_DIR/raw" "$SCRIPT_DIR/packaging/macos/app-icon.svg" >/dev/null 2>&1

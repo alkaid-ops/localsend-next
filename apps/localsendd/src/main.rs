@@ -2,7 +2,8 @@ use localsend_platform::{InstanceLock, scoped_lock_name};
 use localsend_rpc::framing::{read_json, write_json};
 use localsend_rpc::transport::{self, BoxedIo, LocalListener};
 use localsend_rpc::{
-    CommandResult, DaemonLifecycle, RPC_VERSION, RpcClientMessage, RpcServerMessage, ServiceCommand,
+    CommandResult, DaemonLifecycle, RPC_VERSION, RpcClientMessage, RpcServerMessage,
+    ServiceCommand, ServiceEvent, SubscriptionMode,
 };
 use localsend_service::ServiceHandle;
 use std::fs::{File, OpenOptions};
@@ -234,15 +235,22 @@ async fn handle_connection(
     let (mut reader, writer) = tokio::io::split(connection);
     let writer = Arc::new(Mutex::new(writer));
 
-    let (hello, interactive, lifecycle_owner, client_pid) =
+    let (hello, interactive, subscription, lifecycle_owner, client_pid) =
         match read_json::<RpcClientMessage, _>(&mut reader).await? {
             Some(RpcClientMessage::Hello {
                 version,
                 interactive,
+                subscription,
                 lifecycle_owner,
                 client_pid,
                 ..
-            }) => (version, interactive, lifecycle_owner, client_pid),
+            }) => (
+                version,
+                interactive,
+                subscription,
+                lifecycle_owner,
+                client_pid,
+            ),
             Some(_) => anyhow::bail!("first RPC message must be hello"),
             None => return Ok(()),
         };
@@ -287,6 +295,7 @@ async fn handle_connection(
             .await
             .map_err(anyhow::Error::msg)?;
     }
+    let mut events = service.subscribe();
 
     write_server_message(
         &writer,
@@ -300,23 +309,30 @@ async fn handle_connection(
     )
     .await?;
 
-    let mut events = service.subscribe();
-    let snapshot = service.snapshot();
-    write_server_message(
-        &writer,
-        RpcServerMessage::Snapshot {
-            snapshot: snapshot.clone(),
-            last_event_seq: snapshot.last_event_seq,
-        },
-    )
-    .await?;
+    if subscription == SubscriptionMode::Full {
+        let snapshot = service.snapshot();
+        write_server_message(
+            &writer,
+            RpcServerMessage::Snapshot {
+                snapshot: snapshot.clone(),
+                last_event_seq: snapshot.last_event_seq,
+            },
+        )
+        .await?;
+    }
 
     loop {
         tokio::select! {
             incoming = read_json::<RpcClientMessage, _>(&mut reader) => {
                 match incoming? {
                     Some(RpcClientMessage::Command { id, command }) => {
-                        let result = service.command(command).await;
+                        let result = if subscription == SubscriptionMode::Notifications
+                            && matches!(&command, ServiceCommand::GetSnapshot)
+                        {
+                            Err("notification-only clients cannot request a snapshot".to_string())
+                        } else {
+                            service.command(command).await
+                        };
                         write_server_message(&writer, RpcServerMessage::Response { id, result }).await?;
                     }
                     Some(RpcClientMessage::Ping { id }) => {
@@ -335,10 +351,31 @@ async fn handle_connection(
             event = events.recv() => {
                 match event {
                     Ok(event) => {
+                        if subscription == SubscriptionMode::Notifications
+                            && !matches!(
+                                &event.event,
+                                ServiceEvent::TextReceived { .. }
+                                    | ServiceEvent::HistoryAppended { .. }
+                                    | ServiceEvent::DaemonStopping
+                            )
+                        {
+                            continue;
+                        }
                         write_server_message(&writer, RpcServerMessage::Event { event }).await?;
                     }
                     Err(tokio::sync::broadcast::error::RecvError::Lagged(skipped)) => {
                         tracing::warn!("desktop RPC event stream lagged by {skipped} events");
+                        if subscription == SubscriptionMode::Full {
+                            let snapshot = service.snapshot();
+                            write_server_message(
+                                &writer,
+                                RpcServerMessage::Snapshot {
+                                    last_event_seq: snapshot.last_event_seq,
+                                    snapshot,
+                                },
+                            )
+                            .await?;
+                        }
                     }
                     Err(tokio::sync::broadcast::error::RecvError::Closed) => break,
                 }

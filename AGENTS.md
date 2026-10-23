@@ -1,5 +1,9 @@
 # localsend-next repository rules
 
+- Before debugging or changing behavior, read
+  `docs/agent-regression-playbook.zh-CN.md`. It records recurring regressions,
+  false-positive tests, forbidden workarounds, and the expected evidence trail.
+
 - The product is a PC-only LocalSend-compatible client.
 - The only formal GUI is `apps/localsend-gui-slint` using Slint winit and FemtoVG.
 - The egui, FLTK, Iced, and Tauri directories are experimental and excluded from

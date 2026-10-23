@@ -1,14 +1,15 @@
+use localsend_rpc::snapshot_store::{EventApply, SnapshotStore};
 use localsend_rpc::{
     AutoSaveMode, CommandResult, DaemonClient, DesktopSettings, DeviceInfo, ReceiverDecision,
-    SendFileRequest, ServiceCommand, ServiceErrorKind, ServiceEvent, ServiceSnapshot,
-    TransferDirection, TransferStatus, WebShareMode,
+    SendFileRequest, SequencedEvent, ServiceCommand, ServiceErrorKind, ServiceEvent,
+    ServiceSnapshot, TransferDirection, TransferStatus, WebShareMode,
 };
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::mpsc as std_mpsc;
 use std::thread;
 use tokio::sync::mpsc;
-use tokio::time::{Duration, MissedTickBehavior, interval};
+use tokio::time::Duration;
 
 #[derive(Debug)]
 pub enum UiCommand {
@@ -54,10 +55,12 @@ pub enum UiCommand {
 #[derive(Debug, Clone)]
 pub enum WorkerEvent {
     Snapshot(Box<ServiceSnapshot>),
+    DaemonEvent(Box<SequencedEvent>),
     Notice(String),
     Connection {
         connected: bool,
         message: String,
+        show_notice: bool,
     },
     PinRequired {
         transfer_id: String,
@@ -114,6 +117,7 @@ impl DaemonWorker {
                         let _ = event_tx.send(WorkerEvent::Connection {
                             connected: false,
                             message: format!("Cannot start daemon worker: {error}"),
+                            show_notice: true,
                         });
                         return;
                     }
@@ -131,6 +135,8 @@ async fn run_worker(
     events_out: std_mpsc::Sender<WorkerEvent>,
 ) {
     let mut pending_sends = HashMap::<String, PendingSend>::new();
+    let mut connection_attempts = 0_u32;
+    let mut ever_connected = false;
     loop {
         let connected = match endpoint.as_deref() {
             Some(endpoint) => DaemonClient::connect_to_interactive(endpoint).await,
@@ -139,61 +145,99 @@ async fn run_worker(
         let client = match connected {
             Ok(client) => client,
             Err(error) => {
+                connection_attempts = connection_attempts.saturating_add(1);
+                if connection_attempts == 1 || connection_attempts.is_multiple_of(50) {
+                    eprintln!(
+                        "localsendd connection attempt {connection_attempts} failed: {error:#}"
+                    );
+                }
+                let (message, show_notice) = connection_failure_message(&error, ever_connected);
                 let _ = events_out.send(WorkerEvent::Connection {
                     connected: false,
-                    message: error.to_string(),
+                    message,
+                    show_notice,
                 });
                 if commands.is_closed() {
                     return;
                 }
-                tokio::time::sleep(Duration::from_secs(1)).await;
+                let retry_delay = if !ever_connected && connection_attempts < 50 {
+                    Duration::from_millis(100)
+                } else {
+                    Duration::from_secs(1)
+                };
+                tokio::time::sleep(retry_delay).await;
                 continue;
             }
         };
+        ever_connected = true;
+        connection_attempts = 0;
         let _ = events_out.send(WorkerEvent::Connection {
             connected: true,
             message: "Connected to localsendd".to_string(),
+            show_notice: false,
         });
-        publish_snapshot(&client, &events_out).await;
+        let snapshot = match client.snapshot() {
+            Some(snapshot) => snapshot,
+            None => match fetch_snapshot(&client).await {
+                Some(snapshot) => snapshot,
+                None => {
+                    let _ = events_out.send(WorkerEvent::Connection {
+                        connected: false,
+                        message: "Daemon did not provide an initial snapshot".to_string(),
+                        show_notice: true,
+                    });
+                    tokio::time::sleep(Duration::from_secs(1)).await;
+                    continue;
+                }
+            },
+        };
+        let mut state = SnapshotStore::new(snapshot.clone());
+        let _ = events_out.send(WorkerEvent::Snapshot(Box::new(snapshot)));
         let mut daemon_events = client.subscribe();
-        let mut refresh = interval(Duration::from_millis(100));
-        refresh.set_missed_tick_behavior(MissedTickBehavior::Skip);
         let mut disconnected = false;
 
         while !disconnected {
             tokio::select! {
                 command = commands.recv() => {
                     let Some(command) = command else { return; };
-                    if handle_command(command, &client, &events_out, &mut pending_sends).await {
+                    if handle_command(
+                        command,
+                        &client,
+                        &events_out,
+                        &mut pending_sends,
+                        &mut state,
+                    ).await {
                         return;
                     }
                 }
                 event = daemon_events.recv() => {
                     match event {
                         Ok(event) => {
-                            match event.event {
+                            match &event.event {
                                 ServiceEvent::TextReceived {
                                     sender_alias,
                                     sender_device_model,
                                     text,
                                 } => {
                                     let _ = events_out.send(WorkerEvent::TextReceived {
-                                        sender_alias,
-                                        sender_device_model,
-                                        text,
+                                        sender_alias: sender_alias.clone(),
+                                        sender_device_model: sender_device_model.clone(),
+                                        text: text.clone(),
                                     });
                                 }
                                 ServiceEvent::TransferFailed {
                                     transfer_id,
                                     error_kind: Some(ServiceErrorKind::InvalidPin | ServiceErrorKind::PinRequired),
                                     ..
-                                } if pending_sends.contains_key(&transfer_id) => {
-                                    let _ = events_out.send(WorkerEvent::PinRequired { transfer_id });
+                                } if pending_sends.contains_key(transfer_id) => {
+                                    let _ = events_out.send(WorkerEvent::PinRequired {
+                                        transfer_id: transfer_id.clone(),
+                                    });
                                 }
                                 ServiceEvent::TransferFailed {
                                     transfer_id, error, ..
                                 } => {
-                                    pending_sends.remove(&transfer_id);
+                                    pending_sends.remove(transfer_id);
                                     let _ = events_out.send(WorkerEvent::Notice(format!(
                                         "传输失败：{error}"
                                     )));
@@ -218,21 +262,36 @@ async fn run_worker(
                                 }
                                 _ => {}
                             }
-                            if !publish_snapshot(&client, &events_out).await {
-                                disconnected = true;
+                            match state.apply(&event) {
+                                EventApply::Applied => {
+                                    if let ServiceEvent::Snapshot { snapshot } = &event.event {
+                                        let _ = events_out.send(WorkerEvent::Snapshot(Box::new(
+                                            snapshot.clone(),
+                                        )));
+                                    } else {
+                                        let _ = events_out.send(WorkerEvent::DaemonEvent(Box::new(event)));
+                                    }
+                                }
+                                EventApply::Duplicate => {}
+                                EventApply::Gap => {
+                                    if let Some(snapshot) = fetch_snapshot(&client).await {
+                                        state.replace(snapshot.clone());
+                                        let _ = events_out.send(WorkerEvent::Snapshot(Box::new(snapshot)));
+                                    } else {
+                                        disconnected = true;
+                                    }
+                                }
                             }
                         }
                         Err(tokio::sync::broadcast::error::RecvError::Lagged(_)) => {
-                            if !publish_snapshot(&client, &events_out).await {
+                            if let Some(snapshot) = fetch_snapshot(&client).await {
+                                state.replace(snapshot.clone());
+                                let _ = events_out.send(WorkerEvent::Snapshot(Box::new(snapshot)));
+                            } else {
                                 disconnected = true;
                             }
                         }
                         Err(tokio::sync::broadcast::error::RecvError::Closed) => disconnected = true,
-                    }
-                }
-                _ = refresh.tick() => {
-                    if !publish_snapshot(&client, &events_out).await {
-                        disconnected = true;
                     }
                 }
             }
@@ -240,26 +299,33 @@ async fn run_worker(
         let _ = events_out.send(WorkerEvent::Connection {
             connected: false,
             message: "Connection to localsendd lost; reconnecting".to_string(),
+            show_notice: false,
         });
         pending_sends.clear();
         tokio::time::sleep(Duration::from_secs(1)).await;
     }
 }
 
-async fn publish_snapshot(client: &DaemonClient, events: &std_mpsc::Sender<WorkerEvent>) -> bool {
+fn connection_failure_message(error: &anyhow::Error, ever_connected: bool) -> (String, bool) {
+    if error.downcast_ref::<std::io::Error>().is_some() {
+        let message = if ever_connected {
+            "与后台服务的连接已断开，正在重连…"
+        } else {
+            "正在连接后台服务…"
+        };
+        (message.to_string(), false)
+    } else {
+        (
+            "无法连接后台服务，请确认 localsendd 正在运行".to_string(),
+            true,
+        )
+    }
+}
+
+async fn fetch_snapshot(client: &DaemonClient) -> Option<ServiceSnapshot> {
     match client.command(ServiceCommand::GetSnapshot).await {
-        Ok(CommandResult::Snapshot { snapshot }) => {
-            let _ = events.send(WorkerEvent::Snapshot(Box::new(snapshot)));
-            true
-        }
-        Ok(_) => true,
-        Err(error) => {
-            let _ = events.send(WorkerEvent::Connection {
-                connected: false,
-                message: error,
-            });
-            false
-        }
+        Ok(CommandResult::Snapshot { snapshot }) => Some(snapshot),
+        Ok(_) | Err(_) => None,
     }
 }
 
@@ -268,6 +334,7 @@ async fn handle_command(
     client: &DaemonClient,
     events: &std_mpsc::Sender<WorkerEvent>,
     pending_sends: &mut HashMap<String, PendingSend>,
+    state: &mut SnapshotStore,
 ) -> bool {
     let result: Result<Option<(String, PendingSend)>, String> = match command {
         UiCommand::RefreshDiscovery => client
@@ -275,12 +342,7 @@ async fn handle_command(
             .await
             .map(|_| None),
         UiCommand::ToggleServer => {
-            let snapshot = match client.command(ServiceCommand::GetSnapshot).await {
-                Ok(CommandResult::Snapshot { snapshot }) => snapshot,
-                Ok(_) => return emit_error(events, "Daemon did not return a snapshot".into()),
-                Err(error) => return emit_error(events, error),
-            };
-            let running = snapshot.server_running;
+            let running = state.snapshot().server_running;
             let command = if running {
                 ServiceCommand::StopServer
             } else {
@@ -293,37 +355,32 @@ async fn handle_command(
             .await
             .map(|_| None),
         UiCommand::StartWebReceive => {
-            let snapshot = match client.command(ServiceCommand::GetSnapshot).await {
-                Ok(CommandResult::Snapshot { snapshot }) => snapshot,
-                Ok(_) => return emit_error(events, "Daemon did not return a snapshot".into()),
-                Err(error) => return emit_error(events, error),
-            };
+            let pin = state.snapshot().settings.pin.clone();
+            let auto_accept = state.snapshot().settings.auto_accept;
             client
                 .command(ServiceCommand::StartWebShare {
                     files: Vec::new(),
-                    pin: snapshot.settings.pin,
+                    pin,
                     mode: WebShareMode::Receive,
-                    auto_accept: snapshot.settings.auto_accept,
+                    auto_accept,
                     i18n: Default::default(),
                 })
                 .await
                 .map(|_| None)
         }
         UiCommand::RestartWebReceive => {
-            let snapshot = match client.command(ServiceCommand::GetSnapshot).await {
-                Ok(CommandResult::Snapshot { snapshot }) => snapshot,
-                Ok(_) => return emit_error(events, "Daemon did not return a snapshot".into()),
-                Err(error) => return emit_error(events, error),
-            };
+            let settings = &state.snapshot().settings;
+            let pin = settings.pin.clone();
+            let auto_accept = settings.auto_accept;
             if let Err(error) = client.command(ServiceCommand::StopWebShare).await {
                 return emit_error(events, error);
             }
             client
                 .command(ServiceCommand::StartWebShare {
                     files: Vec::new(),
-                    pin: snapshot.settings.pin,
+                    pin,
                     mode: WebShareMode::Receive,
-                    auto_accept: snapshot.settings.auto_accept,
+                    auto_accept,
                     i18n: Default::default(),
                 })
                 .await
@@ -333,18 +390,20 @@ async fn handle_command(
             .command(ServiceCommand::StopWebShare)
             .await
             .map(|_| None),
-        UiCommand::SetAutoSave { all, favorites } => update_settings(client, move |settings| {
-            settings.auto_save_from_favorites = favorites;
-            settings.auto_save = if all {
-                AutoSaveMode::On
-            } else if favorites {
-                AutoSaveMode::Favorites
-            } else {
-                AutoSaveMode::Off
-            };
-        })
-        .await
-        .map(|_| None),
+        UiCommand::SetAutoSave { all, favorites } => {
+            update_settings(client, state, move |settings| {
+                settings.auto_save_from_favorites = favorites;
+                settings.auto_save = if all {
+                    AutoSaveMode::On
+                } else if favorites {
+                    AutoSaveMode::Favorites
+                } else {
+                    AutoSaveMode::Off
+                };
+            })
+            .await
+            .map(|_| None)
+        }
         UiCommand::AddManual(target) => client
             .command(ServiceCommand::AddManualDevice { target })
             .await
@@ -363,14 +422,7 @@ async fn handle_command(
             result
         }
         UiCommand::ToggleFavorite(fingerprint) => {
-            let snapshot = match client.command(ServiceCommand::GetSnapshot).await {
-                Ok(CommandResult::Snapshot { snapshot }) => snapshot,
-                Ok(_) => {
-                    let _ = events.send(WorkerEvent::Notice("Daemon returned no snapshot".into()));
-                    return false;
-                }
-                Err(error) => return emit_error(events, error),
-            };
+            let snapshot = state.snapshot();
             if snapshot
                 .favorites
                 .iter()
@@ -403,7 +455,7 @@ async fn handle_command(
             }
         }
         UiCommand::SendFiles { fingerprint, paths } => {
-            let target = match resolve_target(client, &fingerprint).await {
+            let target = match resolve_target(state, &fingerprint) {
                 Ok(target) => target,
                 Err(error) => {
                     let _ = events.send(WorkerEvent::Notice(error));
@@ -436,7 +488,7 @@ async fn handle_command(
             .map(|transfer_id| Some((transfer_id, pending)))
         }
         UiCommand::SendText { fingerprint, text } => {
-            let target = match resolve_target(client, &fingerprint).await {
+            let target = match resolve_target(state, &fingerprint) {
                 Ok(target) => target,
                 Err(error) => {
                     let _ = events.send(WorkerEvent::Notice(error));
@@ -551,21 +603,22 @@ async fn handle_command(
                 });
                 pending_sends.insert(transfer_id, pending);
             }
-            publish_snapshot(client, events).await;
         }
         Err(error) => {
+            if error.contains("revision conflict")
+                && let Some(snapshot) = fetch_snapshot(client).await
+            {
+                state.replace(snapshot.clone());
+                let _ = events.send(WorkerEvent::Snapshot(Box::new(snapshot)));
+            }
             let _ = events.send(WorkerEvent::Notice(error));
-            publish_snapshot(client, events).await;
         }
     }
     false
 }
 
-async fn resolve_target(client: &DaemonClient, fingerprint: &str) -> Result<DeviceInfo, String> {
-    let snapshot = match client.command(ServiceCommand::GetSnapshot).await? {
-        CommandResult::Snapshot { snapshot } => snapshot,
-        _ => return Err("daemon returned no snapshot while resolving send target".to_string()),
-    };
+fn resolve_target(state: &SnapshotStore, fingerprint: &str) -> Result<DeviceInfo, String> {
+    let snapshot = state.snapshot();
     snapshot
         .devices
         .iter()
@@ -592,13 +645,10 @@ async fn send_command(client: &DaemonClient, command: ServiceCommand) -> Result<
 
 async fn update_settings(
     client: &DaemonClient,
+    state: &SnapshotStore,
     update: impl FnOnce(&mut DesktopSettings),
 ) -> Result<(), String> {
-    let snapshot = match client.command(ServiceCommand::GetSnapshot).await? {
-        CommandResult::Snapshot { snapshot } => snapshot,
-        _ => return Err("Daemon did not return settings snapshot".to_string()),
-    };
-    let mut settings = snapshot.settings;
+    let mut settings = state.snapshot().settings.clone();
     update(&mut settings);
     client
         .command(ServiceCommand::UpdateSettings {
@@ -612,4 +662,33 @@ async fn update_settings(
 fn emit_error(events: &std_mpsc::Sender<WorkerEvent>, error: String) -> bool {
     let _ = events.send(WorkerEvent::Notice(error));
     false
+}
+
+#[cfg(test)]
+mod tests {
+    use super::connection_failure_message;
+    use std::io;
+
+    #[test]
+    fn missing_socket_during_startup_is_a_silent_retry_state() {
+        let error = anyhow::Error::from(io::Error::from(io::ErrorKind::NotFound));
+        let (message, show_notice) = connection_failure_message(&error, false);
+        assert!(!show_notice);
+        assert!(message.contains("正在连接"));
+    }
+
+    #[test]
+    fn io_failure_after_connection_is_a_silent_reconnect_state() {
+        let error = anyhow::Error::from(io::Error::from(io::ErrorKind::ConnectionReset));
+        let (message, show_notice) = connection_failure_message(&error, true);
+        assert!(!show_notice);
+        assert!(message.contains("正在重连"));
+    }
+
+    #[test]
+    fn protocol_failure_is_reported_to_the_user() {
+        let error = anyhow::anyhow!("unsupported daemon protocol");
+        let (_, show_notice) = connection_failure_message(&error, false);
+        assert!(show_notice);
+    }
 }

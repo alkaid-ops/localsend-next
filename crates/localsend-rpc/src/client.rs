@@ -2,7 +2,7 @@ use crate::framing::{read_json, write_json};
 use crate::transport;
 use crate::types::{
     CommandResult, DaemonLifecycle, RPC_VERSION, RpcClientMessage, RpcServerMessage,
-    SequencedEvent, ServiceCommand, ServiceSnapshot,
+    SequencedEvent, ServiceCommand, ServiceEvent, ServiceSnapshot, SubscriptionMode,
 };
 use parking_lot::RwLock;
 use std::collections::HashMap;
@@ -37,6 +37,7 @@ pub struct DaemonClient {
     tx: mpsc::UnboundedSender<RpcClientMessage>,
     pending: PendingResponses,
     events: Arc<parking_lot::Mutex<Option<broadcast::Sender<SequencedEvent>>>>,
+    first_event_receiver: Arc<parking_lot::Mutex<Option<broadcast::Receiver<SequencedEvent>>>>,
     connection_closed: watch::Receiver<bool>,
     connection_info: Arc<RwLock<Option<DaemonConnectionInfo>>>,
     _shutdown: Arc<ConnectionShutdown>,
@@ -61,6 +62,14 @@ impl DaemonClient {
         Self::connect_with_role(true, true).await
     }
 
+    pub async fn connect_notifications() -> anyhow::Result<Self> {
+        Self::connect_with_subscription(false, false, SubscriptionMode::Notifications).await
+    }
+
+    pub async fn connect_owned_notifications() -> anyhow::Result<Self> {
+        Self::connect_with_subscription(false, true, SubscriptionMode::Notifications).await
+    }
+
     pub async fn connect_to(endpoint: impl AsRef<str>) -> anyhow::Result<Self> {
         Self::connect_to_with_role(endpoint.as_ref(), false, false).await
     }
@@ -73,9 +82,27 @@ impl DaemonClient {
         Self::connect_to_with_role(endpoint.as_ref(), false, true).await
     }
 
+    pub async fn connect_to_notifications(endpoint: impl AsRef<str>) -> anyhow::Result<Self> {
+        Self::connect_to_with_subscription(
+            endpoint.as_ref(),
+            false,
+            false,
+            SubscriptionMode::Notifications,
+        )
+        .await
+    }
+
     async fn connect_with_role(interactive: bool, lifecycle_owner: bool) -> anyhow::Result<Self> {
+        Self::connect_with_subscription(interactive, lifecycle_owner, SubscriptionMode::Full).await
+    }
+
+    async fn connect_with_subscription(
+        interactive: bool,
+        lifecycle_owner: bool,
+        subscription: SubscriptionMode,
+    ) -> anyhow::Result<Self> {
         let connection = transport::connect().await?;
-        Self::from_connection(connection, interactive, lifecycle_owner).await
+        Self::from_connection(connection, interactive, lifecycle_owner, subscription).await
     }
 
     async fn connect_to_with_role(
@@ -84,17 +111,35 @@ impl DaemonClient {
         lifecycle_owner: bool,
     ) -> anyhow::Result<Self> {
         let connection = transport::connect_to(endpoint).await?;
-        Self::from_connection(connection, interactive, lifecycle_owner).await
+        Self::from_connection(
+            connection,
+            interactive,
+            lifecycle_owner,
+            SubscriptionMode::Full,
+        )
+        .await
+    }
+
+    async fn connect_to_with_subscription(
+        endpoint: &str,
+        interactive: bool,
+        lifecycle_owner: bool,
+        subscription: SubscriptionMode,
+    ) -> anyhow::Result<Self> {
+        let connection = transport::connect_to(endpoint).await?;
+        Self::from_connection(connection, interactive, lifecycle_owner, subscription).await
     }
 
     async fn from_connection(
         connection: transport::BoxedIo,
         interactive: bool,
         lifecycle_owner: bool,
+        subscription: SubscriptionMode,
     ) -> anyhow::Result<Self> {
         let (mut reader, mut writer) = tokio::io::split(connection);
         let (tx, mut outbound) = mpsc::unbounded_channel::<RpcClientMessage>();
-        let (event_sender, _) = broadcast::channel(1024);
+        let (event_sender, first_event_receiver) = broadcast::channel(1024);
+        let first_event_receiver = Arc::new(parking_lot::Mutex::new(Some(first_event_receiver)));
         let events = Arc::new(parking_lot::Mutex::new(Some(event_sender)));
         let (connection_closed_tx, connection_closed) = watch::channel(false);
         let (shutdown_tx, shutdown_rx) = watch::channel(false);
@@ -105,7 +150,8 @@ impl DaemonClient {
             u64,
             oneshot::Sender<Result<CommandResult, String>>,
         >::new()));
-        let (snapshot_tx, snapshot_rx) = oneshot::channel();
+        let (ready_tx, ready_rx) = oneshot::channel();
+        let reader_subscription = subscription;
         let reader_snapshot = snapshot.clone();
         let reader_pending = pending.clone();
         let reader_events = events.clone();
@@ -113,7 +159,7 @@ impl DaemonClient {
         let mut reader_shutdown = shutdown_rx.clone();
 
         tokio::spawn(async move {
-            let mut snapshot_sender = Some(snapshot_tx);
+            let mut ready_sender = Some(ready_tx);
             loop {
                 let incoming = tokio::select! {
                     changed = reader_shutdown.changed() => {
@@ -142,13 +188,25 @@ impl DaemonClient {
                             lifecycle,
                             owner_pid,
                         });
+                        if reader_subscription == SubscriptionMode::Notifications
+                            && let Some(sender) = ready_sender.take()
+                        {
+                            let _ = sender.send(());
+                        }
                     }
                     Ok(Some(RpcServerMessage::Snapshot {
                         snapshot: current, ..
                     })) => {
-                        *reader_snapshot.write() = Some(current);
-                        if let Some(sender) = snapshot_sender.take() {
+                        *reader_snapshot.write() = Some(current.clone());
+                        if let Some(sender) = ready_sender.take() {
                             let _ = sender.send(());
+                        } else if reader_subscription == SubscriptionMode::Full
+                            && let Some(sender) = reader_events.lock().as_ref()
+                        {
+                            let _ = sender.send(SequencedEvent {
+                                seq: current.last_event_seq,
+                                event: ServiceEvent::Snapshot { snapshot: current },
+                            });
                         }
                     }
                     Ok(Some(RpcServerMessage::Response { id, result })) => {
@@ -171,7 +229,7 @@ impl DaemonClient {
                     }
                 }
             }
-            drop(snapshot_sender.take());
+            drop(ready_sender.take());
             for (_, sender) in reader_pending.lock().drain() {
                 let _ = sender.send(Err("daemon connection is closed".to_string()));
             }
@@ -183,6 +241,7 @@ impl DaemonClient {
             tx: tx.clone(),
             pending,
             events,
+            first_event_receiver,
             connection_closed,
             connection_info,
             _shutdown: shutdown.clone(),
@@ -194,6 +253,7 @@ impl DaemonClient {
             client_name: "localsend-desktop-client".to_string(),
             resume_from: None,
             interactive,
+            subscription,
             lifecycle_owner,
             client_pid: std::process::id(),
         })?;
@@ -221,10 +281,10 @@ impl DaemonClient {
             }
         });
 
-        timeout(Duration::from_secs(5), snapshot_rx)
+        timeout(Duration::from_secs(5), ready_rx)
             .await
-            .map_err(|_| anyhow::anyhow!("timed out waiting for daemon snapshot"))?
-            .map_err(|_| anyhow::anyhow!("daemon closed before sending a snapshot"))?;
+            .map_err(|_| anyhow::anyhow!("timed out waiting for daemon subscription"))?
+            .map_err(|_| anyhow::anyhow!("daemon closed before confirming the subscription"))?;
         Ok(client)
     }
 
@@ -258,6 +318,9 @@ impl DaemonClient {
     }
 
     pub fn subscribe(&self) -> broadcast::Receiver<SequencedEvent> {
+        if let Some(receiver) = self.first_event_receiver.lock().take() {
+            return receiver;
+        }
         if let Some(sender) = self.events.lock().as_ref() {
             sender.subscribe()
         } else {
@@ -362,9 +425,14 @@ mod tests {
             server_writer.shutdown().await.unwrap();
         });
 
-        let client = DaemonClient::from_connection(Box::new(client_io), false, false)
-            .await
-            .unwrap();
+        let client = DaemonClient::from_connection(
+            Box::new(client_io),
+            false,
+            false,
+            SubscriptionMode::Full,
+        )
+        .await
+        .unwrap();
         let mut events = client.subscribe();
         let command = tokio::time::timeout(
             Duration::from_secs(1),

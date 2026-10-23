@@ -1,5 +1,6 @@
 pub mod client;
 pub mod framing;
+pub mod snapshot_store;
 pub mod transport;
 pub mod types;
 

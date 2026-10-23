@@ -92,6 +92,14 @@ pub enum DaemonLifecycle {
     Owned,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum SubscriptionMode {
+    #[default]
+    Full,
+    Notifications,
+}
+
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum AutoSaveMode {
@@ -518,6 +526,10 @@ pub enum ServiceEvent {
         file_name: Option<String>,
         bytes_done: u64,
         bytes_total: u64,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        transfer_bytes_done: Option<u64>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        transfer_bytes_total: Option<u64>,
     },
     TransferFinished {
         transfer: TransferView,
@@ -590,6 +602,8 @@ pub enum RpcClientMessage {
         resume_from: Option<u64>,
         #[serde(default)]
         interactive: bool,
+        #[serde(default)]
+        subscription: SubscriptionMode,
         #[serde(default)]
         lifecycle_owner: bool,
         #[serde(default)]
