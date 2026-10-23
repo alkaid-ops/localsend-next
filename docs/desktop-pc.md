@@ -20,8 +20,8 @@ localsend-gui-slint / localsend-tui / localsend-tray
 ## 生命周期
 
 - tray 先取得单实例锁，再连接 daemon；daemon 不存在时由 tray 以 owner lease 模式启动。
-- Linux 无 AppIndicator 时，桌面入口使用 `localsend-launcher`：launcher 是生命周期所有者，启动 daemon 和 GUI，并在 GUI 退出后清理自己创建的 daemon。
-- `localsend-launcher --background` 只启动持久 daemon，然后在 Linux 登录自启动场景中立即退出；GUI 设置页可关闭该后台服务。
+- Linux 桌面入口默认启动 `localsend-tray`；tray 是生命周期所有者，负责启动 owned daemon、打开 GUI、重启和退出。
+- Linux 无 AppIndicator 时使用 `localsend-launcher` 作为显式降级路径：launcher 启动 daemon 和 GUI，并在 GUI 退出后清理自己创建的 daemon。AppImage 可通过 `--launcher` 选择此模式。
 - Slint GUI 是纯前端。GUI 关闭不会停止 daemon，GUI 也不自行拉起 daemon。
 - 直接运行 `localsend-tui` 只连接已有 daemon；daemon 未运行时显示错误并重试。
 - 直接运行 `localsendd` 创建 Persistent daemon，不跟随 tray 或 GUI 退出。
@@ -116,9 +116,9 @@ Linux tar/deb 在对应架构的 Linux 主机中生成：
 ./scripts/package-linux.sh aarch64
 ```
 
-所有发布物统一输出到 `target/release/packages/`。Linux 无托盘环境从桌面菜单启动 `localsend-launcher`；需要 StatusNotifier/AppIndicator 时可单独运行 `localsend-tray`。GNOME 用户如果没有托盘图标，需要安装并启用 AppIndicator 扩展。
+所有发布物统一输出到 `target/release/packages/`。Linux 默认从桌面菜单启动 `localsend-tray`；无 StatusNotifier/AppIndicator 的环境显式运行 `localsend-launcher`，AppImage 使用 `--launcher`。GNOME 用户如果没有托盘图标，需要安装并启用 AppIndicator 扩展。
 
-macOS 包内的 tray 可执行文件名为 `LocalSendTray`，GUI 为 `LocalSend`。Windows GUI、tray 和 launcher 使用 GUI subsystem；daemon 子进程使用无窗口创建标志。开机自启动在 Windows 指向 `localsend-tray.exe --minimized`，在 Linux 指向 `localsend-launcher --background`。
+macOS 包内的 tray 可执行文件名为 `LocalSendTray`，GUI 为 `LocalSend`。Windows GUI、tray 和 launcher 使用 GUI subsystem；daemon 子进程使用无窗口创建标志。开机自启动在 Windows 指向 `localsend-tray.exe --minimized`，在 Linux 指向 `localsend-tray --minimized`。
 
 ## 当前范围
 

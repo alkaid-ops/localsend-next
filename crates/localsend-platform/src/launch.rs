@@ -149,10 +149,10 @@ fn platform_apply(enabled: bool) -> Result<(), String> {
         return Ok(());
     }
     fs::create_dir_all(&base).map_err(|error| error.to_string())?;
-    let executable = sibling_executable(&["localsend-launcher"])
-        .ok_or_else(|| "localsend-launcher was not found next to the GUI".to_string())?;
+    let executable = sibling_executable(&["localsend-tray"])
+        .ok_or_else(|| "localsend-tray was not found next to the GUI".to_string())?;
     let contents = format!(
-        "[Desktop Entry]\nType=Application\nName=LocalSend PC\nExec={} --background\nTryExec={}\nTerminal=false\nX-GNOME-Autostart-enabled=true\n",
+        "[Desktop Entry]\nType=Application\nName=LocalSend PC\nExec={} --minimized\nTryExec={}\nTerminal=false\nX-GNOME-Autostart-enabled=true\n",
         shell_quote(&executable.to_string_lossy()),
         shell_quote(&executable.to_string_lossy())
     );

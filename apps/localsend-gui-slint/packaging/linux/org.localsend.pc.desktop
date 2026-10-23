@@ -2,8 +2,8 @@
 Type=Application
 Name=LocalSend
 Comment=Share files, folders, and text with nearby devices
-Exec=localsend-launcher
-TryExec=localsend-launcher
+Exec=localsend-tray
+TryExec=localsend-tray
 Icon=org.localsend.pc
 Terminal=false
 Categories=Utility;Network;

@@ -79,7 +79,27 @@ export PATH="$HERE/usr/bin:$PATH"
 if [ -d "$HERE/usr/lib" ]; then
     export LD_LIBRARY_PATH="$HERE/usr/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 fi
-exec "$HERE/usr/bin/localsend-launcher" "$@"
+case "${1:-}" in
+    --launcher)
+        shift
+        exec "$HERE/usr/bin/localsend-launcher" "$@"
+        ;;
+    --gui)
+        shift
+        exec "$HERE/usr/bin/localsend" --window "$@"
+        ;;
+    --tui)
+        shift
+        exec "$HERE/usr/bin/localsend-tui" "$@"
+        ;;
+    --daemon)
+        shift
+        exec "$HERE/usr/bin/localsendd" "$@"
+        ;;
+    *)
+        exec "$HERE/usr/bin/localsend-tray" "$@"
+        ;;
+esac
 EOF
 chmod +x "$APPDIR/AppRun"
 ln -s usr/share/applications/org.localsend.pc.desktop "$APPDIR/org.localsend.pc.desktop"

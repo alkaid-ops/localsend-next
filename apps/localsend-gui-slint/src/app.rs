@@ -2469,55 +2469,10 @@ fn open_firewall_settings() -> Result<(), String> {
 }
 
 fn launch_tray_window(start_minimized: bool) -> anyhow::Result<()> {
-    #[cfg(target_os = "linux")]
-    {
-        let _ = start_minimized;
-        return spawn_launcher_process();
-    }
-
-    #[cfg(not(target_os = "linux"))]
-    {
-        let _ = start_minimized;
-        spawn_tray_process(&[])
-    }
+    let _ = start_minimized;
+    spawn_tray_process(&[])
 }
 
-#[cfg(target_os = "linux")]
-fn spawn_launcher_process() -> anyhow::Result<()> {
-    let current = std::env::current_exe()?;
-    let executable = current
-        .parent()
-        .map(|parent| parent.join("localsend-launcher"))
-        .filter(|path| path.exists())
-        .or_else(|| {
-            let development = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-                .join("../..")
-                .join("target/debug/localsend-launcher");
-            development.exists().then_some(development)
-        })
-        .ok_or_else(|| anyhow::anyhow!("localsend-launcher was not found next to the GUI"))?;
-    let mut command = Command::new(executable);
-    if let Some(endpoint) = transport::configured_endpoint() {
-        command.arg("--endpoint").arg(endpoint);
-    }
-    command
-        .stdin(std::process::Stdio::null())
-        .stdout(std::process::Stdio::null())
-        .stderr(std::process::Stdio::null());
-    {
-        use std::os::unix::process::CommandExt;
-        unsafe {
-            command.pre_exec(|| {
-                let _ = libc::setsid();
-                Ok(())
-            });
-        }
-    }
-    command.spawn()?;
-    Ok(())
-}
-
-#[cfg(not(target_os = "linux"))]
 fn spawn_tray_process(extra_args: &[String]) -> anyhow::Result<()> {
     let current = std::env::current_exe()?;
     let binary = if cfg!(windows) {
