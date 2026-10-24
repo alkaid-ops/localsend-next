@@ -1,8 +1,17 @@
 #!/bin/sh
 set -eu
 
-ROOT=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
+ROOT=$(cd "$(dirname "$0")/.." && pwd)
 ARCH=${1:-$(uname -m)}
+VERSION=${PACKAGE_VERSION:-0.1.0}
+VERSION=${VERSION#v}
+
+case "$VERSION" in
+    ''|*[!A-Za-z0-9._~-]*)
+        printf 'invalid PACKAGE_VERSION: %s\n' "$VERSION" >&2
+        exit 64
+        ;;
+esac
 
 case "$ARCH" in
     x86_64|aarch64) ;;
@@ -15,13 +24,12 @@ esac
 TARGET="$ARCH-unknown-linux-gnu"
 RELEASE="$ROOT/target/$TARGET/release"
 PACKAGES="$ROOT/target/release/packages"
-APPDIR="$PACKAGES/LocalSend-linux-$ARCH.AppDir"
-OUTPUT="$PACKAGES/LocalSend-linux-$ARCH.AppImage"
+APPDIR="$PACKAGES/LocalSend-${VERSION}-linux-$ARCH.AppDir"
+OUTPUT="$PACKAGES/LocalSend-${VERSION}-linux-$ARCH.AppImage"
 TOOLS="$ROOT/target/release/tools"
 APPIMAGETOOL=${APPIMAGETOOL:-"$TOOLS/appimagetool-$ARCH.AppImage"}
 RUNTIME=${APPIMAGE_RUNTIME_FILE:-"$TOOLS/runtime-$ARCH"}
 RUNTIME_URL=${APPIMAGE_RUNTIME_URL:-"https://github.com/AppImage/type2-runtime/releases/download/continuous/runtime-$ARCH"}
-GUI_FEATURES=${LOCALSEND_GUI_FEATURES:-backend-femtovg-wgpu}
 DESKTOP="$ROOT/apps/localsend-gui-slint/packaging/linux/org.localsend.pc.desktop"
 METAINFO="$ROOT/apps/localsend-gui-slint/packaging/linux/org.localsend.pc.metainfo.xml"
 ICON="$ROOT/apps/localsend-gui-slint/packaging/macos/app-icon.svg"
@@ -29,10 +37,9 @@ ICON="$ROOT/apps/localsend-gui-slint/packaging/macos/app-icon.svg"
 command -v cargo >/dev/null 2>&1 || { echo 'cargo is required' >&2; exit 1; }
 command -v curl >/dev/null 2>&1 || { echo 'curl is required' >&2; exit 1; }
 
-cargo build --locked --release --target "$TARGET" \
-    -p localsendd -p localsend-tray -p localsend-launcher -p localsend-tui
-cargo build --locked --release --target "$TARGET" \
-    -p localsend-gui-slint --no-default-features --features "$GUI_FEATURES"
+if [ "${LOCALSEND_SKIP_BUILD:-0}" != "1" ]; then
+    "$ROOT/scripts/build-linux-desktop.sh" "$ARCH"
+fi
 
 for binary in localsend-gui-slint localsendd localsend-tray localsend-launcher localsend-tui; do
     [ -x "$RELEASE/$binary" ] || { echo "missing build output: $RELEASE/$binary" >&2; exit 1; }

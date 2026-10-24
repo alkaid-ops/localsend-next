@@ -1,0 +1,358 @@
+name: Release Packages
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+    # GitHub ignores path filters for tag pushes; every v* tag runs the release.
+    paths:
+      - "Cargo.toml"
+      - "**/Cargo.toml"
+      - "Cargo.lock"
+      - "rust-toolchain.toml"
+      - ".cargo/**"
+      - "scripts/build-linux-desktop.sh"
+      - "scripts/check-release-assets.sh"
+      - "scripts/package-*"
+      - "apps/localsend-gui-slint/package-macos.sh"
+      - "apps/localsend-gui-slint/packaging/**"
+      - "packaging/**"
+      - ".github/workflows/release.yml"
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref_type == 'branch' }}
+
+env:
+  CARGO_TERM_COLOR: always
+  PACKAGE_VERSION: ${{ github.ref_type == 'tag' && github.ref_name || '0.0.0-ci' }}
+  BUILD_NUMBER: ${{ github.run_number }}
+
+jobs:
+  validate:
+    name: Validate release inputs
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Validate tag or cache-warm ref
+        shell: bash
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          if [ "$REF_TYPE" != "tag" ]; then
+            echo "main cache-warm run; packages will use ${PACKAGE_VERSION}"
+            exit 0
+          fi
+          version="${TAG#v}"
+          if [ "$version" = "$TAG" ] || [ -z "$version" ]; then
+            echo "release tag must start with 'v', got '$TAG'" >&2
+            exit 1
+          fi
+          case "$version" in
+            *[!A-Za-z0-9._-]*)
+              echo "release tag contains unsupported characters: '$TAG'" >&2
+              exit 1
+              ;;
+          esac
+          echo "Building LocalSend ${version} from ${TAG}"
+
+  linux:
+    name: Linux ${{ matrix.arch }}
+    needs: validate
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            runner: ubuntu-22.04
+            deb_arch: amd64
+            rpm_arch: x86_64
+          - arch: aarch64
+            runner: ubuntu-22.04-arm
+            deb_arch: arm64
+            rpm_arch: aarch64
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify runner architecture
+        shell: bash
+        run: |
+          expected="${{ matrix.arch }}"
+          actual="$(uname -m)"
+          test "$actual" = "$expected" || { echo "expected $expected runner, got $actual"; exit 1; }
+
+      - name: Install system dependencies
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential clang cmake pkg-config libgtk-3-dev \
+            libayatana-appindicator3-dev libx11-dev libxkbcommon-dev \
+            libwayland-dev libgl1-mesa-dev libssl-dev libfontconfig1-dev \
+            libasound2-dev libfuse2 dpkg-dev rpm file curl wget ca-certificates
+
+      - name: Install Rust
+        run: rustup show
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: release-v1-${{ runner.os }}-${{ matrix.arch }}
+          cache-targets: true
+          cache-workspace-crates: false
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      - name: Build desktop binaries once
+        shell: bash
+        env:
+          LOCALSEND_GUI_FEATURES: backend-femtovg
+        run: ./scripts/build-linux-desktop.sh "${{ matrix.arch }}"
+
+      - name: Package Linux formats
+        shell: bash
+        env:
+          APPIMAGE_EXTRACT_AND_RUN: "1"
+          LOCALSEND_SKIP_BUILD: "1"
+        run: |
+          ./scripts/package-linux.sh "${{ matrix.arch }}"
+          ./scripts/package-appimage.sh "${{ matrix.arch }}"
+          ./scripts/package-rpm.sh "${{ matrix.arch }}"
+
+      - name: Verify Linux packages
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="${PACKAGE_VERSION#v}"
+          rpm_version="$(printf '%s' "$version" | tr '-' '~')"
+          deb="target/release/packages/localsend_${version}_${{ matrix.deb_arch }}.deb"
+          rpm="target/release/packages/localsend-${rpm_version}-1.${{ matrix.rpm_arch }}.rpm"
+          appimage="target/release/packages/LocalSend-${version}-linux-${{ matrix.arch }}.AppImage"
+          test -f "$deb" && test -f "$rpm" && test -x "$appimage"
+          dpkg-deb --info "$deb" >/dev/null
+          rpm -qpi "$rpm" >/dev/null
+          rpm -qpl "$rpm" >/dev/null
+          file "$appimage"
+
+      - uses: actions/upload-artifact@v4
+        if: github.ref_type == 'tag'
+        with:
+          name: packages-linux-${{ matrix.arch }}
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+          path: |
+            target/release/packages/*.AppImage
+            target/release/packages/*.deb
+            target/release/packages/*.rpm
+
+  windows:
+    name: Windows ${{ matrix.arch }}
+    needs: validate
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            runner: windows-2022
+            rust_target: x86_64-pc-windows-msvc
+          - arch: arm64
+            runner: windows-11-arm
+            rust_target: aarch64-pc-windows-msvc
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify runner architecture
+        shell: pwsh
+        run: |
+          $actual = [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString()
+          $expected = if ("${{ matrix.arch }}" -eq "x64") { "X64" } else { "Arm64" }
+          if ($actual -ne $expected) { throw "expected $expected runner, got $actual" }
+
+      - name: Install Rust
+        shell: pwsh
+        run: |
+          rustup show
+          rustup target add "${{ matrix.rust_target }}"
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: release-v1-${{ runner.os }}-${{ matrix.arch }}
+          cache-targets: true
+          cache-workspace-crates: false
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      - name: Build Windows ZIP
+        shell: pwsh
+        run: ./scripts/package-windows.ps1 -Architecture "${{ matrix.arch }}"
+
+      - name: Verify Windows ZIP
+        shell: pwsh
+        run: |
+          $version = $env:PACKAGE_VERSION.TrimStart("v")
+          $path = "target/release/packages/LocalSend-$version-windows-${{ matrix.arch }}.zip"
+          if (-not (Test-Path $path)) { throw "Windows ZIP was not created: $path" }
+          $names = tar -tf $path
+          foreach ($required in @("LocalSend.exe", "localsendd.exe", "localsend-tray.exe", "localsend-launcher.exe")) {
+            if ($names -notcontains $required) { throw "missing $required in $path" }
+          }
+
+      - uses: actions/upload-artifact@v4
+        if: github.ref_type == 'tag'
+        with:
+          name: packages-windows-${{ matrix.arch }}
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+          path: target/release/packages/*-windows-${{ matrix.arch }}.zip
+
+  macos:
+    name: macOS ${{ matrix.arch }}
+    needs: validate
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: arm64
+            runner: macos-15
+          - arch: x86_64
+            runner: macos-15-intel
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify runner architecture
+        shell: bash
+        run: |
+          expected="${{ matrix.arch }}"
+          actual="$(uname -m)"
+          test "$actual" = "$expected" || { echo "expected $expected runner, got $actual"; exit 1; }
+
+      - name: Install Rust
+        run: rustup show
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: release-v1-${{ runner.os }}-${{ matrix.arch }}
+          cache-targets: true
+          cache-workspace-crates: false
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      - name: Build macOS DMG
+        run: ./apps/localsend-gui-slint/package-macos.sh "${{ matrix.arch }}"
+
+      - name: Verify macOS DMG
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="${PACKAGE_VERSION#v}"
+          dmg="target/release/packages/LocalSend-${version}-macos-${{ matrix.arch }}.dmg"
+          test -f "$dmg"
+          hdiutil verify "$dmg" >/dev/null
+          codesign --verify --deep --strict target/release/bundle/macos/LocalSend.app
+          for binary in \
+            target/release/bundle/macos/LocalSend.app/Contents/MacOS/LocalSend \
+            target/release/bundle/macos/LocalSend.app/Contents/MacOS/localsendd \
+            target/release/bundle/macos/LocalSend.app/Contents/Helpers/LocalSendTray.app/Contents/MacOS/LocalSendTray
+          do
+            file "$binary" | grep -q "${{ matrix.arch }}"
+          done
+
+      - uses: actions/upload-artifact@v4
+        if: github.ref_type == 'tag'
+        with:
+          name: packages-macos-${{ matrix.arch }}
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+          path: target/release/packages/*-macos-${{ matrix.arch }}.dmg
+
+  release:
+    name: Publish GitHub Release
+    if: github.ref_type == 'tag'
+    needs:
+      - validate
+      - linux
+      - windows
+      - macos
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: packages-*
+          path: dist
+          merge-multiple: true
+
+      - name: Verify release assets and generate checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./scripts/check-release-assets.sh dist > dist/SHA256SUMS.txt
+          cat dist/SHA256SUMS.txt
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
+          generate_release_notes: true
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          overwrite_files: true
+          fail_on_unmatched_files: true
+          files: |
+            dist/*.AppImage
+            dist/*.deb
+            dist/*.rpm
+            dist/*.zip
+            dist/*.dmg
+            dist/SHA256SUMS.txt
+
+  cache-report:
+    name: Report Rust cache usage
+    if: github.ref == 'refs/heads/main'
+    needs:
+      - linux
+      - windows
+      - macos
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Summarize release cache size
+        shell: bash
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          rows=$(gh api --paginate "repos/${GITHUB_REPOSITORY}/actions/caches" \
+            --jq '.actions_caches[] | select(.key | contains("release-v1-")) | [.key, .size_in_bytes] | @tsv')
+          {
+            echo '### Rust release cache'
+            if [ -z "$rows" ]; then
+              echo 'No release caches found.'
+            else
+              printf '%s\n' "$rows" | awk -F '\t' '{ printf "- `%s`: %.0f MiB\n", $1, $2 / 1048576 }'
+              printf '%s\n' "$rows" | awk -F '\t' '
+                { total += $2 }
+                END {
+                  gib = total / 1073741824
+                  printf "\nTotal: %.2f GiB\n", gib
+                  if (gib > 8) {
+                    print "WARNING: cache usage exceeds the 8 GiB headroom threshold."
+                  }
+                }
+              '
+            fi
+          } | tee -a "$GITHUB_STEP_SUMMARY"

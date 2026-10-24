@@ -1,8 +1,17 @@
 #!/bin/sh
 set -eu
 
-ROOT=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
+ROOT=$(cd "$(dirname "$0")/.." && pwd)
 ARCH=${1:-x86_64}
+VERSION=${PACKAGE_VERSION:-0.1.0}
+VERSION=${VERSION#v}
+
+case "$VERSION" in
+    ''|*[!A-Za-z0-9._~-]*)
+        printf 'invalid PACKAGE_VERSION: %s\n' "$VERSION" >&2
+        exit 64
+        ;;
+esac
 
 case "$ARCH" in
     x86_64)
@@ -23,8 +32,8 @@ RELEASE="$ROOT/target/$TARGET/release"
 PACKAGES="$ROOT/target/release/packages"
 TAR_STAGE="$PACKAGES/LocalSend-linux-$ARCH"
 DEB_STAGE="$PACKAGES/deb-$DEB_ARCH"
-TARBALL="$PACKAGES/LocalSend-linux-$ARCH.tar.gz"
-DEB="$PACKAGES/localsend_0.1.0_${DEB_ARCH}.deb"
+TARBALL="$PACKAGES/LocalSend-${VERSION}-linux-$ARCH.tar.gz"
+DEB="$PACKAGES/localsend_${VERSION}_${DEB_ARCH}.deb"
 DESKTOP="$ROOT/apps/localsend-gui-slint/packaging/linux/org.localsend.pc.desktop"
 METAINFO="$ROOT/apps/localsend-gui-slint/packaging/linux/org.localsend.pc.metainfo.xml"
 ICON="$ROOT/apps/localsend-gui-slint/packaging/macos/app-icon.svg"
@@ -33,10 +42,9 @@ command -v cargo >/dev/null 2>&1 || { echo 'cargo is required' >&2; exit 1; }
 command -v dpkg-deb >/dev/null 2>&1 || { echo 'dpkg-deb is required' >&2; exit 1; }
 command -v tar >/dev/null 2>&1 || { echo 'tar is required' >&2; exit 1; }
 
-cargo build --locked --release --target "$TARGET" \
-    -p localsendd -p localsend-tray -p localsend-launcher -p localsend-tui
-cargo build --locked --release --target "$TARGET" \
-    -p localsend-gui-slint --no-default-features --features backend-femtovg-wgpu
+if [ "${LOCALSEND_SKIP_BUILD:-0}" != "1" ]; then
+    "$ROOT/scripts/build-linux-desktop.sh" "$ARCH"
+fi
 
 for binary in localsend-gui-slint localsendd localsend-tray localsend-launcher localsend-tui; do
     if [ ! -x "$RELEASE/$binary" ]; then
@@ -86,7 +94,7 @@ install -m 0644 "$ICON" "$DEB_STAGE/usr/share/icons/hicolor/scalable/apps/org.lo
 INSTALLED_SIZE=$(du -sk "$DEB_STAGE/usr" | awk '{print $1}')
 cat >"$DEB_STAGE/DEBIAN/control" <<EOF
 Package: localsend
-Version: 0.1.0
+Version: $VERSION
 Section: net
 Priority: optional
 Architecture: $DEB_ARCH

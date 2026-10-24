@@ -7,11 +7,19 @@ $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
 $Root = Split-Path -Parent $PSScriptRoot
+$Version = if ([string]::IsNullOrWhiteSpace($env:PACKAGE_VERSION)) {
+    "0.1.0"
+} else {
+    $env:PACKAGE_VERSION.Trim().TrimStart("v")
+}
+if ($Version -notmatch '^[0-9A-Za-z][0-9A-Za-z._-]*$') {
+    throw "invalid PACKAGE_VERSION: $Version"
+}
 $Target = if ($Architecture -eq "x64") { "x86_64-pc-windows-msvc" } else { "aarch64-pc-windows-msvc" }
 $Release = Join-Path $Root "target/$Target/release"
 $Packages = Join-Path $Root "target/release/packages"
-$Stage = Join-Path $Packages "LocalSend-windows-$Architecture"
-$Zip = Join-Path $Packages "LocalSend-windows-$Architecture.zip"
+$Stage = Join-Path $Packages "LocalSend-$Version-windows-$Architecture"
+$Zip = Join-Path $Packages "LocalSend-$Version-windows-$Architecture.zip"
 $GuiSource = Join-Path $Release "localsend-gui-slint.exe"
 $Required = @(
     $GuiSource,
@@ -75,11 +83,15 @@ $ExpectedMachine = if ($Architecture -eq "x64") {
 } else {
     [System.Reflection.PortableExecutable.Machine]::Arm64
 }
-foreach ($Name in @("LocalSend.exe", "localsend-tray.exe", "localsend-launcher.exe")) {
+foreach ($Name in @("LocalSend.exe", "localsendd.exe", "localsend-tray.exe", "localsend-launcher.exe")) {
     $Metadata = Get-PeMetadata (Join-Path $Stage $Name)
     if ($Metadata.Machine -ne $ExpectedMachine) {
         throw "$Name has PE machine $($Metadata.Machine), expected $ExpectedMachine"
     }
+}
+
+foreach ($Name in @("LocalSend.exe", "localsend-tray.exe", "localsend-launcher.exe")) {
+    $Metadata = Get-PeMetadata (Join-Path $Stage $Name)
     if ($Metadata.Subsystem -ne [System.Reflection.PortableExecutable.Subsystem]::WindowsGui) {
         throw "$Name must use the Windows GUI subsystem"
     }
