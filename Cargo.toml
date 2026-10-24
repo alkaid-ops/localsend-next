@@ -3,6 +3,7 @@ resolver = "3"
 members = [
     "crates/*",
     "apps/localsendd",
+    "apps/localsend-androidd",
     "apps/localsend-tray",
     "apps/localsend-tui",
     "apps/localsend-gui-slint",

@@ -1,0 +1,7 @@
+id=localsend-next-root
+name=LocalSend Next Root Receiver
+version=0.1.0-mvp
+versionCode=1
+author=LocalSend Next
+description=Persistent headless LocalSend receiver for rooted Android devices.
+

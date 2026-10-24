@@ -105,3 +105,22 @@ the scan must return every confirmed device, got 1 for a channel of 16
 - FLTK：通过；首次 bundled SDK 下载因 HTTP/2 中断失败，使用本地代理重试后通过
 
 这些检查只证明原型可以编译，不代表功能、视觉或跨平台验收完成。
+
+## Android Root Native Boot Daemon MVP
+
+日期：2026-10-23
+
+- `apps/localsend-androidd`：11 个单元测试通过。
+- `cargo check --workspace --locked`：通过。
+- `cargo clippy -p localsend-androidd -p localsend-service --all-targets --locked --no-deps -- -D warnings`：通过。
+- 模块 shell 语法、目录结构和禁用开关静态检查通过。
+- Android NDK r30 arm64 release 交叉编译：通过。
+- 模块 ZIP：`target/release/packages/localsend-next-root-aarch64.zip`，4.8 MiB，
+  SHA-256 `47a9438ea19eb0e97929212bf40a71ef99049bd38dd5b49e85b20cfdcbb1fcbf`。
+- native binary：ELF64 AArch64，15 MiB，SHA-256
+  `d2eda8b422c08331a0b587e6c7b0543ef4d9722b07990f66d72ce3a23c4be273`。
+- 模块目录、shell 语法和无 `system/bin`/`init.rc` 结构检查：通过。
+- 真机运行时验收：`BLOCKED`，当前没有连接 Android 设备。
+
+阻断产物记录在 `target/acceptance/android-root/`。在真实 root 设备上完成重启、
+常驻、通知、灭屏、LocalSend 互通和 watchdog 测试前，不得将该 MVP 标记为通过。

@@ -4,6 +4,7 @@ use localsend_gui_slint::daemon_worker::UiCommand;
 use localsend_gui_slint::{AppWindow, DeviceItem, TransferFileItem, TransferItem};
 use slint::platform::{PointerEventButton, WindowEvent};
 use slint::{ComponentHandle, Model, ModelRc, VecModel};
+use std::borrow::Cow;
 use std::path::PathBuf;
 use std::sync::Once;
 use std::sync::mpsc as std_mpsc;
@@ -81,6 +82,7 @@ fn gui_pointer_and_action_command_matrix() {
     send_progress_cancel_button_cancels_active_transfer();
     send_progress_advanced_button_opens_diagnostics();
     received_message_buttons_copy_and_close();
+    clipboard_button_stages_official_priority_content();
 }
 
 fn send_progress_buttons_dismiss_transfer() {
@@ -229,6 +231,98 @@ fn device_card_emits_send_files_with_selected_path() {
             assert_eq!(paths, vec![path]);
         }
         other => panic!("unexpected command: {other:?}"),
+    }
+}
+
+fn clipboard_button_stages_official_priority_content() {
+    let mut clipboard = arboard::Clipboard::new().expect("clipboard");
+
+    clipboard
+        .set_text("clipboard text")
+        .expect("set clipboard text");
+    let mut text_app = app_with_inputs(Vec::new(), None);
+    element_by_id(&text_app.ui, "send-clipboard").mock_single_click(PointerEventButton::Left);
+    i_slint_backend_testing::mock_elapsed_time(Duration::from_millis(50));
+    assert!(matches!(
+        next_command(&mut text_app.commands),
+        UiCommand::RefreshDiscovery
+    ));
+    let selected = text_app.ui.get_selected_files();
+    assert_eq!(selected.row_count(), 1);
+    assert!(selected.row_data(0).expect("text row").is_text);
+    element_by_id(&text_app.ui, "device-card-pointer-peer")
+        .mock_single_click(PointerEventButton::Left);
+    assert!(matches!(
+        next_command(&mut text_app.commands),
+        UiCommand::SendText { fingerprint, text }
+            if fingerprint == "pointer-peer" && text == "clipboard text"
+    ));
+
+    clipboard
+        .set_image(arboard::ImageData {
+            width: 2,
+            height: 1,
+            bytes: Cow::Owned(vec![255, 0, 0, 255, 0, 255, 0, 128]),
+        })
+        .expect("set clipboard image");
+    let mut image_app = app_with_inputs(Vec::new(), None);
+    element_by_id(&image_app.ui, "send-clipboard").mock_single_click(PointerEventButton::Left);
+    i_slint_backend_testing::mock_elapsed_time(Duration::from_millis(50));
+    assert!(matches!(
+        next_command(&mut image_app.commands),
+        UiCommand::RefreshDiscovery
+    ));
+    let selected = image_app.ui.get_selected_files();
+    assert_eq!(selected.row_count(), 1);
+    let image_row = selected.row_data(0).expect("image row");
+    assert!(image_row.is_image);
+    assert!(!image_row.is_text);
+    let image_path = PathBuf::from(image_row.path.to_string());
+    assert_eq!(
+        std::fs::read(&image_path).expect("png bytes")[..8],
+        *b"\x89PNG\r\n\x1a\n"
+    );
+    element_by_id(&image_app.ui, "device-card-pointer-peer")
+        .mock_single_click(PointerEventButton::Left);
+    assert!(matches!(
+        next_command(&mut image_app.commands),
+        UiCommand::SendFiles { fingerprint, paths }
+            if fingerprint == "pointer-peer" && paths == vec![image_path]
+    ));
+
+    let directory = tempfile::tempdir().expect("tempdir");
+    let file = directory.path().join("clipboard.txt");
+    let folder = directory.path().join("folder");
+    std::fs::write(&file, b"clipboard file").expect("write file");
+    std::fs::create_dir(&folder).expect("create folder");
+    clipboard
+        .set()
+        .file_list(&[&file, &folder])
+        .expect("set clipboard files");
+    let mut files_app = app_with_inputs(Vec::new(), None);
+    element_by_id(&files_app.ui, "send-clipboard").mock_single_click(PointerEventButton::Left);
+    i_slint_backend_testing::mock_elapsed_time(Duration::from_millis(50));
+    assert!(matches!(
+        next_command(&mut files_app.commands),
+        UiCommand::RefreshDiscovery
+    ));
+    let selected = files_app.ui.get_selected_files();
+    assert_eq!(selected.row_count(), 2);
+    assert!(selected.row_data(1).expect("folder row").is_directory);
+    element_by_id(&files_app.ui, "device-card-pointer-peer")
+        .mock_single_click(PointerEventButton::Left);
+    match next_command(&mut files_app.commands) {
+        UiCommand::SendFiles { fingerprint, paths } => {
+            assert_eq!(fingerprint, "pointer-peer");
+            assert_eq!(
+                paths,
+                vec![
+                    std::fs::canonicalize(file).expect("canonical file"),
+                    std::fs::canonicalize(folder).expect("canonical folder"),
+                ]
+            );
+        }
+        other => panic!("unexpected clipboard file command: {other:?}"),
     }
 }
 

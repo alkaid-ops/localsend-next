@@ -1,3 +1,4 @@
+use crate::clipboard_payload::{self, ClipboardPayload};
 use crate::daemon_worker::{DaemonWorker, UiCommand, WorkerEvent};
 use crate::view_model;
 use crate::*;
@@ -258,6 +259,7 @@ pub fn run_main() -> anyhow::Result<()> {
         return Ok(());
     };
     let _gui_pid = GuiPidGuard::acquire()?;
+    clipboard_payload::cleanup_old_images();
     let worker = DaemonWorker::spawn();
     let ui = build_app(worker.commands, worker.events, AppOptions::from_process())?;
     ui.run()?;
@@ -466,26 +468,60 @@ pub fn build_app(
         let weak = weak.clone();
         let commands = commands.clone();
         let selection = selection.clone();
-        move || {
-            let Ok(mut clipboard) = arboard::Clipboard::new() else {
-                update_message(&weak, "无法访问剪贴板");
-                return;
-            };
-            let Ok(text) = clipboard.get_text() else {
-                update_message(&weak, "剪贴板中没有文本");
-                return;
-            };
-            if text.trim().is_empty() {
-                update_message(&weak, "剪贴板中没有文本");
-                return;
+        move || match clipboard_payload::read_clipboard() {
+            Ok(ClipboardPayload::Text(text)) => {
+                *selection.pending_text.borrow_mut() = Some(text);
+                selection.paths.borrow_mut().clear();
+                selection.devices.borrow_mut().clear();
+                *selection.selected_target.borrow_mut() = None;
+                update_selection(&weak, &selection);
+                dispatch_command(&commands, UiCommand::RefreshDiscovery);
+                update_message(
+                    &weak,
+                    if ui_is_english() {
+                        "Clipboard text ready; select a nearby device to send"
+                    } else {
+                        "剪贴板文本已准备好，请选择附近设备发送"
+                    },
+                );
             }
-            *selection.pending_text.borrow_mut() = Some(text);
-            selection.paths.borrow_mut().clear();
-            selection.devices.borrow_mut().clear();
-            *selection.selected_target.borrow_mut() = None;
-            update_selection(&weak, &selection);
-            dispatch_command(&commands, UiCommand::RefreshDiscovery);
-            update_message(&weak, "剪贴板文本已准备好，请选择附近设备发送");
+            Ok(ClipboardPayload::Files(paths)) => {
+                if paths.is_empty() {
+                    update_message(
+                        &weak,
+                        if ui_is_english() {
+                            "No file, folder, image, or text in clipboard"
+                        } else {
+                            "剪贴板中没有可发送的文件、文件夹、图片或文本"
+                        },
+                    );
+                    return;
+                }
+                *selection.pending_text.borrow_mut() = None;
+                selection.paths.borrow_mut().clear();
+                add_selected_paths(&selection, paths.clone());
+                selection.devices.borrow_mut().clear();
+                *selection.selected_target.borrow_mut() = None;
+                update_selection(&weak, &selection);
+                dispatch_command(&commands, UiCommand::RefreshDiscovery);
+                update_message(
+                    &weak,
+                    &if ui_is_english() {
+                        format!(
+                            "{} clipboard item(s) ready; refreshing nearby devices",
+                            paths.len()
+                        )
+                    } else {
+                        format!(
+                            "剪贴板中有 {} 项内容，已准备发送并刷新附近设备",
+                            paths.len()
+                        )
+                    },
+                );
+            }
+            Err(error) => {
+                update_message(&weak, error.user_message(ui_is_english()));
+            }
         }
     });
 
@@ -1529,6 +1565,17 @@ fn add_selected_paths(selection: &SelectionState, paths: Vec<PathBuf>) {
     }
 }
 
+fn is_image_path(path: &Path) -> bool {
+    path.extension()
+        .and_then(|extension| extension.to_str())
+        .is_some_and(|extension| {
+            matches!(
+                extension.to_ascii_lowercase().as_str(),
+                "png" | "jpg" | "jpeg" | "gif" | "webp" | "bmp" | "tif" | "tiff" | "heic" | "heif"
+            )
+        })
+}
+
 fn open_initial_dialog(ui: &AppWindow) {
     let Ok(dialog) = std::env::var("LOCALSEND_GUI_DIALOG") else {
         return;
@@ -1570,6 +1617,7 @@ fn update_selection(weak: &Weak<AppWindow>, selection: &SelectionState) {
                     .into(),
                 is_directory,
                 is_text: false,
+                is_image: !is_directory && is_image_path(path),
                 size: if is_directory {
                     if ui_is_english() {
                         "Folder".to_string().into()
@@ -1596,6 +1644,7 @@ fn update_selection(weak: &Weak<AppWindow>, selection: &SelectionState) {
             },
             is_directory: false,
             is_text: true,
+            is_image: false,
             size: view_model::format_bytes(file_total).into(),
         });
     }

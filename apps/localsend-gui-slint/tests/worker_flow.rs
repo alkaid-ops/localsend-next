@@ -389,6 +389,67 @@ async fn worker_sends_text_bytes_and_reports_completion() -> anyhow::Result<()> 
 }
 
 #[tokio::test(flavor = "multi_thread")]
+async fn worker_sends_clipboard_png_with_matching_bytes() -> anyhow::Result<()> {
+    let mut daemon =
+        DaemonFixture::start(&daemon_binary_for_tests()?, default_daemon_settings()).await?;
+    let peer = ReceiverPeer::start(ProtocolType::Http, PeerAcceptance::All, None, None).await?;
+    let mut worker = WorkerProbe::spawn_with_endpoint(daemon.endpoint().to_string_lossy());
+    wait_for_snapshot(&mut worker, |snapshot| snapshot.server_running);
+    worker
+        .commands
+        .send(UiCommand::AddManual(PeerTarget::format(peer.port())))?;
+    let snapshot = wait_for_snapshot(&mut worker, |snapshot| {
+        snapshot
+            .devices
+            .iter()
+            .any(|device| device.device.alias == "deterministic-peer")
+    });
+    let fingerprint = snapshot
+        .devices
+        .iter()
+        .find(|device| device.device.alias == "deterministic-peer")
+        .expect("peer device")
+        .device
+        .fingerprint
+        .clone();
+
+    let source = TempDir::new()?;
+    let image = source.path().join("clipboard_2026-10-24_12-34.png");
+    let mut png_bytes = Vec::new();
+    {
+        let mut encoder = png::Encoder::new(&mut png_bytes, 2, 1);
+        encoder.set_color(png::ColorType::Rgba);
+        encoder.set_depth(png::BitDepth::Eight);
+        let mut writer = encoder.write_header()?;
+        writer.write_image_data(&[255, 0, 0, 255, 0, 255, 0, 128])?;
+        writer.finish()?;
+    }
+    std::fs::write(&image, &png_bytes)?;
+
+    worker.commands.send(UiCommand::SendFiles {
+        fingerprint,
+        paths: vec![image],
+    })?;
+    let received = peer.wait_for_files(1, Duration::from_secs(15)).await?;
+    assert_eq!(received[0].file_name, "clipboard_2026-10-24_12-34.png");
+    assert_eq!(
+        std::fs::read(received[0].path.as_ref().expect("received path"))?,
+        png_bytes
+    );
+    assert!(
+        received[0]
+            .sha256
+            .as_deref()
+            .is_some_and(|hash| hash.len() == 64)
+    );
+
+    worker.commands.send(UiCommand::ShutdownDaemon)?;
+    peer.shutdown().await;
+    let _ = daemon.shutdown().await;
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
 async fn worker_starts_web_receive_page() -> anyhow::Result<()> {
     let mut daemon =
         DaemonFixture::start(&daemon_binary_for_tests()?, default_daemon_settings()).await?;

@@ -154,7 +154,11 @@ export component SendPage inherits Rectangle {
                                         y: (parent.height - self.height) / 2;
                                         source: file.is-text
                                             ? @image-url("../icons/align-left.svg")
-                                            : file.is-directory ? @image-url("../icons/folder.svg") : @image-url("../icons/file.svg");
+                                            : file.is-directory
+                                                ? @image-url("../icons/folder.svg")
+                                                : file.is-image
+                                                    ? @image-url("../icons/image.svg")
+                                                    : @image-url("../icons/file.svg");
                                         colorize: ThemeTokens.on-secondary-container;
                                         image-fit: contain;
                                     }

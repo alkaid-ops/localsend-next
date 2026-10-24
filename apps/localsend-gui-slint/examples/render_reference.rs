@@ -327,6 +327,7 @@ fn seed_send(ui: &AppWindow, state: &str, english: bool) {
             .into(),
             is_directory: false,
             is_text: true,
+            is_image: false,
             size: "1 B".into(),
         }])));
         ui.set_has_selection(true);
@@ -348,6 +349,7 @@ fn seed_send(ui: &AppWindow, state: &str, english: bool) {
             name: "report.pdf".into(),
             is_directory: false,
             is_text: false,
+            is_image: false,
             size: "2.4 MiB".into(),
         }])));
         ui.set_has_selection(true);
@@ -363,6 +365,7 @@ fn seed_send(ui: &AppWindow, state: &str, english: bool) {
                 name: "report.pdf".into(),
                 is_directory: false,
                 is_text: false,
+                is_image: false,
                 size: "2.4 MiB".into(),
             },
             SelectedFileItem {
@@ -370,6 +373,7 @@ fn seed_send(ui: &AppWindow, state: &str, english: bool) {
                 name: "Photos".into(),
                 is_directory: true,
                 is_text: false,
+                is_image: false,
                 size: if english { "Folder" } else { "文件夹" }.into(),
             },
         ])));

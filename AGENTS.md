@@ -4,7 +4,8 @@
   `docs/agent-regression-playbook.zh-CN.md`. It records recurring regressions,
   false-positive tests, forbidden workarounds, and the expected evidence trail.
 
-- The product is a PC-only LocalSend-compatible client.
+- The primary product is a PC LocalSend-compatible client. Android support is a
+  root-only, headless receive MVP until explicitly promoted beyond that scope.
 - The only formal GUI is `apps/localsend-gui-slint` using Slint winit and FemtoVG.
 - The egui, FLTK, Iced, and Tauri directories are experimental and excluded from
   the root workspace until migrated to `localsend-rpc`.
@@ -12,6 +13,15 @@
   vendored official LocalSend core.
 - Frontends must not depend on the vendored core and must not spawn `localsendd`.
 - `localsend-tray` owns daemon and GUI process lifecycle.
+- `apps/localsend-androidd` is a standalone Android native boot daemon. It is
+  not a GUI, must not start a Foreground Service, and must not create a
+  persistent service notification. Its Magisk/KernelSU supervisor owns startup
+  and restart.
+- The Android MVP uses SAF-free root storage at
+  `/storage/emulated/0/Download/LocalSend`. Never place its config inside the
+  desktop app data directory.
+- Do not add an Android `init.rc` or custom SELinux domain until a rooted device
+  is available to verify boot-stage loading, policy, and uninstall behavior.
 - System notifications are emitted only by `localsend-tray`. Windows and Linux use
   `notify-rust`; Windows notification identity and history cleanup are owned by
   `localsend-platform`. Do not add a second notification path in the GUI.

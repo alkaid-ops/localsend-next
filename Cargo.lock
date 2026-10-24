@@ -4330,6 +4330,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "localsend-androidd"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "fs2",
+ "localsend-rpc",
+ "localsend-service",
+ "serde_json",
+ "tempfile",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "localsend-gui-egui"
 version = "0.1.0"
 dependencies = [
@@ -4353,6 +4368,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "arboard",
+ "chrono",
  "directories",
  "i-slint-backend-testing",
  "libc",

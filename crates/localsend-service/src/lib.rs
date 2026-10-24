@@ -1,3 +1,3 @@
 mod service;
 
-pub use service::{ServiceHandle, service_paths};
+pub use service::{ServiceHandle, ServicePaths, service_paths};

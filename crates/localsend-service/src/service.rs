@@ -117,6 +117,14 @@ pub struct ServiceHandle {
 impl ServiceHandle {
     pub async fn spawn() -> anyhow::Result<Self> {
         let paths = service_paths()?;
+        Self::spawn_with_paths(paths).await
+    }
+
+    pub async fn spawn_with_paths(paths: ServicePaths) -> anyhow::Result<Self> {
+        std::fs::create_dir_all(&paths.config_dir)
+            .with_context(|| format!("creating {}", paths.config_dir.display()))?;
+        std::fs::create_dir_all(&paths.data_dir)
+            .with_context(|| format!("creating {}", paths.data_dir.display()))?;
         let settings = load_settings(&paths.settings_file);
         let identity = Identity::load_or_generate(&paths.identity_file, &settings.alias)?;
         let history = load_history(&paths.history_file, settings.history_limit);
@@ -408,10 +416,10 @@ impl ServiceTask {
     }
 
     async fn run(mut self) {
-        if self.settings.start_server_on_launch {
-            if let Err(error) = self.start_server().await {
-                self.set_error(format!("starting server: {error:#}"));
-            }
+        if self.settings.start_server_on_launch
+            && let Err(error) = self.start_server().await
+        {
+            self.set_error(format!("starting server: {error:#}"));
         }
         let mut discovery_expiry = tokio::time::interval(Duration::from_secs(5));
         discovery_expiry.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
@@ -1696,16 +1704,16 @@ impl ServiceTask {
                 file,
                 content_tx,
             } => {
-                if let Some(web) = &self.web_share {
-                    if let Some(path) = web.paths.get(&file_id) {
-                        let _ = content_tx.send(FileContent::Path(path.clone()));
-                        self.emit(ServiceEvent::WebShareProgress {
-                            session_id,
-                            file_id,
-                            bytes: 0,
-                            total: file.size,
-                        });
-                    }
+                if let Some(web) = &self.web_share
+                    && let Some(path) = web.paths.get(&file_id)
+                {
+                    let _ = content_tx.send(FileContent::Path(path.clone()));
+                    self.emit(ServiceEvent::WebShareProgress {
+                        session_id,
+                        file_id,
+                        bytes: 0,
+                        total: file.size,
+                    });
                 }
             }
         }
@@ -2164,10 +2172,10 @@ fn parse_target(target: &str, default_port: u16) -> Result<(String, u16), String
     if let Ok(address) = target.parse::<std::net::SocketAddr>() {
         return Ok((address.ip().to_string(), address.port()));
     }
-    if let Some((host, port)) = target.rsplit_once(':') {
-        if let Ok(port) = port.parse() {
-            return Ok((host.trim_matches(['[', ']']).to_string(), port));
-        }
+    if let Some((host, port)) = target.rsplit_once(':')
+        && let Ok(port) = port.parse()
+    {
+        return Ok((host.trim_matches(['[', ']']).to_string(), port));
     }
     Ok((target.to_string(), default_port))
 }
