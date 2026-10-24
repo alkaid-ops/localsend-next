@@ -14,6 +14,7 @@ use localsend_rpc::{
     ServiceSnapshot,
 };
 use serde::{Deserialize, Serialize};
+use slint::winit_030::{EventResult as WinitEventResult, WinitWindowAccessor, winit};
 use slint::{CloseRequestResponse, ComponentHandle, Model, ModelRc, VecModel, Weak};
 use std::cell::{Cell, RefCell};
 use std::collections::{HashMap, HashSet};
@@ -23,6 +24,8 @@ use std::process::Command;
 use std::rc::Rc;
 use std::sync::OnceLock;
 use std::time::{Duration, Instant};
+use winit::event::{ElementState, WindowEvent as WinitWindowEvent};
+use winit::keyboard::{Key, ModifiersState};
 
 static SYSTEM_DARK_THEME: OnceLock<bool> = OnceLock::new();
 
@@ -327,6 +330,42 @@ pub fn build_app(
     add_selected_paths(&selection, options.initial_files.clone());
     *selection.pending_text.borrow_mut() = options.initial_text.clone();
     update_selection(&weak, &selection);
+    let dropped_paths = Rc::new(RefCell::new(Vec::<PathBuf>::new()));
+    ui.window().on_winit_window_event({
+        let weak = weak.clone();
+        let commands = commands.clone();
+        let selection = selection.clone();
+        let dropped_paths = dropped_paths.clone();
+        let mut modifiers = ModifiersState::default();
+        move |_, event| match event {
+            WinitWindowEvent::ModifiersChanged(next) => {
+                modifiers = next.state();
+                WinitEventResult::Propagate
+            }
+            WinitWindowEvent::KeyboardInput { event, .. }
+                if clipboard_paste_shortcut(
+                    &event.logical_key,
+                    event.state,
+                    event.repeat,
+                    modifiers,
+                ) =>
+            {
+                let Some(ui) = weak.upgrade() else {
+                    return WinitEventResult::Propagate;
+                };
+                if paste_shortcut_blocked(&ui) || ui.get_sending_active() {
+                    return WinitEventResult::Propagate;
+                }
+                stage_clipboard(&weak, &commands, &selection);
+                WinitEventResult::PreventDefault
+            }
+            WinitWindowEvent::DroppedFile(path) => {
+                dropped_paths.borrow_mut().push(path.clone());
+                WinitEventResult::PreventDefault
+            }
+            _ => WinitEventResult::Propagate,
+        }
+    });
 
     ui.on_refresh({
         let commands = commands.clone();
@@ -468,61 +507,7 @@ pub fn build_app(
         let weak = weak.clone();
         let commands = commands.clone();
         let selection = selection.clone();
-        move || match clipboard_payload::read_clipboard() {
-            Ok(ClipboardPayload::Text(text)) => {
-                *selection.pending_text.borrow_mut() = Some(text);
-                selection.paths.borrow_mut().clear();
-                selection.devices.borrow_mut().clear();
-                *selection.selected_target.borrow_mut() = None;
-                update_selection(&weak, &selection);
-                dispatch_command(&commands, UiCommand::RefreshDiscovery);
-                update_message(
-                    &weak,
-                    if ui_is_english() {
-                        "Clipboard text ready; select a nearby device to send"
-                    } else {
-                        "剪贴板文本已准备好，请选择附近设备发送"
-                    },
-                );
-            }
-            Ok(ClipboardPayload::Files(paths)) => {
-                if paths.is_empty() {
-                    update_message(
-                        &weak,
-                        if ui_is_english() {
-                            "No file, folder, image, or text in clipboard"
-                        } else {
-                            "剪贴板中没有可发送的文件、文件夹、图片或文本"
-                        },
-                    );
-                    return;
-                }
-                *selection.pending_text.borrow_mut() = None;
-                selection.paths.borrow_mut().clear();
-                add_selected_paths(&selection, paths.clone());
-                selection.devices.borrow_mut().clear();
-                *selection.selected_target.borrow_mut() = None;
-                update_selection(&weak, &selection);
-                dispatch_command(&commands, UiCommand::RefreshDiscovery);
-                update_message(
-                    &weak,
-                    &if ui_is_english() {
-                        format!(
-                            "{} clipboard item(s) ready; refreshing nearby devices",
-                            paths.len()
-                        )
-                    } else {
-                        format!(
-                            "剪贴板中有 {} 项内容，已准备发送并刷新附近设备",
-                            paths.len()
-                        )
-                    },
-                );
-            }
-            Err(error) => {
-                update_message(&weak, error.user_message(ui_is_english()));
-            }
-        }
+        move || stage_clipboard(&weak, &commands, &selection)
     });
 
     ui.on_add_manual({
@@ -1371,6 +1356,7 @@ pub fn build_app(
         let launch_setting = launch_setting.clone();
         let window_persistence = window_persistence.clone();
         let selection = selection.clone();
+        let dropped_paths = dropped_paths.clone();
         let events = Rc::new(RefCell::new(worker_events));
         let events_for_timer = events.clone();
         let gui_actions = Rc::new(RefCell::new(gui_action_rx));
@@ -1391,6 +1377,10 @@ pub fn build_app(
             }
             while let Ok(action) = gui_actions_for_timer.borrow().try_recv() {
                 handle_gui_action(&weak, action);
+            }
+            let dropped = std::mem::take(&mut *dropped_paths.borrow_mut());
+            if !dropped.is_empty() {
+                stage_dropped_paths(&weak, &commands, &selection, dropped);
             }
             loop {
                 let event = events_for_timer.borrow().try_recv();
@@ -1498,6 +1488,155 @@ pub fn build_app(
             .set_dark(resolve_dark_theme(&snapshot.settings.theme));
     }
     Ok(ui)
+}
+
+fn clipboard_paste_shortcut(
+    key: &Key,
+    state: ElementState,
+    repeat: bool,
+    modifiers: ModifiersState,
+) -> bool {
+    if state != ElementState::Pressed || repeat || modifiers.alt_key() {
+        return false;
+    }
+    let primary_modifier = if cfg!(target_os = "macos") {
+        modifiers.super_key() && !modifiers.control_key()
+    } else {
+        modifiers.control_key() && !modifiers.super_key()
+    };
+    primary_modifier && matches!(key, Key::Character(text) if text.eq_ignore_ascii_case("v"))
+}
+
+fn paste_shortcut_blocked(ui: &AppWindow) -> bool {
+    // Settings has always-visible inline text inputs. Let Slint deliver the
+    // standard paste command there instead of treating it as a send action.
+    ui.get_selected_tab() == "settings"
+        || ui.get_device_details_open()
+        || ui.get_text_dialog_open()
+        || ui.get_history_dialog_open()
+        || ui.get_message_received_open()
+        || ui.get_info_dialog_open()
+        || ui.get_manual_dialog_open()
+        || ui.get_favorites_dialog_open()
+        || ui.get_send_mode_dialog_open()
+        || ui.get_troubleshoot_dialog_open()
+        || ui.get_setting_dialog_open()
+        || ui.get_pin_dialog_open()
+        || ui.get_web_share_dialog_open()
+        || ui.get_completion_dialog_open()
+        || ui.get_auto_save_help_dialog_open()
+}
+
+fn activate_send_page(weak: &Weak<AppWindow>) {
+    if let Some(ui) = weak.upgrade() {
+        ui.set_selected_tab("send".into());
+        ui.set_message("".into());
+    }
+}
+
+fn stage_clipboard(
+    weak: &Weak<AppWindow>,
+    commands: &tokio::sync::mpsc::UnboundedSender<UiCommand>,
+    selection: &SelectionState,
+) {
+    match clipboard_payload::read_clipboard() {
+        Ok(ClipboardPayload::Text(text)) => {
+            activate_send_page(weak);
+            *selection.pending_text.borrow_mut() = Some(text);
+            selection.paths.borrow_mut().clear();
+            selection.devices.borrow_mut().clear();
+            *selection.selected_target.borrow_mut() = None;
+            update_selection(weak, selection);
+            dispatch_command(commands, UiCommand::RefreshDiscovery);
+            update_message(
+                weak,
+                if ui_is_english() {
+                    "Clipboard text ready; select a nearby device to send"
+                } else {
+                    "剪贴板文本已准备好，请选择附近设备发送"
+                },
+            );
+        }
+        Ok(ClipboardPayload::Files(paths)) => {
+            if paths.is_empty() {
+                update_message(
+                    weak,
+                    if ui_is_english() {
+                        "No file, folder, image, or text in clipboard"
+                    } else {
+                        "剪贴板中没有可发送的文件、文件夹、图片或文本"
+                    },
+                );
+                return;
+            }
+            activate_send_page(weak);
+            *selection.pending_text.borrow_mut() = None;
+            selection.paths.borrow_mut().clear();
+            add_selected_paths(selection, paths.clone());
+            selection.devices.borrow_mut().clear();
+            *selection.selected_target.borrow_mut() = None;
+            update_selection(weak, selection);
+            dispatch_command(commands, UiCommand::RefreshDiscovery);
+            update_message(
+                weak,
+                &if ui_is_english() {
+                    format!(
+                        "{} clipboard item(s) ready; refreshing nearby devices",
+                        paths.len()
+                    )
+                } else {
+                    format!(
+                        "剪贴板中有 {} 项内容，已准备发送并刷新附近设备",
+                        paths.len()
+                    )
+                },
+            );
+        }
+        Err(error) => {
+            update_message(weak, error.user_message(ui_is_english()));
+        }
+    }
+}
+
+fn stage_dropped_paths(
+    weak: &Weak<AppWindow>,
+    commands: &tokio::sync::mpsc::UnboundedSender<UiCommand>,
+    selection: &SelectionState,
+    paths: Vec<PathBuf>,
+) {
+    let paths = paths
+        .into_iter()
+        .filter(|path| path.exists())
+        .collect::<Vec<_>>();
+    if paths.is_empty() {
+        update_message(
+            weak,
+            if ui_is_english() {
+                "No valid files or folders were dropped"
+            } else {
+                "没有添加有效的文件或文件夹"
+            },
+        );
+        return;
+    }
+    activate_send_page(weak);
+    *selection.pending_text.borrow_mut() = None;
+    add_selected_paths(selection, paths.clone());
+    selection.devices.borrow_mut().clear();
+    *selection.selected_target.borrow_mut() = None;
+    update_selection(weak, selection);
+    dispatch_command(commands, UiCommand::RefreshDiscovery);
+    update_message(
+        weak,
+        &if ui_is_english() {
+            format!(
+                "{} dropped item(s) added; refreshing nearby devices",
+                paths.len()
+            )
+        } else {
+            format!("已添加 {} 项拖入内容，正在刷新附近设备", paths.len())
+        },
+    );
 }
 
 fn set_initial_size(ui: &AppWindow) -> bool {
@@ -2715,12 +2854,22 @@ fn ui_is_english() -> bool {
 mod tests {
     use super::{
         ACTIVE_LANGUAGE, SelectionState, WindowPlacement, WindowState, acceptance_file_choices,
-        add_selected_paths, color_label, language_label, theme_label, visual_ids_from_ips,
+        add_selected_paths, clipboard_paste_shortcut, color_label, language_label, theme_label,
+        visual_ids_from_ips,
     };
     use crate::AppWindow;
     use i_slint_backend_testing::{AccessibleRole, ElementQuery};
     use slint::ComponentHandle;
+    use slint::winit_030::winit;
     use std::fs;
+    use std::sync::OnceLock;
+    use winit::event::ElementState;
+    use winit::keyboard::{Key, ModifiersState};
+
+    fn init_test_backend() {
+        static BACKEND: OnceLock<()> = OnceLock::new();
+        BACKEND.get_or_init(i_slint_backend_testing::init_integration_test_with_mock_time);
+    }
 
     #[test]
     fn window_state_rejects_unreasonable_dimensions_and_coordinates() {
@@ -2766,6 +2915,48 @@ mod tests {
         assert_eq!(theme_label("dark"), "深色");
         assert_eq!(language_label("zh-CN"), "简体中文");
         ACTIVE_LANGUAGE.with(|active| *active.borrow_mut() = None);
+    }
+
+    #[test]
+    fn clipboard_paste_shortcut_uses_the_platform_primary_modifier() {
+        let primary = if cfg!(target_os = "macos") {
+            ModifiersState::SUPER
+        } else {
+            ModifiersState::CONTROL
+        };
+        let v = Key::Character("v".into());
+        let c = Key::Character("c".into());
+
+        assert!(clipboard_paste_shortcut(
+            &v,
+            ElementState::Pressed,
+            false,
+            primary
+        ));
+        assert!(!clipboard_paste_shortcut(
+            &v,
+            ElementState::Released,
+            false,
+            primary
+        ));
+        assert!(!clipboard_paste_shortcut(
+            &v,
+            ElementState::Pressed,
+            true,
+            primary
+        ));
+        assert!(!clipboard_paste_shortcut(
+            &c,
+            ElementState::Pressed,
+            false,
+            primary
+        ));
+        assert!(!clipboard_paste_shortcut(
+            &v,
+            ElementState::Pressed,
+            false,
+            primary | ModifiersState::ALT
+        ));
     }
 
     #[test]
@@ -2858,7 +3049,7 @@ mod tests {
 
     #[test]
     fn accessible_navigation_and_primary_actions_are_semantic() {
-        i_slint_backend_testing::init_integration_test_with_mock_time();
+        init_test_backend();
         let ui = AppWindow::new().expect("create window");
         ui.window()
             .set_size(slint::LogicalSize::new(1200.0, 1800.0));

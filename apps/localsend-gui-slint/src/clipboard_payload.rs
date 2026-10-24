@@ -76,10 +76,11 @@ fn read_with(
     cache_dir: &Path,
     now: DateTime<Local>,
 ) -> Result<ClipboardPayload, ClipboardError> {
-    if let Some(text) = clipboard.read_text()
-        && !text.trim().is_empty()
-    {
-        return Ok(ClipboardPayload::Text(text));
+    // File managers may expose a textual representation alongside the real
+    // file URL list. The file list is the authoritative payload in that case.
+    let files = clipboard.read_files();
+    if !files.is_empty() {
+        return Ok(ClipboardPayload::Files(files));
     }
 
     if let Some(image) = clipboard.read_image() {
@@ -87,9 +88,10 @@ fn read_with(
             .map(|path| ClipboardPayload::Files(vec![path]));
     }
 
-    let files = clipboard.read_files();
-    if !files.is_empty() {
-        return Ok(ClipboardPayload::Files(files));
+    if let Some(text) = clipboard.read_text()
+        && !text.trim().is_empty()
+    {
+        return Ok(ClipboardPayload::Text(text));
     }
 
     Err(ClipboardError::Empty)
@@ -246,7 +248,7 @@ mod tests {
     }
 
     #[test]
-    fn text_has_priority_over_image_and_files() {
+    fn file_list_has_priority_over_text_and_image() {
         let directory = tempfile::tempdir().expect("tempdir");
         let payload = read_with(
             FakeClipboard {
@@ -258,18 +260,21 @@ mod tests {
             fixed_time(),
         )
         .expect("clipboard payload");
-        assert_eq!(payload, ClipboardPayload::Text("hello".to_string()));
+        assert_eq!(
+            payload,
+            ClipboardPayload::Files(vec![PathBuf::from("/tmp/file")])
+        );
         assert_eq!(fs::read_dir(directory.path()).expect("entries").count(), 0);
     }
 
     #[test]
-    fn image_has_priority_over_files_and_is_png() {
+    fn image_is_png_when_no_files_are_present() {
         let directory = tempfile::tempdir().expect("tempdir");
         let payload = read_with(
             FakeClipboard {
                 text: None,
                 image: Some(test_image()),
-                files: vec![PathBuf::from("/tmp/file")],
+                files: Vec::new(),
             },
             directory.path(),
             fixed_time(),
@@ -292,6 +297,30 @@ mod tests {
         assert_eq!((info.width, info.height), (2, 1));
         assert_eq!(info.color_type, png::ColorType::Rgba);
         assert_eq!(&output[..8], &[255, 0, 0, 255, 0, 255, 0, 128]);
+    }
+
+    #[test]
+    fn image_has_priority_over_text() {
+        let directory = tempfile::tempdir().expect("tempdir");
+        let payload = read_with(
+            FakeClipboard {
+                text: Some("image caption".to_string()),
+                image: Some(test_image()),
+                files: Vec::new(),
+            },
+            directory.path(),
+            fixed_time(),
+        )
+        .expect("clipboard payload");
+        let ClipboardPayload::Files(files) = payload else {
+            panic!("expected image file");
+        };
+        assert_eq!(files.len(), 1);
+        assert!(
+            files[0]
+                .extension()
+                .is_some_and(|extension| extension == "png")
+        );
     }
 
     #[test]
@@ -318,7 +347,7 @@ mod tests {
             FakeClipboard {
                 text: Some("/tmp/a.png".to_string()),
                 image: None,
-                files: vec![PathBuf::from("/tmp/a.png")],
+                files: Vec::new(),
             },
             directory.path(),
             fixed_time(),

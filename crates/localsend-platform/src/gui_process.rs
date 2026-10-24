@@ -180,10 +180,21 @@ fn process_is_gui(pid: u32) -> bool {
     if !output.status.success() {
         return false;
     }
-    let command = String::from_utf8_lossy(&output.stdout);
-    command.contains("localsend-gui-slint")
-        || command.contains("localsend-gui-egui")
-        || command.contains("/LocalSend --window")
+    command_is_gui(&String::from_utf8_lossy(&output.stdout))
+}
+
+#[cfg(unix)]
+fn command_is_gui(command: &str) -> bool {
+    let executable = command.split_whitespace().next().unwrap_or_default();
+    let executable_name = std::path::Path::new(executable)
+        .file_name()
+        .and_then(|name| name.to_str());
+    executable_name.is_some_and(|name| {
+        matches!(
+            name,
+            "localsend" | "localsend-gui-slint" | "localsend-gui-egui" | "LocalSend"
+        )
+    }) && command.contains("--window")
         || command.contains("/LocalSend.app/Contents/MacOS/LocalSend")
 }
 
@@ -266,5 +277,19 @@ mod tests {
             }
         }
         let _ = fs::remove_dir_all(root);
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn packaged_linux_gui_command_is_recognized() {
+        assert!(command_is_gui("/usr/bin/localsend --window"));
+        assert!(command_is_gui(
+            "/Applications/LocalSend.app/Contents/MacOS/LocalSend --window"
+        ));
+        assert!(command_is_gui(
+            "/home/user/target/debug/localsend-gui-slint --window"
+        ));
+        assert!(!command_is_gui("/usr/bin/localsend-tray"));
+        assert!(!command_is_gui("/usr/bin/localsendd"));
     }
 }

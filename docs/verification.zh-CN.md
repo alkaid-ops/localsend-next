@@ -124,3 +124,41 @@ the scan must return every confirmed device, got 1 for a channel of 16
 
 阻断产物记录在 `target/acceptance/android-root/`。在真实 root 设备上完成重启、
 常驻、通知、灭屏、LocalSend 互通和 watchdog 测试前，不得将该 MVP 标记为通过。
+
+## Linux deb / AppImage 真机验收
+
+日期：2026-10-24
+
+测试机：antiX / Debian GNU/Linux 13，x86_64，icewm，X11 `DISPLAY=:0.0`。
+
+产物：
+
+- deb：`localsend_0.1.0_amd64.deb`，SHA-256
+  `e953a92872235504df62e8de68c9fa90e9b0e4307b6c44c90ad74321657d4c28`
+- AppImage：`LocalSend-0.1.0-linux-x86_64.AppImage`，SHA-256
+  `95b9e31189dcf486e29acebad76a35769bd8b4cb5354f3ecef22014f32c66d66`
+
+通过的场景：
+
+- deb 安装成功，桌面入口为 `localsend-tray`；tray 启动 owned `localsendd`，
+  IPv4/IPv6 TCP 和 UDP `53317` 均正常监听。
+- GTK3 文件选择器在未安装/未运行 xdg-desktop-portal、zenity 的环境中正常打开，
+  并能选中文件。
+- deb GUI 向确定性 peer 发送文件成功，源文件与接收文件 SHA-256 一致。
+- deb GUI 发送文本消息成功，peer 收到正确文本 preview。
+- 确定性 peer 向 deb 发送文件和文本成功；文件落盘哈希一致，文本以历史消息记录。
+- 接收请求页面正常显示 sender、文件、拒绝/接受所选/全部接受操作。
+- GUI 关闭后 tray 和 daemon 继续运行并保持端口监听。
+- 真实 tray 菜单“打开主界面”可启动 GUI；菜单“退出”后 GUI、tray、daemon 和端口全部清理。
+- AppImage 可直接启动 tray 和 owned daemon，GUI、GTK3 文件选择器、文件发送、
+  文件/文本接收、历史记录和 tray 退出清理均正常。
+
+验收截图和 peer 状态保存在 `target/acceptance/linux-antiX-20261024/`。
+
+同一轮真机测试发现并修复：
+
+- 安装版 GUI 命令为 `/usr/bin/localsend --window`，原进程识别遗漏该形式，导致
+  tray 退出后 GUI 残留。
+- Linux GUI/tray 的 `rfd` 默认 portal 后端在 antiX 上不可用，已改为 GTK3。
+- `.txt` 普通文件曾被按 MIME 类型误报为“文本已发送”，现仅 preview 非空的文本消息
+  使用文本文案。

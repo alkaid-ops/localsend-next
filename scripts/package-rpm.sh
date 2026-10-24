@@ -53,6 +53,11 @@ done
 for asset in "$DESKTOP" "$METAINFO" "$ICON"; do
     [ -f "$asset" ] || { echo "missing packaging asset: $asset" >&2; exit 1; }
 done
+if [ "$(sed -n 's/^Exec=//p' "$DESKTOP" | head -n 1)" != "localsend-tray" ] \
+    || [ "$(sed -n 's/^TryExec=//p' "$DESKTOP" | head -n 1)" != "localsend-tray" ]; then
+    echo 'Linux desktop entry must launch localsend-tray so the tray owns the daemon lifecycle' >&2
+    exit 1
+fi
 
 rm -rf "$RPMROOT"
 mkdir -p \

@@ -2,7 +2,7 @@ use localsend_rpc::snapshot_store::{EventApply, SnapshotStore};
 use localsend_rpc::{
     AutoSaveMode, CommandResult, DaemonClient, DesktopSettings, DeviceInfo, ReceiverDecision,
     SendFileRequest, SequencedEvent, ServiceCommand, ServiceErrorKind, ServiceEvent,
-    ServiceSnapshot, TransferDirection, TransferStatus, WebShareMode,
+    ServiceSnapshot, TransferDirection, TransferStatus, TransferView, WebShareMode,
 };
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -249,11 +249,7 @@ async fn run_worker(
                                     if transfer.status == TransferStatus::Finished
                                         && transfer.direction == TransferDirection::Send
                                     {
-                                        let is_text = transfer.files.iter().any(|file| {
-                                            file.file_type == "text"
-                                                || file.file_type.starts_with("text/")
-                                        });
-                                        let subject = if is_text { "文本" } else { "文件" };
+                                        let subject = sent_transfer_subject(transfer);
                                         let _ = events_out.send(WorkerEvent::Notice(format!(
                                             "{subject}已发送给 {}",
                                             transfer.peer_alias
@@ -664,9 +660,17 @@ fn emit_error(events: &std_mpsc::Sender<WorkerEvent>, error: String) -> bool {
     false
 }
 
+fn sent_transfer_subject(transfer: &TransferView) -> &'static str {
+    let is_text_message = transfer.files.iter().any(|file| {
+        (file.file_type == "text" || file.file_type.starts_with("text/")) && file.preview.is_some()
+    });
+    if is_text_message { "文本" } else { "文件" }
+}
+
 #[cfg(test)]
 mod tests {
-    use super::connection_failure_message;
+    use super::{connection_failure_message, sent_transfer_subject};
+    use localsend_rpc::{FileView, TransferDirection, TransferStatus, TransferView};
     use std::io;
 
     #[test]
@@ -690,5 +694,34 @@ mod tests {
         let error = anyhow::anyhow!("unsupported daemon protocol");
         let (_, show_notice) = connection_failure_message(&error, false);
         assert!(show_notice);
+    }
+
+    #[test]
+    fn text_mime_without_preview_is_reported_as_a_file() {
+        let base = TransferView {
+            transfer_id: "transfer".to_string(),
+            direction: TransferDirection::Send,
+            peer_alias: "peer".to_string(),
+            peer_fingerprint: "fingerprint".to_string(),
+            files: vec![FileView {
+                id: "file".to_string(),
+                file_name: "notes.txt".to_string(),
+                size: 5,
+                file_type: "text/plain".to_string(),
+                sha256: None,
+                preview: None,
+            }],
+            status: TransferStatus::Finished,
+            bytes_done: 5,
+            bytes_total: 5,
+            started_at_ms: 0,
+            ended_at_ms: Some(1),
+            error: None,
+        };
+        assert_eq!(sent_transfer_subject(&base), "文件");
+
+        let mut message = base;
+        message.files[0].preview = Some("hello".to_string());
+        assert_eq!(sent_transfer_subject(&message), "文本");
     }
 }

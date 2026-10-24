@@ -26,11 +26,16 @@ directories = "6.0"
 localsend-platform.workspace = true
 localsend-rpc.workspace = true
 png = "0.18"
-rfd = "0.17"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-slint = { version = "1.18.1", default-features = false, features = ["std", "backend-winit", "compat-1-18", "accessibility"] }
+slint = { version = "1.18.1", default-features = false, features = ["std", "backend-winit", "compat-1-18", "accessibility", "unstable-winit-030"] }
 tokio = { version = "1.49", features = ["full"] }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+rfd = { version = "0.17", default-features = false, features = ["gtk3"] }
+
+[target.'cfg(not(target_os = "linux"))'.dependencies]
+rfd = "0.17"
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"

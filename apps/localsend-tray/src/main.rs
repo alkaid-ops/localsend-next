@@ -11,13 +11,52 @@ use localsend_rpc::{
     DaemonClient, DaemonLifecycle, ServiceCommand, ServiceEvent, TransferDirection, TransferStatus,
 };
 use std::process::{Command, Stdio};
-use std::time::Duration;
+use std::time::{Duration, Instant};
 use tray_icon::menu::{Menu, MenuEvent, MenuItem};
 use tray_icon::{Icon, TrayIconBuilder};
 
 const OPEN_APP: &str = "localsend.open-app";
 const RESTART_APP: &str = "localsend.restart";
 const QUIT_APP: &str = "localsend.quit";
+const HEADLESS_GUI_START_TIMEOUT: Duration = Duration::from_secs(10);
+
+#[cfg(target_os = "linux")]
+static LINUX_GTK_READY: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum HeadlessGuardPoll {
+    Waiting,
+    Running,
+    Finished,
+    TimedOut,
+}
+
+struct HeadlessGuiGuard {
+    deadline: Instant,
+    gui_seen: bool,
+}
+
+impl HeadlessGuiGuard {
+    fn new(now: Instant) -> Self {
+        Self {
+            deadline: now + HEADLESS_GUI_START_TIMEOUT,
+            gui_seen: false,
+        }
+    }
+
+    fn poll(&mut self, gui_running: bool, now: Instant) -> HeadlessGuardPoll {
+        if gui_running {
+            self.gui_seen = true;
+            HeadlessGuardPoll::Running
+        } else if self.gui_seen {
+            HeadlessGuardPoll::Finished
+        } else if now >= self.deadline {
+            HeadlessGuardPoll::TimedOut
+        } else {
+            HeadlessGuardPoll::Waiting
+        }
+    }
+}
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum TrayLanguage {
@@ -124,23 +163,25 @@ pub fn run_tray() -> anyhow::Result<()> {
         return Ok(());
     }
 
-    initialize_linux_gtk()?;
     let language = TrayLanguage::from_settings("system");
     notifications::init(gui_action_tx);
-    let (_menu_items, menu) = TrayMenu::new(language)?;
-    let icon = Icon::from_rgba(tray_icon_rgba(32), 32, 32)?;
-    let builder = TrayIconBuilder::new()
-        .with_menu(Box::new(menu))
-        .with_tooltip("LocalSend PC")
-        .with_menu_on_left_click(true);
-    #[cfg(target_os = "macos")]
-    let tray = builder.with_icon_templated(icon).build()?;
-    #[cfg(not(target_os = "macos"))]
-    let tray = builder.with_icon(icon).build().context(
-        "failed to create system tray; Linux users may need GTK3 and AppIndicator support \
-         (for GNOME also enable an AppIndicator extension)",
-    )?;
-    let _menu_keepalive = tray.clone();
+    let mut _menu_keepalive: Option<TrayMenu> = None;
+    let mut _tray_keepalive: Option<tray_icon::TrayIcon> = None;
+    let mut headless_guard = None;
+    match create_tray(language) {
+        Ok((items, tray)) => {
+            _menu_keepalive = Some(items);
+            _tray_keepalive = Some(tray);
+        }
+        Err(error) => {
+            tracing::warn!(
+                %error,
+                "system tray unavailable; keeping localsendd alive with the GUI instead"
+            );
+            open_app(false).context("opening GUI after system tray initialization failed")?;
+            headless_guard = Some(HeadlessGuiGuard::new(Instant::now()));
+        }
+    }
     let mut notification_client = match runtime.block_on(DaemonClient::connect_notifications()) {
         Ok(client) => Some(client),
         Err(error) => {
@@ -154,9 +195,26 @@ pub fn run_tray() -> anyhow::Result<()> {
         .unwrap_or_else(|| client.subscribe());
     tracing::info!("notification event stream active");
 
+    let mut headless_error = None;
     loop {
         pump_macos_events();
         pump_linux_events();
+        if let Some(guard) = headless_guard.as_mut() {
+            match guard.poll(gui_process_is_running(), Instant::now()) {
+                HeadlessGuardPoll::Finished => {
+                    tracing::info!("GUI closed; stopping headless tray daemon owner");
+                    break;
+                }
+                HeadlessGuardPoll::TimedOut => {
+                    let message =
+                        "system tray unavailable and the GUI did not start within 10 seconds";
+                    tracing::error!("{message}");
+                    headless_error = Some(message.to_string());
+                    break;
+                }
+                HeadlessGuardPoll::Waiting | HeadlessGuardPoll::Running => {}
+            }
+        }
         if client.is_connection_closed() {
             let was_lifecycle_owner = client.owns_lifecycle();
             drop(notification_client.take());
@@ -318,28 +376,54 @@ pub fn run_tray() -> anyhow::Result<()> {
                 }
                 QUIT_APP => {
                     terminate_gui_process();
-                    if client.owns_lifecycle() {
-                        let _ = runtime.block_on(async {
-                            tokio::time::timeout(
-                                Duration::from_secs(5),
-                                client.command(ServiceCommand::Shutdown),
-                            )
-                            .await
-                        });
-                        let _ = runtime.block_on(async {
-                            tokio::time::timeout(Duration::from_secs(5), client.wait_closed()).await
-                        });
-                    }
-                    notifications::clear_delivered();
                     break;
                 }
                 _ => {}
             }
         }
+        if headless_guard.is_some() {
+            std::thread::sleep(Duration::from_millis(100));
+        }
     }
     terminate_gui_process();
+    shutdown_owned_daemon(&runtime, &client);
     notifications::clear_delivered();
+    if let Some(message) = headless_error {
+        anyhow::bail!(message);
+    }
     Ok(())
+}
+
+fn create_tray(language: TrayLanguage) -> anyhow::Result<(TrayMenu, tray_icon::TrayIcon)> {
+    initialize_linux_gtk()?;
+    let (items, menu) = TrayMenu::new(language)?;
+    let icon = Icon::from_rgba(tray_icon_rgba(32), 32, 32)?;
+    let builder = TrayIconBuilder::new()
+        .with_menu(Box::new(menu))
+        .with_tooltip("LocalSend PC")
+        .with_menu_on_left_click(true);
+    #[cfg(target_os = "macos")]
+    let tray = builder.with_icon_templated(icon).build()?;
+    #[cfg(not(target_os = "macos"))]
+    let tray = builder.with_icon(icon).build().context(
+        "failed to create system tray; Linux users may need GTK3 and AppIndicator support \
+         (for GNOME also enable an AppIndicator extension)",
+    )?;
+    Ok((items, tray))
+}
+
+fn shutdown_owned_daemon(runtime: &tokio::runtime::Runtime, client: &DaemonClient) {
+    if !client.owns_lifecycle() {
+        return;
+    }
+    runtime.block_on(async {
+        let _ = tokio::time::timeout(
+            Duration::from_secs(5),
+            client.command(ServiceCommand::Shutdown),
+        )
+        .await;
+        let _ = tokio::time::timeout(Duration::from_secs(5), client.wait_closed()).await;
+    });
 }
 
 fn quit_instance_request() -> anyhow::Result<()> {
@@ -407,7 +491,10 @@ fn pump_macos_events() {}
 
 #[cfg(target_os = "linux")]
 fn initialize_linux_gtk() -> anyhow::Result<()> {
-    gtk::init().context("GTK initialization failed; tray requires a running X11 or Wayland session")
+    gtk::init()
+        .context("GTK initialization failed; tray requires a running X11 or Wayland session")?;
+    LINUX_GTK_READY.store(true, std::sync::atomic::Ordering::Release);
+    Ok(())
 }
 
 #[cfg(not(target_os = "linux"))]
@@ -417,8 +504,10 @@ fn initialize_linux_gtk() -> anyhow::Result<()> {
 
 #[cfg(target_os = "linux")]
 fn pump_linux_events() {
-    while gtk::events_pending() {
-        gtk::main_iteration_do(false);
+    if LINUX_GTK_READY.load(std::sync::atomic::Ordering::Acquire) {
+        while gtk::events_pending() {
+            gtk::main_iteration_do(false);
+        }
     }
 }
 
@@ -816,6 +905,31 @@ mod tests {
         );
         assert_eq!(TrayLanguage::from_settings("zh-CN").restart_app(), "重启");
         assert_eq!(TrayLanguage::from_settings("zh-CN").quit_app(), "退出");
+    }
+
+    #[test]
+    fn headless_guard_finishes_when_the_gui_closes() {
+        let start = Instant::now();
+        let mut guard = HeadlessGuiGuard::new(start);
+        assert_eq!(guard.poll(false, start), HeadlessGuardPoll::Waiting);
+        assert_eq!(
+            guard.poll(true, start + Duration::from_secs(1)),
+            HeadlessGuardPoll::Running
+        );
+        assert_eq!(
+            guard.poll(false, start + Duration::from_secs(2)),
+            HeadlessGuardPoll::Finished
+        );
+    }
+
+    #[test]
+    fn headless_guard_times_out_if_the_gui_never_appears() {
+        let start = Instant::now();
+        let mut guard = HeadlessGuiGuard::new(start);
+        assert_eq!(
+            guard.poll(false, start + HEADLESS_GUI_START_TIMEOUT),
+            HeadlessGuardPoll::TimedOut
+        );
     }
 
     #[test]
