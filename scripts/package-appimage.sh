@@ -33,6 +33,7 @@ RUNTIME_URL=${APPIMAGE_RUNTIME_URL:-"https://github.com/AppImage/type2-runtime/r
 DESKTOP="$ROOT/apps/localsend-gui-slint/packaging/linux/org.localsend.pc.desktop"
 METAINFO="$ROOT/apps/localsend-gui-slint/packaging/linux/org.localsend.pc.metainfo.xml"
 ICON="$ROOT/apps/localsend-gui-slint/packaging/macos/app-icon.svg"
+ICON_PNG="$ROOT/apps/localsend-gui-slint/packaging/linux/app-icon-256.png"
 
 command -v cargo >/dev/null 2>&1 || { echo 'cargo is required' >&2; exit 1; }
 command -v curl >/dev/null 2>&1 || { echo 'curl is required' >&2; exit 1; }
@@ -44,7 +45,7 @@ fi
 for binary in localsend-gui-slint localsendd localsend-tray localsend-launcher localsend-tui; do
     [ -x "$RELEASE/$binary" ] || { echo "missing build output: $RELEASE/$binary" >&2; exit 1; }
 done
-for asset in "$DESKTOP" "$METAINFO" "$ICON"; do
+for asset in "$DESKTOP" "$METAINFO" "$ICON" "$ICON_PNG"; do
     [ -f "$asset" ] || { echo "missing packaging asset: $asset" >&2; exit 1; }
 done
 if [ "$(sed -n 's/^Exec=//p' "$DESKTOP" | head -n 1)" != "localsend-tray" ] \
@@ -83,6 +84,8 @@ install -m 0755 "$RELEASE/localsend-tui" "$APPDIR/usr/bin/localsend-tui"
 install -m 0644 "$DESKTOP" "$APPDIR/usr/share/applications/org.localsend.pc.desktop"
 install -m 0644 "$METAINFO" "$APPDIR/usr/share/metainfo/org.localsend.pc.metainfo.xml"
 install -m 0644 "$ICON" "$APPDIR/usr/share/icons/hicolor/scalable/apps/org.localsend.pc.svg"
+install -D -m 0644 "$ICON_PNG" "$APPDIR/usr/share/icons/hicolor/256x256/apps/org.localsend.pc.png"
+install -m 0644 "$ICON_PNG" "$APPDIR/org.localsend.pc.png"
 install -m 0644 "$ROOT/LICENSE" "$APPDIR/LICENSE"
 install -m 0644 "$ROOT/THIRD_PARTY_NOTICES.md" "$APPDIR/THIRD_PARTY_NOTICES.md"
 
@@ -118,8 +121,9 @@ esac
 EOF
 chmod +x "$APPDIR/AppRun"
 ln -s usr/share/applications/org.localsend.pc.desktop "$APPDIR/org.localsend.pc.desktop"
-ln -s usr/share/icons/hicolor/scalable/apps/org.localsend.pc.svg "$APPDIR/org.localsend.pc.svg"
-ln -s org.localsend.pc.svg "$APPDIR/.DirIcon"
+# appimagetool >= 2026-10 rejects an SVG .DirIcon; ship a PNG at the AppDir root and
+# let appimagetool derive .DirIcon from it (the scalable SVG stays for the desktop entry).
+rm -f "$APPDIR/.DirIcon" "$APPDIR/org.localsend.pc.svg"
 
 if [ -e "$OUTPUT" ]; then
     unlink "$OUTPUT"
