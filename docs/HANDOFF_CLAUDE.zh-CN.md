@@ -159,6 +159,9 @@ cargo run -q -p localsend-gui-slint --example compare_reference -- \
   图标会偏左，也已补上。多弧 `Path` 在 Slint 里只画一条，改为三条单弧 SVG 图片。
 - 打包装箱脚本会在签名后 `touch` App 与 Contents，避免原地覆盖安装后 Finder/Dock 继续显示
   旧的图标缓存（icns 本身是正确的青绿渐变）。
+- appimagetool 2026-10 之后的连续构建不再接受 SVG `.DirIcon`（直接报错不产出 AppImage）。
+  `scripts/package-appimage.sh` 现在在 AppDir 根目录放 256px PNG
+  （`packaging/linux/app-icon-256.png`），由 appimagetool 生成 `.DirIcon`；可缩放 SVG 仍保留给菜单。
 - 禁用态按钮按 CSS 补上 `surface-container` 底色（含 outlined）；工作区在 ≤700px 改为
   18px 内边距占满宽度、标题基线上移 3px、完成面板 182px/统计行 55px/间距 12px，
   700×700 下 transferring 6.76%、completed 8.31%。
