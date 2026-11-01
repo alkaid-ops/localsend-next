@@ -227,6 +227,10 @@ pub struct FileView {
     pub file_type: String,
     pub sha256: Option<String>,
     pub preview: Option<String>,
+    /// Bytes the daemon has confirmed for this file. Older snapshots and
+    /// event payloads predate this field and deserialize as zero.
+    #[serde(default)]
+    pub bytes_done: u64,
 }
 
 impl FileView {
@@ -238,6 +242,7 @@ impl FileView {
             file_type: metadata.file_type.clone(),
             sha256: metadata.sha256.clone(),
             preview: metadata.preview.clone(),
+            bytes_done: 0,
         }
     }
 }
@@ -672,5 +677,14 @@ mod tests {
         let settings: DesktopSettings =
             serde_json::from_str(r#"{"alias":"legacy"}"#).expect("deserialize legacy settings");
         assert_eq!(settings.discovery_timeout_ms, 500);
+    }
+
+    #[test]
+    fn legacy_file_views_without_progress_deserialize_to_zero() {
+        let file: super::FileView = serde_json::from_str(
+            r#"{"id":"file-1","file_name":"legacy.txt","size":9,"file_type":"text/plain","sha256":null,"preview":null}"#,
+        )
+        .expect("deserialize legacy file view");
+        assert_eq!(file.bytes_done, 0);
     }
 }

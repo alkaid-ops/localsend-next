@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>LocalSend Next · 交互原型</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="stage">
+    <section class="app-window" id="appWindow" aria-label="LocalSend Next 桌面产品原型">
+      <div class="app-shell">
+      <nav class="nav-rail" aria-label="主导航">
+        <div class="brand" aria-label="LocalSend Next">
+          <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true">
+            <g fill="none" stroke="currentColor" stroke-width="4.8" stroke-linecap="round">
+              <path d="M20 3.6v4.2M20 32.2v4.2M3.6 20h4.2M32.2 20h4.2M8.4 8.4l3 3M28.6 28.6l3 3M31.6 8.4l-3 3M11.4 28.6l-3 3"></path>
+            </g>
+            <circle cx="20" cy="20" r="8.7" fill="currentColor"></circle>
+          </svg>
+          <span class="brand-word">Local<span>Send</span></span>
+        </div>
+        <div class="nav-list">
+          <button class="nav-item active" type="button" data-nav="receive" aria-current="page" title="接收">
+            <svg class="od-icon nav-signal" viewBox="0 0 24 24" aria-hidden="true">
+              <path class="sig-arc sig-arc-near" d="M10.6 15.2a1.9 1.9 0 0 1 2.8 0"></path>
+              <path class="sig-arc sig-arc-mid" d="M7.7 12.3a6 6 0 0 1 8.6 0"></path>
+              <path class="sig-arc sig-arc-far" d="M4.9 9.5a10 10 0 0 1 14.2 0"></path>
+              <circle class="sig-dot" cx="12" cy="18.6" r="0.9" fill="currentColor" stroke="none"></circle>
+            </svg>
+            <span class="nav-label">接收</span>
+          </button>
+          <button class="nav-item" type="button" data-nav="send" title="发送">
+            <svg class="od-icon" aria-hidden="true"><use href="#i-send"></use></svg>
+            <span class="nav-label">发送</span>
+          </button>
+          <button class="nav-item" type="button" data-nav="settings" title="设置">
+            <svg class="od-icon" aria-hidden="true"><use href="#i-settings"></use></svg>
+            <span class="nav-label">设置</span>
+          </button>
+        </div>
+        <div class="nav-meta"><span class="status-dot" aria-hidden="true"></span><span>接收服务在线</span></div>
+      </nav>
+
+      <main class="app-main" id="appMain">
+        <!-- Receive -->
+        <section class="page" id="page-receive" data-page-view="receive" aria-labelledby="receiveTitle">
+          <header class="topbar receive-header">
+            <h1 id="receiveTitle">接收</h1>
+            <div class="topbar-actions">
+              <button class="icon-btn" type="button" id="historyBtn" data-tip="历史记录" aria-label="打开历史记录">
+                <svg class="od-icon" aria-hidden="true"><use href="#i-history"></use></svg>
+              </button>
+              <button class="icon-btn" type="button" id="networkInfoBtn" data-tip="网络信息" aria-label="打开网络信息">
+                <svg class="od-icon" aria-hidden="true"><use href="#i-info"></use></svg>
+              </button>
+            </div>
+          </header>
+
+          <div class="page-scroll">
+            <div class="receive-layout">
+              <div class="request-wrap" id="requestWrap" hidden="">
+                <div class="panel request-card">
+                  <div class="request-head">
+                    <div class="request-sender">
+                      <div class="device-avatar"><svg class="od-icon" aria-hidden="true"><use href="#i-phone"></use></svg></div>
+                      <div>
+                        <strong>iPhone 15 Pro</strong>
+                        <span>请求发送 3 个项目</span>
+                      </div>
+                    </div>
+                    <span class="badge">来自附近设备</span>
+                  </div>
+                  <div class="request-files" id="requestFiles">
+                    <label class="file-check-row">
+                      <input type="checkbox" checked="" data-request-file="">
+                      <span class="file-name truncate">产品评审说明.pdf</span>
+                      <span class="file-meta">4.2 MiB · PDF</span>
+                    </label>
+                    <label class="file-check-row">
+                      <input type="checkbox" checked="" data-request-file="">
+                      <span class="file-name truncate">界面截图-2026-10-24.png</span>
+                      <span class="file-meta">2.8 MiB · PNG</span>
+                    </label>
+                    <label class="file-check-row">
+                      <input type="checkbox" checked="" data-request-file="">
+                      <span class="file-name truncate">组件清单.md</span>
+                      <span class="file-meta">18 KiB · Markdown</span>
+                    </label>
+                  </div>
+                  <div class="request-actions">
+                    <button class="button text" type="button" id="declineRequest">拒绝</button>
+                    <button class="button outlined" type="button" id="acceptSelected">接受所选 <span id="selectedRequestCount">3</span></button>
+                    <button class="button primary" type="button" id="acceptAll">全部接受</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="receive-stage" id="receiveStage">
+                <div class="receive-state" id="receiveOnline">
+                  <div class="receive-ring" aria-hidden="true">
+                    <svg viewBox="0 0 156 156">
+                      <g class="ring-segments" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round">
+                        <path d="M78 8v15M78 133v15M8 78h15M133 78h15M28.5 28.5l10.6 10.6M116.9 116.9l10.6 10.6M127.5 28.5l-10.6 10.6M39.1 116.9l-10.6 10.6"></path>
+                      </g>
+                    </svg>
+                    <span class="ring-core"></span>
+                  </div>
+                  <p class="eyebrow">可被发现</p>
+                  <h2 class="alias-title">Flutter Reference</h2>
+                  <p class="network-id mono">localsend.local</p>
+                  <p class="status-copy" id="receiveStatusCopy">接收服务已就绪，附近设备可以在同一网络中发现你。</p>
+                  <button class="button outlined receive-action" type="button" id="receiveLinkBtn">
+                    <svg class="od-icon" aria-hidden="true"><use href="#i-link"></use></svg>
+                    通过链接接收
+                  </button>
+                </div>
+
+                <div class="receive-state" id="receiveOffline" hidden="">
+                  <div class="receive-ring offline" aria-hidden="true">
+                    <svg viewBox="0 0 156 156">
+                      <g fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" opacity="0.55">
+                        <path d="M78 8v15M78 133v15M8 78h15M133 78h15M28.5 28.5l10.6 10.6M116.9 116.9l10.6 10.6M127.5 28.5l-10.6 10.6M39.1 116.9l-10.6 10.6"></path>
+                      </g>
+                    </svg>
+                    <span class="ring-core"></span>
+                  </div>
+                  <p class="eyebrow" style="color:var(--warning)">服务暂停</p>
+                  <h2 class="alias-title">Flutter Reference</h2>
+                  <p class="network-id mono">网络不可用</p>
+                  <p class="status-copy">Wi‑Fi 连接已断开，接收服务暂时无法启动。恢复网络后重试。</p>
+                  <button class="button primary receive-action" type="button" id="retryReceive">重新启动接收</button>
+                </div>
+
+                <div class="receive-state" id="receiveTransferring" hidden="">
+                  <div class="panel transfer-panel">
+                    <div class="transfer-head">
+                      <div><strong>正在接收来自 iPhone 15 Pro 的文件</strong><div class="transfer-stat">3 个文件 · 共 7.0 MiB</div></div>
+                      <span class="badge success">已连接</span>
+                    </div>
+                    <div class="progress-track" aria-label="接收进度"><div class="progress-fill" id="receiveProgress" style="width:64%"></div></div>
+                    <div class="transfer-foot"><span>界面截图-2026-10-24.png</span><span class="mono">4.5 MiB / 7.0 MiB · 18.6 MB/s</span></div>
+                    <div class="transfer-actions"><button class="button text" type="button" id="cancelReceive">取消接收</button></div>
+                  </div>
+                </div>
+
+                <div class="receive-state" id="receiveCompleted" hidden="">
+                  <div class="receive-ring complete" aria-hidden="true"><span class="complete-mark"><svg class="od-icon"><use href="#i-check"></use></svg></span></div>
+                  <p class="eyebrow" style="color:var(--success)">接收完成</p>
+                  <h2 class="alias-title">文件已保存</h2>
+                  <p class="status-copy">3 个文件已保存到「下载 / LocalSend」。</p>
+                  <div class="panel completion-panel">
+                    <div class="completion-summary">
+                      <div class="summary-cell"><strong>3</strong><span>文件</span></div>
+                      <div class="summary-cell"><strong>7.0 MiB</strong><span>总大小</span></div>
+                      <div class="summary-cell"><strong>2.4 s</strong><span>传输用时</span></div>
+                    </div>
+                    <div class="request-actions"><button class="button text" type="button" data-close-completion="">关闭</button><button class="button primary" type="button" id="openReceiveFolder">打开文件夹</button></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Send -->
+        <section class="page" id="page-send" data-page-view="send" aria-labelledby="sendTitle" hidden="">
+          <div id="sendBrowse">
+            <header class="topbar">
+              <h1 id="sendTitle">发送</h1>
+              <div class="topbar-actions">
+                <div class="segmented mode-toggle" id="sendModeToggle" role="group" aria-label="发送模式">
+                  <button type="button" data-send-mode="single" class="active" aria-pressed="true" title="单选发送：点击设备行立即发送">单选</button>
+                  <button type="button" data-send-mode="multi" aria-pressed="false" title="多选发送：先选设备，再统一发送">多选</button>
+                </div>
+              </div>
+            </header>
+            <div class="page-scroll">
+              <div class="page-body send-page-body">
+                <div class="content-column">
+                  <div id="sendPicker">
+                    <h2 class="section-title">选择</h2>
+                    <p class="section-copy">选择要发送的内容，或从剪贴板快速创建一条文本消息。</p>
+                    <div class="pick-grid">
+                      <button class="big-button" type="button" data-pick="file"><svg class="od-icon" aria-hidden="true"><use href="#i-file"></use></svg><span>文件</span></button>
+                      <button class="big-button" type="button" data-pick="folder"><svg class="od-icon" aria-hidden="true"><use href="#i-folder"></use></svg><span>文件夹</span></button>
+                      <button class="big-button" type="button" data-pick="text"><svg class="od-icon" aria-hidden="true"><use href="#i-text"></use></svg><span>文本</span></button>
+                      <button class="big-button" type="button" data-pick="clipboard"><svg class="od-icon" aria-hidden="true"><use href="#i-clipboard"></use></svg><span>剪贴板</span></button>
+                    </div>
+                  </div>
+
+                  <div class="panel selection-card" id="sendSelection" hidden="">
+                    <div class="selection-top">
+                      <div>
+                        <div class="selection-title-row"><strong id="selectionTitle">已选择 3 个项目</strong><span id="selectionSize">共 8.7 MiB</span></div>
+                        <p class="file-summary" id="selectionSummary">产品视觉规范.pdf、receive-default.png、send-selected.png</p>
+                      </div>
+                      <div class="mini-actions">
+                        <button class="button text small" type="button" data-send-edit="">编辑</button>
+                        <button class="button outlined small" type="button" data-pick="file"><svg class="od-icon" aria-hidden="true"><use href="#i-plus"></use></svg>添加</button>
+                        <button class="icon-btn" type="button" id="clearSelection" data-tip="清除选择" aria-label="清除选择"><svg class="od-icon" aria-hidden="true"><use href="#i-x"></use></svg></button>
+                      </div>
+                    </div>
+                    <div class="thumb-rail" aria-label="已选文件">
+                      <div class="file-thumb"><span class="thumb-icon"><svg class="od-icon" aria-hidden="true"><use href="#i-file"></use></svg></span><span class="thumb-label">产品视觉规范.pdf</span></div>
+                      <div class="file-thumb"><span class="thumb-icon"><svg class="od-icon" aria-hidden="true"><use href="#i-image"></use></svg></span><span class="thumb-label">receive-default.png</span></div>
+                      <div class="file-thumb"><span class="thumb-icon"><svg class="od-icon" aria-hidden="true"><use href="#i-image"></use></svg></span><span class="thumb-label">send-selected.png</span></div>
+                    </div>
+                  </div>
+
+                  <section class="device-section" aria-labelledby="nearbyTitle">
+                    <div class="section-row">
+                      <div><h2 class="section-title" id="nearbyTitle">附近设备</h2><p class="section-copy" id="nearbyCopy">同一网络下的设备会自动出现。</p></div>
+                      <div class="toolbar" role="toolbar" aria-label="设备工具">
+                        <button class="icon-btn" type="button" id="refreshDevices" data-tip="刷新设备" aria-label="刷新设备"><svg class="od-icon" aria-hidden="true"><use href="#i-refresh"></use></svg></button>
+                        <button class="icon-btn" type="button" id="manualIpBtn" data-tip="手动 IP" aria-label="手动输入 IP 地址"><svg class="od-icon" aria-hidden="true"><use href="#i-network"></use></svg></button>
+                        <button class="icon-btn" type="button" id="favoritesBtn" data-tip="收藏设备" aria-label="打开收藏设备"><svg class="od-icon" aria-hidden="true"><use href="#i-heart"></use></svg></button>
+                      </div>
+                    </div>
+
+                    <div class="panel empty-device" id="emptyDevices" hidden="">
+                      <span class="empty-icon"><svg class="od-icon" aria-hidden="true"><use href="#i-radar"></use></svg></span>
+                      <strong>正在查找附近设备</strong>
+                      <p>确保对方也打开了 LocalSend，并已连接到同一个 Wi‑Fi 网络。</p>
+                      <button class="button outlined small" type="button" id="emptyRefresh">重新扫描</button>
+                    </div>
+
+                    <div class="device-list" id="deviceList"></div>
+
+                    <div class="device-footer" id="multiSendFooter" hidden="">
+                      <span id="multiSelectionCopy">已选择 0 台设备</span>
+                      <button class="button primary" type="button" id="sendSelectedDevices" disabled="">发送到所选设备</button>
+                    </div>
+                  </section>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="workspace" id="sendWorkspace" hidden="">
+            <div class="workspace-head">
+              <button class="icon-btn workspace-back" type="button" id="sendWorkspaceBack" data-tip="返回选择设备" aria-label="返回选择设备"><svg class="od-icon" aria-hidden="true"><use href="#i-chevron-left"></use></svg></button>
+              <div><h1 id="sendWorkspaceTitle">正在发送文件</h1><p class="section-copy" id="sendWorkspaceCopy">发送到 Flutter Reference 的设备</p></div>
+            </div>
+            <div class="workspace-files" id="sendWorkspaceFiles"></div>
+            <div class="transfer-sticky" id="sendProgressPanel">
+              <div class="transfer-head"><div><strong>传输中</strong><div class="transfer-stat" id="sendProgressStat">2 / 3 个文件 · 5.3 MiB / 8.7 MiB</div></div><span class="badge success">18.6 MB/s</span></div>
+              <div class="progress-track" aria-label="发送进度"><div class="progress-fill" id="sendProgress" style="width:58%"></div></div>
+              <div class="transfer-actions"><button class="button text" type="button" id="cancelSend">取消发送</button><button class="button soft" type="button" id="completeSendNow">完成传输</button></div>
+            </div>
+            <div class="panel completion-panel" id="sendCompletePanel" hidden="">
+              <div class="completion-summary">
+                <div class="summary-cell"><strong id="sendCompleteCount">3</strong><span>已发送</span></div>
+                <div class="summary-cell"><strong id="sendCompleteSize">8.7 MiB</strong><span>总大小</span></div>
+                <div class="summary-cell"><strong id="sendCompleteTime">3.1 s</strong><span>传输用时</span></div>
+              </div>
+              <p class="section-copy" style="margin:0" id="sendCompleteTarget">文件已发送到「Flutter Reference」。</p>
+              <div class="request-actions"><button class="button text" type="button" id="sendDetailDialog">查看详情</button><button class="button outlined" type="button" id="sendAgain">再次发送</button><button class="button primary" type="button" id="closeSendComplete">完成</button></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Settings -->
+        <section class="page settings-page" id="page-settings" data-page-view="settings" aria-labelledby="settingsTitle" hidden="">
+          <div class="page-scroll">
+            <div class="settings-wrap">
+              <header class="settings-header"><h1 id="settingsTitle">设置</h1><p>管理 LocalSend 的外观、接收、网络与支持选项。</p></header>
+
+              <section class="settings-group" aria-labelledby="generalTitle">
+                <div class="settings-group-head"><h2 class="section-title" id="generalTitle">通用</h2><p class="section-copy">外观与桌面行为。</p></div>
+                <div class="panel settings-panel">
+                  <div class="settings-row"><div class="settings-label"><strong>主题</strong><span>跟随系统或固定使用浅色、深色</span></div><div class="settings-control"><div class="segmented" data-theme-segment=""><button type="button" data-theme-set="light" class="active">浅色</button><button type="button" data-theme-set="dark">深色</button><button type="button" data-theme-set="system">系统</button></div></div></div>
+                  <div class="settings-row"><div class="settings-label"><strong>颜色</strong><span>LocalSend 青绿色品牌色</span></div><div class="settings-control"><select class="select" aria-label="颜色"><option>LocalSend Teal</option><option disabled="">青蓝（暂不可用）</option></select></div></div>
+                  <div class="settings-row"><div class="settings-label"><strong>语言</strong><span>界面显示语言</span></div><div class="settings-control"><select class="select" aria-label="语言"><option>简体中文</option><option>English</option><option>日本語</option></select></div></div>
+                  <div class="settings-row"><div class="settings-label"><strong>退出时保存窗口位置</strong><span>记住本次窗口尺寸与位置</span></div><div class="settings-control"><label class="switch"><input type="checkbox" checked="" aria-label="退出时保存窗口位置"><span class="switch-track"></span></label></div></div>
+                  <div class="settings-row"><div class="settings-label"><strong>启动时运行</strong><span>登录系统后自动启动 LocalSend</span></div><div class="settings-control"><label class="switch"><input type="checkbox" aria-label="启动时运行"><span class="switch-track"></span></label></div></div>
+                  <div class="settings-row"><div class="settings-label"><strong>关闭时最小化到托盘</strong><span>关闭窗口后保持接收服务运行</span></div><div class="settings-control"><label class="switch"><input type="checkbox" checked="" aria-label="关闭时最小化到托盘"><span class="switch-track"></span></label></div></div>
+                  <div class="settings-row"><div class="settings-label"><strong>动画效果</strong><span>保留状态变化和页面切换反馈</span></div><div class="settings-control"><label class="switch"><input type="checkbox" checked="" aria-label="动画效果"><span class="switch-track"></span></label></div></div>
+                </div>
+              </section>
+
+              <section class="settings-group" aria-labelledby="receiveSettingsTitle">
+                <div class="settings-group-head"><h2 class="section-title" id="receiveSettingsTitle">接收</h2><p class="section-copy">文件保存、接收确认与完整性校验。</p></div>
+                <div class="panel settings-panel">
+                  <div class="settings-row"><div class="settings-label"><strong>快速保存</strong><span>自动接收来自可信设备的文件</span></div><div class="settings-control wide"><button class="icon-btn" type="button" id="autosaveInfoBtn" data-tip="快速保存说明" aria-label="查看快速保存说明"><svg class="od-icon" aria-hidden="true"><use href="#i-info"></use></svg></button><select class="select" aria-label="快速保存"><option>关闭</option><option selected="">收藏设备</option><option>全部开启</option></select></div></div>
+                  <div class="settings-row"><div class="settings-label"><strong>自动完成</strong><span>接收完成后自动关闭请求，不需要再次确认</span></div><div class="settings-control"><label class="switch"><input type="checkbox" checked="" aria-label="接收后自动完成"><span class="switch-track"></span></label></div></div>
+                  <div class="settings-row"><div class="settings-label"><strong>PIN 验证</strong><span>接收前要求发送方输入 PIN</span></div><div class="settings-control"><label class="switch"><input type="checkbox" id="pinSetting" aria-label="PIN 验证"><span class="switch-track"></span></label></div></div>
+                  <div class="settings-row"><div class="settings-label"><strong>接收目录</strong><span>路径可在文件管理器中打开</span></div><div class="settings-control wide"><button class="button outlined small" type="button" id="receiveFolderBtn">Downloads / LocalSend</button></div></div>
+                  <div class="settings-row"><div class="settings-label"><strong>历史记录</strong><span>保留最近 100 条接收与发送记录</span></div><div class="settings-control"><button class="link-button" type="button" id="settingsHistoryBtn">查看</button></div></div>
+                  <div class="settings-row"><div class="settings-label"><strong>Checksum 校验</strong><span>传输后校验文件完整性</span></div><div class="settings-control"><label class="switch"><input type="checkbox" checked="" aria-label="Checksum 校验"><span class="switch-track"></span></label></div></div>
+                </div>
+              </section>
+
+              <section class="settings-group" aria-labelledby="networkTitle">
+                <div class="settings-group-head"><h2 class="section-title" id="networkTitle">网络</h2><p class="section-copy">设备身份、服务与发现协议。</p></div>
+                <div class="panel settings-panel">
+                  <div class="settings-row"><div class="settings-label"><strong>服务器状态</strong><span id="serverSettingStatus">接收服务正在运行</span></div><div class="settings-control wide"><div class="server-actions"><span class="server-status">在线</span><button class="link-button" type="button" id="restartServer">重启</button><button class="link-button" type="button" id="toggleServer">停止</button></div></div></div>
+                  <div class="settings-row"><div class="settings-label"><strong>设备名称</strong><span>附近设备中显示的 alias</span></div><div class="settings-control"><div class="inline-control"><input class="input" value="Flutter Reference" aria-label="设备名称" data-inline-setting="name"><span class="save-status">已保存</span></div></div></div>
+                  <div class="settings-row"><div class="settings-label"><strong>设备类型</strong><span>用于匹配正确的平台图标</span></div><div class="settings-control"><select class="select" aria-label="设备类型"><option>桌面</option><option>手机</option><option>平板</option><option>服务器</option></select></div></div>
+                  <div class="settings-row"><div class="settings-label"><strong>设备型号</strong><span>用于区分设备信息</span></div><div class="settings-control"><div class="inline-control"><input class="input" value="MacBook Pro" aria-label="设备型号" data-inline-setting="model"><span class="save-status">已保存</span></div></div></div>
+                  <div class="settings-row"><div class="settings-label"><strong>端口</strong><span>接收服务使用的 TCP 端口</span></div><div class="settings-control"><div class="inline-control"><input class="input mono compact" value="53317" inputmode="numeric" aria-label="端口" data-inline-setting="port"><span class="save-status">已保存</span></div></div></div>
+                  <div class="settings-row"><div class="settings-label"><strong>HTTPS</strong><span>启用加密传输，速度可能略低</span></div><div class="settings-control"><label class="switch"><input type="checkbox" checked="" aria-label="HTTPS"><span class="switch-track"></span></label></div></div>
+                  <div class="settings-row"><div class="settings-label"><strong>网络接口</strong><span>发现和传输使用的网络</span></div><div class="settings-control"><select class="select" aria-label="网络接口"><option>Wi‑Fi · en0</option><option>以太网 · en1</option><option>全部接口</option></select></div></div>
+                  <div class="settings-row"><div class="settings-label"><strong>发现超时</strong><span>单位：秒；0 表示持续发现</span></div><div class="settings-control"><div class="inline-control"><input class="input mono tiny" value="30" inputmode="numeric" aria-label="发现超时" data-inline-setting="timeout"><span class="save-status">已保存</span></div></div></div>
+                  <div class="settings-row"><div class="settings-label"><strong>Multicast</strong><span>局域网组播发现地址</span></div><div class="settings-control"><div class="inline-control"><input class="input mono medium" value="239.0.0.167" aria-label="Multicast 地址" data-inline-setting="multicast"><span class="save-status">已保存</span></div></div></div>
+                  <div class="settings-row"><div class="settings-label"><strong>网络筛选</strong><span>仅允许指定网段访问</span></div><div class="settings-control"><div class="inline-control"><input class="input medium" value="192.168.1.0/24" aria-label="网络筛选" data-inline-setting="filter"><span class="save-status">已保存</span></div></div></div>
+                </div>
+              </section>
+
+              <section class="settings-group" aria-labelledby="otherTitle">
+                <div class="settings-group-head"><h2 class="section-title" id="otherTitle">其他</h2><p class="section-copy">支持信息与需要网络连接的操作。</p></div>
+                <div class="panel settings-panel">
+                  <div class="settings-row"><div class="settings-label"><strong>关于 LocalSend Next</strong><span>版本、开源许可与项目信息</span></div><div class="settings-control"><button class="link-button" type="button" id="aboutBtn">查看</button></div></div>
+                  <div class="settings-row"><div class="settings-label"><strong>故障排除</strong><span>检查端口、网络与设备发现</span></div><div class="settings-control"><button class="link-button" type="button" id="troubleshootBtn">诊断</button></div></div>
+                  <div class="settings-row disabled"><div class="settings-label"><strong>支持项目</strong><span>外部链接在当前评审原型中不可用</span></div><div class="settings-control"><button class="button small" type="button" disabled="">暂不可用</button></div></div>
+                  <div class="settings-row disabled"><div class="settings-label"><strong>隐私政策</strong><span>外部文档在当前评审原型中不可用</span></div><div class="settings-control"><button class="button small" type="button" disabled="">暂不可用</button></div></div>
+                  <div class="settings-row disabled"><div class="settings-label"><strong>服务条款</strong><span>外部文档在当前评审原型中不可用</span></div><div class="settings-control"><button class="button small" type="button" disabled="">暂不可用</button></div></div>
+                  <div class="settings-row"><div class="settings-label"><strong>日志</strong><span>查看当前会话的调试日志</span></div><div class="settings-control"><button class="link-button" type="button" id="logsBtn">打开</button></div></div>
+                  <div class="settings-row"><div class="settings-label"><strong>版本</strong><span>LocalSend Next 0.9.0 · 原型评审版</span></div><div class="settings-control"><span class="badge">0.9.0</span></div></div>
+                  <div class="settings-row"><div class="settings-label"><strong>版权</strong><span>© 2026 LocalSend contributors</span></div><div class="settings-control"><span class="badge">MIT</span></div></div>
+                </div>
+              </section>
+            </div>
+          </div>
+        </section>
+
+        <!-- Device details subpage -->
+        <section class="details-page" id="page-device" aria-labelledby="deviceDetailTitle" hidden="">
+          <header class="topbar">
+            <div style="display:flex;align-items:center;gap:12px"><button class="icon-btn" type="button" id="deviceBackButton" data-tip="返回设备列表" aria-label="返回设备列表"><svg class="od-icon" aria-hidden="true"><use href="#i-chevron-left"></use></svg></button><h1 id="deviceDetailTitle">设备详情</h1></div>
+            <button class="icon-btn" type="button" id="detailFavorite" data-tip="收藏设备" aria-label="收藏设备"><svg class="od-icon" aria-hidden="true"><use href="#i-heart"></use></svg></button>
+          </header>
+          <div class="details-scroll">
+            <div class="details-wrap">
+              <div class="details-hero">
+                <div class="device-avatar" id="detailDeviceIcon"><svg class="od-icon" aria-hidden="true"><use href="#i-laptop"></use></svg></div>
+                <div><h1>Flutter Reference</h1><p>桌面 · macOS · HTTPS</p></div>
+              </div>
+              <div class="panel detail-panel">
+                <h2 class="section-title" style="margin-bottom:14px">设备信息</h2>
+                <div class="detail-list">
+                  <div class="detail-row"><span>协议</span><span>LocalSend v2.1 · HTTPS</span></div>
+                  <div class="detail-row"><span>设备模型</span><span>MacBook Pro · 14-inch</span></div>
+                  <div class="detail-row"><span>地址</span><span class="mono">192.168.1.42:53317</span></div>
+                  <div class="detail-row"><span>指纹</span><span class="mono">E4:7A:21:9C:88:BD</span></div>
+                  <div class="detail-row"><span>最近发现</span><span>刚刚</span></div>
+                </div>
+              </div>
+              <div class="panel detail-panel">
+                <div class="section-row"><div><h2 class="section-title">连接验证</h2><p class="section-copy">确认设备指纹后再发送敏感文件。</p></div><button class="button outlined small" type="button" id="verifyDevice">验证</button></div>
+                <div class="server-status" id="verifyStatus">证书有效，连接可信</div>
+              </div>
+              <div class="panel detail-panel">
+                <div class="section-row"><h2 class="section-title">会话日志</h2><button class="link-button" type="button" id="clearDeviceLog">清空</button></div>
+                <div class="log-panel">10:26:18  discovery  found peer "Flutter Reference"\n10:26:19  handshake   HTTPS · certificate valid\n10:26:20  session     ready · protocol 2.1</div>
+              </div>
+              <div class="request-actions"><button class="button primary" type="button" id="sendToDetailDevice">发送文件到此设备</button></div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <div class="toast" id="toast" role="status" aria-live="polite">
+        <svg class="od-icon" aria-hidden="true"><use href="#i-check"></use></svg><span id="toastText">操作已完成</span>
+      </div>
+      </div>
+    </section>
+  </div>
+
+  <button class="review-toggle" type="button" id="reviewToggle" aria-label="打开评审演示" aria-expanded="false" aria-controls="reviewDock">
+    <svg class="od-icon" aria-hidden="true"><use href="#i-tune"></use></svg><span class="review-toggle-label">评审演示</span>
+  </button>
+  <aside class="review-dock" id="reviewDock" aria-label="评审演示控制" hidden="">
+    <h2>场景与视口</h2>
+    <p>这些控件仅用于评审演示，不属于 LocalSend 产品界面。</p>
+    <div class="demo-block"><span class="demo-label">视口</span><div class="demo-grid" id="viewportButtons"><button class="demo-button active" type="button" data-viewport="1024x768">1024 × 768</button><button class="demo-button" type="button" data-viewport="700x700">700 × 700</button><button class="demo-button" type="button" data-viewport="800x600">800 × 600</button><button class="demo-button" type="button" data-viewport="1440x900">1440 × 900</button></div></div>
+    <div class="demo-block"><span class="demo-label">主题</span><div class="demo-grid" id="themeButtons"><button class="demo-button active" type="button" data-demo-theme="light">浅色</button><button class="demo-button" type="button" data-demo-theme="dark">深色</button></div></div>
+    <div class="demo-block"><span class="demo-label">接收状态</span><div class="demo-grid" id="receiveScenarios"><button class="demo-button active" type="button" data-receive-scene="online">在线</button><button class="demo-button" type="button" data-receive-scene="offline">离线</button><button class="demo-button" type="button" data-receive-scene="request">接收请求</button><button class="demo-button" type="button" data-receive-scene="transferring">传输中</button><button class="demo-button" type="button" data-receive-scene="completed">完成</button></div></div>
+    <div class="demo-block"><span class="demo-label">发送状态</span><div class="demo-grid" id="sendScenarios"><button class="demo-button active" type="button" data-send-scene="default">未选择</button><button class="demo-button" type="button" data-send-scene="selected">已选择</button><button class="demo-button" type="button" data-send-scene="empty">空设备</button><button class="demo-button" type="button" data-send-scene="dense">多设备</button><button class="demo-button" type="button" data-send-scene="multi">多选</button><button class="demo-button" type="button" data-send-scene="transferring">传输中</button></div></div>
+    <div class="demo-actions"><button class="button outlined small" type="button" id="resetDemo">恢复默认</button><button class="button primary small" type="button" id="closeReview">收起</button></div>
+  </aside>
+
+  <dialog class="dialog-shell" id="dialogShell" aria-labelledby="dialogTitle">
+    <div class="dialog-header"><div class="dialog-title-wrap"><h2 class="dialog-title" id="dialogTitle">标题</h2><p class="dialog-subtitle" id="dialogSubtitle"></p></div><button class="icon-btn" type="button" id="dialogClose" data-tip="关闭" aria-label="关闭弹窗"><svg class="od-icon" aria-hidden="true"><use href="#i-x"></use></svg></button></div>
+    <div class="dialog-body" id="dialogBody"></div>
+    <div class="dialog-footer" id="dialogFooter"></div>
+  </dialog>
+
+  <input class="sr-only" type="file" id="filePicker" multiple="" aria-label="选择文件">
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-receive" viewBox="0 0 24 24"><path d="M4.9 9.5a10 10 0 0 1 14.2 0M7.7 12.3a6 6 0 0 1 8.6 0M10.6 15.2a1.9 1.9 0 0 1 2.8 0"></path><circle cx="12" cy="18.6" r=".8" fill="currentColor" stroke="none"></circle></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="m21 3-7.5 18-3.4-7.1L3 10.5 21 3Z"></path><path d="m10.1 13.9 4-4"></path></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2Z"></path><circle cx="12" cy="12" r="3"></circle></symbol>
+    <symbol id="i-history" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5M12 7v5l3 2"></path></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v6M12 7h.01"></path></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.1 0l2-2a5 5 0 0 0-7.1-7.1l-1.1 1.1"></path><path d="M14 11a5 5 0 0 0-7.1 0l-2 2A5 5 0 0 0 12 20.1l1.1-1.1"></path></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"></rect><path d="M10 18h4"></path></symbol>
+    <symbol id="i-laptop" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="12" rx="1.5"></rect><path d="M2 19h20M9 16h6"></path></symbol>
+    <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="1.5"></rect><path d="M8 21h8M12 17v4"></path></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M6 2h8l4 4v16H6V2Z"></path><path d="M14 2v5h5"></path></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 6h7l2 2h9v12H3V6Z"></path></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"></rect><circle cx="8.5" cy="9" r="1.5"></circle><path d="m21 15-5-5L5 20"></path></symbol>
+    <symbol id="i-text" viewBox="0 0 24 24"><path d="M4 6h16M4 10h12M4 14h16M4 18h10"></path></symbol>
+    <symbol id="i-clipboard" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="18" rx="2"></rect><path d="M9 4V2h6v2M8 9h8M8 13h8M8 17h5"></path></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2 6M20 4v7h-7"></path></symbol>
+    <symbol id="i-network" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"></circle><circle cx="5" cy="19" r="2"></circle><circle cx="19" cy="19" r="2"></circle><path d="M12 7v4M12 11H7l-2 6M12 11h5l2 6"></path></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.8 4.6a5.4 5.4 0 0 0-7.6 0L12 5.8l-1.2-1.2a5.4 5.4 0 0 0-7.6 7.6L12 21l8.8-8.8a5.4 5.4 0 0 0 0-7.6Z"></path></symbol>
+    <symbol id="i-tune" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10M14 4v6M6 14v6"></path></symbol>
+    <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"></path></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"></path></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m4 12 5 5L20 6"></path></symbol>
+    <symbol id="i-radar" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="5"></circle><path d="M12 12 19 5M12 7a5 5 0 0 1 5 5"></path></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="m16 16 5 5"></path></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 14h10l1-14M10 11v6M14 11v6"></path></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"></path></symbol>
+    <symbol id="i-server" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="6" rx="1.5"></rect><rect x="3" y="14" width="18" height="6" rx="1.5"></rect><path d="M7 7h.01M7 17h.01M11 7h6M11 17h6"></path></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3 2.5 20h19L12 3Z"></path><path d="M12 9v5M12 17h.01"></path></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"></path></symbol>
+    <symbol id="i-terminal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="m7 9 3 3-3 3M13 15h4"></path></symbol>
+  </svg>
+
+  <script src="app.js"></script>
+
+
+</body></html>

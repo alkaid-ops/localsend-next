@@ -205,6 +205,17 @@ async fn worker_send_receive_and_settings_flow() -> anyhow::Result<()> {
     })
     .await?;
     assert_eq!(std::fs::read(received)?, b"worker incoming");
+    wait_for_snapshot(&mut worker, |snapshot| {
+        snapshot.active_transfers.iter().any(|transfer| {
+            transfer.direction == localsend_rpc::TransferDirection::Receive
+                && transfer.status == localsend_rpc::TransferStatus::Finished
+                && !transfer.files.is_empty()
+                && transfer
+                    .files
+                    .iter()
+                    .all(|file| file.bytes_done == file.size)
+        })
+    });
 
     let mut settings = daemon.snapshot().await?.settings;
     settings.alias = "worker-persisted".to_string();
@@ -639,6 +650,111 @@ async fn worker_cancels_slow_outgoing_transfer() -> anyhow::Result<()> {
                 && transfer.status == localsend_rpc::TransferStatus::Cancelled
         })
     });
+    worker.commands.send(UiCommand::ShutdownDaemon)?;
+    peer.shutdown().await;
+    let _ = daemon.shutdown().await;
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn worker_reports_per_file_progress_from_a_real_daemon() -> anyhow::Result<()> {
+    let mut daemon =
+        DaemonFixture::start(&daemon_binary_for_tests()?, default_daemon_settings()).await?;
+    let peer = ReceiverPeer::start(
+        ProtocolType::Http,
+        PeerAcceptance::All,
+        None,
+        Some(256 * 1024),
+    )
+    .await?;
+    let mut worker = WorkerProbe::spawn_with_endpoint(daemon.endpoint().to_string_lossy());
+    wait_for_snapshot(&mut worker, |snapshot| snapshot.server_running);
+    worker
+        .commands
+        .send(UiCommand::AddManual(PeerTarget::format(peer.port())))?;
+    let snapshot = wait_for_snapshot(&mut worker, |snapshot| {
+        snapshot
+            .devices
+            .iter()
+            .any(|device| device.device.alias == "deterministic-peer")
+    });
+    let fingerprint = snapshot
+        .devices
+        .iter()
+        .find(|device| device.device.alias == "deterministic-peer")
+        .expect("peer device")
+        .device
+        .fingerprint
+        .clone();
+
+    let source = TempDir::new()?;
+    let first = source.path().join("first.bin");
+    let second = source.path().join("second.bin");
+    std::fs::write(&first, vec![1_u8; 2 * 1024 * 1024])?;
+    std::fs::write(&second, vec![2_u8; 32 * 1024])?;
+    worker.commands.send(UiCommand::SendFiles {
+        fingerprint,
+        paths: vec![first, second],
+    })?;
+
+    let partial = wait_for_snapshot(&mut worker, |snapshot| {
+        snapshot.active_transfers.iter().any(|transfer| {
+            transfer.direction == localsend_rpc::TransferDirection::Send
+                && transfer.files.len() == 2
+                && transfer.files[0].bytes_done > 0
+                && transfer.files[0].bytes_done < transfer.files[0].size
+        })
+    });
+    let transfer = partial
+        .active_transfers
+        .iter()
+        .find(|transfer| {
+            transfer.direction == localsend_rpc::TransferDirection::Send
+                && transfer.files.len() == 2
+        })
+        .expect("send transfer");
+    assert_eq!(transfer.files[1].bytes_done, 0);
+    assert!(transfer.bytes_done > 0);
+
+    let daemon_snapshot = daemon.snapshot().await?;
+    let daemon_transfer = daemon_snapshot
+        .active_transfers
+        .iter()
+        .find(|transfer| {
+            transfer.direction == localsend_rpc::TransferDirection::Send
+                && transfer.files.len() == 2
+        })
+        .expect("daemon-side send transfer");
+    assert!(daemon_transfer.files[0].bytes_done > 0);
+    assert!(daemon_transfer.files[0].bytes_done <= daemon_transfer.files[0].size);
+    assert_eq!(daemon_transfer.files[1].bytes_done, 0);
+
+    let finished = wait_for_snapshot(&mut worker, |snapshot| {
+        snapshot.active_transfers.iter().any(|transfer| {
+            transfer.direction == localsend_rpc::TransferDirection::Send
+                && transfer.status == localsend_rpc::TransferStatus::Finished
+                && transfer.files.len() == 2
+                && transfer
+                    .files
+                    .iter()
+                    .all(|file| file.bytes_done == file.size)
+        })
+    });
+    let transfer = finished
+        .active_transfers
+        .iter()
+        .find(|transfer| {
+            transfer.direction == localsend_rpc::TransferDirection::Send
+                && transfer.files.len() == 2
+        })
+        .expect("finished send transfer");
+    assert!(
+        transfer
+            .files
+            .iter()
+            .all(|file| file.bytes_done == file.size)
+    );
+
     worker.commands.send(UiCommand::ShutdownDaemon)?;
     peer.shutdown().await;
     let _ = daemon.shutdown().await;

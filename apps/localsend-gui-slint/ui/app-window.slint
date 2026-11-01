@@ -24,11 +24,14 @@ export component AppWindow inherits Window {
     preferred-height: root.requested-window-height;
     min-width: 600px;
     min-height: 500px;
+    default-font-family: "Avenir Next";
+    default-font-size: 15px;
+    default-font-weight: 400;
     always-on-top: root.settings-always-on-top;
     background: ThemeTokens.surface;
 
-    in-out property <length> requested-window-width: 900px;
-    in-out property <length> requested-window-height: 600px;
+    in-out property <length> requested-window-width: 1024px;
+    in-out property <length> requested-window-height: 768px;
     in-out property <string> selected-tab: "receive";
     in-out property <string> server-status: @tr("正在连接 localsendd...");
     in-out property <string> devices-text: "";
@@ -64,6 +67,7 @@ export component AppWindow inherits Window {
     in-out property <[string]> selected-request-ids: [];
     in-out property <[TransferItem]> transfer-items: [];
     in-out property <string> settings-theme: @tr("跟随系统");
+    in-out property <string> settings-theme-code: "system";
     in-out property <string> settings-color: "LocalSend";
     in-out property <string> settings-language: @tr("跟随系统");
     in-out property <bool> save-window-position: true;
@@ -80,12 +84,12 @@ export component AppWindow inherits Window {
     in-out property <bool> info-dialog-open: false;
     in-out property <bool> manual-dialog-open: false;
     in-out property <bool> favorites-dialog-open: false;
-    in-out property <bool> send-mode-dialog-open: false;
     in-out property <bool> troubleshoot-dialog-open: false;
     in-out property <string> manual-target: "";
     in-out property <string> info-alias: "";
     in-out property <string> info-ip: "";
     in-out property <string> info-port: "";
+    in-out property <string> info-fingerprint: "";
     in-out property <string> destination-dir: "";
     in-out property <int> send-mode: 0;
     in-out property <bool> has-selection: false;
@@ -100,6 +104,8 @@ export component AppWindow inherits Window {
     in-out property <string> incoming-request-body: "";
     in-out property <string> active-transfer-summary: "";
     in-out property <string> selected-target-label: "";
+    in-out property <int> selected-device-count: 0;
+    in-out property <bool> freeze-motion: false;
     in-out property <string> selected-total-size: "0 B";
     in-out property <string> settings-device-type: "Desktop";
     in-out property <string> settings-device-model: "";
@@ -109,8 +115,9 @@ export component AppWindow inherits Window {
     in-out property <string> settings-network-filter: @tr("全部接口");
     in-out property <bool> settings-encryption: true;
     in-out property <bool> settings-always-on-top: false;
+    in-out property <bool> settings-minimize-to-tray: true;
     in-out property <bool> settings-require-pin: false;
-    in-out property <bool> settings-advanced: true;
+    in-out property <bool> settings-advanced: false;
     in-out property <length> settings-scroll-y: 0px;
     in-out property <bool> setting-dialog-open: false;
     in-out property <string> setting-edit-key: "";
@@ -130,10 +137,10 @@ export component AppWindow inherits Window {
 
     out property <length> viewport-width: 1120px;
     out property <length> viewport-height: 760px;
-    property <bool> narrow: root.viewport-width < 700px;
-    property <bool> compact-sidebar: root.viewport-width < 800px;
+    property <bool> narrow: root.viewport-width <= 700px;
+    property <bool> compact-sidebar: root.viewport-width <= 801px;
     property <bool> tablet: root.viewport-width >= 700px && root.viewport-width < 800px;
-    property <length> sidebar-width: root.compact-sidebar ? 80px : 256px;
+    property <length> sidebar-width: root.compact-sidebar ? 72px : 248px;
 
     callback refresh();
     callback toggle-server();
@@ -154,6 +161,7 @@ export component AppWindow inherits Window {
     callback open-destination();
     callback open-troubleshoot-firewall();
     callback cycle-setting(string);
+    callback set-theme(string);
     callback set-toggle(string, bool);
     callback respond-transfer(string, [string], bool);
     callback toggle-request-file(string);
@@ -188,6 +196,7 @@ export component AppWindow inherits Window {
     callback reveal-completion-file();
     callback close-completion();
     callback close-auto-save-help();
+    callback copy-diagnostics();
 
     changed width => { root.viewport-width = root.width; }
     changed height => { root.viewport-height = root.height; }
@@ -210,66 +219,163 @@ export component AppWindow inherits Window {
             height: root.viewport-height;
             spacing: 0px;
             Rectangle {
-                height: root.viewport-height - (root.narrow && !root.sending-active ? 72px : 0px);
+                height: root.viewport-height - (root.narrow ? 64px : 0px);
                 vertical-stretch: 1;
                 horizontal-stretch: 1;
                 background: ThemeTokens.surface;
 
                 HorizontalLayout {
                     spacing: 0px;
-                    if !root.narrow && !root.sending-active : Rectangle {
+                    if !root.narrow : Rectangle {
                         width: root.sidebar-width;
-                        background: ThemeTokens.surface-container-low;
+                        background: ThemeTokens.nav-surface;
                         VerticalLayout {
                             width: parent.width;
-                            padding-left: root.compact-sidebar ? 10px : 20px;
-                            padding-right: root.compact-sidebar ? 10px : 20px;
-                            padding-top: 20px;
-                            spacing: 12px;
+                            padding-left: root.compact-sidebar ? 11px : 13px;
+                            padding-right: root.compact-sidebar ? 9px : 11px;
+                            padding-top: 25px;
+                            padding-bottom: 20px;
+                            spacing: 0px;
 
-                            if root.compact-sidebar : Image {
-                                width: 44px;
-                                height: 44px;
-                                source: @image-url("images/flutter-logo-512.png");
-                                colorize: ThemeTokens.primary;
-                                image-fit: contain;
-                                horizontal-alignment: center;
+                            if root.compact-sidebar : Rectangle {
+                                height: 40px;
+                                background: transparent;
+                                Image {
+                                    width: 28px;
+                                    height: 28px;
+                                    x: (parent.width - self.width) / 2;
+                                    y: 6px;
+                                    source: @image-url("icons/logo.svg");
+                                    colorize: ThemeTokens.primary;
+                                    image-fit: contain;
+                                }
                             }
-                            if !root.compact-sidebar : Text {
-                                text: "LocalSend";
-                                color: ThemeTokens.on-surface;
-                                font-size: 36px;
-                                font-weight: 700;
-                                horizontal-alignment: center;
-                                height: 90px;
+                            if !root.compact-sidebar : HorizontalLayout {
+                                height: 40px;
+                                padding-left: 13px;
+                                padding-right: 11px;
+                                spacing: 10px;
+                                alignment: start;
+                                Image {
+                                    width: 28px;
+                                    height: 28px;
+                                    y: 6px;
+                                    source: @image-url("icons/logo.svg");
+                                    colorize: ThemeTokens.primary;
+                                    image-fit: contain;
+                                }
+                                HorizontalLayout {
+                                    spacing: 0px;
+                                    Text {
+                                        text: "Local";
+                                        color: ThemeTokens.on-surface;
+                                        font-family: "Avenir Next";
+                                        font-size: 22px;
+                                        font-weight: 650;
+                                        letter-spacing: -0.55px;
+                                        vertical-alignment: center;
+                                    }
+                                    Text {
+                                        text: "Send";
+                                        color: ThemeTokens.primary;
+                                        font-family: "Avenir Next";
+                                        font-size: 22px;
+                                        font-weight: 650;
+                                        letter-spacing: -0.55px;
+                                        vertical-alignment: center;
+                                    }
+                                }
+                            }
+                            if !root.compact-sidebar : Rectangle {
+                                height: 48px;
+                                background: transparent;
+                            }
+                            if root.compact-sidebar : Rectangle {
+                                height: 48px;
+                                background: transparent;
                             }
                             FlutterNavItem {
-                                width: parent.width;
+                                width: parent.width - (root.compact-sidebar ? 20px : 25px);
                                 automation-id: "nav-receive";
                                 label: @tr("接收");
                                 icon: @image-url("icons/wifi.svg");
                                 active: root.selected-tab == "receive";
                                 compact: root.compact-sidebar;
+                                motion: 1;
+                                motion-enabled: root.animations-enabled && !root.freeze-motion;
                                 clicked => { root.selected-tab = "receive"; root.message = ""; root.refresh(); }
                             }
+                            Rectangle { height: 8px; background: transparent; }
                             FlutterNavItem {
-                                width: parent.width;
+                                width: parent.width - (root.compact-sidebar ? 20px : 25px);
                                 automation-id: "nav-send";
                                 label: @tr("发送");
                                 icon: @image-url("icons/send.svg");
                                 active: root.selected-tab == "send";
                                 compact: root.compact-sidebar;
+                                motion: 2;
+                                motion-enabled: root.animations-enabled && !root.freeze-motion;
                                 clicked => { root.selected-tab = "send"; root.message = ""; root.refresh(); }
                             }
+                            Rectangle { height: 8px; background: transparent; }
                             FlutterNavItem {
-                                width: parent.width;
+                                width: parent.width - (root.compact-sidebar ? 20px : 25px);
                                 automation-id: "nav-settings";
                                 label: @tr("设置");
                                 icon: @image-url("icons/settings.svg");
                                 active: root.selected-tab == "settings";
                                 compact: root.compact-sidebar;
+                                motion: 3;
+                                motion-enabled: root.animations-enabled && !root.freeze-motion;
                                 clicked => { root.selected-tab = "settings"; root.message = ""; }
                             }
+                            Rectangle { vertical-stretch: 1; background: transparent; }
+                            if root.compact-sidebar : Rectangle {
+                                height: 44px;
+                                background: transparent;
+                                Rectangle {
+                                    width: 8px;
+                                    height: 8px;
+                                    x: (parent.width - self.width) / 2;
+                                    y: 18px;
+                                    border-radius: 4px;
+                                    background: root.server-running ? ThemeTokens.success : ThemeTokens.error;
+                                }
+                            }
+                            if !root.compact-sidebar : Rectangle {
+                                height: 44px;
+                                background: transparent;
+                                HorizontalLayout {
+                                    width: parent.width;
+                                    padding-left: 12px;
+                                    padding-right: 12px;
+                                    spacing: 10px;
+                                    Rectangle {
+                                        width: 7px;
+                                        height: 7px;
+                                        y: 18px;
+                                        border-radius: 4px;
+                                        background: root.server-running ? ThemeTokens.success : ThemeTokens.error;
+                                        drop-shadow-blur: 8px;
+                                        drop-shadow-color: root.server-running ? #69D6A324 : #FFB4AB24;
+                                    }
+                                    Text {
+                                        text: root.server-running ? @tr("接收服务在线") : @tr("接收服务离线");
+                                        color: ThemeTokens.on-surface-variant;
+                                        font-size: 12px;
+                                        height: parent.height;
+                                        horizontal-stretch: 1;
+                                        vertical-alignment: center;
+                                        overflow: elide;
+                                    }
+                                }
+                            }
+                        }
+                        Rectangle {
+                            x: parent.width - 1px;
+                            width: 1px;
+                            height: parent.height;
+                            background: ThemeTokens.outline.with-alpha(0.44);
                         }
                     }
 
@@ -279,10 +385,12 @@ export component AppWindow inherits Window {
                         background: ThemeTokens.surface;
                         if root.selected-tab == "receive" : ReceivePage {
                             width: root.viewport-width - (root.narrow ? 0px : root.sidebar-width);
-                            height: root.viewport-height - (root.narrow ? 72px : 0px);
+                            height: root.viewport-height - (root.narrow ? 64px : 0px);
+                            compact-layout: root.compact-sidebar;
                             vertical-stretch: 1;
                             viewport-width: root.viewport-width - (root.narrow ? 0px : root.sidebar-width);
-                            viewport-height: root.viewport-height - (root.narrow ? 72px : 0px);
+                            viewport-height: root.viewport-height - (root.narrow ? 64px : 0px);
+                            container-height: root.viewport-height;
                             alias: root.device-alias;
                             device-id: root.device-id;
                             ip-summary: root.info-ip;
@@ -298,22 +406,29 @@ export component AppWindow inherits Window {
                             show-history => { root.history-dialog-open = true; }
                             show-info => { root.info-dialog-open = true; }
                             open-web-share => { root.web-share-dialog-open = true; root.open-web-share(); }
+                            open-receive-folder => { root.open-destination(); }
                             toggle-request-file(file-id) => { root.toggle-request-file(file-id); }
                             respond-transfer(request-id, selected, accept) => { root.respond-transfer(request-id, selected, accept); }
                             cancel-transfer(transfer-id) => { root.cancel-transfer(transfer-id); }
+                            dismiss-transfer(transfer-id) => { root.dismiss-transfer(transfer-id); }
                         }
                         if root.selected-tab == "send" : SendPage {
                             visible: !root.device-details-open;
-                            width: root.viewport-width - ((root.narrow || root.sending-active) ? 0px : root.sidebar-width);
-                            height: root.viewport-height - (root.narrow && !root.sending-active ? 72px : 0px);
+                            width: root.viewport-width - (root.narrow ? 0px : root.sidebar-width);
+                            height: root.viewport-height - (root.narrow ? 64px : 0px);
+                            compact-layout: root.compact-sidebar;
                             vertical-stretch: 1;
-                            viewport-width: root.viewport-width - ((root.narrow || root.sending-active) ? 0px : root.sidebar-width);
+                            viewport-width: root.viewport-width - (root.narrow ? 0px : root.sidebar-width);
+                            viewport-height: root.viewport-height - (root.narrow ? 64px : 0px);
+                            container-height: root.viewport-height;
                             devices: root.devices;
                             selected-files: root.selected-files;
                             transfers: root.transfer-items;
                             selected-target: root.selected-target-label;
                             selected-total-size: root.selected-total-size;
+                            selected-files-text: root.selected-files-text;
                             selected-file-count: root.selected-file-count;
+                            selected-device-count: root.selected-device-count;
                             sending-active: root.sending-active;
                             send-mode: root.send-mode;
                             status-message: root.message;
@@ -327,7 +442,7 @@ export component AppWindow inherits Window {
                             refresh => { root.refresh(); }
                             add-manual => { root.manual-dialog-open = true; }
                             open-favorites => { root.favorites-dialog-open = true; }
-                            open-send-mode => { root.send-mode-dialog-open = true; }
+                            mode-changed(mode) => { root.set-send-mode(mode); }
                             send-to-device(fingerprint) => { root.send-to-device(fingerprint); }
                             device-details(fingerprint) => { root.show-device-details(fingerprint); }
                             toggle-favorite(fingerprint) => { root.toggle-favorite(fingerprint); }
@@ -338,46 +453,90 @@ export component AppWindow inherits Window {
                         }
                         if root.device-details-open : Rectangle {
                             width: root.viewport-width - (root.narrow ? 0px : root.sidebar-width);
-                            height: root.viewport-height - (root.narrow ? 72px : 0px);
+                            height: root.viewport-height - (root.narrow ? 64px : 0px);
                             background: ThemeTokens.surface;
                             VerticalLayout {
-                                width: min(parent.width, 900px);
+                                width: min(parent.width, 780px);
                                 height: parent.height;
                                 x: (parent.width - self.width) / 2;
-                                padding: 28px;
-                                spacing: 22px;
+                                padding-left: 30px;
+                                padding-right: 30px;
+                                padding-top: 16px;
+                                padding-bottom: 28px;
+                                spacing: 16px;
                                 HorizontalLayout {
-                                    height: 48px;
+                                    height: 52px;
+                                    spacing: 10px;
                                     FlutterIconButton { automation-id: "device-details-back"; icon: @image-url("icons/back.svg"); tooltip: @tr("返回"); clicked => { root.close-device-details(); } }
-                                    Text { text: @tr("设备详情"); color: ThemeTokens.on-surface; font-size: 26px; horizontal-stretch: 1; horizontal-alignment: center; vertical-alignment: center; }
-                                    Rectangle { width: 40px; background: transparent; }
+                                    Text { text: @tr("设备详情"); color: ThemeTokens.on-surface; font-size: 24px; font-weight: 600; horizontal-stretch: 1; vertical-alignment: center; }
                                 }
-                                HorizontalLayout {
-                                    height: 112px;
-                                    spacing: 20px;
-                                    alignment: center;
-                                    FlutterBigButton { width: 220px; height: 112px; automation-id: "device-details-favorite"; label: root.device-details-favorite ? @tr("取消收藏") : @tr("收藏"); icon: @image-url("icons/heart.svg"); clicked => { root.toggle-device-details-favorite(root.device-details-fingerprint); } }
-                                    FlutterBigButton { width: 220px; height: 112px; automation-id: "device-details-verify"; label: @tr("验证"); icon: @image-url("icons/info.svg"); clicked => { root.verify-device-details(root.device-details-fingerprint); } }
-                                }
-                                VerticalLayout {
-                                    width: min(parent.width, 680px);
-                                    x: (parent.width - self.width) / 2;
-                                    spacing: 8px;
-                                    HorizontalLayout { Text { text: @tr("名称"); width: 88px; color: ThemeTokens.on-surface-variant; font-size: 17px; } Text { text: root.device-details-alias; color: ThemeTokens.on-surface; font-size: 17px; } }
-                                    HorizontalLayout { Text { text: @tr("版本"); width: 88px; color: ThemeTokens.on-surface-variant; font-size: 17px; } Text { text: @tr("协议 ") + root.device-details-version; color: ThemeTokens.on-surface; font-size: 17px; } }
-                                    HorizontalLayout { Text { text: @tr("地址"); width: 88px; color: ThemeTokens.on-surface-variant; font-size: 17px; } Text { text: root.device-details-address; color: ThemeTokens.on-surface; font-size: 17px; overflow: elide; } }
-                                }
-                                VerticalLayout {
-                                    width: min(parent.width, 680px);
-                                    x: (parent.width - self.width) / 2;
-                                    spacing: 6px;
-                                    Text { text: @tr("日志"); color: ThemeTokens.on-surface; font-size: 19px; font-weight: 600; }
-                                    ScrollView {
-                                        vertical-stretch: 1;
-                                        content-height: max(self.visible-height, root.device-details-logs.length * 32px);
+                                Rectangle {
+                                    height: 100px;
+                                    border-radius: ThemeTokens.card-radius;
+                                    border-width: 1px;
+                                    border-color: ThemeTokens.outline-variant;
+                                    background: ThemeTokens.surface-container-low;
+                                    HorizontalLayout {
+                                        padding-left: 18px;
+                                        padding-right: 14px;
+                                        spacing: 14px;
+                                        alignment: center;
+                                        Rectangle {
+                                            width: 56px;
+                                            height: 56px;
+                                            border-radius: 12px;
+                                            background: ThemeTokens.primary-container;
+                                            Image { width: 28px; height: 28px; x: 14px; y: 14px; source: @image-url("icons/smartphone.svg"); colorize: ThemeTokens.primary; image-fit: contain; }
+                                        }
                                         VerticalLayout {
-                                            spacing: 2px;
-                                            for item in root.device-details-logs : Text { text: item.text; color: ThemeTokens.on-surface; font-size: 15px; wrap: word-wrap; }
+                                            horizontal-stretch: 1;
+                                            spacing: 3px;
+                                            alignment: center;
+                                            Text { text: root.device-details-alias; color: ThemeTokens.on-surface; font-size: 22px; font-weight: 600; overflow: elide; }
+                                            Text { text: root.device-details-address; color: ThemeTokens.on-surface-variant; font-size: 13px; overflow: elide; }
+                                        }
+                                        FlutterDialogButton { width: 100px; automation-id: "device-details-favorite"; label: root.device-details-favorite ? @tr("已收藏") : @tr("收藏"); primary: root.device-details-favorite; clicked => { root.toggle-device-details-favorite(root.device-details-fingerprint); } }
+                                        FlutterDialogButton { width: 100px; automation-id: "device-details-verify"; label: @tr("验证"); clicked => { root.verify-device-details(root.device-details-fingerprint); } }
+                                    }
+                                }
+                                Rectangle {
+                                    height: 154px;
+                                    border-radius: ThemeTokens.card-radius;
+                                    border-width: 1px;
+                                    border-color: ThemeTokens.outline-variant;
+                                    background: ThemeTokens.surface-container-low;
+                                    VerticalLayout {
+                                        padding-left: 18px;
+                                        padding-right: 18px;
+                                        padding-top: 12px;
+                                        padding-bottom: 12px;
+                                        spacing: 9px;
+                                        Text { text: @tr("设备信息"); color: ThemeTokens.on-surface; font-size: 16px; font-weight: 600; height: 24px; }
+                                        HorizontalLayout { Text { text: @tr("名称"); width: 96px; color: ThemeTokens.on-surface-variant; font-size: 13px; } Text { text: root.device-details-alias; color: ThemeTokens.on-surface; font-size: 13px; horizontal-stretch: 1; overflow: elide; } }
+                                        HorizontalLayout { Text { text: @tr("版本"); width: 96px; color: ThemeTokens.on-surface-variant; font-size: 13px; } Text { text: @tr("协议 ") + root.device-details-version; color: ThemeTokens.on-surface; font-size: 13px; horizontal-stretch: 1; overflow: elide; } }
+                                        HorizontalLayout { Text { text: @tr("指纹"); width: 96px; color: ThemeTokens.on-surface-variant; font-size: 13px; } Text { text: root.device-details-fingerprint; color: ThemeTokens.on-surface; font-size: 13px; horizontal-stretch: 1; overflow: elide; } }
+                                    }
+                                }
+                                Rectangle {
+                                    vertical-stretch: 1;
+                                    border-radius: ThemeTokens.card-radius;
+                                    border-width: 1px;
+                                    border-color: ThemeTokens.outline-variant;
+                                    background: ThemeTokens.surface-container-low;
+                                    VerticalLayout {
+                                        padding-left: 18px;
+                                        padding-right: 18px;
+                                        padding-top: 12px;
+                                        padding-bottom: 12px;
+                                        spacing: 6px;
+                                        Text { text: @tr("日志"); color: ThemeTokens.on-surface; font-size: 16px; font-weight: 600; height: 24px; }
+                                        ScrollView {
+                                            vertical-stretch: 1;
+                                            content-height: max(self.visible-height, root.device-details-logs.length * 28px);
+                                            VerticalLayout {
+                                                spacing: 2px;
+                                                for item in root.device-details-logs : Text { text: item.text; color: ThemeTokens.on-surface-variant; font-size: 12px; wrap: word-wrap; }
+                                            }
                                         }
                                     }
                                 }
@@ -385,15 +544,20 @@ export component AppWindow inherits Window {
                         }
                         if root.selected-tab == "settings" : SettingsPage {
                             width: root.viewport-width - (root.narrow ? 0px : root.sidebar-width);
-                            height: root.viewport-height - (root.narrow ? 72px : 0px);
+                            height: root.viewport-height - (root.narrow ? 64px : 0px);
+                            compact-layout: root.compact-sidebar;
                             vertical-stretch: 1;
                             status-message: root.message;
                             viewport-width: root.viewport-width - (root.narrow ? 0px : root.sidebar-width);
+                            viewport-height: root.viewport-height - (root.narrow ? 64px : 0px);
+                            container-height: root.viewport-height;
                             app-version: root.app-version;
                             brightness: root.settings-theme;
+                            theme-code: root.settings-theme-code;
                             color-mode: root.settings-color;
                             language: root.settings-language;
                             always-on-top: root.settings-always-on-top;
+                            minimize-to-tray: root.settings-minimize-to-tray;
                             save-window-position: root.save-window-position;
                             launch-on-login: root.launch-on-login;
                             animations: root.animations-enabled;
@@ -421,6 +585,7 @@ export component AppWindow inherits Window {
                             show-daemon-shutdown: root.settings-daemon-shutdown-supported;
                             scroll-y <=> root.settings-scroll-y;
                             cycle-setting(name) => { root.cycle-setting(name); }
+                            set-theme(code) => { root.set-theme(code); }
                             set-toggle(name, value) => { root.set-toggle(name, value); }
                             set-auto-save(all, favorites) => { root.set-auto-save(all, favorites); }
                             edit-setting(key) => { root.edit-setting(key); }
@@ -434,38 +599,62 @@ export component AppWindow inherits Window {
                             open-privacy => { root.open-privacy(); }
                             open-terms => { root.open-terms(); }
                             open-changelog => { root.open-changelog(); }
+                            open-auto-save-help => { root.auto-save-help-dialog-open = true; }
+                            open-history => { root.history-dialog-open = true; }
+                            open-troubleshoot => { root.troubleshoot-dialog-open = true; }
                         }
                     }
                 }
             }
 
-            if root.narrow && !root.sending-active && !root.device-details-open : Rectangle {
-                height: 72px;
-                background: ThemeTokens.surface-container-low;
+            if root.narrow && !root.device-details-open : Rectangle {
+                height: 64px;
+                background: ThemeTokens.surface;
+                Rectangle {
+                    x: 0px;
+                    y: 0px;
+                    width: parent.width;
+                    height: 1px;
+                    background: ThemeTokens.outline.with-alpha(0.44);
+                }
                 HorizontalLayout {
-                    spacing: 4px;
+                    width: parent.width;
+                    height: parent.height;
+                    padding-top: 6px;
+                    padding-bottom: 6px;
+                    spacing: 8px;
+                    alignment: center;
                     FlutterNavItem {
-                        horizontal-stretch: 1;
+                        width: min(120px, (parent.width - 24px) / 3);
                         automation-id: "nav-receive";
                         label: @tr("接收");
                         icon: @image-url("icons/wifi.svg");
                         active: root.selected-tab == "receive";
+                        stacked: true;
+                        motion: 1;
+                        motion-enabled: root.animations-enabled && !root.freeze-motion;
                         clicked => { root.selected-tab = "receive"; root.message = ""; root.refresh(); }
                     }
                     FlutterNavItem {
-                        horizontal-stretch: 1;
+                        width: min(120px, (parent.width - 24px) / 3);
                         automation-id: "nav-send";
                         label: @tr("发送");
                         icon: @image-url("icons/send.svg");
                         active: root.selected-tab == "send";
+                        stacked: true;
+                        motion: 2;
+                        motion-enabled: root.animations-enabled && !root.freeze-motion;
                         clicked => { root.selected-tab = "send"; root.message = ""; root.refresh(); }
                     }
                     FlutterNavItem {
-                        horizontal-stretch: 1;
+                        width: min(120px, (parent.width - 24px) / 3);
                         automation-id: "nav-settings";
                         label: @tr("设置");
                         icon: @image-url("icons/settings.svg");
                         active: root.selected-tab == "settings";
+                        stacked: true;
+                        motion: 3;
+                        motion-enabled: root.animations-enabled && !root.freeze-motion;
                         clicked => { root.selected-tab = "settings"; root.message = ""; }
                     }
                 }
@@ -474,29 +663,45 @@ export component AppWindow inherits Window {
     }
 
     if root.message != "" && !root.sending-active : Rectangle {
-        width: min(root.viewport-width - 40px, 620px);
-        height: 48px;
-        x: (root.viewport-width - self.width) / 2;
-        y: root.viewport-height - self.height - (root.narrow ? 88px : 20px);
-        border-radius: 10px;
-        border-width: 1px;
-        border-color: ThemeTokens.outline-variant;
-        background: ThemeTokens.surface-container-highest;
-        drop-shadow-blur: 12px;
-        drop-shadow-color: #00000033;
-
-        Text {
-            x: 16px;
-            width: parent.width - 32px;
-            height: parent.height;
-            text: root.message;
-            color: ThemeTokens.on-surface;
-            font-size: 14px;
-            horizontal-alignment: center;
-            vertical-alignment: center;
-            wrap: word-wrap;
-            overflow: elide;
+        width: min(root.viewport-width - 40px, 360px);
+        height: 42px;
+        x: root.viewport-width - self.width - 20px;
+        y: root.viewport-height - self.height - (root.narrow ? 76px : 20px);
+        border-radius: 9px;
+        background: ThemeTokens.toast-background;
+        drop-shadow-blur: 20px;
+        drop-shadow-color: #11221E24;
+        HorizontalLayout {
+            padding-left: 14px;
+            padding-right: 14px;
+            spacing: 9px;
+            alignment: center;
+            Image {
+                width: 17px;
+                height: 17px;
+                source: @image-url("icons/check.svg");
+                colorize: ThemeTokens.toast-foreground;
+                image-fit: contain;
+            }
+            Text {
+                text: root.message;
+                color: ThemeTokens.toast-foreground;
+                font-size: 13px;
+                horizontal-stretch: 1;
+                vertical-alignment: center;
+                overflow: elide;
+            }
         }
+    }
+
+    Rectangle {
+        width: parent.width;
+        height: parent.height;
+        border-width: 1px;
+        border-color: ThemeTokens.outline.with-alpha(0.72);
+        border-radius: 16px;
+        background: transparent;
+        z: 80;
     }
 
     DialogLayer {
@@ -516,14 +721,14 @@ export component AppWindow inherits Window {
         info-alias: root.info-alias;
         info-ip: root.info-ip;
         info-port: root.info-port;
+        info-fingerprint: root.info-fingerprint;
+        info-protocol: root.settings-encryption ? "HTTPS · LocalSend v2.1" : "HTTP · LocalSend v2.1";
         info-status: root.server-status;
         manual-open: root.manual-dialog-open;
         manual-target: root.manual-target;
         favorites-open: root.favorites-dialog-open;
         favorites: root.favorites;
         devices: root.devices;
-        send-mode-open: root.send-mode-dialog-open;
-        send-mode: root.send-mode;
         troubleshoot-open: root.troubleshoot-dialog-open;
         pin-open: root.pin-dialog-open;
         pin-value: root.pin-value;
@@ -561,9 +766,7 @@ export component AppWindow inherits Window {
         close-manual => { root.manual-dialog-open = false; root.manual-target = ""; }
         toggle-favorite(fingerprint) => { root.toggle-favorite(fingerprint); }
         close-favorites => { root.favorites-dialog-open = false; }
-        set-send-mode(mode) => { root.set-send-mode(mode); }
         send-multi => { root.send-multi(); }
-        close-send-mode => { root.send-mode-dialog-open = false; }
         open-firewall => { root.open-troubleshoot-firewall(); }
         close-troubleshoot => { root.troubleshoot-dialog-open = false; }
         retry-pin(transfer-id, pin) => { root.retry-pin(transfer-id, pin); root.pin-dialog-open = false; root.pin-value = ""; }
@@ -588,5 +791,10 @@ export component AppWindow inherits Window {
         reveal-completion => { root.reveal-completion-file(); root.completion-dialog-open = false; }
         close-completion => { root.close-completion(); }
         close-auto-save-help => { root.close-auto-save-help(); }
+        copy-diagnostics => { root.copy-diagnostics(); }
+        open-favorites-from-auto-save => {
+            root.close-auto-save-help();
+            root.favorites-dialog-open = true;
+        }
     }
 }

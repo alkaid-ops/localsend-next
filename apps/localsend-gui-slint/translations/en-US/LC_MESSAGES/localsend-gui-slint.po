@@ -329,3 +329,27 @@ msgstr "Color"
 
 msgid "高级设置"
 msgstr "Advanced settings"
+
+msgid "接收文件前，发送方需要输入 4 位 PIN"
+msgstr "Enter receiver PIN"
+
+msgid "确认"
+msgstr "Confirm"
+
+msgid "复制链接"
+msgstr "Copy link"
+
+msgid "接收链接"
+msgstr "Receive link"
+
+msgid "浏览器可在同一网络内访问此地址"
+msgstr "Browsers on the same network can access this address"
+
+msgid "Web Share 已验证"
+msgstr "Web Share verified"
+
+msgid "访问者需要通过 PIN 验证后才能上传文件。"
+msgstr "Visitors must verify with a PIN before uploading files."
+
+msgid "已就绪"
+msgstr "Ready"

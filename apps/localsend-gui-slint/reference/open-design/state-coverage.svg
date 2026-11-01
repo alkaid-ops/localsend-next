@@ -1,0 +1,177 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="920" viewBox="0 0 1440 920" role="img" aria-labelledby="title desc">
+  <title id="title">LocalSend Next 原型状态覆盖说明</title>
+  <desc id="desc">Receive、Send、Settings、传输状态、组件状态和 DialogShell 的评审覆盖矩阵。</desc>
+  <defs>
+    <style>
+      .bg { fill: #edf3f1; }
+      .panel { fill: #f9fbfa; stroke: #c6d1ce; stroke-width: 1; }
+      .title { fill: #14201d; font-family: "Avenir Next", "PingFang SC", sans-serif; font-size: 38px; font-weight: 650; letter-spacing: -0.8px; }
+      .sub { fill: #52645f; font-family: "Avenir Next", "PingFang SC", sans-serif; font-size: 15px; }
+      .label { fill: #52645f; font-family: "Avenir Next", "PingFang SC", sans-serif; font-size: 12px; font-weight: 650; letter-spacing: 1.2px; }
+      .rowname { fill: #14201d; font-family: "Avenir Next", "PingFang SC", sans-serif; font-size: 17px; font-weight: 620; }
+      .col { fill: #52645f; font-family: "Avenir Next", "PingFang SC", sans-serif; font-size: 12px; font-weight: 650; letter-spacing: 0.8px; }
+      .cell { fill: #1b2925; font-family: "Avenir Next", "PingFang SC", sans-serif; font-size: 13px; }
+      .small { fill: #62736e; font-family: "Avenir Next", "PingFang SC", sans-serif; font-size: 11px; }
+      .teal { fill: #00796b; }
+      .teal-soft { fill: #c6eee7; }
+      .line { stroke: #d5dfdc; stroke-width: 1; }
+      .check { fill: #00796b; }
+      .check-text { fill: #ffffff; font-family: "Avenir Next", sans-serif; font-size: 11px; font-weight: 700; }
+      .status { fill: #e7efec; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1440" height="920"/>
+  <rect x="48" y="48" width="1344" height="824" rx="20" class="panel"/>
+
+  <circle cx="88" cy="91" r="16" class="teal-soft"/>
+  <circle cx="88" cy="91" r="8" class="teal"/>
+  <text x="118" y="87" class="title">LocalSend Next · 状态覆盖</text>
+  <text x="118" y="114" class="sub">三页主流程、设备详情与统一 DialogShell 的评审状态总览</text>
+
+  <g transform="translate(88 154)">
+    <rect x="0" y="0" width="1264" height="40" rx="8" class="status"/>
+    <text x="20" y="25" class="label">评审矩阵</text>
+    <text x="224" y="25" class="col">默认 / 空态</text>
+    <text x="444" y="25" class="col">交互中</text>
+    <text x="664" y="25" class="col">成功</text>
+    <text x="884" y="25" class="col">异常 / 恢复</text>
+    <text x="1104" y="25" class="col">响应式 / 主题</text>
+  </g>
+
+  <g transform="translate(88 208)">
+    <text x="20" y="30" class="rowname">Receive</text>
+    <text x="20" y="50" class="small">接收服务与文件请求</text>
+    <line x1="0" y1="68" x2="1264" y2="68" class="line"/>
+    <g transform="translate(224 16)">
+      <circle cx="10" cy="10" r="10" class="check"/><text x="6" y="14" class="check-text">✓</text>
+      <text x="30" y="15" class="cell">在线 / 无请求</text>
+      <text x="30" y="34" class="small">旋转品牌环、alias、链接入口</text>
+    </g>
+    <g transform="translate(444 16)">
+      <circle cx="10" cy="10" r="10" class="check"/><text x="6" y="14" class="check-text">✓</text>
+      <text x="30" y="15" class="cell">请求 / 传输中</text>
+      <text x="30" y="34" class="small">逐文件勾选、取消与实时进度</text>
+    </g>
+    <g transform="translate(664 16)">
+      <circle cx="10" cy="10" r="10" class="check"/><text x="6" y="14" class="check-text">✓</text>
+      <text x="30" y="15" class="cell">完成</text>
+      <text x="30" y="34" class="small">文件数量、大小、用时与打开目录</text>
+    </g>
+    <g transform="translate(884 16)">
+      <circle cx="10" cy="10" r="10" class="check"/><text x="6" y="14" class="check-text">✓</text>
+      <text x="30" y="15" class="cell">离线 / 重启</text>
+      <text x="30" y="34" class="small">原因说明与非颜色状态提示</text>
+    </g>
+    <g transform="translate(1104 16)">
+      <circle cx="10" cy="10" r="10" class="check"/><text x="6" y="14" class="check-text">✓</text>
+      <text x="30" y="15" class="cell">700 × 700 / Dark</text>
+      <text x="30" y="34" class="small">72px rail 与完整中心状态</text>
+    </g>
+  </g>
+
+  <g transform="translate(88 328)">
+    <text x="20" y="30" class="rowname">Send</text>
+    <text x="20" y="50" class="small">选择内容与附近设备</text>
+    <line x1="0" y1="68" x2="1264" y2="68" class="line"/>
+    <g transform="translate(224 16)">
+      <circle cx="10" cy="10" r="10" class="check"/><text x="6" y="14" class="check-text">✓</text>
+      <text x="30" y="15" class="cell">未选择 / 空设备</text>
+      <text x="30" y="34" class="small">四种紧凑入口与刷新说明</text>
+    </g>
+    <g transform="translate(444 16)">
+      <circle cx="10" cy="10" r="10" class="check"/><text x="6" y="14" class="check-text">✓</text>
+      <text x="30" y="15" class="cell">已选择 / 多选</text>
+      <text x="30" y="34" class="small">内容摘要、缩略图与显式发送</text>
+    </g>
+    <g transform="translate(664 16)">
+      <circle cx="10" cy="10" r="10" class="check"/><text x="6" y="14" class="check-text">✓</text>
+      <text x="30" y="15" class="cell">发送完成</text>
+      <text x="30" y="34" class="small">独立工作区、统计与再次发送</text>
+    </g>
+    <g transform="translate(884 16)">
+      <circle cx="10" cy="10" r="10" class="check"/><text x="6" y="14" class="check-text">✓</text>
+      <text x="30" y="15" class="cell">取消 / 重扫</text>
+      <text x="30" y="34" class="small">保留上下文并给出结果反馈</text>
+    </g>
+    <g transform="translate(1104 16)">
+      <circle cx="10" cy="10" r="10" class="check"/><text x="6" y="14" class="check-text">✓</text>
+      <text x="30" y="15" class="cell">高密度设备</text>
+      <text x="30" y="34" class="small">800 × 600 与 8 台设备列表</text>
+    </g>
+  </g>
+
+  <g transform="translate(88 448)">
+    <text x="20" y="30" class="rowname">Settings</text>
+    <text x="20" y="50" class="small">统一分组与控件语义</text>
+    <line x1="0" y1="68" x2="1264" y2="68" class="line"/>
+    <g transform="translate(224 16)">
+      <circle cx="10" cy="10" r="10" class="check"/><text x="6" y="14" class="check-text">✓</text>
+      <text x="30" y="15" class="cell">四组完整设置</text>
+      <text x="30" y="34" class="small">600px 内容宽度、40px 顶部留白</text>
+    </g>
+    <g transform="translate(444 16)">
+      <circle cx="10" cy="10" r="10" class="check"/><text x="6" y="14" class="check-text">✓</text>
+      <text x="30" y="15" class="cell">保存状态</text>
+      <text x="30" y="34" class="small">Enter / blur 提交与短反馈</text>
+    </g>
+    <g transform="translate(664 16)">
+      <circle cx="10" cy="10" r="10" class="check"/><text x="6" y="14" class="check-text">✓</text>
+      <text x="30" y="15" class="cell">服务重启</text>
+      <text x="30" y="34" class="small">在线、停止与重启中状态</text>
+    </g>
+    <g transform="translate(884 16)">
+      <circle cx="10" cy="10" r="10" class="check"/><text x="6" y="14" class="check-text">✓</text>
+      <text x="30" y="15" class="cell">无效输入</text>
+      <text x="30" y="34" class="small">端口与超时校验会拒绝提交</text>
+    </g>
+    <g transform="translate(1104 16)">
+      <circle cx="10" cy="10" r="10" class="check"/><text x="6" y="14" class="check-text">✓</text>
+      <text x="30" y="15" class="cell">Disabled 明示</text>
+      <text x="30" y="34" class="small">外部帮助项不伪装可点击</text>
+    </g>
+  </g>
+
+  <g transform="translate(88 568)">
+    <text x="20" y="30" class="rowname">DialogShell</text>
+    <text x="20" y="50" class="small">统一标题、正文与底部操作</text>
+    <line x1="0" y1="68" x2="1264" y2="68" class="line"/>
+    <g transform="translate(224 16)">
+      <circle cx="10" cy="10" r="10" class="check"/><text x="6" y="14" class="check-text">✓</text>
+      <text x="30" y="15" class="cell">11 类关键弹窗</text>
+      <text x="30" y="34" class="small">历史、网络、IP、收藏、模式、PIN</text>
+    </g>
+    <g transform="translate(444 16)">
+      <circle cx="10" cy="10" r="10" class="check"/><text x="6" y="14" class="check-text">✓</text>
+      <text x="30" y="15" class="cell">输入与校验</text>
+      <text x="30" y="34" class="small">文本字数、IP 格式、PIN 错误</text>
+    </g>
+    <g transform="translate(664 16)">
+      <circle cx="10" cy="10" r="10" class="check"/><text x="6" y="14" class="check-text">✓</text>
+      <text x="30" y="15" class="cell">完成与复制</text>
+      <text x="30" y="34" class="small">传输详情、链接与诊断复制</text>
+    </g>
+    <g transform="translate(884 16)">
+      <circle cx="10" cy="10" r="10" class="check"/><text x="6" y="14" class="check-text">✓</text>
+      <text x="30" y="15" class="cell">关闭与焦点返回</text>
+      <text x="30" y="34" class="small">原生 dialog + Esc + 触发点恢复</text>
+    </g>
+    <g transform="translate(1104 16)">
+      <circle cx="10" cy="10" r="10" class="check"/><text x="6" y="14" class="check-text">✓</text>
+      <text x="30" y="15" class="cell">设备详情子页</text>
+      <text x="30" y="34" class="small">完整页面而非弹窗</text>
+    </g>
+  </g>
+
+  <g transform="translate(88 704)">
+    <rect x="0" y="0" width="1264" height="112" rx="12" fill="#f0f5f3" stroke="#d5dfdc"/>
+    <text x="20" y="30" class="label">评审入口</text>
+    <text x="20" y="56" class="cell">左下「评审演示」面板可切换视口、主题与主状态；产品界面本身不出现演示控件。</text>
+    <text x="20" y="83" class="small">标准视口：1024 × 768 · 窄窗口：700 × 700 · 其他兼容：800 × 600 / 1440 × 900 · Light / Dark</text>
+    <g transform="translate(1034 22)">
+      <rect width="210" height="64" rx="10" fill="#c6eee7"/>
+      <text x="20" y="26" class="label" fill="#00584f">默认语言</text>
+      <text x="20" y="50" class="rowname" fill="#004a42">简体中文</text>
+    </g>
+  </g>
+</svg>

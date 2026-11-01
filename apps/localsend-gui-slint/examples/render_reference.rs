@@ -1,4 +1,5 @@
 use anyhow::{Context, bail};
+use i_slint_backend_testing::ElementQuery;
 use slint::{ComponentHandle, ModelRc, VecModel};
 use std::cell::RefCell;
 use std::fs::File;
@@ -18,6 +19,7 @@ fn main() -> anyhow::Result<()> {
     let language = option(&args, "--language", "zh-CN");
     let english = language.starts_with("en");
     let headless = args.iter().any(|argument| argument == "--headless");
+    let print_metrics = args.iter().any(|argument| argument == "--metrics");
     if headless {
         slint::platform::set_platform(Box::new(i_slint_backend_testing::TestingBackend::new(
             i_slint_backend_testing::TestingBackendOptions {
@@ -35,6 +37,7 @@ fn main() -> anyhow::Result<()> {
     let output = PathBuf::from(option(&args, "--output", "screenshot.png"));
 
     let ui = AppWindow::new()?;
+    ui.set_freeze_motion(true);
     slint::select_bundled_translation(if english { "en-US" } else { "zh-CN" })?;
     ui.set_selected_tab(page.clone().into());
     ui.set_requested_window_width(width as f32);
@@ -42,6 +45,7 @@ fn main() -> anyhow::Result<()> {
     ui.global::<ThemeTokens>().set_dark(dark);
     ui.global::<ThemeTokens>().set_accent_index(accent);
     seed_common_state(&ui, english);
+    seed_dialog_state(&ui, &state, english);
     ui.set_settings_theme(
         if english {
             if dark { "Dark" } else { "Light" }
@@ -52,6 +56,7 @@ fn main() -> anyhow::Result<()> {
         }
         .into(),
     );
+    ui.set_settings_theme_code((if dark { "dark" } else { "light" }).into());
     match page.as_str() {
         "receive" => seed_receive(&ui, &state, english),
         "send" => seed_send(&ui, &state, english),
@@ -60,6 +65,9 @@ fn main() -> anyhow::Result<()> {
     }
     set_window_size(&ui, width, height);
     ui.show()?;
+    if print_metrics {
+        print_accessible_metrics(&ui);
+    }
 
     let error = Rc::new(RefCell::new(None::<String>));
     let weak = ui.as_weak();
@@ -123,6 +131,46 @@ fn main() -> anyhow::Result<()> {
         bail!("screenshot capture failed: {error}");
     }
     Ok(())
+}
+
+fn print_accessible_metrics(ui: &AppWindow) {
+    #[derive(serde::Serialize)]
+    struct Metric {
+        id: String,
+        label: Option<String>,
+        role: Option<String>,
+        x: f32,
+        y: f32,
+        width: f32,
+        height: f32,
+    }
+
+    let metrics = ElementQuery::from_root(ui)
+        .find_all()
+        .into_iter()
+        .filter_map(|element| {
+            let id = element.accessible_id().map(|id| id.to_string());
+            let label = element.accessible_label().map(|label| label.to_string());
+            if id.as_deref().unwrap_or("").is_empty() && label.as_deref().unwrap_or("").is_empty() {
+                return None;
+            }
+            let position = element.absolute_position();
+            let size = element.size();
+            Some(Metric {
+                id: id.unwrap_or_default(),
+                label,
+                role: element.accessible_role().map(|role| format!("{role:?}")),
+                x: position.x,
+                y: position.y,
+                width: size.width,
+                height: size.height,
+            })
+        })
+        .collect::<Vec<_>>();
+    println!(
+        "{}",
+        serde_json::to_string_pretty(&metrics).expect("serialize accessibility metrics")
+    );
 }
 
 fn write_snapshot(
@@ -206,7 +254,8 @@ fn seed_common_state(ui: &AppWindow, english: bool) {
     ui.set_device_alias("Flutter Reference".into());
     ui.set_device_id("#80".into());
     ui.set_info_alias("Flutter Reference".into());
-    ui.set_info_ip("192.0.2.80".into());
+    ui.set_info_ip("192.168.1.42".into());
+    ui.set_info_fingerprint("E4:7A:21:9C:88:BD".into());
     ui.set_info_port("53317".into());
     ui.set_server_status(
         if english {
@@ -218,44 +267,42 @@ fn seed_common_state(ui: &AppWindow, english: bool) {
     );
     ui.set_server_running(true);
     ui.set_settings_theme(if english { "Light" } else { "浅色" }.into());
-    ui.set_settings_color("LocalSend".into());
+    ui.set_settings_color("LocalSend Teal".into());
     ui.set_settings_language(if english { "English" } else { "简体中文" }.into());
     ui.set_settings_device_type("Desktop".into());
     ui.set_settings_device_model("macOS".into());
     ui.set_settings_discovery_timeout("10".into());
     ui.set_settings_multicast_group("224.0.0.167".into());
-    ui.set_settings_network_filter(
-        if english {
-            "All interfaces"
-        } else {
-            "全部接口"
-        }
-        .into(),
-    );
+    ui.set_settings_network_filter("192.168.1.0/24".into());
     ui.set_settings_encryption(true);
     ui.set_settings_require_pin(false);
     ui.set_settings_always_on_top(false);
     ui.set_save_window_position(true);
     ui.set_launch_on_login(false);
     ui.set_animations_enabled(true);
-    ui.set_settings_auto_save_all(true);
-    ui.set_settings_auto_save_favorites(false);
+    ui.set_settings_auto_save_all(false);
+    ui.set_settings_auto_save_favorites(true);
 }
 
 fn seed_receive(ui: &AppWindow, state: &str, english: bool) {
+    if matches!(
+        state,
+        "history"
+            | "info"
+            | "manual"
+            | "favorites"
+            | "pin"
+            | "text"
+            | "troubleshoot"
+            | "auto-save-help"
+    ) {
+        return;
+    }
     if state == "completion" {
         ui.set_completion_dialog_open(true);
         ui.set_completion_file_name("official-256MiB.bin".into());
         ui.set_completion_file_path("/tmp/official-256MiB.bin".into());
         ui.set_completion_countdown(5);
-    }
-    if state == "web-share" {
-        ui.set_web_share_dialog_open(true);
-        ui.set_web_share_running(true);
-        ui.set_web_share_url("http://192.0.2.80:53317/".into());
-        ui.set_settings_encryption(false);
-        ui.set_settings_send_auto_accept(false);
-        ui.set_settings_pin_enabled(false);
     }
     if state == "message" {
         ui.set_message_received_open(true);
@@ -273,50 +320,200 @@ fn seed_receive(ui: &AppWindow, state: &str, english: bool) {
         let files = vec![
             RequestFileItem {
                 file_id: "file-1".into(),
-                name: "presentation.pdf".into(),
-                size: "4.2 MiB".into(),
+                name: "产品评审说明.pdf".into(),
+                size: "4.2 MiB · PDF".into(),
                 selected: true,
             },
             RequestFileItem {
                 file_id: "file-2".into(),
-                name: "photos".into(),
-                size: "18 files".into(),
-                selected: false,
+                name: "界面截图-2026-10-24.png".into(),
+                size: "2.8 MiB · PNG".into(),
+                selected: true,
+            },
+            RequestFileItem {
+                file_id: "file-3".into(),
+                name: "组件清单.md".into(),
+                size: "18 KiB · Markdown".into(),
+                selected: true,
             },
         ];
         ui.set_incoming_request_count(1);
         ui.set_incoming_request_id("request-1".into());
-        ui.set_incoming_request_title(
-            if english {
-                "iPhone wants to send files"
-            } else {
-                "iPhone 想发送文件"
-            }
-            .into(),
-        );
+        ui.set_incoming_request_title("iPhone 15 Pro".into());
         ui.set_incoming_request_body(if english { "2 files" } else { "2 个文件" }.into());
         ui.set_incoming_files(ModelRc::new(VecModel::from(files)));
-        ui.set_selected_request_ids(ModelRc::new(VecModel::from(vec!["file-1".into()])));
+        ui.set_selected_request_ids(ModelRc::new(VecModel::from(vec![
+            "file-1".into(),
+            "file-2".into(),
+            "file-3".into(),
+        ])));
     }
     if state == "transferring" {
         ui.set_transfer_items(ModelRc::new(VecModel::from(vec![TransferItem {
             transfer_id: "transfer-1".into(),
-            peer: "iPhone".into(),
-            summary: "8.0 MiB / 24.0 MiB".into(),
+            peer: "iPhone 15 Pro".into(),
+            summary: "3 个文件 · 共 7.0 MiB".into(),
             status: "传输中".into(),
+            speed: "18.6 MB/s".into(),
+            duration: "".into(),
             direction: "接收".into(),
             terminal: false,
-            progress_percent: 33,
-            file_count: 2,
+            progress_percent: 64,
+            file_count: 3,
             completion_countdown: 0,
-            files: ModelRc::new(VecModel::from(Vec::<TransferFileItem>::new())),
+            files: ModelRc::new(VecModel::from(vec![TransferFileItem {
+                name: "界面截图-2026-10-24.png".into(),
+                size: "4.5 MiB / 7.0 MiB · 18.6 MB/s".into(),
+                is_text: false,
+                is_image: true,
+                status: "64%".into(),
+                detail: "正在传输".into(),
+                progress_percent: 64,
+                completed: false,
+                in_progress: true,
+            }])),
+        }])));
+        ui.set_active_transfer_count(1);
+    }
+    if state == "completed" {
+        ui.set_transfer_items(ModelRc::new(VecModel::from(vec![TransferItem {
+            transfer_id: "receive-completed".into(),
+            peer: "iPhone 15 Pro".into(),
+            summary: "7.0 MiB".into(),
+            status: "已完成".into(),
+            speed: "".into(),
+            duration: "".into(),
+            direction: "接收".into(),
+            terminal: true,
+            progress_percent: 100,
+            file_count: 3,
+            completion_countdown: 0,
+            files: ModelRc::new(VecModel::from(vec![
+                TransferFileItem {
+                    name: "产品评审说明.pdf".into(),
+                    size: "4.2 MiB".into(),
+                    is_text: false,
+                    is_image: false,
+                    status: "已完成".into(),
+                    detail: "已完成".into(),
+                    progress_percent: 100,
+                    completed: true,
+                    in_progress: false,
+                },
+                TransferFileItem {
+                    name: "界面截图-2026-10-24.png".into(),
+                    size: "2.8 MiB".into(),
+                    is_text: false,
+                    is_image: true,
+                    status: "已完成".into(),
+                    detail: "已完成".into(),
+                    progress_percent: 100,
+                    completed: true,
+                    in_progress: false,
+                },
+                TransferFileItem {
+                    name: "组件清单.md".into(),
+                    size: "18 KiB".into(),
+                    is_text: false,
+                    is_image: false,
+                    status: "已完成".into(),
+                    detail: "已完成".into(),
+                    progress_percent: 100,
+                    completed: true,
+                    in_progress: false,
+                },
+            ])),
         }])));
         ui.set_active_transfer_count(1);
     }
 }
 
+fn seed_dialog_state(ui: &AppWindow, state: &str, _english: bool) {
+    if state == "history" {
+        ui.set_history_items(ModelRc::new(VecModel::from(vec![
+            HistoryItem {
+                id: "history-1".into(),
+                name: "来自 iPhone 15 Pro · 3 个文件".into(),
+                subtitle: "今天 10:24 · Downloads/LocalSend/产品评审说明.pdf".into(),
+                path: "/tmp/presentation.pdf".into(),
+                message: "今天 10:24 · 界面截图-2026-10-24.png、组件清单.md".into(),
+                is_message: false,
+            },
+            HistoryItem {
+                id: "history-2".into(),
+                name: "发送到 Flutter Reference · 产品视觉规范.pdf".into(),
+                subtitle: "昨天 18:42 · 4.0 MiB · 已完成".into(),
+                path: "/tmp/visual-spec.pdf".into(),
+                message: "".into(),
+                is_message: false,
+            },
+            HistoryItem {
+                id: "history-3".into(),
+                name: "来自 Pixel 9 · 文本消息".into(),
+                subtitle: "10 月 22 日 15:08 · 全文已展示".into(),
+                path: "".into(),
+                message: "本次评审需覆盖 14 个关键状态，并确认 Light/Dark、窄窗口和传输异常恢复。"
+                    .into(),
+                is_message: true,
+            },
+        ])));
+        ui.set_history_dialog_open(true);
+    }
+    if state == "info" {
+        ui.set_info_dialog_open(true);
+    }
+    if state == "manual" {
+        ui.set_manual_dialog_open(true);
+        ui.set_manual_target("192.168.1.42".into());
+    }
+    if state == "favorites" {
+        ui.set_favorites(ModelRc::new(VecModel::from(vec![
+            FavoriteItem {
+                alias: "Flutter Reference".into(),
+                fingerprint: "reference".into(),
+            },
+            FavoriteItem {
+                alias: "iPhone 15 Pro".into(),
+                fingerprint: "iphone".into(),
+            },
+        ])));
+        seed_default_devices(ui);
+        ui.set_favorites_dialog_open(true);
+    }
+    if state == "pin" {
+        ui.set_pin_dialog_open(true);
+        ui.set_pin_transfer_id("pin-test".into());
+    }
+    if state == "text-dialog" {
+        ui.set_text_dialog_open(true);
+        ui.set_text_message(
+            "这是通过 LocalSend Next 发送的示例文本。它适用于快速分享地址、会议摘要或短链接。"
+                .into(),
+        );
+    }
+    if state == "troubleshoot" {
+        ui.set_troubleshoot_dialog_open(true);
+    }
+    if state == "auto-save-help" {
+        ui.set_auto_save_help_dialog_open(true);
+    }
+    if state == "web-share" {
+        ui.set_web_share_dialog_open(true);
+        ui.set_web_share_running(true);
+        ui.set_web_share_url("https://localsend.local/receive?pin=4821".into());
+        ui.set_settings_encryption(true);
+    }
+}
+
 fn seed_send(ui: &AppWindow, state: &str, english: bool) {
+    if matches!(
+        state,
+        "default" | "dense" | "manual" | "favorites" | "text" | "text-dialog"
+    ) {
+        seed_default_devices(ui);
+    }
     if state == "text" {
+        seed_default_devices(ui);
         ui.set_selected_files(ModelRc::new(VecModel::from(vec![SelectedFileItem {
             path: "".into(),
             name: if english {
@@ -344,96 +541,131 @@ fn seed_send(ui: &AppWindow, state: &str, english: bool) {
         ui.set_selected_target_label("Pixel 9".into());
     }
     if state == "selected" {
-        ui.set_selected_files(ModelRc::new(VecModel::from(vec![SelectedFileItem {
-            path: "/tmp/report.pdf".into(),
-            name: "report.pdf".into(),
-            is_directory: false,
-            is_text: false,
-            is_image: false,
-            size: "2.4 MiB".into(),
-        }])));
-        ui.set_has_selection(true);
-        ui.set_selected_file_count(1);
-        ui.set_selected_total_size("2.4 MiB".into());
-        ui.set_selected_files_text("report.pdf".into());
-        ui.set_selected_target_label("Pixel 9".into());
-    }
-    if state == "multiple" {
+        seed_default_devices(ui);
         ui.set_selected_files(ModelRc::new(VecModel::from(vec![
             SelectedFileItem {
-                path: "/tmp/report.pdf".into(),
-                name: "report.pdf".into(),
+                path: "/tmp/产品视觉规范.pdf".into(),
+                name: "产品视觉规范.pdf".into(),
                 is_directory: false,
                 is_text: false,
                 is_image: false,
+                size: "4.0 MiB".into(),
+            },
+            SelectedFileItem {
+                path: "/tmp/receive-default.png".into(),
+                name: "receive-default.png".into(),
+                is_directory: false,
+                is_text: false,
+                is_image: true,
                 size: "2.4 MiB".into(),
             },
             SelectedFileItem {
-                path: "/tmp/Photos".into(),
-                name: "Photos".into(),
-                is_directory: true,
+                path: "/tmp/send-selected.png".into(),
+                name: "send-selected.png".into(),
+                is_directory: false,
                 is_text: false,
-                is_image: false,
-                size: if english { "Folder" } else { "文件夹" }.into(),
+                is_image: true,
+                size: "2.3 MiB".into(),
             },
         ])));
         ui.set_has_selection(true);
-        ui.set_selected_file_count(2);
-        ui.set_selected_total_size("7.8 MiB".into());
-        ui.set_selected_files_text("report.pdf · Photos".into());
+        ui.set_selected_file_count(3);
+        ui.set_selected_total_size("共 8.7 MiB".into());
+        ui.set_selected_files_text(
+            "产品视觉规范.pdf、receive-default.png、send-selected.png".into(),
+        );
+        ui.set_selected_target_label("Pixel 9".into());
+    }
+    if state == "dense" || state == "multi" {
+        seed_dense_devices(ui);
+        ui.set_selected_files(ModelRc::new(VecModel::from(vec![
+            SelectedFileItem {
+                path: "/tmp/产品视觉规范.pdf".into(),
+                name: "产品视觉规范.pdf".into(),
+                is_directory: false,
+                is_text: false,
+                is_image: false,
+                size: "4.0 MiB".into(),
+            },
+            SelectedFileItem {
+                path: "/tmp/receive-default.png".into(),
+                name: "receive-default.png".into(),
+                is_directory: false,
+                is_text: false,
+                is_image: true,
+                size: "2.4 MiB".into(),
+            },
+            SelectedFileItem {
+                path: "/tmp/send-selected.png".into(),
+                name: "send-selected.png".into(),
+                is_directory: false,
+                is_text: false,
+                is_image: true,
+                size: "2.3 MiB".into(),
+            },
+        ])));
+        ui.set_has_selection(true);
+        ui.set_selected_file_count(3);
+        ui.set_selected_total_size("共 8.7 MiB".into());
+        ui.set_selected_files_text(
+            "产品视觉规范.pdf、receive-default.png、send-selected.png".into(),
+        );
         ui.set_selected_target_label(
             if english {
-                "2 devices selected"
+                "0 devices selected"
             } else {
-                "已选择 2 台设备"
+                "已选择 0 台设备"
             }
             .into(),
         );
-        ui.set_devices(ModelRc::new(VecModel::from(vec![
-            DeviceItem {
-                alias: "Pixel 9".into(),
-                ip: "192.0.2.81".into(),
-                fingerprint: "fingerprint-1".into(),
-                protocol: "HTTPS".into(),
-                model: "Pixel 9".into(),
-                device_type: "Mobile".into(),
-                favorite: true,
-                selected: true,
-            },
-            DeviceItem {
-                alias: "Windows PC".into(),
-                ip: "192.0.2.82".into(),
-                fingerprint: "fingerprint-2".into(),
-                protocol: "HTTP".into(),
-                model: "Desktop".into(),
-                device_type: "Desktop".into(),
-                favorite: false,
-                selected: true,
-            },
-        ])));
-        ui.set_send_mode(1);
+        ui.set_send_mode(if state == "multi" { 1 } else { 0 });
     }
     if state == "transferring" {
         ui.set_transfer_items(ModelRc::new(VecModel::from(vec![TransferItem {
             transfer_id: "send-transfer-1".into(),
-            peer: "iPhone".into(),
-            summary: "8.0 MiB / 24.0 MiB".into(),
+            peer: "Flutter Reference".into(),
+            summary: "2 / 3 个文件 · 5.3 MiB / 8.7 MiB".into(),
             status: "传输中".into(),
+            speed: "18.6 MB/s".into(),
+            duration: "".into(),
             direction: "发送".into(),
             terminal: false,
-            progress_percent: 33,
-            file_count: 2,
+            progress_percent: 58,
+            file_count: 3,
             completion_countdown: 0,
             files: ModelRc::new(VecModel::from(vec![
                 TransferFileItem {
-                    name: "SCR-20260927-tlhj.jpeg".into(),
-                    size: "1.1 MB".into(),
+                    name: "产品视觉规范.pdf".into(),
+                    size: "4.0 MiB".into(),
                     is_text: false,
+                    is_image: false,
+                    status: "58%".into(),
+                    detail: "正在传输".into(),
+                    progress_percent: 58,
+                    completed: false,
+                    in_progress: true,
                 },
                 TransferFileItem {
-                    name: "SCR-20260927-tlel.jpeg".into(),
-                    size: "1.5 MB".into(),
+                    name: "receive-default.png".into(),
+                    size: "2.4 MiB".into(),
                     is_text: false,
+                    is_image: true,
+                    status: "58%".into(),
+                    detail: "正在传输".into(),
+                    progress_percent: 58,
+                    completed: false,
+                    in_progress: true,
+                },
+                TransferFileItem {
+                    name: "send-selected.png".into(),
+                    size: "2.3 MiB".into(),
+                    is_text: false,
+                    is_image: true,
+                    status: "待处理".into(),
+                    detail: "等待中".into(),
+                    progress_percent: 0,
+                    completed: false,
+                    in_progress: false,
                 },
             ])),
         }])));
@@ -443,24 +675,49 @@ fn seed_send(ui: &AppWindow, state: &str, english: bool) {
     if state == "completed" {
         ui.set_transfer_items(ModelRc::new(VecModel::from(vec![TransferItem {
             transfer_id: "send-transfer-completed".into(),
-            peer: "iPhone".into(),
-            summary: "2.6 MB / 2.6 MB".into(),
+            peer: "Flutter Reference".into(),
+            summary: "8.7 MiB".into(),
             status: "已完成".into(),
+            speed: "".into(),
+            duration: "3.1 s".into(),
             direction: "发送".into(),
             terminal: true,
             progress_percent: 100,
-            file_count: 2,
+            file_count: 3,
             completion_countdown: 3,
             files: ModelRc::new(VecModel::from(vec![
                 TransferFileItem {
-                    name: "SCR-20260927-tlhj.jpeg".into(),
-                    size: "1.1 MB".into(),
+                    name: "产品视觉规范.pdf".into(),
+                    size: "4.0 MiB".into(),
                     is_text: false,
+                    is_image: false,
+                    status: "已完成".into(),
+                    detail: "已完成".into(),
+                    progress_percent: 100,
+                    completed: true,
+                    in_progress: false,
                 },
                 TransferFileItem {
-                    name: "SCR-20260927-tlel.jpeg".into(),
-                    size: "1.5 MB".into(),
+                    name: "receive-default.png".into(),
+                    size: "2.4 MiB".into(),
                     is_text: false,
+                    is_image: true,
+                    status: "已完成".into(),
+                    detail: "已完成".into(),
+                    progress_percent: 100,
+                    completed: true,
+                    in_progress: false,
+                },
+                TransferFileItem {
+                    name: "send-selected.png".into(),
+                    size: "2.3 MiB".into(),
+                    is_text: false,
+                    is_image: true,
+                    status: "已完成".into(),
+                    detail: "已完成".into(),
+                    progress_percent: 100,
+                    completed: true,
+                    in_progress: false,
                 },
             ])),
         }])));
@@ -469,8 +726,138 @@ fn seed_send(ui: &AppWindow, state: &str, english: bool) {
     }
 }
 
+fn seed_default_devices(ui: &AppWindow) {
+    ui.set_devices(ModelRc::new(VecModel::from(vec![
+        DeviceItem {
+            alias: "Flutter Reference".into(),
+            ip: "macOS 15".into(),
+            fingerprint: "reference".into(),
+            protocol: "HTTP".into(),
+            model: "MacBook Pro".into(),
+            device_type: "Desktop".into(),
+            favorite: true,
+            selected: false,
+        },
+        DeviceItem {
+            alias: "iPhone 15 Pro".into(),
+            ip: "iOS 18.2".into(),
+            fingerprint: "iphone".into(),
+            protocol: "HTTPS".into(),
+            model: "iPhone 15 Pro".into(),
+            device_type: "Mobile".into(),
+            favorite: true,
+            selected: false,
+        },
+        DeviceItem {
+            alias: "Studio Mac".into(),
+            ip: "macOS 15".into(),
+            fingerprint: "studio".into(),
+            protocol: "HTTP".into(),
+            model: "Mac Studio".into(),
+            device_type: "Monitor".into(),
+            favorite: false,
+            selected: false,
+        },
+        DeviceItem {
+            alias: "Pixel 9".into(),
+            ip: "Android 16".into(),
+            fingerprint: "pixel".into(),
+            protocol: "HTTPS".into(),
+            model: "Pixel 9".into(),
+            device_type: "Mobile".into(),
+            favorite: false,
+            selected: false,
+        },
+    ])));
+}
+
+fn seed_dense_devices(ui: &AppWindow) {
+    ui.set_devices(ModelRc::new(VecModel::from(vec![
+        DeviceItem {
+            alias: "Flutter Reference".into(),
+            ip: "macOS 15".into(),
+            fingerprint: "reference".into(),
+            protocol: "HTTPS".into(),
+            model: "MacBook Pro".into(),
+            device_type: "Desktop".into(),
+            favorite: true,
+            selected: false,
+        },
+        DeviceItem {
+            alias: "iPhone 15 Pro".into(),
+            ip: "iOS 18.2".into(),
+            fingerprint: "iphone".into(),
+            protocol: "HTTPS".into(),
+            model: "iPhone 15 Pro".into(),
+            device_type: "Mobile".into(),
+            favorite: true,
+            selected: false,
+        },
+        DeviceItem {
+            alias: "Studio Mac".into(),
+            ip: "macOS 15".into(),
+            fingerprint: "studio".into(),
+            protocol: "HTTP".into(),
+            model: "Mac Studio".into(),
+            device_type: "Monitor".into(),
+            favorite: false,
+            selected: false,
+        },
+        DeviceItem {
+            alias: "Pixel 9".into(),
+            ip: "Android 16".into(),
+            fingerprint: "pixel".into(),
+            protocol: "HTTPS".into(),
+            model: "Pixel 9".into(),
+            device_type: "Mobile".into(),
+            favorite: false,
+            selected: false,
+        },
+        DeviceItem {
+            alias: "Design Server".into(),
+            ip: "Linux".into(),
+            fingerprint: "design-server".into(),
+            protocol: "HTTPS".into(),
+            model: "Framework".into(),
+            device_type: "Monitor".into(),
+            favorite: false,
+            selected: false,
+        },
+        DeviceItem {
+            alias: "客厅 iPad".into(),
+            ip: "iPadOS 19".into(),
+            fingerprint: "living-room-ipad".into(),
+            protocol: "HTTPS".into(),
+            model: "iPad Air".into(),
+            device_type: "Mobile".into(),
+            favorite: false,
+            selected: false,
+        },
+        DeviceItem {
+            alias: "QA Windows".into(),
+            ip: "Windows 11".into(),
+            fingerprint: "qa-windows".into(),
+            protocol: "HTTPS".into(),
+            model: "ThinkPad".into(),
+            device_type: "Desktop".into(),
+            favorite: false,
+            selected: false,
+        },
+        DeviceItem {
+            alias: "Build Agent".into(),
+            ip: "Ubuntu 26.04".into(),
+            fingerprint: "build-agent".into(),
+            protocol: "HTTP".into(),
+            model: "NUC".into(),
+            device_type: "Monitor".into(),
+            favorite: false,
+            selected: false,
+        },
+    ])));
+}
+
 fn seed_settings(ui: &AppWindow) {
     ui.set_settings_device_type("Desktop".into());
-    ui.set_settings_device_model("MacBook Air".into());
+    ui.set_settings_device_model("MacBook Pro".into());
     ui.set_settings_advanced(false);
 }

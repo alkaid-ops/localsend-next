@@ -35,7 +35,12 @@ fn main() -> anyhow::Result<()> {
     };
 
     let (mut owned_daemon, client) = runtime.block_on(connect_or_start_daemon())?;
-    let gui = find_sibling_executable(&["localsend", "localsend-gui-slint", "LocalSend"])
+    let gui_names: &[&str] = if cfg!(windows) {
+        &["LocalSend.exe", "localsend-gui-slint.exe", "localsend.exe"]
+    } else {
+        &["localsend", "localsend-gui-slint", "LocalSend"]
+    };
+    let gui = find_sibling_executable(gui_names)
         .context("LocalSend GUI executable was not found next to localsend-launcher")?;
     let mut gui_command = Command::new(gui);
     gui_command.arg("--window");

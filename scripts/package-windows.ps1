@@ -39,8 +39,11 @@ try {
     & cargo build --locked --release --target $Target `
         -p localsendd -p localsend-tray -p localsend-launcher
     if ($LASTEXITCODE -ne 0) { throw "cargo build failed for daemon and tray" }
+    # Ship the software renderer as a fallback: the FemtoVG WGPU renderer
+    # refuses to start when wgpu finds no non-CPU adapter (VMs, RDP sessions,
+    # drivers exposing only OpenGL), and the GUI would then exit silently.
     & cargo build --locked --release --target $Target `
-        -p localsend-gui-slint --no-default-features --features backend-femtovg-wgpu
+        -p localsend-gui-slint --no-default-features --features backend-femtovg-wgpu,backend-software
     if ($LASTEXITCODE -ne 0) { throw "cargo build failed for GUI" }
 } finally {
     $env:RUSTFLAGS = $PreviousRustFlags

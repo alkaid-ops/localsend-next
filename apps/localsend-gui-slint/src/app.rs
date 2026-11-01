@@ -249,6 +249,16 @@ impl AppOptions {
 }
 
 pub fn run_main() -> anyhow::Result<()> {
+    match run_main_inner() {
+        Ok(()) => Ok(()),
+        Err(error) => {
+            report_startup_failure(&error);
+            Err(error)
+        }
+    }
+}
+
+fn run_main_inner() -> anyhow::Result<()> {
     let arguments: Vec<String> = std::env::args().collect();
     if !arguments.iter().any(|argument| argument == "--window") {
         launch_tray_window(arguments.iter().any(|argument| argument == "--minimized"))?;
@@ -267,6 +277,21 @@ pub fn run_main() -> anyhow::Result<()> {
     let ui = build_app(worker.commands, worker.events, AppOptions::from_process())?;
     ui.run()?;
     Ok(())
+}
+
+/// A GUI-subsystem binary has no console, so an early startup failure (renderer
+/// initialization, control pipe, config directory) would otherwise be silent.
+fn report_startup_failure(error: &anyhow::Error) {
+    let message = format!("LocalSend GUI could not start.\n\n{error:#}");
+    eprintln!("{message}");
+    #[cfg(any(target_os = "windows", target_os = "macos"))]
+    {
+        let _ = rfd::MessageDialog::new()
+            .set_title("LocalSend")
+            .set_description(message)
+            .set_level(rfd::MessageLevel::Error)
+            .show();
+    }
 }
 
 pub fn build_app(
@@ -402,6 +427,28 @@ pub fn build_app(
         move || {
             if let Some(ui) = weak.upgrade() {
                 ui.set_auto_save_help_dialog_open(false);
+            }
+        }
+    });
+
+    ui.on_copy_diagnostics({
+        let weak = weak.clone();
+        move || {
+            let Some(ui) = weak.upgrade() else {
+                return;
+            };
+            let diagnostics = format!(
+                "LocalSend diagnostics\nAlias: {}\nIP: {}\nPort: {}\nStatus: {}",
+                ui.get_info_alias(),
+                ui.get_info_ip(),
+                ui.get_info_port(),
+                ui.get_server_status()
+            );
+            match arboard::Clipboard::new()
+                .and_then(|mut clipboard| clipboard.set_text(diagnostics))
+            {
+                Ok(()) => update_message(&weak, "诊断信息已复制"),
+                Err(error) => update_message(&weak, &format!("复制诊断信息失败：{error}")),
             }
         }
     });
@@ -722,11 +769,6 @@ pub fn build_app(
                 send_selected_paths_to(&weak, &commands, &selection, fingerprint);
             }
             selection.devices.borrow_mut().clear();
-            {
-                if let Some(ui) = weak.upgrade() {
-                    ui.set_send_mode_dialog_open(false);
-                }
-            }
         }
     });
 
@@ -885,6 +927,22 @@ pub fn build_app(
         }
     });
 
+    ui.on_set_theme({
+        let weak = weak.clone();
+        let commands = commands.clone();
+        let latest_snapshot = latest_snapshot.clone();
+        move |theme| {
+            let Some(snapshot) = latest_snapshot.borrow().as_ref().cloned() else {
+                update_message(&weak, "等待 localsendd 连接");
+                return;
+            };
+            let revision = snapshot.settings.revision;
+            let mut settings = snapshot.settings;
+            settings.theme = theme.to_string();
+            dispatch_settings(&weak, &commands, revision, settings);
+        }
+    });
+
     ui.on_set_toggle({
         let weak = weak.clone();
         let commands = commands.clone();
@@ -913,6 +971,7 @@ pub fn build_app(
             let mut settings = snapshot.settings;
             match name.as_str() {
                 "save_window_position" => settings.save_window_position = value,
+                "minimize_to_tray" => settings.minimize_to_tray = value,
                 "launch_on_login" => settings.launch_on_login = value,
                 "animations" => settings.animations = value,
                 "auto_finish" => settings.auto_finish = value,
@@ -1518,7 +1577,6 @@ fn paste_shortcut_blocked(ui: &AppWindow) -> bool {
         || ui.get_info_dialog_open()
         || ui.get_manual_dialog_open()
         || ui.get_favorites_dialog_open()
-        || ui.get_send_mode_dialog_open()
         || ui.get_troubleshoot_dialog_open()
         || ui.get_setting_dialog_open()
         || ui.get_pin_dialog_open()
@@ -1724,7 +1782,6 @@ fn open_initial_dialog(ui: &AppWindow) {
         "info" => ui.set_info_dialog_open(true),
         "manual" => ui.set_manual_dialog_open(true),
         "favorites" => ui.set_favorites_dialog_open(true),
-        "send-mode" => ui.set_send_mode_dialog_open(true),
         "troubleshoot" => ui.set_troubleshoot_dialog_open(true),
         "text" => ui.set_text_dialog_open(true),
         _ => {}
@@ -2022,9 +2079,11 @@ fn update_snapshot(weak: &Weak<AppWindow>, snapshot: &ServiceSnapshot, selection
     ui.set_history_count(snapshot.history.len().min(i32::MAX as usize) as i32);
     ui.set_server_running(snapshot.server_running);
     ui.set_settings_theme(theme_label(&snapshot.settings.theme).into());
+    ui.set_settings_theme_code(snapshot.settings.theme.clone().into());
     ui.set_settings_color(color_label(&snapshot.settings.color).into());
     ui.set_settings_language(language_label(&snapshot.settings.language).into());
     ui.set_save_window_position(snapshot.settings.save_window_position);
+    ui.set_settings_minimize_to_tray(snapshot.settings.minimize_to_tray);
     ui.set_launch_on_login(snapshot.settings.launch_on_login);
     ui.set_animations_enabled(snapshot.settings.animations);
     let local_device = snapshot
@@ -2086,6 +2145,15 @@ fn update_snapshot(weak: &Weak<AppWindow>, snapshot: &ServiceSnapshot, selection
     );
     ui.set_info_alias(snapshot.settings.alias.clone().into());
     ui.set_info_ip(local_ip_summary(snapshot).into());
+    ui.set_info_fingerprint(
+        snapshot
+            .devices
+            .iter()
+            .find(|device| device.source == "local")
+            .map(|device| device.device.fingerprint.clone())
+            .unwrap_or_default()
+            .into(),
+    );
     ui.set_info_port(
         snapshot
             .server_port
@@ -2119,6 +2187,7 @@ fn update_snapshot(weak: &Weak<AppWindow>, snapshot: &ServiceSnapshot, selection
             }
         });
     ui.set_selected_target_label(target_alias.into());
+    ui.set_selected_device_count(selection.devices.borrow().len().min(i32::MAX as usize) as i32);
     if let Some(request) = snapshot.incoming_requests.first() {
         if selection.request_files.borrow().is_empty() {
             selection
@@ -2193,6 +2262,8 @@ fn update_snapshot(weak: &Weak<AppWindow>, snapshot: &ServiceSnapshot, selection
                 peer: transfer.peer.clone().into(),
                 summary: transfer.summary.clone().into(),
                 status: transfer.status.clone().into(),
+                speed: transfer.speed.clone().into(),
+                duration: transfer.duration.clone().into(),
                 direction: transfer.direction.clone().into(),
                 terminal: transfer.terminal,
                 progress_percent: transfer.progress_percent,
@@ -2206,6 +2277,12 @@ fn update_snapshot(weak: &Weak<AppWindow>, snapshot: &ServiceSnapshot, selection
                             name: file.name.clone().into(),
                             size: file.size.clone().into(),
                             is_text: file.is_text,
+                            is_image: file.is_image,
+                            status: file.status.clone().into(),
+                            detail: file.detail.clone().into(),
+                            progress_percent: file.progress_percent,
+                            completed: file.completed,
+                            in_progress: file.in_progress,
                         })
                         .collect::<Vec<_>>(),
                 )),
@@ -2757,13 +2834,13 @@ fn color_label(color: &str) -> &'static str {
         match color {
             "blue" => "Blue",
             "green" => "Green",
-            _ => "LocalSend",
+            _ => "LocalSend Teal",
         }
     } else {
         match color {
             "blue" => "蓝色",
             "green" => "绿色",
-            _ => "LocalSend",
+            _ => "LocalSend Teal",
         }
     }
 }
@@ -3127,6 +3204,7 @@ mod tests {
             .expect("settings navigation button");
         settings.invoke_accessible_default_action();
         assert_eq!(ui.get_selected_tab(), "settings");
+        ui.set_settings_advanced(true);
         i_slint_backend_testing::mock_elapsed_time(std::time::Duration::from_millis(50));
 
         let animation_switch = ElementQuery::from_root(&ui)
@@ -3168,7 +3246,7 @@ mod tests {
             .match_predicate(|element| {
                 element
                     .accessible_label()
-                    .is_some_and(|label| label == "接收文件时验证校验和")
+                    .is_some_and(|label| label == "Checksum 校验")
             })
             .find_first()
             .expect("verify-checksums switch");
@@ -3227,45 +3305,18 @@ mod tests {
 
         ui.set_completion_dialog_open(false);
         ui.set_web_share_dialog_open(true);
-        ui.set_settings_encryption(true);
+        ui.set_web_share_url("https://localsend.local/receive?pin=4821".into());
         i_slint_backend_testing::mock_elapsed_time(std::time::Duration::from_millis(50));
-        let web_share_encryption = ElementQuery::from_root(&ui)
-            .match_accessible_role(AccessibleRole::Checkbox)
-            .match_predicate(|element| {
-                element
-                    .accessible_label()
-                    .is_some_and(|label| label == "加密")
-            })
-            .find_first()
-            .expect("web share encryption checkbox");
-        web_share_encryption.invoke_accessible_default_action();
-        assert!(
-            toggles
-                .borrow()
-                .iter()
-                .any(|(name, value)| name == "https" && !value)
-        );
-        let web_share_back = ElementQuery::from_root(&ui)
+        let web_share_close = ElementQuery::from_root(&ui)
             .match_accessible_role(AccessibleRole::Button)
             .match_predicate(|element| {
                 element
                     .accessible_label()
-                    .is_some_and(|label| label == "返回")
+                    .is_some_and(|label| label == "关闭")
             })
             .find_first()
-            .expect("web share back button");
-        let web_share_pin = ElementQuery::from_root(&ui)
-            .match_accessible_role(AccessibleRole::Checkbox)
-            .match_predicate(|element| {
-                element
-                    .accessible_label()
-                    .is_some_and(|label| label == "启用 PIN 密码")
-            })
-            .find_first()
-            .expect("web share pin checkbox");
-        web_share_pin.invoke_accessible_default_action();
-        assert!(edit_settings.borrow().iter().any(|key| key == "pin-enable"));
-        web_share_back.invoke_accessible_default_action();
+            .expect("web share close button");
+        web_share_close.invoke_accessible_default_action();
         assert!(web_share_stopped.get());
     }
 }

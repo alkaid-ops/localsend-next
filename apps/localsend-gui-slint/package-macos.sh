@@ -66,8 +66,14 @@ cp "$SCRIPT_DIR/packaging/macos/Info.plist" "$CONTENTS_DIR/Info.plist"
 chmod +x "$MACOS_DIR/LocalSend" "$MACOS_DIR/localsendd" "$TRAY_MACOS_DIR/LocalSendTray"
 printf 'APPL????' > "$CONTENTS_DIR/PkgInfo"
 
-qlmanage -t -s 1024 -o "$ICON_WORK_DIR/raw" "$SCRIPT_DIR/packaging/macos/app-icon.svg" >/dev/null 2>&1
-SOURCE_PNG="$ICON_WORK_DIR/raw/app-icon.svg.png"
+# `app-icon.png` is the 1024px master rendered from app-icon.svg with the
+# macOS drop shadow baked in (sips ignores SVG filters, qlmanage paints an
+# opaque background). Fall back to rasterizing the SVG without a shadow.
+SOURCE_PNG="$SCRIPT_DIR/packaging/macos/app-icon.png"
+if [ ! -f "$SOURCE_PNG" ]; then
+    SOURCE_PNG="$ICON_WORK_DIR/raw/app-icon.png"
+    sips -s format png "$SCRIPT_DIR/packaging/macos/app-icon.svg" --out "$SOURCE_PNG" >/dev/null
+fi
 
 for spec in \
     "16 icon_16x16.png" \
@@ -92,6 +98,9 @@ fi
 iconutil -c icns "$ICON_WORK_DIR/AppIcon.iconset" -o "$RESOURCES_DIR/AppIcon.icns"
 
 codesign --force --deep --sign - "$APP_DIR" >/dev/null
+# Bump the bundle mtime so Finder/Dock/LaunchServices invalidate their cached icon
+# after an in-place reinstall to the same path.
+touch "$APP_DIR" "$CONTENTS_DIR"
 
 if [ -e "$ZIP" ]; then
     unlink "$ZIP"

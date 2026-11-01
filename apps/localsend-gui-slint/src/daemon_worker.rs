@@ -710,6 +710,7 @@ mod tests {
                 file_type: "text/plain".to_string(),
                 sha256: None,
                 preview: None,
+                bytes_done: 0,
             }],
             status: TransferStatus::Finished,
             bytes_done: 5,

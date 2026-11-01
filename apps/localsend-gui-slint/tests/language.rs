@@ -59,6 +59,8 @@ fn bundled_translation_switches_navigation_at_runtime() {
         peer: "Peer".into(),
         summary: "1 KiB".into(),
         status: "等待中".into(),
+        speed: "".into(),
+        duration: "".into(),
         direction: "发送".into(),
         terminal: false,
         progress_percent: 0,
@@ -79,7 +81,7 @@ fn bundled_translation_switches_navigation_at_runtime() {
 
     ui.set_pin_dialog_open(true);
     i_slint_backend_testing::mock_elapsed_time(std::time::Duration::from_millis(50));
-    for label in ["Enter receiver PIN", "PIN value", "Retry"] {
+    for label in ["Enter receiver PIN", "PIN value", "Confirm"] {
         assert!(
             has_label(&ui, label),
             "missing English dialog label {label}"
@@ -98,8 +100,9 @@ fn bundled_translation_switches_navigation_at_runtime() {
     ui.set_setting_dialog_open(false);
 
     ui.set_web_share_dialog_open(true);
+    ui.set_web_share_url("https://localsend.local/receive".into());
     i_slint_backend_testing::mock_elapsed_time(std::time::Duration::from_millis(50));
-    for label in ["Receive via link", "Encryption", "Auto accept requests"] {
+    for label in ["Receive via link", "Copy link", "Close"] {
         assert!(
             has_label(&ui, label),
             "missing English dialog label {label}"
@@ -110,7 +113,7 @@ fn bundled_translation_switches_navigation_at_runtime() {
     ui.set_completion_dialog_open(true);
     ui.set_completion_countdown(0);
     i_slint_backend_testing::mock_elapsed_time(std::time::Duration::from_millis(50));
-    for label in ["Open file", "Show in file manager", "Close"] {
+    for label in ["Open", "Show in file manager", "Close"] {
         assert!(
             has_label(&ui, label),
             "missing English dialog label {label}"

@@ -46,6 +46,8 @@ pub struct TransferRow {
     pub peer: String,
     pub summary: String,
     pub status: String,
+    pub speed: String,
+    pub duration: String,
     pub direction: String,
     pub terminal: bool,
     pub progress_percent: i32,
@@ -59,6 +61,14 @@ pub struct TransferFileRow {
     pub name: String,
     pub size: String,
     pub is_text: bool,
+    pub is_image: bool,
+    /// Badge text: a percentage while transferring, otherwise a state label.
+    pub status: String,
+    /// Secondary line text describing the file's own state.
+    pub detail: String,
+    pub progress_percent: i32,
+    pub completed: bool,
+    pub in_progress: bool,
 }
 
 pub fn devices(
@@ -235,6 +245,22 @@ fn transfer_row(item: &TransferView, english: bool, auto_finish: bool) -> Transf
     } else {
         0
     };
+    let elapsed_ms = item
+        .ended_at_ms
+        .unwrap_or_else(unix_ms_now)
+        .saturating_sub(item.started_at_ms);
+    let speed =
+        if item.status == TransferStatus::Transferring && item.bytes_done > 0 && elapsed_ms > 0 {
+            let bytes_per_second = item.bytes_done.saturating_mul(1_000) / elapsed_ms;
+            format!("{}/s", format_bytes(bytes_per_second))
+        } else {
+            String::new()
+        };
+    let duration = if item.ended_at_ms.is_some() {
+        format!("{:.1} s", elapsed_ms as f64 / 1_000.0)
+    } else {
+        String::new()
+    };
     TransferRow {
         transfer_id: item.transfer_id.clone(),
         peer: item.peer_alias.clone(),
@@ -244,6 +270,8 @@ fn transfer_row(item: &TransferView, english: bool, auto_finish: bool) -> Transf
             format_bytes(item.bytes_total)
         ),
         status: transfer_status_text(item.status, english).to_string(),
+        speed,
+        duration,
         direction: if item.direction == TransferDirection::Receive {
             if english {
                 "Receive".to_string()
@@ -267,10 +295,48 @@ fn transfer_row(item: &TransferView, english: bool, auto_finish: bool) -> Transf
         files: item
             .files
             .iter()
-            .map(|file| TransferFileRow {
-                name: file.file_name.clone(),
-                size: format_bytes(file.size),
-                is_text: file.file_type == "text" || file.file_type.starts_with("text/"),
+            .map(|file| {
+                let progress_percent = file
+                    .bytes_done
+                    .saturating_mul(100)
+                    .checked_div(file.size)
+                    .unwrap_or(0)
+                    .min(100) as i32;
+                let completed = item.status == TransferStatus::Finished
+                    || (file.size > 0 && file.bytes_done >= file.size);
+                let in_progress = !completed && file.bytes_done > 0;
+                let (status, detail) = if completed {
+                    (
+                        (if english { "Completed" } else { "已完成" }).to_string(),
+                        (if english { "Delivered" } else { "已送达" }).to_string(),
+                    )
+                } else if in_progress {
+                    (
+                        format!("{progress_percent}%"),
+                        (if english {
+                            "Transferring"
+                        } else {
+                            "正在传输"
+                        })
+                        .to_string(),
+                    )
+                } else {
+                    (
+                        (if english { "Pending" } else { "待处理" }).to_string(),
+                        (if english { "Waiting" } else { "等待中" }).to_string(),
+                    )
+                };
+                TransferFileRow {
+                    name: file.file_name.clone(),
+                    size: format_bytes(file.size),
+                    is_text: file.file_type == "text" || file.file_type.starts_with("text/"),
+                    is_image: file.file_type.starts_with("image/"),
+                    status,
+                    detail,
+                    progress_percent,
+                    completed,
+                    in_progress,
+                }
             })
             .collect(),
     }
@@ -398,6 +464,74 @@ mod tests {
     }
 
     #[test]
+    fn file_rows_report_their_own_progress_state() {
+        let mut item = TransferView {
+            transfer_id: "id".into(),
+            direction: TransferDirection::Send,
+            peer_alias: "peer".into(),
+            peer_fingerprint: "fp".into(),
+            files: vec![
+                FileView {
+                    id: "pending".into(),
+                    file_name: "pending.bin".into(),
+                    size: 200,
+                    file_type: "application/octet-stream".into(),
+                    sha256: None,
+                    preview: None,
+                    bytes_done: 0,
+                },
+                FileView {
+                    id: "active".into(),
+                    file_name: "active.bin".into(),
+                    size: 200,
+                    file_type: "application/octet-stream".into(),
+                    sha256: None,
+                    preview: None,
+                    bytes_done: 50,
+                },
+                FileView {
+                    id: "done".into(),
+                    file_name: "done.bin".into(),
+                    size: 200,
+                    file_type: "application/octet-stream".into(),
+                    sha256: None,
+                    preview: None,
+                    bytes_done: 200,
+                },
+            ],
+            status: TransferStatus::Transferring,
+            bytes_done: 250,
+            bytes_total: 600,
+            started_at_ms: 0,
+            ended_at_ms: None,
+            error: None,
+        };
+
+        let row = transfer_row(&item, false, false);
+        assert_eq!(row.files[0].status, "待处理");
+        assert_eq!(row.files[0].detail, "等待中");
+        assert!(!row.files[0].completed);
+        assert!(!row.files[0].in_progress);
+        assert_eq!(row.files[1].status, "25%");
+        assert_eq!(row.files[1].detail, "正在传输");
+        assert_eq!(row.files[1].progress_percent, 25);
+        assert!(row.files[1].in_progress);
+        assert_eq!(row.files[2].status, "已完成");
+        assert!(row.files[2].completed);
+
+        item.status = TransferStatus::Finished;
+        let finished = transfer_row(&item, false, false);
+        assert!(finished.files.iter().all(|file| file.completed));
+        assert!(finished.files.iter().all(|file| file.status == "已完成"));
+
+        item.status = TransferStatus::Transferring;
+        let english = transfer_row(&item, true, false);
+        assert_eq!(english.files[0].status, "Pending");
+        assert_eq!(english.files[1].detail, "Transferring");
+        assert_eq!(english.files[2].status, "Completed");
+    }
+
+    #[test]
     fn pin_prompt_only_matches_authentication_errors() {
         assert!(should_show_pin_prompt(Some(ServiceErrorKind::InvalidPin)));
         assert!(should_show_pin_prompt(Some(ServiceErrorKind::PinRequired)));
@@ -484,6 +618,7 @@ mod tests {
                 file_type: "application/pdf".to_string(),
                 sha256: None,
                 preview: None,
+                bytes_done: 0,
             }],
             received_at_ms: 1,
         };

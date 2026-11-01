@@ -3,7 +3,7 @@ set -eu
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 ARCH=${1:-$(uname -m)}
-GUI_FEATURES=${LOCALSEND_GUI_FEATURES:-backend-femtovg-wgpu}
+GUI_FEATURES=${LOCALSEND_GUI_FEATURES:-backend-femtovg-wgpu,backend-software}
 
 case "$ARCH" in
     x86_64)

@@ -1187,6 +1187,7 @@ impl ServiceTask {
             file_type: "text/plain".to_string(),
             sha256: text_sha256.clone(),
             preview: Some(text.clone()),
+            bytes_done: 0,
         };
         let transfer = TransferView {
             transfer_id: transfer_id.clone(),
@@ -1755,6 +1756,11 @@ impl ServiceTask {
                         .map(|transfer| {
                             transfer.bytes_done = total_done.min(transfer.bytes_total);
                             transfer.status = TransferStatus::Transferring;
+                            if let Some(file) =
+                                transfer.files.iter_mut().find(|file| file.id == file_id)
+                            {
+                                file.bytes_done = file.bytes_done.max(bytes_done).min(file.size);
+                            }
                             (transfer.bytes_done, transfer.bytes_total)
                         })
                 };
@@ -1823,6 +1829,11 @@ impl ServiceTask {
                         .map(|transfer| {
                             transfer.bytes_done = total_done.min(transfer.bytes_total);
                             transfer.status = TransferStatus::Transferring;
+                            if let Some(file) =
+                                transfer.files.iter_mut().find(|file| file.id == file_id)
+                            {
+                                file.bytes_done = file.bytes_done.max(bytes_done).min(file.size);
+                            }
                             (transfer.bytes_done, transfer.bytes_total)
                         })
                 };
@@ -1865,6 +1876,18 @@ impl ServiceTask {
                     self.set_error(format!("receiving {file_name}: {error}"));
                 }
                 let successful = result.is_ok();
+                if successful {
+                    let mut snapshot = self.snapshot.write();
+                    if let Some(transfer) = snapshot
+                        .active_transfers
+                        .iter_mut()
+                        .find(|transfer| transfer.transfer_id == transfer_id)
+                        && let Some(file) =
+                            transfer.files.iter_mut().find(|file| file.id == file_id)
+                    {
+                        file.bytes_done = file.size;
+                    }
+                }
                 let is_message = message.is_some();
                 if successful && is_message {
                     let _ = std::fs::remove_file(&path);
@@ -1984,8 +2007,13 @@ impl ServiceTask {
             transfer.error = error;
             if terminal {
                 transfer.ended_at_ms = Some(unix_ms_now());
-                if transfer.bytes_done == 0 && status == TransferStatus::Finished {
-                    transfer.bytes_done = transfer.bytes_total;
+                if status == TransferStatus::Finished {
+                    if transfer.bytes_done == 0 {
+                        transfer.bytes_done = transfer.bytes_total;
+                    }
+                    for file in &mut transfer.files {
+                        file.bytes_done = file.size;
+                    }
                 }
             }
             transfer.clone()
@@ -2142,6 +2170,7 @@ fn file_view(file: &FileDto) -> FileView {
         file_type: file.file_type.clone(),
         sha256: file.sha256.clone(),
         preview: file.preview.clone(),
+        bytes_done: 0,
     }
 }
 

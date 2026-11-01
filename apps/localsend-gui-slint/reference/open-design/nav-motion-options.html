@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>导航图标动效候选 · LocalSend Next</title>
+<style>
+  :root {
+    --font-ui: "Avenir Next", "SF Pro Text", "PingFang SC", "Noto Sans CJK SC", sans-serif;
+    --font-display: "Avenir Next", "SF Pro Display", "PingFang SC", "Noto Sans CJK SC", sans-serif;
+    --page: #eef3f1;
+    --card: #ffffff;
+    --surface: #f8fbfa;
+    --surface-container: #eef3f1;
+    --line: #d9e4e1;
+    --text: #16211f;
+    --muted: #50615d;
+    --primary: #00796b;
+    --primary-container: #c6eee7;
+    --on-primary-container: #003d36;
+    --dark-surface: #121916;
+    --dark-line: #2a3a35;
+    --dark-text: #e3ece8;
+    --dark-muted: #b3c1bc;
+    --dark-active: #164c45;
+    --dark-on-active: #b8f3ea;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { margin: 0; }
+
+  body {
+    min-height: 100vh;
+    padding: 40px 24px 56px;
+    background: var(--page);
+    color: var(--text);
+    font-family: var(--font-ui);
+    font-size: 14px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page-head,
+  main,
+  .page-foot {
+    width: min(1160px, 100%);
+    margin-inline: auto;
+  }
+
+  .eyebrow {
+    margin: 0 0 8px;
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 650;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    margin: 0 0 12px;
+    font-family: var(--font-display);
+    font-size: clamp(26px, 4vw, 34px);
+    line-height: 1.2;
+    font-weight: 640;
+    letter-spacing: -0.025em;
+  }
+
+  .lead {
+    margin: 0;
+    max-width: 62ch;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .lead b { color: var(--text); font-weight: 600; }
+
+  main { display: grid; gap: 40px; margin-top: 36px; }
+
+  .group-head {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    margin-bottom: 14px;
+  }
+
+  .group-head h2 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 18px;
+    line-height: 1.3;
+    font-weight: 620;
+  }
+
+  .group-head p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 12.5px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr));
+    gap: 16px;
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 18px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--card);
+  }
+
+  .card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .card-copy { min-width: 0; }
+
+  .card-title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  .badge {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: 6px;
+    background: var(--surface-container);
+    color: var(--primary);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  .card h3 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 15px;
+    line-height: 1.3;
+    font-weight: 620;
+  }
+
+  .card p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 12.5px;
+    line-height: 1.65;
+  }
+
+  .sample {
+    flex: 0 0 auto;
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: var(--primary-container);
+    color: var(--on-primary-container);
+    overflow: hidden;
+  }
+
+  .preview { display: grid; gap: 6px; }
+
+  .preview-label {
+    color: var(--muted);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+
+  .strip {
+    display: flex;
+    gap: 6px;
+    padding: 5px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+  }
+
+  .strip.dark {
+    border-color: var(--dark-line);
+    background: var(--dark-surface);
+    color: var(--dark-text);
+  }
+
+  .mini-item {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    height: 50px;
+    border-radius: 10px;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.2;
+  }
+
+  .mini-item span { display: block; }
+
+  .mini-item.active {
+    background: var(--primary-container);
+    color: var(--on-primary-container);
+    font-weight: 600;
+  }
+
+  .strip.dark .mini-item { color: var(--dark-muted); }
+  .strip.dark .mini-item.active { background: var(--dark-active); color: var(--dark-on-active); }
+
+  .od-icon {
+    --od-icon-size: 20px;
+    width: var(--od-icon-size);
+    height: var(--od-icon-size);
+    display: block;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    flex: 0 0 auto;
+  }
+
+  .od-icon-lg { --od-icon-size: 22px; }
+
+  .page-foot {
+    margin-top: 44px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+  }
+
+  .page-foot p {
+    margin: 0;
+    max-width: 70ch;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.7;
+  }
+
+  /* ---------- 接收 ---------- */
+
+  /* R1 逐段点亮 */
+  .v-r1 .is-target .w-arc {
+    transform-box: view-box;
+    transform-origin: 12px 18.6px;
+    animation: r1-pulse 2.4s ease-out infinite;
+  }
+  .v-r1 .is-target .w-arc-2 { animation-delay: 0.16s; }
+  .v-r1 .is-target .w-arc-3 { animation-delay: 0.32s; }
+
+  @keyframes r1-pulse {
+    0%, 100% { opacity: 0.28; transform: scale(0.94); }
+    38% { opacity: 1; transform: scale(1); }
+  }
+
+  /* R2 呼吸 */
+  .v-r2 .is-target { animation: r2-breathe 2.6s ease-in-out infinite; }
+
+  @keyframes r2-breathe {
+    0%, 100% { opacity: 0.62; }
+    50% { opacity: 1; }
+  }
+
+  /* R3 描边生长 */
+  .v-r3 .is-target .w-arc {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: r3-draw 3s ease-in-out infinite;
+  }
+  .v-r3 .is-target .w-arc-2 { animation-delay: 0.18s; }
+  .v-r3 .is-target .w-arc-3 { animation-delay: 0.36s; }
+
+  @keyframes r3-draw {
+    0% { stroke-dashoffset: 1; opacity: 0; }
+    10% { opacity: 1; }
+    55% { stroke-dashoffset: 0; opacity: 1; }
+    80% { stroke-dashoffset: 0; opacity: 0; }
+    100% { stroke-dashoffset: 1; opacity: 0; }
+  }
+
+  /* R4 轻微缩放 */
+  .v-r4 .is-target { animation: r4-scale 2.4s ease-in-out infinite; }
+
+  @keyframes r4-scale {
+    0%, 100% { transform: scale(1); opacity: 0.86; }
+    50% { transform: scale(1.08); opacity: 1; }
+  }
+
+  /* ---------- 发送 ---------- */
+
+  .v-s1 .is-target { animation: s1-glide 3.4s cubic-bezier(0.35, 0, 0.3, 1) infinite; }
+
+  @keyframes s1-glide {
+    0% { transform: translate(-7px, 7px) rotate(-18deg); opacity: 0; }
+    15% { opacity: 0.95; }
+    45% { transform: translate(0, 0) rotate(-4deg); opacity: 1; }
+    75% { transform: translate(6px, -6px) rotate(-2deg); opacity: 0.9; }
+    95%, 100% { transform: translate(10px, -10px) rotate(0deg); opacity: 0; }
+  }
+
+  .v-s2 .is-target { animation: s2-arc 3.6s cubic-bezier(0.4, 0, 0.3, 1) infinite; }
+
+  @keyframes s2-arc {
+    0% { transform: translate(-6px, 8px) rotate(-14deg); opacity: 0; }
+    12% { opacity: 0.95; }
+    35% { transform: translate(-1px, -2px) rotate(-6deg); opacity: 1; }
+    62% { transform: translate(5px, -6px) rotate(-6deg); opacity: 1; }
+    92%, 100% { transform: translate(13px, -4px) rotate(-2deg); opacity: 0; }
+  }
+
+  .v-s3 .is-target { animation: s3-dash 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+
+  @keyframes s3-dash {
+    0% { transform: translate(-8px, 8px) scale(0.92); opacity: 0; }
+    10% { opacity: 1; }
+    55% { transform: translate(5px, -5px) scale(1); opacity: 1; }
+    100% { transform: translate(13px, -13px) scale(1); opacity: 0; }
+  }
+
+  .v-s4 .is-target { animation: s4-float 2.6s ease-in-out infinite; }
+
+  @keyframes s4-float {
+    0%, 100% { transform: translate(0, 0) rotate(-2deg); }
+    50% { transform: translate(1px, -1px) rotate(-8deg); }
+  }
+
+  /* ---------- 设置 ---------- */
+
+  .v-g1 .is-target { animation: g1-spin 8s linear infinite; }
+  .v-g2 .is-target { animation: g2-step 6s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+  .v-g3 .is-target { animation: g3-sway 4s ease-in-out infinite; }
+  .v-g4 .is-target { animation: g4-turn 6s ease-in-out infinite; }
+
+  @keyframes g1-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes g2-step {
+    0%, 12% { transform: rotate(0deg); }
+    40%, 52% { transform: rotate(180deg); }
+    80%, 100% { transform: rotate(360deg); }
+  }
+
+  @keyframes g3-sway {
+    0%, 100% { transform: rotate(-10deg); }
+    50% { transform: rotate(10deg); }
+  }
+
+  @keyframes g4-turn {
+    0%, 12% { transform: rotate(0deg); }
+    48%, 62% { transform: rotate(180deg); }
+    92%, 100% { transform: rotate(0deg); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; }
+    .w-arc { stroke-dashoffset: 0 !important; opacity: 1 !important; }
+  }
+
+  @media (max-width: 520px) {
+    body { padding: 28px 16px 40px; }
+    main { gap: 32px; margin-top: 26px; }
+    .card { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+<header class="page-head">
+  <p class="eyebrow">LocalSend Next · 导航动效</p>
+  <h1>挑一个你想要的动静</h1>
+  <p class="lead">每个图标给了 4 个候选，卡片里同时跑浅色和深色效果。看中后直接回我编号，例如：<b>接收 R1、发送 S2、设置 G1</b>。</p>
+</header>
+
+<main id="groups"></main>
+
+<footer class="page-foot">
+  <p>预览按底部导航 20px 绘制，右上角样本为侧栏 22px，两者动效一致。系统开启“减少动态效果”时动效会自动停止，图标保持完整可见。</p>
+</footer>
+
+<script>
+  const GEAR_PATH = "M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2Z";
+
+  const ICONS = {
+    receive: `<svg class="od-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path class="w-arc w-arc-1" pathLength="1" d="M10.6 15.2a1.9 1.9 0 0 1 2.8 0"></path>
+        <path class="w-arc w-arc-2" pathLength="1" d="M7.7 12.3a6 6 0 0 1 8.6 0"></path>
+        <path class="w-arc w-arc-3" pathLength="1" d="M4.9 9.5a10 10 0 0 1 14.2 0"></path>
+        <circle class="w-dot" cx="12" cy="18.6" r="0.9" fill="currentColor" stroke="none"></circle>
+      </svg>`,
+    send: `<svg class="od-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="m21 3-7.5 18-3.4-7.1L3 10.5 21 3Z"></path>
+        <path d="m10.1 13.9 4-4"></path>
+      </svg>`,
+    settings: `<svg class="od-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="${GEAR_PATH}"></path>
+        <circle cx="12" cy="12" r="3"></circle>
+      </svg>`
+  };
+
+  const LABELS = { receive: '接收', send: '发送', settings: '设置' };
+  const ORDER = ['receive', 'send', 'settings'];
+
+  const GROUPS = [
+    {
+      key: 'receive',
+      title: '接收',
+      note: '保留普通 WiFi 造型，不再出现雷达圆环。',
+      variants: [
+        { id: 'R1', name: '逐段点亮', desc: '三条弧线由内向外依次亮起，像信号一段段扫出去。' },
+        { id: 'R2', name: '呼吸', desc: '整枚图标明暗起伏，是最安静的持续动效。' },
+        { id: 'R3', name: '描边生长', desc: '弧线沿路径画出来，停顿后整体退场重画。' },
+        { id: 'R4', name: '轻微缩放', desc: '以信号点为中心做 8% 的呼吸缩放。' }
+      ]
+    },
+    {
+      key: 'send',
+      title: '发送',
+      note: '换掉之前的飞行姿态，四种都是“飞过去”而不是原地抖。',
+      variants: [
+        { id: 'S1', name: '平缓滑翔', desc: '从左下升起，掠过中心后飞向右上淡出，机头始终朝前。' },
+        { id: 'S2', name: '弧线抛出', desc: '沿抛物线上扬后飞出，姿态更轻。' },
+        { id: 'S3', name: '直线冲刺', desc: '短促加速划过，节奏最快。' },
+        { id: 'S4', name: '原地悬浮', desc: '几乎不位移，只做 1px 漂浮和轻微抬头。' }
+      ]
+    },
+    {
+      key: 'settings',
+      title: '设置',
+      note: '当前生效的是 G1，其余三种供对比。',
+      variants: [
+        { id: 'G1', name: '匀速整圈', desc: '8 秒转一圈，节奏稳定，就是现在原型里的效果。' },
+        { id: 'G2', name: '分段转动', desc: '转到半圈停一下，再转到整圈，像档位。' },
+        { id: 'G3', name: '左右轻摆', desc: '在 ±10° 之间摆动，幅度最小。' },
+        { id: 'G4', name: '半圈往复', desc: '缓慢转到反面，再转回原位。' }
+      ]
+    }
+  ];
+
+  function targetIcon(key) {
+    return ICONS[key].replace('class="od-icon"', 'class="od-icon is-target"');
+  }
+
+  function strip(groupKey, theme) {
+    const items = ORDER.map((key) => {
+      const active = key === groupKey;
+      const icon = active ? targetIcon(key) : ICONS[key];
+      return `<div class="mini-item${active ? ' active' : ''}">${icon}<span>${LABELS[key]}</span></div>`;
+    }).join('');
+    return `<div class="strip ${theme}">${items}</div>`;
+  }
+
+  function card(group, variant) {
+    const sample = ICONS[group.key].replace('class="od-icon"', 'class="od-icon is-target od-icon-lg"');
+    return `<article class="card v-${variant.id.toLowerCase()}">
+      <div class="card-head">
+        <div class="card-copy">
+          <div class="card-title-row"><span class="badge">${variant.id}</span><h3>${variant.name}</h3></div>
+          <p>${variant.desc}</p>
+        </div>
+        <div class="sample">${sample}</div>
+      </div>
+      <div class="preview">
+        <span class="preview-label">底部导航 · 浅色</span>
+        ${strip(group.key, 'light')}
+        <span class="preview-label">底部导航 · 深色</span>
+        ${strip(group.key, 'dark')}
+      </div>
+    </article>`;
+  }
+
+  const html = GROUPS.map((group) => `<section class="group">
+      <div class="group-head">
+        <h2>${group.title}</h2>
+        <p>${group.note}</p>
+      </div>
+      <div class="grid">
+        ${group.variants.map((variant) => card(group, variant)).join('')}
+      </div>
+    </section>`).join('');
+
+  document.getElementById('groups').innerHTML = html;
+</script>
+</body>
+</html>

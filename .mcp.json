@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "slint-docs": {
+      "type": "http",
+      "url": "https://docs.slint.dev/mcp"
+    },
+    "slint-app": {
+      "type": "http",
+      "url": "http://localhost:9315/mcp"
+    }
+  }
+}

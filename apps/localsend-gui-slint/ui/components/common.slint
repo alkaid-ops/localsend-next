@@ -1,12 +1,101 @@
 import { ThemeTokens } from "../theme.slint";
 
+component NavMotionIcon inherits Rectangle {
+    in property <int> motion: 0;
+    in property <color> tint: ThemeTokens.on-surface;
+    in property <length> icon-size: 22px;
+
+    width: root.icon-size;
+    height: root.icon-size;
+
+    property <float> tick: 0;
+    Timer {
+        interval: 60ms;
+        running: true;
+        triggered => {
+            root.tick = root.tick + 0.06;
+            if root.tick >= 72 {
+                root.tick = root.tick - 72;
+            }
+        }
+    }
+
+    if root.motion == 1 : signal-icon := Rectangle {
+        width: root.icon-size;
+        height: root.icon-size;
+        property <float> phase: Math.mod(root.tick, 2.4) / 2.4;
+        function pulse(offset: float) -> float {
+            0.28 + 0.72 * (0.5 + 0.5 * cos((Math.mod(self.phase + 1.0 - offset, 1.0) - 0.38) * 360deg))
+        }
+        Image {
+            width: root.icon-size;
+            height: root.icon-size;
+            source: @image-url("../icons/arc-near.svg");
+            colorize: root.tint;
+            image-fit: contain;
+            opacity: signal-icon.pulse(0);
+        }
+        Image {
+            width: root.icon-size;
+            height: root.icon-size;
+            source: @image-url("../icons/arc-mid.svg");
+            colorize: root.tint;
+            image-fit: contain;
+            opacity: signal-icon.pulse(0.0667);
+        }
+        Image {
+            width: root.icon-size;
+            height: root.icon-size;
+            source: @image-url("../icons/arc-far.svg");
+            colorize: root.tint;
+            image-fit: contain;
+            opacity: signal-icon.pulse(0.1333);
+        }
+        Rectangle {
+            x: root.icon-size / 24 * 11.1;
+            y: root.icon-size / 24 * 17.7;
+            width: root.icon-size / 24 * 1.8;
+            height: root.icon-size / 24 * 1.8;
+            border-radius: root.icon-size / 24 * 0.9;
+            background: root.tint;
+        }
+    }
+
+    if root.motion == 2 : Image {
+        width: root.icon-size;
+        height: root.icon-size;
+        source: @image-url("../icons/send.svg");
+        colorize: root.tint;
+        image-fit: contain;
+        property <float> p: Math.mod(root.tick, 1.8) / 1.8;
+        property <float> e: self.p * self.p * (3 - 2 * self.p);
+        x: -7px + 19px * self.e;
+        y: 7px - 19px * self.e;
+        opacity: self.p < 0.1 ? self.p * 10 : (self.p < 0.55 ? 1 : 1 - (self.p - 0.55) / 0.45);
+    }
+
+    if root.motion == 3 : Image {
+        width: root.icon-size;
+        height: root.icon-size;
+        source: @image-url("../icons/settings.svg");
+        colorize: root.tint;
+        image-fit: contain;
+        transform-rotation: Math.mod(root.tick, 8) * 45deg;
+    }
+}
+
 export component FlutterNavItem inherits Rectangle {
     in property <string> label;
     in property <image> icon;
     in property <bool> active: false;
     in property <bool> compact: false;
+    in property <bool> stacked: false;
+    in property <int> motion: 0;
+    in property <bool> motion-enabled: false;
     in property <string> automation-id: "";
     callback clicked;
+
+    property <bool> animated: root.active && root.motion-enabled && root.motion != 0;
 
     accessible-role: button;
     accessible-label: root.label;
@@ -14,27 +103,59 @@ export component FlutterNavItem inherits Rectangle {
     accessible-enabled: true;
     accessible-action-default => { root.clicked(); }
 
-    height: 56px;
-    border-radius: 28px;
-    background: root.active ? ThemeTokens.secondary-container : (touch.has-hover ? ThemeTokens.surface-container : transparent);
+    height: 52px;
+    border-radius: 12px;
+    background: root.active ? ThemeTokens.primary-container : (touch.has-hover ? ThemeTokens.surface-container : transparent);
 
-    HorizontalLayout {
-        padding-left: root.compact ? 14px : 18px;
-        padding-right: root.compact ? 14px : 20px;
-        spacing: root.compact ? 0px : 16px;
+    if root.stacked : VerticalLayout {
+        padding-top: 5px;
+        padding-bottom: 5px;
+        spacing: 2px;
         alignment: center;
-
-        Image {
-            width: 24px;
-            height: 24px;
+        cross-axis-alignment: center;
+        if root.animated : NavMotionIcon {
+            icon-size: 20px;
+            motion: root.motion;
+            tint: root.active ? ThemeTokens.on-primary-container : ThemeTokens.on-surface-variant;
+        }
+        if !root.animated : Image {
+            width: 20px;
+            height: 20px;
             source: root.icon;
-            colorize: root.active ? ThemeTokens.primary : ThemeTokens.on-surface-variant;
+            colorize: root.active ? ThemeTokens.on-primary-container : ThemeTokens.on-surface-variant;
+            image-fit: contain;
+        }
+        Text {
+            text: root.label;
+            color: root.active ? ThemeTokens.on-primary-container : ThemeTokens.on-surface-variant;
+            font-size: 11px;
+            font-weight: root.active ? 600 : 500;
+            horizontal-alignment: center;
+        }
+    }
+    if !root.stacked : HorizontalLayout {
+        padding-left: root.compact ? 14px : 18px;
+        padding-right: root.compact ? 14px : 18px;
+        spacing: root.compact ? 0px : 14px;
+        alignment: start;
+        cross-axis-alignment: center;
+
+        if root.animated : NavMotionIcon {
+            icon-size: 22px;
+            motion: root.motion;
+            tint: root.active ? ThemeTokens.on-primary-container : ThemeTokens.on-surface-variant;
+        }
+        if !root.animated : Image {
+            width: 22px;
+            height: 22px;
+            source: root.icon;
+            colorize: root.active ? ThemeTokens.on-primary-container : ThemeTokens.on-surface-variant;
             image-fit: contain;
         }
         if !root.compact : Text {
             text: root.label;
-            color: root.active ? ThemeTokens.on-secondary-container : ThemeTokens.on-surface;
-            font-size: 14px;
+            color: root.active ? ThemeTokens.on-primary-container : ThemeTokens.on-surface-variant;
+            font-size: 15px;
             font-weight: root.active ? 600 : 500;
             vertical-alignment: center;
             horizontal-stretch: 1;
@@ -49,8 +170,8 @@ export component FlutterNavItem inherits Rectangle {
 export component FlutterIconButton inherits Rectangle {
     in property <image> icon;
     in property <string> tooltip;
-    in property <length> icon-size: 24px;
-    in property <brush> icon-color: ThemeTokens.on-surface-variant;
+    in property <length> icon-size: 20px;
+    in property <brush> icon-color: ThemeTokens.on-surface;
     in property <brush> background-color: transparent;
     in property <bool> enabled: true;
     in property <string> automation-id: "";
@@ -65,7 +186,7 @@ export component FlutterIconButton inherits Rectangle {
     width: 40px;
     height: 40px;
     border-radius: 20px;
-    background: touch.has-hover ? ThemeTokens.surface-container-high : root.background-color;
+    background: touch.has-hover ? ThemeTokens.surface-container : root.background-color;
 
     touch := TouchArea {
         enabled: root.enabled;
@@ -85,10 +206,12 @@ export component FlutterIconButton inherits Rectangle {
 
 export component FlutterInlineSettingEntry inherits Rectangle {
     in property <string> label;
+    in property <string> description: "";
     in-out property <string> text;
     in property <string> placeholder: "";
     in property <bool> compact: false;
     in property <bool> enabled: true;
+    in property <bool> show-divider: true;
     callback submitted(string);
 
     accessible-role: text-input;
@@ -97,50 +220,88 @@ export component FlutterInlineSettingEntry inherits Rectangle {
     accessible-enabled: root.enabled;
     accessible-action-set-value(value) => { root.text = value; root.submitted(value); }
 
-    height: 63px;
+    height: 56.5px;
     background: transparent;
     HorizontalLayout {
-        padding-left: 16px;
-        padding-right: 8px;
-        spacing: 12px;
+        padding-left: 14px;
+        padding-right: 14px;
+        spacing: 20px;
         alignment: center;
-        Text {
-            text: root.label;
-            color: root.enabled ? ThemeTokens.on-surface : ThemeTokens.disabled;
-            font-size: 14px;
-            width: parent.width - (root.compact ? 170px : 240px) - 36px;
-            horizontal-alignment: left;
-            vertical-alignment: center;
-            overflow: elide;
-        }
-        Rectangle {
-            width: root.compact ? 170px : 240px;
-            height: 50px;
-            border-radius: ThemeTokens.input-radius;
-            background: ThemeTokens.surface-container-high;
-            input := TextInput {
-                x: 10px;
-                width: parent.width - 50px;
-                height: parent.height;
-                text <=> root.text;
+        VerticalLayout {
+            width: parent.width - 150px - 48px;
+            padding-left: 1px;
+            alignment: center;
+            spacing: 2px;
+            Text {
+                text: root.label;
                 color: root.enabled ? ThemeTokens.on-surface : ThemeTokens.disabled;
                 font-size: 14px;
-                single-line: true;
-                enabled: root.enabled;
-                accepted => { root.submitted(self.text); }
+                font-weight: 550;
+                horizontal-alignment: left;
+                overflow: elide;
             }
-            FlutterIconButton {
-                x: parent.width - 42px;
-                y: 5px;
-                width: 40px;
-                height: 40px;
-                icon: @image-url("../icons/check.svg");
-                icon-size: 18px;
-                tooltip: "Apply";
-                enabled: root.enabled;
-                clicked => { root.submitted(input.text); }
+            if root.description != "" : Text {
+                text: root.description;
+                color: ThemeTokens.on-surface-variant;
+                font-size: 11px;
+                horizontal-alignment: left;
+                overflow: elide;
             }
         }
+        VerticalLayout {
+            width: 150px;
+            height: parent.height;
+            alignment: center;
+            Rectangle {
+                width: 150px;
+                height: 34px;
+                border-radius: ThemeTokens.input-radius;
+                border-width: 1px;
+                border-color: ThemeTokens.outline;
+                background: ThemeTokens.surface-lowest;
+                input := TextInput {
+                    x: 9px;
+                    width: 104px;
+                    height: parent.height;
+                    text <=> root.text;
+                    color: root.enabled ? ThemeTokens.on-surface : ThemeTokens.disabled;
+                    font-size: 13px;
+                    vertical-alignment: center;
+                    single-line: true;
+                    enabled: root.enabled;
+                    accepted => { root.submitted(self.text); }
+                }
+                Rectangle {
+                    x: 112px;
+                    y: 0px;
+                    width: 36px;
+                    height: 34px;
+                    background: transparent;
+                    Image {
+                        width: 16px;
+                        height: 16px;
+                        x: 10px;
+                        y: 9px;
+                        source: @image-url("../icons/check.svg");
+                        colorize: ThemeTokens.success;
+                        image-fit: contain;
+                        opacity: inline-save.has-hover ? 1 : 0;
+                    }
+                    inline-save := TouchArea {
+                        enabled: root.enabled;
+                        mouse-cursor: pointer;
+                        clicked => { root.submitted(input.text); }
+                    }
+                }
+            }
+        }
+    }
+    if root.show-divider : Rectangle {
+        x: 0px;
+        y: parent.height - 1px;
+        width: 100%;
+        height: 1px;
+        background: ThemeTokens.outline.with-alpha(0.26);
     }
 }
 
@@ -148,6 +309,7 @@ export component FlutterBigButton inherits Rectangle {
     in property <image> icon;
     in property <string> label;
     in property <bool> filled: false;
+    in property <bool> compact: false;
     in property <bool> enabled: true;
     in property <string> automation-id: "";
     callback clicked;
@@ -158,39 +320,40 @@ export component FlutterBigButton inherits Rectangle {
     accessible-enabled: root.enabled;
     accessible-action-default => { if (root.enabled) { root.clicked(); } }
 
-    width: 102px;
-    height: 65px;
+    width: 112px;
+    height: root.compact ? 62px : 74px;
     border-radius: ThemeTokens.button-radius;
-    background: root.filled ? ThemeTokens.primary : ThemeTokens.secondary-container;
+    border-width: root.filled ? 0px : 1px;
+    border-color: ThemeTokens.outline;
+    background: root.filled ? ThemeTokens.primary : (touch.has-hover ? ThemeTokens.primary-container.with-alpha(0.25) : ThemeTokens.surface);
     opacity: root.enabled ? 1 : 0.45;
 
-    VerticalLayout {
-        alignment: center;
-        spacing: 4px;
-        Image {
-            width: 24px;
-            height: 24px;
-            source: root.icon;
-            colorize: root.filled ? ThemeTokens.on-primary : ThemeTokens.on-secondary-container;
-            image-fit: contain;
-        }
-        Text {
-            text: root.label;
-            color: root.filled ? ThemeTokens.on-primary : ThemeTokens.on-secondary-container;
-            font-size: 13px;
-            horizontal-alignment: center;
-            vertical-alignment: center;
-            overflow: elide;
-        }
+    Image {
+        x: (parent.width - self.width) / 2;
+        y: root.compact ? 12px : 14px;
+        width: root.compact ? 20px : 24px;
+        height: root.compact ? 20px : 24px;
+        source: root.icon;
+        colorize: root.filled ? ThemeTokens.on-primary : ThemeTokens.primary;
+        image-fit: contain;
     }
-    TouchArea {
+    Text {
+        x: 0px;
+        y: root.compact ? 33px : 42px;
+        width: parent.width;
+        height: 18px;
+        text: root.label;
+        color: root.filled ? ThemeTokens.on-primary : ThemeTokens.on-surface;
+        font-size: root.compact ? 12px : 13px;
+        font-weight: 600;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+        overflow: elide;
+    }
+    touch := TouchArea {
         enabled: root.enabled;
         mouse-cursor: pointer;
-        pointer-event(event) => {
-            if (event.button == PointerEventButton.left && event.kind == PointerEventKind.down) {
-                root.clicked();
-            }
-        }
+        clicked => { root.clicked(); }
     }
 }
 
@@ -205,19 +368,111 @@ export component FlutterSegmentButton inherits Rectangle {
     accessible-enabled: true;
     accessible-action-default => { root.clicked(); }
 
-    height: 40px;
-    border-radius: 20px;
-    background: active ? ThemeTokens.secondary-container : transparent;
+    height: 28px;
+    border-radius: 5px;
+    background: active ? ThemeTokens.surface-lowest : transparent;
     Text {
         text: root.label;
-        color: active ? ThemeTokens.on-secondary-container : ThemeTokens.on-surface-variant;
-        font-size: 14px;
+        color: active ? ThemeTokens.on-surface : ThemeTokens.on-surface-variant;
+        font-size: 11px;
+        font-weight: 600;
         horizontal-alignment: center;
         vertical-alignment: center;
     }
     TouchArea {
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
+    }
+}
+
+export component FlutterThemeEntry inherits Rectangle {
+    in property <string> label;
+    in property <string> description: "";
+    in property <string> theme-code: "system";
+    in property <bool> compact: false;
+    in property <bool> show-divider: true;
+    callback theme-selected(string);
+
+    height: 56.5px;
+    background: transparent;
+    HorizontalLayout {
+        padding-left: 14px;
+        padding-right: 14px;
+        spacing: 20px;
+        alignment: center;
+        VerticalLayout {
+            width: parent.width - 150px - 48px;
+            padding-left: 1px;
+            spacing: 2px;
+            alignment: center;
+            Text {
+                text: root.label;
+                color: ThemeTokens.on-surface;
+                font-size: 14px;
+                font-weight: 550;
+                horizontal-alignment: left;
+                overflow: elide;
+            }
+            Text {
+                text: root.description;
+                color: ThemeTokens.on-surface-variant;
+                font-size: 11px;
+                horizontal-alignment: left;
+                overflow: elide;
+            }
+        }
+        VerticalLayout {
+            width: 150px;
+            height: parent.height;
+            alignment: center;
+            Rectangle {
+                width: 150px;
+                height: 36px;
+                border-radius: ThemeTokens.input-radius;
+                background: transparent;
+                Rectangle {
+                    x: 26px;
+                    y: 2px;
+                    width: 124px;
+                    height: 32px;
+                    border-radius: 7px;
+                    background: ThemeTokens.surface-container-high;
+                }
+                HorizontalLayout {
+                    x: 26px;
+                    y: 2px;
+                    width: 124px;
+                    height: 32px;
+                    padding: 2px;
+                    spacing: 0px;
+                    FlutterSegmentButton {
+                        width: (parent.width - 4px) / 3;
+                        label: @tr("浅色");
+                        active: root.theme-code == "light";
+                        clicked => { root.theme-selected("light"); }
+                    }
+                    FlutterSegmentButton {
+                        width: (parent.width - 4px) / 3;
+                        label: @tr("深色");
+                        active: root.theme-code == "dark";
+                        clicked => { root.theme-selected("dark"); }
+                    }
+                    FlutterSegmentButton {
+                        width: (parent.width - 4px) / 3;
+                        label: @tr("系统");
+                        active: root.theme-code == "system";
+                        clicked => { root.theme-selected("system"); }
+                    }
+                }
+            }
+        }
+    }
+    if root.show-divider : Rectangle {
+        x: 0px;
+        y: parent.height - 1px;
+        width: 100%;
+        height: 1px;
+        background: ThemeTokens.outline.with-alpha(0.26);
     }
 }
 
@@ -234,19 +489,22 @@ export component FlutterDialogButton inherits Rectangle {
     accessible-enabled: root.enabled;
     accessible-action-default => { if (root.enabled) { root.clicked(); } }
 
-    width: 104px;
+    width: button-label.preferred-width + (root.primary ? 32px : 20px);
     height: 40px;
     border-radius: ThemeTokens.button-radius;
-    background: root.enabled && root.primary ? ThemeTokens.primary : ThemeTokens.surface-container;
-    Text {
+    background: !root.enabled ? ThemeTokens.surface-container : (root.primary ? ThemeTokens.primary : (touch.has-hover ? ThemeTokens.surface-container : transparent));
+    button-label := Text {
+        y: -2px;
+        width: 100%;
+        height: 100%;
         text: root.label;
         color: root.enabled && root.primary ? ThemeTokens.on-primary : (root.enabled ? ThemeTokens.primary : ThemeTokens.disabled);
         font-size: 14px;
-        font-weight: primary ? 600 : 500;
+        font-weight: 600;
         horizontal-alignment: center;
         vertical-alignment: center;
     }
-    TouchArea {
+    touch := TouchArea {
         enabled: root.enabled;
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
@@ -269,12 +527,13 @@ export component FlutterOutlinedButton inherits Rectangle {
     height: 42px;
     border-radius: ThemeTokens.button-radius;
     border-width: 1px;
-    border-color: ThemeTokens.outline;
-    background: touch.has-hover ? ThemeTokens.surface-container-low : transparent;
+    border-color: root.enabled ? ThemeTokens.outline : transparent;
+    background: !root.enabled ? ThemeTokens.surface-container : (touch.has-hover ? ThemeTokens.primary-container.with-alpha(0.48) : transparent);
     Text {
         text: root.label;
-        color: ThemeTokens.primary;
+        color: root.enabled ? ThemeTokens.primary : ThemeTokens.disabled;
         font-size: 14px;
+        font-weight: 600;
         horizontal-alignment: center;
         vertical-alignment: center;
     }
@@ -287,10 +546,12 @@ export component FlutterOutlinedButton inherits Rectangle {
 
 export component FlutterSettingsEntry inherits Rectangle {
     in property <string> label;
+    in property <string> description: "";
     in property <string> value;
     in property <bool> compact: false;
     in property <bool> enabled: true;
     in property <bool> show-dropdown: true;
+    in property <bool> show-divider: true;
     callback clicked;
 
     accessible-role: button;
@@ -298,45 +559,69 @@ export component FlutterSettingsEntry inherits Rectangle {
     accessible-enabled: root.enabled;
     accessible-action-default => { if (root.enabled) { root.clicked(); } }
 
-    height: 63px;
+    height: 56.5px;
     background: transparent;
+    opacity: root.enabled ? 1 : 0.56;
     HorizontalLayout {
-        padding-left: 16px;
-        padding-right: 12px;
-        spacing: 12px;
+        padding-left: 14px;
+        padding-right: 14px;
+        spacing: 20px;
         alignment: center;
-        Text {
-            text: root.label;
-            color: root.enabled ? ThemeTokens.on-surface : ThemeTokens.disabled;
-            font-size: 14px;
-            width: parent.width - (root.compact ? 128px : 150px) - 40px;
-            horizontal-alignment: left;
-            vertical-alignment: center;
-            overflow: elide;
-        }
-        Rectangle {
-            width: root.compact ? 128px : 150px;
-            height: 50px;
-            border-radius: ThemeTokens.input-radius;
-            background: ThemeTokens.surface-container-high;
+        VerticalLayout {
+            width: parent.width - 150px - 48px;
+            padding-left: 1px;
+            spacing: 2px;
+            alignment: center;
             Text {
-                x: 10px;
-                width: parent.width - 32px;
-                text: root.value;
+                text: root.label;
                 color: root.enabled ? ThemeTokens.on-surface : ThemeTokens.disabled;
                 font-size: 14px;
-                vertical-alignment: center;
+                font-weight: 550;
+                horizontal-alignment: left;
                 overflow: elide;
             }
-            Image {
-                x: parent.width - 26px;
-                y: 15px;
-                width: 20px;
-                height: 20px;
-                source: @image-url("../icons/chevron-down.svg");
-                colorize: ThemeTokens.on-surface-variant;
-                image-fit: contain;
-                visible: root.show-dropdown;
+            if root.description != "" : Text {
+                text: root.description;
+                color: root.enabled ? ThemeTokens.on-surface-variant : ThemeTokens.disabled;
+                font-size: 11px;
+                horizontal-alignment: left;
+                overflow: elide;
+            }
+        }
+        VerticalLayout {
+            width: 150px;
+            height: parent.height;
+            alignment: center;
+            Rectangle {
+                width: 150px;
+                height: 34px;
+                border-radius: ThemeTokens.input-radius;
+                border-width: root.show-dropdown ? 1px : 0px;
+                border-color: ThemeTokens.outline;
+                background: root.show-dropdown ? ThemeTokens.surface-lowest : transparent;
+                Text {
+                    x: root.show-dropdown ? 13px : 0px;
+                    y: 0px;
+                    width: parent.width - (root.show-dropdown ? 32px : 0px);
+                    height: parent.height;
+                    text: root.value;
+                    color: root.enabled ? (root.show-dropdown ? ThemeTokens.on-surface : ThemeTokens.primary) : ThemeTokens.disabled;
+                    font-size: root.show-dropdown ? 13px : 12px;
+                    font-weight: root.show-dropdown ? 400 : 600;
+                    horizontal-alignment: root.show-dropdown ? left : right;
+                    vertical-alignment: center;
+                    overflow: elide;
+                }
+                Image {
+                    x: parent.width - 21px;
+                    y: 11px;
+                    width: 12px;
+                    height: 12px;
+                    source: @image-url("../icons/chevron-down.svg");
+                    colorize: ThemeTokens.on-surface;
+                    image-fit: contain;
+                    visible: root.show-dropdown;
+                }
             }
         }
     }
@@ -345,13 +630,22 @@ export component FlutterSettingsEntry inherits Rectangle {
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
     }
+    if root.show-divider : Rectangle {
+        x: 0px;
+        y: parent.height - 1px;
+        width: 100%;
+        height: 1px;
+        background: ThemeTokens.outline.with-alpha(0.26);
+    }
 }
 
 export component FlutterBooleanEntry inherits Rectangle {
     in property <string> label;
+    in property <string> description: "";
     in-out property <bool> checked: false;
     in property <bool> compact: false;
     in property <bool> enabled: true;
+    in property <bool> show-divider: true;
     in property <string> automation-id: "";
     callback toggled(bool);
 
@@ -367,42 +661,61 @@ export component FlutterBooleanEntry inherits Rectangle {
         }
     }
 
-    height: 63px;
+    height: 56.5px;
     background: transparent;
+    opacity: root.enabled ? 1 : 0.56;
     HorizontalLayout {
-        padding-left: 16px;
-        padding-right: 12px;
-        spacing: 12px;
+        padding-left: 14px;
+        padding-right: 14px;
+        spacing: 20px;
         alignment: center;
-        Text {
-            text: root.label;
-            color: ThemeTokens.on-surface;
-            font-size: 14px;
-            width: parent.width - (root.compact ? 128px : 150px) - 40px;
-            horizontal-alignment: left;
-            vertical-alignment: center;
-            overflow: elide;
+        VerticalLayout {
+            width: parent.width - 150px - 48px;
+            padding-left: 1px;
+            spacing: 2px;
+            alignment: center;
+            Text {
+                text: root.label;
+                color: ThemeTokens.on-surface;
+                font-size: 14px;
+                font-weight: 550;
+                horizontal-alignment: left;
+                overflow: elide;
+            }
+            if root.description != "" : Text {
+                text: root.description;
+                color: ThemeTokens.on-surface-variant;
+                font-size: 11px;
+                horizontal-alignment: left;
+                overflow: elide;
+            }
         }
-        Rectangle {
-            width: root.compact ? 128px : 150px;
-            height: 50px;
-            border-radius: ThemeTokens.input-radius;
-            background: ThemeTokens.surface-container-high;
+        VerticalLayout {
+            width: 150px;
+            height: parent.height;
+            alignment: center;
             Rectangle {
-                x: parent.width - 50px;
-                y: 5px;
-                width: 60px;
+                width: 150px;
                 height: 40px;
-                border-radius: 20px;
-                background: root.checked ? ThemeTokens.primary : ThemeTokens.outline;
+                background: transparent;
                 Rectangle {
-                    x: root.checked ? 26px : 4px;
-                    y: 4px;
-                    width: 32px;
-                    height: 32px;
-                    border-radius: 16px;
-                    background: root.checked ? ThemeTokens.on-primary : ThemeTokens.surface;
-                    animate x { duration: 120ms; easing: ease-in-out; }
+                    x: parent.width - 49px;
+                    y: 6px;
+                    width: 48px;
+                    height: 28px;
+                    border-radius: 14px;
+                    background: root.checked ? ThemeTokens.primary : ThemeTokens.surface-container-highest;
+                    border-width: 1px;
+                    border-color: root.checked ? ThemeTokens.primary : ThemeTokens.outline;
+                    Rectangle {
+                        x: root.checked ? 23px : 3px;
+                        y: 3px;
+                        width: 20px;
+                        height: 20px;
+                        border-radius: 10px;
+                        background: root.checked ? ThemeTokens.on-primary : ThemeTokens.outline-strong;
+                        animate x { duration: 120ms; easing: ease-in-out; }
+                    }
                 }
             }
         }
@@ -414,6 +727,13 @@ export component FlutterBooleanEntry inherits Rectangle {
             root.checked = !root.checked;
             root.toggled(root.checked);
         }
+    }
+    if root.show-divider : Rectangle {
+        x: 0px;
+        y: parent.height - 1px;
+        width: 100%;
+        height: 1px;
+        background: ThemeTokens.outline.with-alpha(0.26);
     }
 }
 
@@ -428,6 +748,7 @@ export component FlutterDeviceTile inherits Rectangle {
     in property <bool> selected: false;
     in property <bool> multiple: false;
     in property <bool> show-favorite: true;
+    in property <bool> outlined: true;
     in property <color> tile-background: selected ? ThemeTokens.secondary-container : ThemeTokens.surface-container-low;
     callback device-clicked(string);
 
@@ -437,69 +758,114 @@ export component FlutterDeviceTile inherits Rectangle {
     accessible-enabled: true;
     accessible-action-default => { root.device-clicked(root.fingerprint); }
 
-    height: 84px;
+    height: 62px;
     border-radius: ThemeTokens.card-radius;
-    border-width: selected ? 1px : 0px;
-    border-color: ThemeTokens.primary;
+    border-width: root.outlined ? 1px : 0px;
+    border-color: selected ? ThemeTokens.primary : ThemeTokens.outline-variant;
     background: root.tile-background;
 
-    HorizontalLayout {
-        width: parent.width;
-        height: parent.height;
-        padding-left: 14px;
-        padding-right: 18px;
-        spacing: 12px;
-        alignment: center;
-        Image {
-            width: 56px;
-            height: 48px;
-            source: @image-url("../icons/smartphone.svg");
-            colorize: ThemeTokens.on-surface;
+    if root.multiple : Rectangle {
+        x: 12px;
+        y: 21px;
+        width: 18px;
+        height: 18px;
+        border-radius: 4px;
+        border-width: 1px;
+        border-color: root.selected ? ThemeTokens.primary : ThemeTokens.outline;
+        background: root.selected ? ThemeTokens.primary : ThemeTokens.surface;
+        if root.selected : Image {
+            width: 14px;
+            height: 14px;
+            x: 2px;
+            y: 2px;
+            source: @image-url("../icons/check.svg");
+            colorize: ThemeTokens.on-primary;
             image-fit: contain;
         }
-        Rectangle {
-            height: 54px;
-            horizontal-stretch: 1;
-            background: transparent;
-
-            VerticalLayout {
-                spacing: 8px;
-                Text {
-                    text: root.alias;
-                    color: ThemeTokens.on-surface;
-                    font-size: 22px;
-                    overflow: elide;
+    }
+    Rectangle {
+        x: root.multiple ? 42px : 12px;
+        y: 13px;
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        background: ThemeTokens.primary-container;
+        Image {
+            width: 22px;
+            height: 22px;
+            x: 8px;
+            y: 8px;
+            source: root.device-type == "Mobile"
+                ? @image-url("../icons/smartphone.svg")
+                : (root.device-type == "Monitor"
+                    ? @image-url("../icons/monitor.svg")
+                    : @image-url("../icons/laptop.svg"));
+            colorize: ThemeTokens.on-primary-container;
+            image-fit: contain;
+        }
+    }
+    Rectangle {
+        x: root.multiple ? 92px : 62px;
+        y: 10px;
+        width: parent.width - (root.multiple ? 124px : 94px);
+        height: 44px;
+        background: transparent;
+        VerticalLayout {
+            spacing: 1px;
+            Text {
+                text: root.alias;
+                color: ThemeTokens.on-surface;
+                font-size: 14px;
+                font-weight: 600;
+                overflow: elide;
+            }
+            HorizontalLayout {
+                height: 20px;
+                spacing: 5px;
+                if root.favorite : Rectangle {
+                    width: favorite-label.preferred-width + 12px;
+                    height: 20px;
+                    y: -2px;
+                    border-radius: 5px;
+                    background: ThemeTokens.success.with-alpha(0.13);
+                    favorite-label := Text { text: @tr("收藏"); color: ThemeTokens.success; font-size: 10px; horizontal-alignment: center; vertical-alignment: center; }
                 }
-                HorizontalLayout {
-                    spacing: 6px;
-                    Text {
-                        text: root.protocol;
-                        color: ThemeTokens.on-surface-variant;
-                        font-size: 12px;
-                        visible: root.protocol != "";
-                    }
-                    Text {
-                        text: root.model;
-                        color: ThemeTokens.on-surface-variant;
-                        font-size: 12px;
-                        overflow: elide;
-                    }
-                    Text {
-                        text: root.ip;
-                        color: ThemeTokens.on-surface-variant;
-                        font-size: 12px;
-                        overflow: elide;
-                    }
+                if root.protocol != "" && !root.favorite : Rectangle {
+                    width: protocol-label.preferred-width + 12px;
+                    height: 20px;
+                    y: -2px;
+                    border-radius: 5px;
+                    background: ThemeTokens.surface-container-high;
+                    protocol-label := Text { text: root.protocol; color: ThemeTokens.on-surface-variant; font-size: 10px; horizontal-alignment: center; vertical-alignment: center; }
                 }
+                if root.model != "" : Rectangle {
+                    width: model-label.preferred-width + 12px;
+                    height: 20px;
+                    y: -2px;
+                    border-radius: 5px;
+                    background: ThemeTokens.surface-container-high;
+                    model-label := Text { text: root.model; color: ThemeTokens.on-surface-variant; font-size: 10px; horizontal-alignment: center; vertical-alignment: center; }
+                }
+                if root.ip != "" : Rectangle {
+                    width: ip-label.preferred-width + 12px;
+                    height: 20px;
+                    y: -2px;
+                    border-radius: 5px;
+                    background: ThemeTokens.surface-container-high;
+                    ip-label := Text { text: root.ip; color: ThemeTokens.on-surface-variant; font-size: 10px; horizontal-alignment: center; vertical-alignment: center; }
+                }
+                Rectangle { horizontal-stretch: 1; background: transparent; }
             }
         }
-        if root.favorite && root.show-favorite : Image {
-            width: 24px;
-            height: 24px;
-            source: @image-url("../icons/heart.svg");
-            colorize: ThemeTokens.primary;
-            image-fit: contain;
-        }
+    }
+    if root.favorite && root.show-favorite : Image {
+        x: parent.width - 32px;
+        y: 19px;
+        width: 24px;
+        height: 24px;
+        source: @image-url("../icons/heart.svg");
+        colorize: ThemeTokens.primary;
+        image-fit: contain;
     }
 
     TouchArea {

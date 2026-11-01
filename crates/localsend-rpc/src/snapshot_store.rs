@@ -92,6 +92,7 @@ impl SnapshotStore {
             }
             ServiceEvent::TransferProgress {
                 transfer_id,
+                file_id,
                 bytes_done,
                 bytes_total,
                 transfer_bytes_done,
@@ -110,6 +111,12 @@ impl SnapshotStore {
                         .max(transfer_bytes_done.unwrap_or(*bytes_done))
                         .min(transfer.bytes_total);
                     transfer.status = TransferStatus::Transferring;
+                    if let Some(file_id) = file_id
+                        && let Some(file) =
+                            transfer.files.iter_mut().find(|file| file.id == *file_id)
+                    {
+                        file.bytes_done = file.bytes_done.max(*bytes_done).min(file.size);
+                    }
                 }
             }
             ServiceEvent::TransferFinished { transfer } => {
@@ -295,5 +302,60 @@ mod tests {
         assert_eq!(transfer.bytes_done, 100);
         assert_eq!(transfer.bytes_total, 100);
         assert_eq!(transfer.status, TransferStatus::Transferring);
+    }
+
+    #[test]
+    fn transfer_progress_updates_only_the_named_file() {
+        let mut snapshot = snapshot_with_transfer("transfer-1", 100);
+        snapshot.active_transfers[0].files = vec![
+            crate::FileView {
+                id: "file-1".to_string(),
+                file_name: "first.bin".to_string(),
+                size: 60,
+                file_type: "application/octet-stream".to_string(),
+                sha256: None,
+                preview: None,
+                bytes_done: 0,
+            },
+            crate::FileView {
+                id: "file-2".to_string(),
+                file_name: "second.bin".to_string(),
+                size: 40,
+                file_type: "application/octet-stream".to_string(),
+                sha256: None,
+                preview: None,
+                bytes_done: 0,
+            },
+        ];
+        let mut store = SnapshotStore::new(snapshot);
+        let file_progress = |seq, file_id: &str, bytes_done: u64| SequencedEvent {
+            seq,
+            event: ServiceEvent::TransferProgress {
+                transfer_id: "transfer-1".to_string(),
+                file_id: Some(file_id.to_string()),
+                file_name: None,
+                bytes_done,
+                bytes_total: 60,
+                transfer_bytes_done: None,
+                transfer_bytes_total: None,
+            },
+        };
+
+        assert_eq!(
+            store.apply(&file_progress(1, "file-1", 25)),
+            EventApply::Applied
+        );
+        assert_eq!(
+            store.apply(&file_progress(2, "file-1", 20)),
+            EventApply::Applied
+        );
+        assert_eq!(
+            store.apply(&file_progress(3, "file-1", 90)),
+            EventApply::Applied
+        );
+
+        let files = &store.snapshot().active_transfers[0].files;
+        assert_eq!(files[0].bytes_done, 60);
+        assert_eq!(files[1].bytes_done, 0);
     }
 }

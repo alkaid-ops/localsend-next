@@ -1,34 +1,40 @@
-// Flutter reference: ColorScheme.fromSeed(seedColor: Colors.teal), Flutter 3.41.9.
-// Values were printed from the Flutter test runtime on 2026-10-20.
+// Shared LocalSend desktop design tokens. The visual hierarchy follows the
+// OpenDesign Flutter-reference prototype while protocol accents remain data driven.
 export global ThemeTokens {
     in property <bool> dark: false;
     in property <int> accent-index: 0;
 
-    out property <color> primary: accent-index == 1 ? (dark ? #A0CAFD : #36618E) : (accent-index == 2 ? (dark ? #A1D39A : #3B6939) : (dark ? #82D5C8 : #006A60));
-    out property <color> on-primary: accent-index == 1 ? (dark ? #003258 : #FFFFFF) : (accent-index == 2 ? (dark ? #0A390F : #FFFFFF) : (dark ? #003731 : #FFFFFF));
-    out property <color> primary-container: accent-index == 1 ? (dark ? #194975 : #D1E4FF) : (accent-index == 2 ? (dark ? #235024 : #BCF0B4) : (dark ? #005048 : #9EF2E4));
-    out property <color> on-primary-container: accent-index == 1 ? (dark ? #D1E4FF : #194975) : (accent-index == 2 ? (dark ? #BCF0B4 : #235024) : (dark ? #9EF2E4 : #005048));
+    out property <color> primary: accent-index == 1 ? (dark ? #9CCAFF : #36618E) : (accent-index == 2 ? (dark ? #91D78B : #386A38) : (dark ? #61D8C8 : #00796B));
+    out property <color> on-primary: accent-index == 1 ? (dark ? #003258 : #FFFFFF) : (accent-index == 2 ? (dark ? #00390D : #FFFFFF) : (dark ? #00372F : #FFFFFF));
+    out property <color> primary-container: accent-index == 1 ? (dark ? #164B75 : #D1E4FF) : (accent-index == 2 ? (dark ? #1E4F21 : #BCF0B4) : (dark ? #164C45 : #C6EEE7));
+    out property <color> on-primary-container: accent-index == 1 ? (dark ? #D1E4FF : #164B75) : (accent-index == 2 ? (dark ? #BCF0B4 : #1E4F21) : (dark ? #B8F3EA : #003D36));
     out property <color> secondary: accent-index == 1 ? (dark ? #BBC7DB : #535F70) : (accent-index == 2 ? (dark ? #BACCB3 : #52634F) : (dark ? #B1CCC6 : #4A635F));
-    out property <color> secondary-container: accent-index == 1 ? (dark ? #3B4858 : #D7E3F7) : (accent-index == 2 ? (dark ? #3B4B38 : #D5E8CF) : (dark ? #334B47 : #CCE8E2));
-    out property <color> on-secondary-container: accent-index == 1 ? (dark ? #D7E3F7 : #3B4858) : (accent-index == 2 ? (dark ? #D5E8CF : #3B4B38) : (dark ? #CCE8E2 : #334B47));
-    out property <color> surface: dark ? #0E1513 : #F4FBF8;
-    out property <color> surface-container-low: dark ? #161D1C : #EFF5F2;
-    out property <color> surface-container: dark ? #1A2120 : #E9EFED;
-    out property <color> surface-container-high: dark ? #252B2A : #E3EAE7;
-    out property <color> surface-container-highest: dark ? #303635 : #DDE4E1;
-    out property <color> on-surface: dark ? #DDE4E1 : #161D1C;
-    out property <color> on-surface-variant: dark ? #BEC9C6 : #3F4947;
-    out property <color> outline: dark ? #899390 : #6F7977;
-    out property <color> outline-variant: dark ? #3F4947 : #BEC9C6;
+    out property <color> secondary-container: accent-index == 1 ? (dark ? #344B64 : #D7E3F7) : (accent-index == 2 ? (dark ? #304D31 : #D5E8CF) : (dark ? #263A36 : #DCE8E5));
+    out property <color> on-secondary-container: accent-index == 1 ? (dark ? #D7E3F7 : #344B64) : (accent-index == 2 ? (dark ? #D5E8CF : #304D31) : (dark ? #D4E9E4 : #263A36));
+    out property <color> surface: dark ? #121916 : #F8FBFA;
+    out property <color> surface-lowest: dark ? #0F1513 : #FFFFFF;
+    out property <color> surface-container-low: dark ? #171F1C : #F1F6F4;
+    out property <color> surface-container: dark ? #19221F : #EEF3F1;
+    out property <color> surface-container-high: dark ? #202B27 : #E6EDEB;
+    out property <color> surface-container-highest: dark ? #293631 : #DDE7E3;
+    out property <color> on-surface: dark ? #E3ECE8 : #16211F;
+    out property <color> on-surface-variant: dark ? #B3C1BC : #50615D;
+    out property <color> outline: dark ? #3E4D48 : #BCCBC7;
+    out property <color> outline-strong: dark ? #879690 : #7F918D;
+    out property <color> outline-variant: dark ? #3E4D48 : #D7E1DE;
     out property <color> error: dark ? #FFB4AB : #BA1A1A;
-    out property <color> warning: #FF9800;
-    out property <color> scrim: #00000066;
+    out property <color> success: dark ? #69D6A3 : #006B45;
+    out property <color> warning: dark ? #F0BD6A : #8E5A00;
+    out property <color> scrim: dark ? #00000080 : #09110F57;
+    out property <color> toast-background: dark ? #D9E7E2 : #263431;
+    out property <color> toast-foreground: dark ? #13201C : #F5FBF9;
+    out property <color> nav-surface: dark ? #17201D : #F0F5F3;
     out property <color> disabled: dark ? #697370 : #899390;
 
-    out property <length> input-radius: 5px;
+    out property <length> input-radius: 6px;
     out property <length> button-radius: 10px;
     out property <length> card-radius: 12px;
-    out property <length> dialog-radius: 12px;
+    out property <length> dialog-radius: 14px;
     out property <length> page-horizontal-padding: 15px;
     out property <length> receive-padding: 30px;
     out property <length> settings-max-width: 600px;

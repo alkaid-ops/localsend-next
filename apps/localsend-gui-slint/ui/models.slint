@@ -38,6 +38,12 @@ export struct TransferFileItem {
     name: string,
     size: string,
     is-text: bool,
+    is-image: bool,
+    status: string,
+    detail: string,
+    progress-percent: int,
+    completed: bool,
+    in-progress: bool,
 }
 
 export struct TransferItem {
@@ -45,6 +51,8 @@ export struct TransferItem {
     peer: string,
     summary: string,
     status: string,
+    speed: string,
+    duration: string,
     direction: string,
     terminal: bool,
     progress-percent: int,

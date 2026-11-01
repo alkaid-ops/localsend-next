@@ -317,10 +317,25 @@ CoreGraphics/AppKit 等只读 API；需要真实点击时使用 AX 定位、CGEv
 正确做法：
 
 - 从 Flutter 原版提取 token：颜色、字号、spacing、radius、控件尺寸。
+- OpenDesign 原型的 HTML/CSS 是机械可读的设计契约。优先提取 DOM box、computed
+  style 和稳定 selector，不要靠反复把整页截图交给模型“看图找茬”。
+- 使用
+  `node apps/localsend-gui-slint/reference/open-design/extract_metrics.mjs --page send --state default --width 1024 --height 768 --theme light`
+  生成参考 DOM/样式 JSON；它与 `render_reference --metrics` 的结果直接对照。
+- 本地截图 diff 只向模型返回 changed percentage、mean/max delta、失败区域 bounds
+  和最大差异 tile；只在定位到失败区域后查看局部 crop。
 - 先实现布局和组件层级，再做少量固定视口截图对照。
 - 日常回归优先使用 accessible-id、Testing Backend 和语义断言。
 - 只在视觉变更或发布门禁跑 golden，不在每次小修复中全量截图。
 - 截图失败只作诊断，不作为“功能已经通过”的证据。
+
+Slint 构建注意：
+
+- `apply_patch` 可能保留 UI 文件旧 mtime，导致 build.rs 的
+  `rerun-if-changed` 没有触发，Cargo 继续复用旧 `.slint` 产物。
+- 修改 `ui/` 后若出现“代码明明改了但截图完全不变”，先刷新 mtime 再重跑：
+  `find apps/localsend-gui-slint/ui -type f -exec touch {} +`。
+- 不要根据旧截图继续调样式；先确认本轮二进制确实包含当前 `.slint`。
 
 对当前产品尤其注意：
 
@@ -374,6 +389,45 @@ CoreGraphics/AppKit 等只读 API；需要真实点击时使用 AX 定位、CGEv
 - 协议、版本或非 I/O 错误才显示 Snackbar。
 - 首次连接前 50 次重试使用短间隔，之后退回 1 秒间隔。
 - 原始错误可以写日志供诊断，但不得进入用户可见的 Snackbar。
+
+### 3.13 Windows 上 GUI 打不开、托盘“打开主界面”没反应
+
+历史症状：
+
+- Windows 11 上托盘图标存在，但点“打开主界面”没有任何窗口。
+- 直接运行 `LocalSend.exe` 也没有窗口；进程很快消失。
+- macOS 同一版本正常。
+
+真实根因（按可能性排序）：
+
+1. **渲染器没有 fallback**。桌面包只编译了 `backend-femtovg-wgpu`；
+   Slint 的 FemtoVG-WGPU 在没有非 CPU 的 wgpu adapter 时直接返回
+   `WGPU: No GPU adapters found`（VM、RDP、只有 OpenGL 驱动的机器），
+   且 winit 的 fallback 列表只会尝试已编译的渲染器。`AppWindow::new()` 失败后，
+   GUI 是 `windows_subsystem = "windows"`，错误无处可见，进程静默退出。
+2. **launcher 在 Windows 上找不到 GUI**：候选名是不带 `.exe` 的
+   `localsend`/`LocalSend`，而 `Path::is_file()` 不会像 CreateProcess 那样补
+   PATHEXT，`localsend-launcher.exe` 因此直接报错退出。
+3. 保存的窗口位置可能落在已断开的显示器上；Windows 不会像 macOS 那样把窗口
+   拉回可见区域，表现为“打开了但看不到”。
+
+排查证据：
+
+- 先看 `%APPDATA%\LocalSend\localsend-rs\config\logs\localsend-gui.log`
+  （tray 启动 GUI 时会重定向 stdout/stderr）。
+- 用 `SLINT_WGPU_CPU=1` 启动：若窗口出现，即确认是 GPU adapter/渲染器问题。
+- 检查 `window.json` 里的 `placement` 坐标是否在当前显示器范围内。
+
+修复与门禁：
+
+- 桌面包编译 `backend-femtovg-wgpu,backend-software`，让 winit 在 wgpu 失败时
+  自动退到软件渲染；不要只保留单一渲染器。
+- GUI 启动失败必须可见：写 stderr 并在 Windows/macOS 弹出错误对话框，不能静默。
+- Windows 下查 GUI 可执行文件必须带 `.exe`。
+- 修改 Windows 相关代码后，用
+  `cargo check --target x86_64-pc-windows-msvc -p localsend-gui-slint -p localsend-launcher`
+  做类型检查；没有真机时明确标注 UNVERIFIED。
+  本轮已用该目标检查 `backend-femtovg-wgpu,backend-software` 组合，通过。
 
 ## 4. 推荐排障顺序
 

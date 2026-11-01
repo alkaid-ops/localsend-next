@@ -11,6 +11,8 @@ import { RequestFileItem, TransferItem } from "../models.slint";
 export component ReceivePage inherits Rectangle {
     in property <length> viewport-width: 800px;
     in property <length> viewport-height: 600px;
+    in property <length> container-height: 600px;
+    in property <bool> compact-layout: false;
     in property <string> alias: "LocalSend";
     in property <string> device-id: "";
     in property <string> ip-summary: "Unknown";
@@ -26,17 +28,24 @@ export component ReceivePage inherits Rectangle {
     callback show-history;
     callback show-info;
     callback open-web-share;
+    callback open-receive-folder;
     callback toggle-request-file(string);
     callback respond-transfer(string, [string], bool);
     callback cancel-transfer(string);
+    callback dismiss-transfer(string);
+
     property <length> request-card-height: root.request-files.length > 0
-        ? min(210px, 92px + root.request-files.length * 34px)
+        ? 154px + root.request-files.length * 38px + (root.request-files.length - 1) * 6px
         : 0px;
-    property <length> center-height: max(
-        1px,
-        root.viewport-height - 162px - (root.request-files.length > 0 ? root.request-card-height + 8px : 0px)
-    );
+    property <bool> narrow: root.viewport-width <= 700px;
+    property <bool> tight: root.container-height < 680px;
     property <angle> logo-rotation: 0deg;
+    property <length> topbar-height: root.viewport-width <= 700px
+        ? 66px
+        : (root.tight ? 62px : 76px);
+    property <bool> receive-finished: root.transfers.length > 0
+        && root.transfers[0].direction == "接收"
+        && root.transfers[0].terminal;
 
     background: ThemeTokens.surface;
 
@@ -45,7 +54,7 @@ export component ReceivePage inherits Rectangle {
         running: root.animations && root.server-running;
         triggered => {
             root.logo-rotation = root.logo-rotation + 1.5deg;
-            if (root.logo-rotation >= 360deg) {
+            if root.logo-rotation >= 360deg {
                 root.logo-rotation = root.logo-rotation - 360deg;
             }
         }
@@ -54,185 +63,537 @@ export component ReceivePage inherits Rectangle {
     VerticalLayout {
         width: parent.width;
         height: parent.height;
-        padding-left: ThemeTokens.receive-padding;
-        padding-right: ThemeTokens.receive-padding;
-        padding-top: 16px;
-        padding-bottom: 20px;
-        spacing: 8px;
+        spacing: 0px;
 
         HorizontalLayout {
-            height: 44px;
-            horizontal-stretch: 1;
-            Rectangle { horizontal-stretch: 1; background: transparent; }
-            FlutterIconButton {
-                icon: @image-url("../icons/history.svg");
-                tooltip: "Receive history";
-                clicked => { root.show-history(); }
+            height: root.topbar-height;
+            padding-left: root.viewport-width <= 700px ? 19px : (root.compact-layout ? 23px : 29px);
+            padding-right: root.viewport-width <= 700px ? 18px : (root.compact-layout ? 23px : 25px);
+            padding-top: root.viewport-width <= 700px ? 14px : (root.tight ? 12px : 18px);
+            padding-bottom: root.viewport-width <= 700px ? 10px : (root.tight ? 8px : 12px);
+            spacing: 8px;
+            VerticalLayout {
+                horizontal-stretch: 1;
+                alignment: center;
+                Text {
+                    text: @tr("接收");
+                    color: ThemeTokens.on-surface;
+                    font-family: "Avenir Next";
+                    font-size: root.viewport-width <= 700px ? 22px : 24px;
+                    font-weight: 610;
+                    letter-spacing: -0.48px;
+                    height: 30px;
+                    vertical-alignment: center;
+                }
             }
-            FlutterIconButton {
-                icon: @image-url("../icons/info.svg");
-                tooltip: "Network information";
-                clicked => { root.show-info(); }
+            VerticalLayout {
+                height: 48px;
+                alignment: center;
+                FlutterIconButton {
+                    icon: @image-url("../icons/history.svg");
+                    tooltip: @tr("接收历史");
+                    automation-id: "receive-history";
+                    clicked => { root.show-history(); }
+                }
+            }
+            VerticalLayout {
+                height: 48px;
+                alignment: center;
+                FlutterIconButton {
+                    icon: @image-url("../icons/info.svg");
+                    tooltip: @tr("网络信息");
+                    automation-id: "receive-info";
+                    clicked => { root.show-info(); }
+                }
             }
         }
 
-        if root.request-files.length > 0 : Rectangle {
-            horizontal-stretch: 1;
-            height: root.request-card-height;
-            border-radius: ThemeTokens.card-radius;
-            background: ThemeTokens.surface-container-low;
-            border-width: 1px;
-            border-color: ThemeTokens.outline-variant;
+        ScrollView {
+            width: parent.width;
+            height: parent.height - root.topbar-height;
+            vertical-scrollbar-policy: always-off;
+            content-y: 0px;
+            content-width: self.visible-width;
+            content-height: max(
+                self.visible-height,
+                root.request-files.length > 0 ? 812px : 560px
+            );
 
-            VerticalLayout {
-                x: 16px;
-                y: 10px;
-                width: parent.width - 32px;
-                spacing: 4px;
-                Text {
-                    text: root.request-title;
-                    color: ThemeTokens.on-surface;
-                    font-size: 16px;
-                    font-weight: 600;
-                }
-                ScrollView {
-                    height: min(78px, root.request-files.length * 28px);
-                    content-height: max(self.visible-height, root.request-files.length * 28px);
-                    VerticalLayout {
-                        for file in root.request-files : Rectangle {
-                            accessible-role: checkbox;
-                            accessible-label: file.name;
-                            accessible-checked: file.selected;
-                            accessible-enabled: true;
-                            accessible-action-default => { root.toggle-request-file(file.file-id); }
-                            height: 26px;
-                            background: transparent;
-                            HorizontalLayout {
-                                spacing: 8px;
-                                Text {
-                                    text: file.selected ? "☑" : "☐";
-                                    color: ThemeTokens.primary;
-                                    font-size: 15px;
+            Rectangle {
+                width: root.viewport-width;
+                x: (root.viewport-width - self.width) / 2;
+                y: 0px;
+                height: max(parent.height, root.request-files.length > 0 ? 812px : 560px);
+                background: transparent;
+
+                VerticalLayout {
+                    width: 100%;
+                    height: 100%;
+                    padding-left: root.viewport-width <= 700px ? 19px : (root.compact-layout ? 24px : 32px);
+                    padding-right: root.viewport-width <= 700px ? 19px : (root.compact-layout ? 24px : 32px);
+                    padding-top: 4px;
+                    padding-bottom: root.tight || root.narrow ? 20px : 32px;
+                    spacing: 6px;
+                    alignment: start;
+
+                    if root.request-files.length > 0 : HorizontalLayout {
+                        width: 100%;
+                        height: root.request-card-height;
+                        alignment: center;
+                        Rectangle {
+                            width: root.viewport-width < 700px ? parent.width : 680px;
+                            horizontal-stretch: 0;
+                            height: parent.height;
+                            border-radius: ThemeTokens.card-radius;
+                            border-width: 1px;
+                            border-color: ThemeTokens.outline.with-alpha(0.3);
+                            background: ThemeTokens.surface-container;
+                            drop-shadow-blur: 10px;
+                            drop-shadow-color: #11221E14;
+
+                            VerticalLayout {
+                                width: parent.width;
+                                padding-left: 20px;
+                                padding-right: 20px;
+                                padding-top: 21.5px;
+                                padding-bottom: 18.5px;
+                                spacing: 0px;
+                                HorizontalLayout {
+                                    height: 42px;
+                                    spacing: 12px;
+                                    Rectangle {
+                                        width: 42px;
+                                        height: 42px;
+                                        border-radius: 10px;
+                                        background: ThemeTokens.primary-container;
+                                        Image {
+                                            width: 22px;
+                                            height: 22px;
+                                            x: 10px;
+                                            y: 10px;
+                                            source: @image-url("../icons/smartphone.svg");
+                                            colorize: ThemeTokens.on-primary-container;
+                                            image-fit: contain;
+                                        }
+                                    }
+                                    VerticalLayout {
+                                        horizontal-stretch: 1;
+                                        spacing: 2px;
+                                        alignment: center;
+                                        Text { text: root.request-title; color: ThemeTokens.on-surface; font-size: 16px; font-weight: 600; overflow: elide; }
+                                        Text { text: @tr("请求发送 ") + root.request-files.length + @tr(" 个项目"); color: ThemeTokens.on-surface-variant; font-size: 12px; }
+                                    }
+                                    Rectangle {
+                                        width: request-badge.preferred-width + 12px;
+                                        height: 20px;
+                                        border-radius: 5px;
+                                        background: ThemeTokens.surface-container-high;
+                                        request-badge := Text {
+                                            text: @tr("来自附近设备");
+                                            color: ThemeTokens.on-surface-variant;
+                                            font-size: 10px;
+                                            horizontal-alignment: center;
+                                            vertical-alignment: center;
+                                        }
+                                    }
                                 }
+                                Rectangle { height: 14px; background: transparent; }
+                                VerticalLayout {
+                                    width: parent.width;
+                                    height: root.request-files.length * 38px + (root.request-files.length - 1) * 6px;
+                                    spacing: 6px;
+                                    for file in root.request-files : Rectangle {
+                                        width: parent.width;
+                                        accessible-role: checkbox;
+                                        accessible-label: file.name;
+                                        accessible-checked: file.selected;
+                                        accessible-enabled: true;
+                                        accessible-action-default => { root.toggle-request-file(file.file-id); }
+                                        height: 38px;
+                                        border-radius: 8px;
+                                        background: file-touch.has-hover ? ThemeTokens.surface.with-alpha(0.8) : ThemeTokens.surface.with-alpha(0.55);
+                                        file-touch := TouchArea { clicked => { root.toggle-request-file(file.file-id); } }
+                                        HorizontalLayout {
+                                            padding-left: 10px;
+                                            padding-right: 10px;
+                                            spacing: 10px;
+                                            Rectangle {
+                                                width: 16px;
+                                                height: 16px;
+                                                border-radius: 4px;
+                                                border-width: file.selected ? 0px : 1px;
+                                                border-color: ThemeTokens.outline;
+                                                background: file.selected ? ThemeTokens.primary : ThemeTokens.surface-lowest;
+                                                if file.selected : Image {
+                                                    width: 12px;
+                                                    height: 12px;
+                                                    x: 2px;
+                                                    y: 2px;
+                                                    source: @image-url("../icons/check.svg");
+                                                    colorize: ThemeTokens.on-primary;
+                                                    image-fit: contain;
+                                                }
+                                            }
+                                            Text { text: file.name; color: ThemeTokens.on-surface; font-size: 13px; font-weight: 550; horizontal-stretch: 1; vertical-alignment: center; overflow: elide; }
+                                            Text { text: file.size; color: ThemeTokens.on-surface-variant; font-size: 12px; vertical-alignment: center; }
+                                        }
+                                    }
+                                }
+                                Rectangle { height: 16px; background: transparent; }
+                                HorizontalLayout {
+                                    height: 40px;
+                                    spacing: 8px;
+                                    Rectangle { horizontal-stretch: 1; background: transparent; }
+                                    FlutterDialogButton {
+                                        width: 50px;
+                                        automation-id: "receive-reject";
+                                        label: @tr("拒绝");
+                                        clicked => { root.respond-transfer(root.request-id, [], false); }
+                                    }
+                                    FlutterOutlinedButton {
+                                        width: 107px;
+                                        height: 40px;
+                                        automation-id: "receive-accept-selected";
+                                        label: @tr("接受所选");
+                                        enabled: root.selected-request-ids.length > 0;
+                                        clicked => { root.respond-transfer(root.request-id, root.selected-request-ids, true); }
+                                    }
+                                    FlutterDialogButton {
+                                        width: 90px;
+                                        automation-id: "receive-accept-all";
+                                        label: @tr("全部接受");
+                                        primary: true;
+                                        clicked => { root.respond-transfer(root.request-id, [], true); }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if root.transfers.length == 0 : Rectangle {
+                        height: max(
+                            root.tight ? 330px : 460px,
+                            root.request-files.length > 0
+                                ? 489px
+                                : (root.viewport-height
+                                    - root.topbar-height
+                                    - (root.tight ? 24px : (root.narrow ? 26px : 38px))
+                                    - (root.transfers.length > 0 ? root.transfers.length * 82px : 0px))
+                        );
+                        background: transparent;
+                        VerticalLayout {
+                            width: parent.width;
+                            height: root.tight ? 364px : (root.narrow ? 385px : 434px);
+                            y: root.request-files.length > 0
+                                ? 28px
+                                : (parent.height - self.height) / 2 + (root.tight ? -6px : 0px);
+                            spacing: 0px;
+
+                            HorizontalLayout {
+                                width: parent.width;
+                                alignment: center;
+                                Rectangle {
+                                    accessible-role: image;
+                                    accessible-label: @tr("接收状态");
+                                    accessible-id: "receive-ring";
+                                    width: root.tight ? 112px : (root.narrow ? 126px : 156px);
+                                    height: self.width;
+                                    y: 1px;
+                                    background: transparent;
+                                    Image {
+                                        width: parent.width;
+                                        height: parent.height;
+                                        source: @image-url("../icons/receive-ring.svg");
+                                        colorize: root.server-running ? ThemeTokens.primary : ThemeTokens.outline-strong;
+                                        image-fit: contain;
+                                        transform-rotation: root.animations ? root.logo-rotation : 0deg;
+                                    }
+                                    Rectangle {
+                                        width: root.tight ? 70px : (root.narrow ? 82px : 94px);
+                                        height: self.width;
+                                        x: (parent.width - self.width) / 2;
+                                        y: (parent.height - self.height) / 2;
+                                        border-radius: self.width / 2;
+                                        background: root.server-running ? ThemeTokens.primary.with-alpha(0.09) : ThemeTokens.outline-strong.with-alpha(0.09);
+                                    }
+                                    Rectangle {
+                                        width: root.tight ? 52px : (root.narrow ? 58px : 70px);
+                                        height: self.width;
+                                        x: (parent.width - self.width) / 2;
+                                        y: (parent.height - self.height) / 2;
+                                        border-radius: self.width / 2;
+                                        background: root.server-running ? ThemeTokens.primary : ThemeTokens.outline-strong;
+                                    }
+                                }
+                            }
+                            Rectangle { height: root.tight ? 28px : 34px; background: transparent; }
+                            Text {
+                                width: parent.width;
+                                height: 17px;
+                                text: root.server-running ? @tr("可被发现") : @tr("服务暂停");
+                                color: root.server-running ? ThemeTokens.primary : ThemeTokens.warning;
+                                font-size: 12px;
+                                font-weight: 650;
+                                letter-spacing: 0.84px;
+                                horizontal-alignment: center;
+                            }
+                            Rectangle { height: 26px; background: transparent; }
+                            Rectangle {
+                                width: parent.width;
+                                height: root.tight || root.narrow ? 40px : 54px;
+                                background: transparent;
                                 Text {
-                                    text: file.name + " · " + file.size;
-                                    color: ThemeTokens.on-surface-variant;
-                                    font-size: 13px;
-                                    horizontal-stretch: 1;
+                                    width: parent.width;
+                                    height: parent.height;
+                                    y: -6px;
+                                    text: root.alias;
+                                    color: ThemeTokens.on-surface;
+                                    font-family: "Avenir Next";
+                                    font-size: root.tight || root.narrow ? 36px : 48px;
+                                    font-weight: 610;
+                                    letter-spacing: root.tight || root.narrow ? -1.26px : -1.68px;
+                                    horizontal-alignment: center;
                                     overflow: elide;
                                 }
                             }
-                            TouchArea {
-                                clicked => { root.toggle-request-file(file.file-id); }
+                            Rectangle { height: 14px; background: transparent; }
+                            Text {
+                                width: parent.width;
+                                height: root.tight ? 25px : (root.narrow ? 26px : 31px);
+                                text: root.server-running ? "localsend.local" : @tr("网络不可用");
+                                color: ThemeTokens.on-surface-variant;
+                                font-size: root.tight ? 19px : (root.narrow ? 20px : 24px);
+                                font-weight: 450;
+                                letter-spacing: 0.24px;
+                                horizontal-alignment: center;
+                                overflow: elide;
+                            }
+                            Rectangle { height: 14px; background: transparent; }
+                            HorizontalLayout {
+                                width: parent.width;
+                                alignment: center;
+                                status-label := Text {
+                                    width: min(status-label.preferred-width, parent.width - 32px);
+                                    height: 22px;
+                                    y: 1px;
+                                    text: root.server-running
+                                        ? @tr("接收服务已就绪，附近设备可以在同一网络中发现你。")
+                                        : (root.server-status != "" ? root.server-status : @tr("接收服务暂时无法启动。"));
+                                    color: ThemeTokens.on-surface-variant;
+                                    font-size: 14px;
+                                    horizontal-alignment: center;
+                                    wrap: word-wrap;
+                                }
+                            }
+                            Rectangle { height: 26px; background: transparent; }
+                            HorizontalLayout {
+                                width: parent.width;
+                                alignment: center;
+                                Rectangle {
+                                    width: 144px;
+                                    height: 40px;
+                                    y: 1px;
+                                    border-radius: ThemeTokens.button-radius;
+                                    border-width: 1px;
+                                    border-color: ThemeTokens.outline;
+                                    background: web-share-touch.has-hover ? ThemeTokens.primary-container.with-alpha(0.48) : transparent;
+                                    accessible-role: button;
+                                    accessible-label: @tr("通过链接接收");
+                                    accessible-id: "receive-web-share";
+                                    accessible-enabled: root.server-running;
+                                    accessible-action-default => { if (root.server-running) { root.open-web-share(); } }
+                                    HorizontalLayout {
+                                        alignment: center;
+                                        spacing: 8px;
+                                        y: 9px;
+                                        Image {
+                                            width: 18px;
+                                            height: 18px;
+                                            y: 2px;
+                                            source: @image-url("../icons/link.svg");
+                                            colorize: root.server-running ? ThemeTokens.primary : ThemeTokens.disabled;
+                                            image-fit: contain;
+                                        }
+                                        Text {
+                                            text: root.server-running ? @tr("通过链接接收") : @tr("重新启动接收");
+                                            color: root.server-running ? ThemeTokens.primary : ThemeTokens.disabled;
+                                            font-size: 14px;
+                                            font-weight: 600;
+                                        }
+                                    }
+                                    web-share-touch := TouchArea {
+                                        enabled: root.server-running;
+                                        mouse-cursor: pointer;
+                                        clicked => { root.open-web-share(); }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if root.transfers.length > 0 && !root.receive-finished : Rectangle {
+                        width: 100%;
+                        height: 100%;
+                        vertical-stretch: 1;
+                        background: transparent;
+                        VerticalLayout {
+                            width: 100%;
+                            height: 100%;
+                            alignment: center;
+                            spacing: 8px;
+                            for transfer in root.transfers : HorizontalLayout {
+                                width: 100%;
+                                height: 191px;
+                                alignment: center;
+                                Rectangle {
+                                    width: min(361px, parent.width);
+                                    height: 191px;
+                                    border-radius: ThemeTokens.card-radius;
+                                    border-width: 1px;
+                                    border-color: ThemeTokens.outline.with-alpha(0.32);
+                                    background: ThemeTokens.surface-container;
+                                    VerticalLayout {
+                                        width: 100%;
+                                        height: 100%;
+                                        padding: 18px;
+                                        spacing: 10px;
+                                        HorizontalLayout {
+                                            height: 24px;
+                                            spacing: 8px;
+                                            Text {
+                                                text: @tr("正在接收来自 ") + transfer.peer + @tr(" 的文件");
+                                                color: ThemeTokens.on-surface;
+                                                font-size: 16px;
+                                                font-weight: 600;
+                                                horizontal-stretch: 1;
+                                                overflow: elide;
+                                            }
+                                            Rectangle {
+                                                width: 44px;
+                                                height: 20px;
+                                                border-radius: 5px;
+                                                background: ThemeTokens.success.with-alpha(0.13);
+                                                Text { text: @tr("已连接"); color: ThemeTokens.success; font-size: 10px; horizontal-alignment: center; vertical-alignment: center; }
+                                            }
+                                        }
+                                        Text { text: transfer.summary; color: ThemeTokens.on-surface-variant; font-size: 12px; height: 18px; }
+                                        Rectangle {
+                                            height: 5px;
+                                            border-radius: 3px;
+                                            background: ThemeTokens.surface-container-highest;
+                                            Rectangle {
+                                                x: 0px;
+                                                y: 0px;
+                                                width: parent.width * transfer.progress-percent / 100.0;
+                                                height: parent.height;
+                                                border-radius: 3px;
+                                                background: ThemeTokens.primary;
+                                            }
+                                        }
+                                        if transfer.files.length > 0 : Text {
+                                            text: transfer.files[0].name + "  " + transfer.files[0].size;
+                                            color: ThemeTokens.on-surface-variant;
+                                            font-size: 12px;
+                                            height: 18px;
+                                            overflow: elide;
+                                        }
+                                        Rectangle { vertical-stretch: 1; background: transparent; }
+                                        HorizontalLayout {
+                                            height: 34px;
+                                            horizontal-stretch: 1;
+                                            Rectangle { horizontal-stretch: 1; background: transparent; }
+                                            FlutterDialogButton {
+                                                width: 76px;
+                                                height: 34px;
+                                                automation-id: "transfer-cancel";
+                                                label: @tr("取消接收");
+                                                enabled: transfer.status == @tr("等待中") || transfer.status == @tr("传输中");
+                                                clicked => { root.cancel-transfer(transfer.transfer-id); }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if root.receive-finished : Rectangle {
+                        width: 100%;
+                        height: 100%;
+                        vertical-stretch: 1;
+                        background: transparent;
+                        HorizontalLayout {
+                            width: 100%;
+                            height: 100%;
+                            alignment: center;
+                            VerticalLayout {
+                                width: min(341px, parent.width);
+                                alignment: center;
+                                spacing: 0px;
+                                HorizontalLayout {
+                                    width: 100%;
+                                    height: 156px;
+                                    alignment: center;
+                                    Rectangle {
+                                        width: 156px;
+                                        height: 156px;
+                                        background: transparent;
+                                        Rectangle {
+                                            width: 84px;
+                                            height: 84px;
+                                            x: (parent.width - self.width) / 2;
+                                            y: (parent.height - self.height) / 2;
+                                            border-radius: 42px;
+                                            background: ThemeTokens.success.with-alpha(0.14);
+                                        }
+                                        Image { width: parent.width; height: parent.height; source: @image-url("../icons/check.svg"); colorize: ThemeTokens.success; image-fit: contain; }
+                                    }
+                                }
+                                Rectangle { height: 34px; background: transparent; }
+                                Text { text: @tr("接收完成"); color: ThemeTokens.success; font-size: 12px; font-weight: 650; letter-spacing: 0.84px; horizontal-alignment: center; height: 17px; }
+                                Rectangle { height: 26px; background: transparent; }
+                                Rectangle {
+                                    height: 54px;
+                                    background: transparent;
+                                    Text { width: parent.width; height: parent.height; y: -10px; text: @tr("文件已保存"); color: ThemeTokens.on-surface; font-family: "Avenir Next"; font-size: 48px; font-weight: 610; letter-spacing: -1.68px; horizontal-alignment: center; }
+                                }
+                                Rectangle { height: 14px; background: transparent; }
+                                Text { text: root.transfers[0].file_count + @tr(" 个文件已保存到「下载 / LocalSend」。"); color: ThemeTokens.on-surface-variant; font-size: 14px; horizontal-alignment: center; height: 22px; }
+                                Rectangle { height: 14px; background: transparent; }
+                                Rectangle {
+                                    accessible-role: groupbox;
+                                    accessible-label: @tr("接收完成");
+                                    accessible-id: "receive-completion-panel";
+                                    width: 341px;
+                                    height: 164px;
+                                    border-radius: ThemeTokens.card-radius;
+                                    border-width: 1px;
+                                    border-color: ThemeTokens.outline.with-alpha(0.3);
+                                    background: ThemeTokens.surface-container;
+                                    VerticalLayout {
+                                        padding: 20px;
+                                        spacing: 16px;
+                                        HorizontalLayout {
+                                            height: 66px;
+                                            spacing: 8px;
+                                            Rectangle { horizontal-stretch: 1; border-radius: 6px; background: ThemeTokens.surface-lowest.with-alpha(0.6); VerticalLayout { alignment: center; spacing: 2px; Text { text: root.transfers[0].file_count; color: ThemeTokens.on-surface; font-size: 18px; font-weight: 600; horizontal-alignment: center; } Text { text: @tr("文件"); color: ThemeTokens.on-surface-variant; font-size: 11px; horizontal-alignment: center; } } }
+                                            Rectangle { horizontal-stretch: 1; border-radius: 6px; background: ThemeTokens.surface-lowest.with-alpha(0.6); VerticalLayout { alignment: center; spacing: 2px; Text { text: root.transfers[0].summary; color: ThemeTokens.on-surface; font-size: 18px; font-weight: 600; horizontal-alignment: center; } Text { text: @tr("总大小"); color: ThemeTokens.on-surface-variant; font-size: 11px; horizontal-alignment: center; } } }
+                                            Rectangle { horizontal-stretch: 1; border-radius: 6px; background: ThemeTokens.surface-lowest.with-alpha(0.6); VerticalLayout { alignment: center; spacing: 2px; Text { text: root.transfers[0].duration == "" ? "—" : root.transfers[0].duration; color: ThemeTokens.on-surface; font-size: 18px; font-weight: 600; horizontal-alignment: center; } Text { text: @tr("传输用时"); color: ThemeTokens.on-surface-variant; font-size: 11px; horizontal-alignment: center; } } }
+                                        }
+                                        HorizontalLayout {
+                                            height: 40px;
+                                            spacing: 8px;
+                                            horizontal-stretch: 1;
+                                            Rectangle { horizontal-stretch: 1; background: transparent; }
+                                            FlutterDialogButton { width: 50px; label: @tr("关闭"); clicked => { root.dismiss-transfer(root.transfers[0].transfer-id); } }
+                                            FlutterDialogButton { width: 104px; label: @tr("打开文件夹"); primary: true; clicked => { root.open-receive-folder(); } }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 }
-                HorizontalLayout {
-                    spacing: 8px;
-                    FlutterDialogButton {
-                        automation-id: "receive-reject";
-                        label: @tr("拒绝");
-                        clicked => { root.respond-transfer(root.request-id, [], false); }
-                    }
-                    FlutterDialogButton {
-                        automation-id: "receive-accept-selected";
-                        label: @tr("接受所选");
-                        primary: true;
-                        clicked => { root.respond-transfer(root.request-id, root.selected-request-ids, true); }
-                    }
-                    FlutterDialogButton {
-                        automation-id: "receive-accept-all";
-                        label: @tr("全部接受");
-                        clicked => { root.respond-transfer(root.request-id, [], true); }
-                    }
-                }
-            }
-        }
-
-        Rectangle {
-            height: root.center-height;
-            horizontal-stretch: 1;
-            background: transparent;
-            VerticalLayout {
-                width: parent.width;
-                height: parent.height;
-                alignment: center;
-                spacing: 4px;
-                HorizontalLayout {
-                    width: parent.width;
-                    height: min(174px, root.viewport-height * 0.28);
-                    alignment: center;
-                    Image {
-                        width: min(174px, root.viewport-height * 0.28);
-                        height: parent.height;
-                        source: @image-url("../images/flutter-logo-512.png");
-                        colorize: ThemeTokens.primary;
-                        image-fit: contain;
-                        transform-rotation: root.animations ? root.logo-rotation : 0deg;
-                    }
-                }
-                Text {
-                    text: root.alias;
-                    color: ThemeTokens.on-surface;
-                    font-size: 48px;
-                    font-weight: 500;
-                    horizontal-alignment: center;
-                    overflow: elide;
-                }
-            }
-        }
-
-        if root.transfers.length > 0 : VerticalLayout {
-            horizontal-stretch: 1;
-            spacing: 6px;
-            for transfer in root.transfers : Rectangle {
-                height: 68px;
-                border-radius: ThemeTokens.card-radius;
-                background: ThemeTokens.surface-container-low;
-                HorizontalLayout {
-                    padding-left: 12px;
-                    padding-right: 8px;
-                    spacing: 10px;
-                    alignment: center;
-                    VerticalLayout {
-                        horizontal-stretch: 1;
-                        spacing: 5px;
-                        Text {
-                            text: UiText.transfer-direction(transfer.direction) + " · " + transfer.peer + " · " + transfer.summary;
-                            color: ThemeTokens.on-surface;
-                            font-size: 13px;
-                            overflow: elide;
-                        }
-                        ProgressIndicator {
-                            height: 4px;
-                            progress: transfer.progress-percent / 100.0;
-                            indeterminate: false;
-                        }
-                        Text {
-                            text: UiText.transfer-status(transfer.status) + " · " + transfer.progress-percent + "%";
-                            color: ThemeTokens.on-surface-variant;
-                            font-size: 11px;
-                        }
-                    }
-                    FlutterDialogButton {
-                        width: 76px;
-                        height: 34px;
-                        automation-id: "transfer-cancel";
-                        label: @tr("取消");
-                        clicked => { root.cancel-transfer(transfer.transfer-id); }
-                    }
-                }
-            }
-        }
-
-        HorizontalLayout {
-            height: 42px;
-            alignment: center;
-            FlutterOutlinedButton {
-                automation-id: "receive-web-share";
-                label: @tr("通过链接接收");
-                clicked => { root.open-web-share(); }
             }
         }
     }

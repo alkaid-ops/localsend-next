@@ -55,6 +55,13 @@ fn element_by_id(ui: &AppWindow, id: &str) -> ElementHandle {
         .unwrap_or_else(|| panic!("missing accessible-id {label}"))
 }
 
+fn has_label(ui: &AppWindow, label: &'static str) -> bool {
+    ElementQuery::from_root(ui)
+        .match_predicate(|element| element.accessible_label().as_deref() == Some(label))
+        .find_first()
+        .is_some()
+}
+
 fn click_position(ui: &AppWindow, position: slint::LogicalPosition) {
     ui.window()
         .dispatch_event(WindowEvent::PointerMoved { position });
@@ -81,39 +88,46 @@ fn gui_pointer_and_action_command_matrix() {
     send_progress_buttons_dismiss_transfer();
     send_progress_cancel_button_cancels_active_transfer();
     send_progress_advanced_button_opens_diagnostics();
+    send_workspace_renders_per_file_status();
     received_message_buttons_copy_and_close();
     clipboard_button_stages_official_priority_content();
 }
 
 fn send_progress_buttons_dismiss_transfer() {
-    for id in ["send-progress-back", "send-progress-finish"] {
-        let mut app = app_with_inputs(Vec::new(), None);
-        app.ui
-            .set_transfer_items(ModelRc::new(VecModel::from(vec![TransferItem {
-                transfer_id: "failed-transfer".into(),
-                peer: "Pointer Peer".into(),
-                summary: "0 B / 1 B".into(),
-                status: "失败".into(),
-                direction: "发送".into(),
-                terminal: true,
+    let mut app = app_with_inputs(Vec::new(), None);
+    app.ui
+        .set_transfer_items(ModelRc::new(VecModel::from(vec![TransferItem {
+            transfer_id: "failed-transfer".into(),
+            peer: "Pointer Peer".into(),
+            summary: "0 B / 1 B".into(),
+            status: "失败".into(),
+            speed: "".into(),
+            duration: "".into(),
+            direction: "发送".into(),
+            terminal: true,
+            progress_percent: 0,
+            file_count: 1,
+            completion_countdown: 3,
+            files: ModelRc::new(VecModel::from(vec![TransferFileItem {
+                name: "message.txt".into(),
+                size: "1 B".into(),
+                is_text: true,
+                is_image: false,
+                status: "待处理".into(),
+                detail: "等待中".into(),
                 progress_percent: 0,
-                file_count: 1,
-                completion_countdown: 3,
-                files: ModelRc::new(VecModel::from(vec![TransferFileItem {
-                    name: "message.txt".into(),
-                    size: "1 B".into(),
-                    is_text: true,
-                }])),
-            }])));
-        app.ui.set_sending_active(true);
-        i_slint_backend_testing::mock_elapsed_time(Duration::from_millis(50));
-        element_by_id(&app.ui, id).mock_single_click(PointerEventButton::Left);
-        i_slint_backend_testing::mock_elapsed_time(Duration::from_millis(50));
-        assert!(matches!(
-            next_command(&mut app.commands),
-            UiCommand::DismissTransfer(transfer_id) if transfer_id == "failed-transfer"
-        ));
-    }
+                completed: false,
+                in_progress: false,
+            }])),
+        }])));
+    app.ui.set_sending_active(true);
+    i_slint_backend_testing::mock_elapsed_time(Duration::from_millis(50));
+    element_by_id(&app.ui, "send-progress-back").mock_single_click(PointerEventButton::Left);
+    i_slint_backend_testing::mock_elapsed_time(Duration::from_millis(50));
+    assert!(matches!(
+        next_command(&mut app.commands),
+        UiCommand::DismissTransfer(transfer_id) if transfer_id == "failed-transfer"
+    ));
 }
 
 fn send_progress_cancel_button_cancels_active_transfer() {
@@ -124,6 +138,8 @@ fn send_progress_cancel_button_cancels_active_transfer() {
             peer: "Pointer Peer".into(),
             summary: "0 B / 1 B".into(),
             status: "传输中".into(),
+            speed: "".into(),
+            duration: "".into(),
             direction: "发送".into(),
             terminal: false,
             progress_percent: 0,
@@ -133,6 +149,12 @@ fn send_progress_cancel_button_cancels_active_transfer() {
                 name: "sample.txt".into(),
                 size: "1 B".into(),
                 is_text: false,
+                is_image: false,
+                status: "0%".into(),
+                detail: "正在传输".into(),
+                progress_percent: 0,
+                completed: false,
+                in_progress: true,
             }])),
         }])));
     app.ui.set_sending_active(true);
@@ -153,6 +175,8 @@ fn send_progress_advanced_button_opens_diagnostics() {
             peer: "Pointer Peer".into(),
             summary: "0 B / 1 B".into(),
             status: "失败".into(),
+            speed: "".into(),
+            duration: "".into(),
             direction: "发送".into(),
             terminal: true,
             progress_percent: 0,
@@ -165,6 +189,97 @@ fn send_progress_advanced_button_opens_diagnostics() {
     element_by_id(&app.ui, "send-progress-advanced").mock_single_click(PointerEventButton::Left);
     i_slint_backend_testing::mock_elapsed_time(Duration::from_millis(50));
     assert!(app.ui.get_troubleshoot_dialog_open());
+}
+
+fn send_workspace_renders_per_file_status() {
+    let app = app_with_inputs(Vec::new(), None);
+    app.ui
+        .set_transfer_items(ModelRc::new(VecModel::from(vec![TransferItem {
+            transfer_id: "progress-transfer".into(),
+            peer: "Pointer Peer".into(),
+            summary: "2.0 MiB / 4.0 MiB".into(),
+            status: "传输中".into(),
+            speed: "1.0 MiB/s".into(),
+            duration: "".into(),
+            direction: "发送".into(),
+            terminal: false,
+            progress_percent: 50,
+            file_count: 2,
+            completion_countdown: 0,
+            files: ModelRc::new(VecModel::from(vec![
+                TransferFileItem {
+                    name: "active.bin".into(),
+                    size: "2.0 MiB".into(),
+                    is_text: false,
+                    is_image: false,
+                    status: "50%".into(),
+                    detail: "正在传输".into(),
+                    progress_percent: 50,
+                    completed: false,
+                    in_progress: true,
+                },
+                TransferFileItem {
+                    name: "pending.bin".into(),
+                    size: "2.0 MiB".into(),
+                    is_text: false,
+                    is_image: false,
+                    status: "待处理".into(),
+                    detail: "等待中".into(),
+                    progress_percent: 0,
+                    completed: false,
+                    in_progress: false,
+                },
+            ])),
+        }])));
+    app.ui.set_sending_active(true);
+    i_slint_backend_testing::mock_elapsed_time(Duration::from_millis(50));
+    assert!(has_label(&app.ui, "50%"), "missing per-file percentage");
+    assert!(has_label(&app.ui, "待处理"), "missing pending file status");
+
+    app.ui
+        .set_transfer_items(ModelRc::new(VecModel::from(vec![TransferItem {
+            transfer_id: "progress-transfer".into(),
+            peer: "Pointer Peer".into(),
+            summary: "4.0 MiB / 4.0 MiB".into(),
+            status: "已完成".into(),
+            speed: "".into(),
+            duration: "1.0 s".into(),
+            direction: "发送".into(),
+            terminal: true,
+            progress_percent: 100,
+            file_count: 2,
+            completion_countdown: 0,
+            files: ModelRc::new(VecModel::from(vec![
+                TransferFileItem {
+                    name: "active.bin".into(),
+                    size: "2.0 MiB".into(),
+                    is_text: false,
+                    is_image: false,
+                    status: "已完成".into(),
+                    detail: "已完成".into(),
+                    progress_percent: 100,
+                    completed: true,
+                    in_progress: false,
+                },
+                TransferFileItem {
+                    name: "pending.bin".into(),
+                    size: "2.0 MiB".into(),
+                    is_text: false,
+                    is_image: false,
+                    status: "已完成".into(),
+                    detail: "已完成".into(),
+                    progress_percent: 100,
+                    completed: true,
+                    in_progress: false,
+                },
+            ])),
+        }])));
+    i_slint_backend_testing::mock_elapsed_time(Duration::from_millis(50));
+    assert!(
+        has_label(&app.ui, "已完成"),
+        "missing completed file status"
+    );
+    app.ui.set_sending_active(false);
 }
 
 fn received_message_buttons_copy_and_close() {
