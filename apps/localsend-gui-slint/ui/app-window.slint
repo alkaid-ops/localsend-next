@@ -235,10 +235,16 @@ export component AppWindow inherits Window {
             spacing: 0px;
             // The macOS title bar is transparent and the content runs underneath
             // it, so keep the traffic lights clear. Other platforms show a native
-            // title bar and need no inset.
+            // title bar and need no inset. The strip continues the sidebar color
+            // under the traffic lights so the left column reads as one surface.
             Rectangle {
                 height: root.titlebar-inset;
                 background: ThemeTokens.surface;
+                Rectangle {
+                    width: root.narrow ? 0px : root.sidebar-width;
+                    height: parent.height;
+                    background: ThemeTokens.nav-surface;
+                }
             }
             // Takes whatever the fixed-height siblings (title bar inset and the
             // narrow bottom navigation) leave; computing this from the viewport
