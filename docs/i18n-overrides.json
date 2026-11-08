@@ -1,0 +1,162 @@
+{
+  "_comment": "Human corrections for README headings that machine translation reads in the wrong sense (Architecture as a building, Features as facial traits). Keyed by locale, then by the English segment. Regenerate with: node scripts/translate-readme.mjs --render",
+  "ja": {
+    "Architecture": "アーキテクチャ",
+    "Features": "機能",
+    "Behaviour worth knowing": "知っておきたい動作",
+    "Scope": "対象範囲",
+    "Credits": "謝辞",
+    "Contributing": "コントリビュート",
+    "Documentation": "ドキュメント",
+    "Building from source": "ソースからのビルド",
+    "Quick start": "クイックスタート",
+    "Download": "ダウンロード"
+  },
+  "zh-TW": {
+    "Architecture": "架構",
+    "Features": "功能",
+    "Behaviour worth knowing": "值得了解的行為",
+    "Scope": "適用範圍",
+    "Credits": "致謝",
+    "Contributing": "參與貢獻",
+    "Building from source": "從原始碼建置"
+  },
+  "zh-HK": {
+    "Architecture": "架構",
+    "Features": "功能",
+    "Scope": "適用範圍",
+    "Credits": "致謝",
+    "Contributing": "參與貢獻"
+  },
+  "ko": {
+    "Architecture": "아키텍처",
+    "Features": "기능",
+    "Behaviour worth knowing": "알아둘 만한 동작",
+    "Scope": "적용 범위",
+    "Credits": "감사의 글",
+    "Contributing": "기여하기"
+  },
+  "de": {
+    "Features": "Funktionen",
+    "Behaviour worth knowing": "Wissenswertes",
+    "Scope": "Umfang",
+    "Credits": "Danksagung",
+    "Contributing": "Mitwirken"
+  },
+  "fr": {
+    "Features": "Fonctionnalités",
+    "Behaviour worth knowing": "Comportements à connaître",
+    "Scope": "Périmètre",
+    "Credits": "Remerciements",
+    "Contributing": "Contribuer"
+  },
+  "es-ES": {
+    "Features": "Funciones",
+    "Behaviour worth knowing": "Comportamiento que conviene conocer",
+    "Scope": "Alcance",
+    "Credits": "Créditos",
+    "Contributing": "Cómo contribuir"
+  },
+  "pt-BR": {
+    "Features": "Recursos",
+    "Behaviour worth knowing": "Comportamentos importantes",
+    "Scope": "Escopo",
+    "Credits": "Créditos",
+    "Contributing": "Como contribuir"
+  },
+  "pt-PT": {
+    "Features": "Funcionalidades",
+    "Scope": "Âmbito",
+    "Credits": "Créditos",
+    "Contributing": "Como contribuir"
+  },
+  "ru": {
+    "Features": "Возможности",
+    "Behaviour worth knowing": "Особенности поведения",
+    "Scope": "Область применения",
+    "Credits": "Благодарности",
+    "Contributing": "Участие в проекте"
+  },
+  "it": {
+    "Features": "Funzionalità",
+    "Scope": "Ambito",
+    "Credits": "Ringraziamenti"
+  },
+  "nl": {
+    "Features": "Functies",
+    "Scope": "Bereik",
+    "Credits": "Dankbetuiging"
+  },
+  "pl": {
+    "Features": "Funkcje",
+    "Scope": "Zakres",
+    "Credits": "Podziękowania"
+  },
+  "tr": {
+    "Features": "Özellikler",
+    "Scope": "Kapsam"
+  },
+  "id": {
+    "Features": "Fitur",
+    "Scope": "Cakupan"
+  },
+  "vi": {
+    "Features": "Tính năng",
+    "Scope": "Phạm vi"
+  },
+  "th": {
+    "Features": "คุณสมบัติ",
+    "Scope": "ขอบเขต"
+  },
+  "hi": {
+    "Features": "विशेषताएँ",
+    "Scope": "दायरा"
+  },
+  "ar": {
+    "Features": "الميزات",
+    "Scope": "النطاق"
+  },
+  "uk": {
+    "Features": "Можливості",
+    "Scope": "Обсяг"
+  },
+  "cs": { "Features": "Funkce", "Scope": "Rozsah" },
+  "sk": { "Features": "Funkcie", "Scope": "Rozsah" },
+  "sv": { "Features": "Funktioner", "Scope": "Omfattning" },
+  "da": { "Features": "Funktioner", "Scope": "Omfang" },
+  "fi": { "Features": "Ominaisuudet", "Scope": "Laajuus" },
+  "nb": { "Features": "Funksjoner" },
+  "el": { "Features": "Χαρακτηριστικά", "Scope": "Εύρος" },
+  "hu": { "Features": "Funkciók", "Scope": "Hatókör" },
+  "ro": { "Features": "Funcționalități", "Scope": "Domeniu" },
+  "bg": { "Features": "Функции", "Scope": "Обхват" },
+  "sr": { "Features": "Функције", "Scope": "Обим" },
+  "hr": { "Features": "Značajke" },
+  "he": { "Features": "תכונות", "Scope": "היקף" },
+  "fa": { "Features": "ویژگی‌ها", "Scope": "دامنه" },
+  "ms": { "Features": "Ciri" },
+  "ca": { "Features": "Funcions", "Scope": "Abast" },
+  "gl": { "Features": "Funcións", "Scope": "Alcance" },
+  "eu": { "Features": "Ezaugarriak" },
+  "et": { "Features": "Funktsioonid" },
+  "lt": { "Features": "Funkcijos" },
+  "lv": { "Features": "Funkcijas" },
+  "sl": { "Features": "Funkcije", "Scope": "Obseg" },
+  "bn": { "Features": "বৈশিষ্ট্য" },
+  "ta": { "Features": "அம்சங்கள்" },
+  "te": { "Features": "ఫీచర్లు" },
+  "ml": { "Features": "സവിശേഷതകൾ" },
+  "mr": { "Features": "वैशिष्ट्ये" },
+  "gu": { "Features": "વિશેષતાઓ" },
+  "kn": { "Features": "ವೈಶಿಷ್ಟ್ಯಗಳು" },
+  "sw": { "Features": "Vipengele" },
+  "uz": { "Features": "Xususiyatlar" },
+  "kk": { "Features": "Мүмкіндіктер" },
+  "sr-Cyrl": { "Features": "Функције", "Scope": "Обим" },
+  "lo": { "Features": "ຄຸນສົມບັດ" },
+  "km": { "Features": "លក្ខណៈពិសេស" },
+  "my": { "Features": "အင်္ဂါရပ်များ" },
+  "si": { "Features": "විශේෂාංග" },
+  "ne": { "Features": "विशेषताहरू" },
+  "ur": { "Features": "خصوصیات" }
+}

@@ -9,6 +9,13 @@
 
 </div>
 
+<!-- locale-switcher -->
+<div align="center">
+
+**English** | [العربية](docs/ar/README.md) | [Azərbaycanca](docs/az/README.md) | [Беларуская](docs/be/README.md) | [Български](docs/bg/README.md) | [বাংলা](docs/bn/README.md) | [Català](docs/ca/README.md) | [Čeština](docs/cs/README.md) | [Dansk](docs/da/README.md) | [Deutsch](docs/de/README.md) | [Ελληνικά](docs/el/README.md) | [English (India)](docs/en-IN/README.md) | [Español](docs/es-ES/README.md) | [Eesti](docs/et/README.md) | [Euskara](docs/eu/README.md) | [فارسی](docs/fa/README.md) | [Suomi](docs/fi/README.md) | [Filipino](docs/fil-PH/README.md) | [Français](docs/fr/README.md) | [Gaeilge](docs/ga/README.md) | [Galego](docs/gl/README.md) | [ગુજરાતી](docs/gu/README.md) | [עברית](docs/he/README.md) | [हिन्दी](docs/hi/README.md) | [Magyar](docs/hu/README.md) | [Հայերեն](docs/hy/README.md) | [Bahasa Indonesia](docs/id/README.md) | [Italiano](docs/it/README.md) | [日本語](docs/ja/README.md) | [ខ្មែរ](docs/km/README.md) | [한국어](docs/ko/README.md) | [Кыргызча](docs/ky/README.md) | [ລາວ](docs/lo/README.md) | [മലയാളം](docs/ml/README.md) | [Монгол](docs/mn/README.md) | [Bahasa Melayu](docs/ms/README.md) | [नेपाली](docs/ne/README.md) | [Nederlands](docs/nl/README.md) | [Polski](docs/pl/README.md) | [Português (Brasil)](docs/pt-BR/README.md) | [Português (Portugal)](docs/pt-PT/README.md) | [Română](docs/ro/README.md) | [Русский](docs/ru/README.md) | [සිංහල](docs/si/README.md) | [Slovenčina](docs/sk/README.md) | [Slovenščina](docs/sl/README.md) | [Српски](docs/sr/README.md) | [Српски (ћирилица)](docs/sr-Cyrl/README.md) | [Svenska](docs/sv/README.md) | [தமிழ்](docs/ta/README.md) | [ไทย](docs/th/README.md) | [Türkçe](docs/tr/README.md) | [Українська](docs/uk/README.md) | [اردو](docs/ur/README.md) | [Oʻzbekcha](docs/uz/README.md) | [Tiếng Việt](docs/vi/README.md) | [繁體中文（香港）](docs/zh-HK/README.md) | [繁體中文（台灣）](docs/zh-TW/README.md)
+
+</div>
+
 localsend-next is a LocalSend-compatible desktop client written in Rust. It speaks the official protocol, so it discovers and transfers files with the official LocalSend app in both directions, while running as a native desktop program instead of a Flutter app.
 
 The network side is the official LocalSend Rust core, vendored unchanged. Everything above it — daemon, RPC layer, tray, terminal UI and the Slint GUI — is built around that core.
@@ -186,6 +193,8 @@ Acceptance scripts drive the real binaries instead of mocked state:
 | [`docs/HANDOFF_CLAUDE.zh-CN.md`](docs/HANDOFF_CLAUDE.zh-CN.md) | Visual convergence state against the OpenDesign prototype |
 | [`docs/android-root-mvp.zh-CN.md`](docs/android-root-mvp.zh-CN.md) | The Android root module and its limits |
 | [`VENDORED_CORE.md`](VENDORED_CORE.md) | Upstream provenance of the vendored core |
+
+This README is published in all 57 interface languages — pick one from the switcher at the top. The translations are generated from `README.md` by `scripts/translate-readme.mjs`; corrections go in [`docs/i18n-overrides.json`](docs/i18n-overrides.json).
 
 Some documents are written in Chinese; they record verification runs and conventions in the words they were agreed in.
 

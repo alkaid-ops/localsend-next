@@ -162,3 +162,21 @@ macOS 包内的 tray 可执行文件名为 `LocalSendTray`，GUI 为 `LocalSend`
 
 已知取舍：除官方 LocalSend 已有词条外，其余文案为机器翻译初稿，
 精确措辞可按需在缓存中逐条修订。
+
+## README 多语言
+
+`README.md` 是英文源文件。`docs/<locale>/README.md` 由
+`scripts/translate-readme.mjs` 生成，覆盖应用支持的全部 57 个语言，
+每个文件顶部有语言切换行（参考 Yin-Panel 的做法）。
+
+```sh
+node scripts/translate-readme.mjs            # 填充 docs/i18n-cache.json
+node scripts/translate-readme.mjs --render   # 写出 docs/<locale>/README.md
+```
+
+生成器是 markdown 感知的：代码块、徽章、HTML、图片路径和 URL 原样保留，
+只把散文送去翻译；子目录版本会为所有仓库相对链接补 `../../` 前缀。
+`docs/i18n-cache.json` 入库，因此离线也能复现；改一条译文后重跑即可。
+
+根 `README.md` 里的切换块用 `<!-- locale-switcher -->` 标记，
+生成时会先剥离再按当前语言重建，重复运行不会叠加。
