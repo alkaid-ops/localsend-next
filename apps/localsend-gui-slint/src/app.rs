@@ -357,39 +357,52 @@ pub fn build_app(
     *selection.pending_text.borrow_mut() = options.initial_text.clone();
     update_selection(&weak, &selection);
     let dropped_paths = Rc::new(RefCell::new(Vec::<PathBuf>::new()));
+    let titlebar_applied = Rc::new(Cell::new(false));
     ui.window().on_winit_window_event({
         let weak = weak.clone();
         let commands = commands.clone();
         let selection = selection.clone();
         let dropped_paths = dropped_paths.clone();
+        let titlebar_applied = titlebar_applied.clone();
         let mut modifiers = ModifiersState::default();
-        move |_, event| match event {
-            WinitWindowEvent::ModifiersChanged(next) => {
-                modifiers = next.state();
-                WinitEventResult::Propagate
-            }
-            WinitWindowEvent::KeyboardInput { event, .. }
-                if clipboard_paste_shortcut(
-                    &event.logical_key,
-                    event.state,
-                    event.repeat,
-                    modifiers,
-                ) =>
+        move |_, event| {
+            // The winit window does not exist until the first event arrives, so
+            // the title bar is decorated here rather than right after show().
+            if !titlebar_applied.get()
+                && !matches!(event, WinitWindowEvent::RedrawRequested)
+                && let Some(ui) = weak.upgrade()
             {
-                let Some(ui) = weak.upgrade() else {
-                    return WinitEventResult::Propagate;
-                };
-                if paste_shortcut_blocked(&ui) || ui.get_sending_active() {
-                    return WinitEventResult::Propagate;
+                titlebar_applied.set(true);
+                apply_immersive_titlebar(&ui);
+            }
+            match event {
+                WinitWindowEvent::ModifiersChanged(next) => {
+                    modifiers = next.state();
+                    WinitEventResult::Propagate
                 }
-                stage_clipboard(&weak, &commands, &selection);
-                WinitEventResult::PreventDefault
+                WinitWindowEvent::KeyboardInput { event, .. }
+                    if clipboard_paste_shortcut(
+                        &event.logical_key,
+                        event.state,
+                        event.repeat,
+                        modifiers,
+                    ) =>
+                {
+                    let Some(ui) = weak.upgrade() else {
+                        return WinitEventResult::Propagate;
+                    };
+                    if paste_shortcut_blocked(&ui) || ui.get_sending_active() {
+                        return WinitEventResult::Propagate;
+                    }
+                    stage_clipboard(&weak, &commands, &selection);
+                    WinitEventResult::PreventDefault
+                }
+                WinitWindowEvent::DroppedFile(path) => {
+                    dropped_paths.borrow_mut().push(path.clone());
+                    WinitEventResult::PreventDefault
+                }
+                _ => WinitEventResult::Propagate,
             }
-            WinitWindowEvent::DroppedFile(path) => {
-                dropped_paths.borrow_mut().push(path.clone());
-                WinitEventResult::PreventDefault
-            }
-            _ => WinitEventResult::Propagate,
         }
     });
 
@@ -2870,12 +2883,38 @@ fn handle_gui_action(weak: &Weak<AppWindow>, action: GuiAction) {
     }
 }
 
+/// Draw our own layout into the title bar area instead of leaving a separate
+/// system strip above the content.
+fn apply_immersive_titlebar(ui: &AppWindow) {
+    #[cfg(target_os = "macos")]
+    {
+        use raw_window_handle::{HasWindowHandle, RawWindowHandle};
+        use slint::winit_030::WinitWindowAccessor;
+
+        ui.window().with_winit_window(|window| {
+            let Ok(handle) = window.window_handle() else {
+                return;
+            };
+            if let RawWindowHandle::AppKit(appkit) = handle.as_raw() {
+                let view = appkit.ns_view.as_ptr();
+                // SAFETY: the handle names the live content view on the main thread.
+                unsafe { localsend_platform::make_titlebar_transparent(view) };
+            }
+        });
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        let _ = ui;
+    }
+}
+
 fn present_main_window(weak: &Weak<AppWindow>) {
     let Some(ui) = weak.upgrade() else {
         return;
     };
     let _ = ui.show();
     ui.window().set_minimized(false);
+    apply_immersive_titlebar(&ui);
     activate_current_application_window();
 
     let weak = ui.as_weak();
@@ -2883,6 +2922,7 @@ fn present_main_window(weak: &Weak<AppWindow>) {
         if let Some(ui) = weak.upgrade() {
             let _ = ui.show();
             ui.window().set_minimized(false);
+            apply_immersive_titlebar(&ui);
             activate_current_application_window();
         }
     });

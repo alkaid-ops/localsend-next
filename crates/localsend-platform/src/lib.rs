@@ -72,6 +72,38 @@ pub fn activate_current_application_window() {
     }
 }
 
+/// Let our own layout draw into the title bar area: the content view fills the
+/// whole window, the title bar becomes transparent and the title text is hidden,
+/// so the window reads as one surface instead of a strip plus a panel.
+///
+/// `ns_view` is the window's content view from the raw window handle; AppKit
+/// windows own exactly one view, so its `window` is the window we decorate.
+///
+/// # Safety
+/// `ns_view` must be the content view of the live window on the main thread.
+#[cfg(target_os = "macos")]
+pub unsafe fn make_titlebar_transparent(ns_view: *mut std::ffi::c_void) {
+    use objc2_app_kit::{NSView, NSWindowStyleMask, NSWindowTitleVisibility};
+    use objc2_foundation::MainThreadMarker;
+
+    if ns_view.is_null() || MainThreadMarker::new().is_none() {
+        return;
+    }
+    // SAFETY: the caller guarantees a live content view on the main thread.
+    let view = unsafe { &*(ns_view as *const NSView) };
+    let Some(window) = view.window() else {
+        return;
+    };
+    let mask = window.styleMask() | NSWindowStyleMask::FullSizeContentView;
+    window.setStyleMask(mask);
+    window.setTitlebarAppearsTransparent(true);
+    window.setTitleVisibility(NSWindowTitleVisibility::Hidden);
+}
+
+/// No-op on other platforms.
+#[cfg(not(target_os = "macos"))]
+pub unsafe fn make_titlebar_transparent(_ns_view: *mut std::ffi::c_void) {}
+
 pub fn local_ipv4_addresses() -> std::io::Result<Vec<std::net::Ipv4Addr>> {
     let mut addresses = if_addrs::get_if_addrs()?
         .into_iter()

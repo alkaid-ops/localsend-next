@@ -4377,6 +4377,7 @@ dependencies = [
  "localsend-rpc",
  "localsend-testkit",
  "png",
+ "raw-window-handle",
  "rfd",
  "serde",
  "serde_json",

@@ -36,6 +36,8 @@ export component AppWindow inherits Window {
     always-on-top: root.settings-always-on-top;
     background: ThemeTokens.surface;
 
+    // Height reserved for the window controls when the title bar is transparent.
+    in-out property <length> titlebar-inset: 28px;
     in-out property <length> requested-window-width: 1024px;
     in-out property <length> requested-window-height: 768px;
     in-out property <string> selected-tab: "receive";
@@ -229,6 +231,13 @@ export component AppWindow inherits Window {
             width: root.viewport-width;
             height: root.viewport-height;
             spacing: 0px;
+            // The macOS title bar is transparent and the content runs underneath
+            // it, so keep the traffic lights clear. Other platforms show a native
+            // title bar and need no inset.
+            Rectangle {
+                height: root.titlebar-inset;
+                background: ThemeTokens.surface;
+            }
             Rectangle {
                 height: root.viewport-height - (root.narrow ? 64px : 0px);
                 vertical-stretch: 1;
