@@ -246,6 +246,15 @@ export component AppWindow inherits Window {
                     width: root.narrow ? 0px : root.sidebar-width;
                     height: parent.height;
                     background: ThemeTokens.nav-surface;
+                    // Continue the sidebar's divider through the title bar strip,
+                    // so the column edge is unbroken from the top of the window.
+                    Rectangle {
+                        x: parent.width - 1px;
+                        y: 0px;
+                        width: 1px;
+                        height: parent.height;
+                        background: ThemeTokens.outline.with-alpha(0.44);
+                    }
                 }
             }
             // Takes whatever the fixed-height siblings (title bar inset and the
