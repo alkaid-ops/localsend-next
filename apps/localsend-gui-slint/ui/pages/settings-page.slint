@@ -307,6 +307,7 @@ export component SettingsPage inherits Rectangle {
                         clicked => { root.cycle-setting("color"); }
                     }
                     FlutterLanguageEntry {
+                        automation-id: "settings-language";
                         label: @tr("语言");
                         description: @tr("界面显示语言");
                         language-code: root.language-code;

@@ -911,16 +911,21 @@ export component FlutterLanguageEntry inherits Rectangle {
     in property <string> current-name: "";
     in property <bool> compact: false;
     in property <bool> show-divider: true;
+    in property <string> automation-id: "";
     callback language-selected(string);
 
     height: 56.5px;
     background: transparent;
 
     accessible-role: button;
+    accessible-id: root.automation-id;
     accessible-label: root.label + ": " + root.current-name;
-    accessible-action-default => { root.list-open = true; }
+    accessible-action-default => { root.open(); }
 
-    property <bool> list-open: false;
+    // The picker itself lives in DialogLayer; this row only asks for it.
+    function open() {
+        root.language-selected(root.language-code);
+    }
 
     HorizontalLayout {
         padding-left: 14px;
@@ -958,7 +963,7 @@ export component FlutterLanguageEntry inherits Rectangle {
                 border-radius: ThemeTokens.input-radius;
                 border-width: 1px;
                 border-color: ThemeTokens.outline;
-                background: root.list-open ? ThemeTokens.surface-container-high : ThemeTokens.surface-lowest;
+                background: ThemeTokens.surface-lowest;
                 Text {
                     x: 13px;
                     y: 0px;
@@ -985,7 +990,7 @@ export component FlutterLanguageEntry inherits Rectangle {
     }
     TouchArea {
         mouse-cursor: pointer;
-        clicked => { root.list-open = true; }
+        clicked => { root.open(); }
     }
     if root.show-divider : Rectangle {
         x: 0px;

@@ -284,19 +284,26 @@ export component ReceivePage inherits Rectangle {
                         VerticalLayout {
                             width: parent.width;
                             height: root.tight ? 364px : (root.narrow ? 385px : 434px);
+                            // In a short window the block sits high enough that the
+                            // ring reads as cramped against the header; nudge it
+                            // down and leave room above the sun's rays.
                             y: root.request-files.length > 0
                                 ? 28px
-                                : (parent.height - self.height) / 2 + (root.tight ? -6px : 0px);
+                                : (parent.height - self.height) / 2 + (root.tight ? 14px : 0px);
                             spacing: 0px;
 
                             HorizontalLayout {
                                 width: parent.width;
                                 alignment: center;
-                                Rectangle {
+                                ring := Rectangle {
                                     accessible-role: image;
                                     accessible-label: @tr("接收状态");
                                     accessible-id: "receive-ring";
-                                    width: root.tight ? 112px : (root.narrow ? 126px : 156px);
+                                    // The design is 156px with a 94px halo and a 70px core;
+                                    // the narrow sizes keep that ratio so the rays do not
+                                    // crowd the core when the ring shrinks.
+                                    property <length> ring-size: root.tight ? 112px : (root.narrow ? 126px : 156px);
+                                    width: self.ring-size;
                                     height: self.width;
                                     y: 1px;
                                     background: transparent;
@@ -309,7 +316,7 @@ export component ReceivePage inherits Rectangle {
                                         transform-rotation: root.animations ? root.logo-rotation : 0deg;
                                     }
                                     Rectangle {
-                                        width: root.tight ? 70px : (root.narrow ? 82px : 94px);
+                                        width: ring.ring-size * 0.6025;
                                         height: self.width;
                                         x: (parent.width - self.width) / 2;
                                         y: (parent.height - self.height) / 2;
@@ -317,7 +324,7 @@ export component ReceivePage inherits Rectangle {
                                         background: root.server-running ? ThemeTokens.primary.with-alpha(0.09) : ThemeTokens.outline-strong.with-alpha(0.09);
                                     }
                                     Rectangle {
-                                        width: root.tight ? 52px : (root.narrow ? 58px : 70px);
+                                        width: ring.ring-size * 0.4487;
                                         height: self.width;
                                         x: (parent.width - self.width) / 2;
                                         y: (parent.height - self.height) / 2;
@@ -326,7 +333,7 @@ export component ReceivePage inherits Rectangle {
                                     }
                                 }
                             }
-                            Rectangle { height: root.tight ? 28px : 34px; background: transparent; }
+                            Rectangle { height: root.tight ? 22px : 34px; background: transparent; }
                             Text {
                                 width: parent.width;
                                 height: 17px;

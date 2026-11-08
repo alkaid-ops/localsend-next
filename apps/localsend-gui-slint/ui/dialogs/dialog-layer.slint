@@ -902,6 +902,7 @@ export component DialogLayer inherits Rectangle {
                     border-color: root.language-code == item.code ? ThemeTokens.primary.with-alpha(0.55) : ThemeTokens.outline.with-alpha(0.30);
                     background: root.language-code == item.code ? ThemeTokens.primary.with-alpha(0.12) : ThemeTokens.surface-lowest;
                     accessible-role: button;
+                    accessible-id: "language-option-" + item.code;
                     accessible-label: item.name;
                     accessible-checked: root.language-code == item.code;
                     Text {

@@ -280,6 +280,38 @@ fn send_workspace_renders_per_file_status() {
         "missing completed file status"
     );
     app.ui.set_sending_active(false);
+
+    // The settings language row must open the picker, and "follow system"
+    // must close it again instead of swallowing the click.
+    {
+        let app = app_with_inputs(Vec::new(), None);
+        app.ui.set_selected_tab("settings".into());
+        i_slint_backend_testing::mock_elapsed_time(Duration::from_millis(50));
+        assert!(!app.ui.get_language_dialog_open());
+
+        // Click the settings row itself, the way a user does.
+        element_by_id(&app.ui, "settings-language").mock_single_click(PointerEventButton::Left);
+        i_slint_backend_testing::mock_elapsed_time(Duration::from_millis(50));
+        assert!(
+            app.ui.get_language_dialog_open(),
+            "the language row did not open the picker"
+        );
+
+        // Choosing "follow system" closes the picker and commits the setting.
+        let started = std::time::Instant::now();
+        element_by_id(&app.ui, "language-option-system")
+            .mock_single_click(PointerEventButton::Left);
+        i_slint_backend_testing::mock_elapsed_time(Duration::from_millis(50));
+        assert!(!app.ui.get_language_dialog_open(), "picker stayed open");
+        assert!(
+            started.elapsed() < Duration::from_secs(5),
+            "selecting follow-system blocked for {:?}",
+            started.elapsed()
+        );
+        // Without a daemon snapshot the handler reports "waiting for localsendd"
+        // instead of dispatching; the picker must still close and the UI must switch.
+        assert_eq!(app.ui.get_message(), "等待 localsendd 连接");
+    }
 }
 
 fn received_message_buttons_copy_and_close() {
