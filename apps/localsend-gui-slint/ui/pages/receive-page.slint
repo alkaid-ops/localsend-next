@@ -112,6 +112,7 @@ export component ReceivePage inherits Rectangle {
             width: parent.width;
             height: parent.height - root.topbar-height;
             vertical-scrollbar-policy: always-off;
+
             content-y: 0px;
             content-width: self.visible-width;
             content-height: max(
@@ -283,16 +284,28 @@ export component ReceivePage inherits Rectangle {
                         background: transparent;
                         VerticalLayout {
                             width: parent.width;
-                            height: root.tight ? 364px : (root.narrow ? 385px : 434px);
+                            // In a short window the block must fit the space left
+                            // under the header, otherwise its last row (the primary
+                            // action) is clipped instead of merely tight.
+                            height: root.tight
+                                ? min(364px, parent.height - 12px)
+                                : (root.narrow ? 385px : 434px);
                             // The block is a fixed height, so a taller window would
                             // otherwise leave all the extra space below it. Bias it
                             // toward the optical centre (slightly above true centre)
                             // and keep the sun clear of the header in short windows.
+                            // Never let the block start below the short window's
+                            // visible area: in a 500px-tall window the block is
+                            // taller than the viewport, so bias it to the top and
+                            // let the page scroll instead of centring it off-screen.
                             y: root.request-files.length > 0
                                 ? 28px
                                 : max(
-                                    root.tight ? 14px : 0px,
-                                    (parent.height - self.height) / 2 - self.height * 0.08
+                                    root.tight ? 0px : 0px,
+                                    min(
+                                        (parent.height - self.height) / 2 - self.height * 0.08,
+                                        parent.height - self.height - 8px
+                                    )
                                 );
                             spacing: 0px;
 
@@ -337,7 +350,7 @@ export component ReceivePage inherits Rectangle {
                                     }
                                 }
                             }
-                            Rectangle { height: root.tight ? 22px : 34px; background: transparent; }
+                            Rectangle { height: root.tight ? 10px : 34px; background: transparent; }
                             Text {
                                 width: parent.width;
                                 height: 17px;
@@ -348,7 +361,7 @@ export component ReceivePage inherits Rectangle {
                                 letter-spacing: 0.84px;
                                 horizontal-alignment: center;
                             }
-                            Rectangle { height: 26px; background: transparent; }
+                            Rectangle { height: root.tight ? 8px : 26px; background: transparent; }
                             Rectangle {
                                 width: parent.width;
                                 height: root.tight || root.narrow ? 40px : 54px;
@@ -367,7 +380,7 @@ export component ReceivePage inherits Rectangle {
                                     overflow: elide;
                                 }
                             }
-                            Rectangle { height: 14px; background: transparent; }
+                            Rectangle { height: root.tight ? 8px : 14px; background: transparent; }
                             Text {
                                 width: parent.width;
                                 height: root.tight ? 25px : (root.narrow ? 26px : 31px);
@@ -379,7 +392,7 @@ export component ReceivePage inherits Rectangle {
                                 horizontal-alignment: center;
                                 overflow: elide;
                             }
-                            Rectangle { height: 14px; background: transparent; }
+                            Rectangle { height: root.tight ? 8px : 14px; background: transparent; }
                             HorizontalLayout {
                                 width: parent.width;
                                 alignment: center;
@@ -396,7 +409,7 @@ export component ReceivePage inherits Rectangle {
                                     wrap: word-wrap;
                                 }
                             }
-                            Rectangle { height: 26px; background: transparent; }
+                            Rectangle { height: root.tight ? 8px : 26px; background: transparent; }
                             HorizontalLayout {
                                 width: parent.width;
                                 alignment: center;

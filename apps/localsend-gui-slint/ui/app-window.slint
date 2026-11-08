@@ -148,6 +148,8 @@ export component AppWindow inherits Window {
 
     out property <length> viewport-width: 1120px;
     out property <length> viewport-height: 760px;
+    // Height available to the page area: the window minus the title bar inset.
+    property <length> content-height: root.viewport-height - root.titlebar-inset;
     property <bool> narrow: root.viewport-width <= 700px;
     property <bool> compact-sidebar: root.viewport-width <= 801px;
     property <bool> tablet: root.viewport-width >= 700px && root.viewport-width < 800px;
@@ -238,8 +240,10 @@ export component AppWindow inherits Window {
                 height: root.titlebar-inset;
                 background: ThemeTokens.surface;
             }
+            // Takes whatever the fixed-height siblings (title bar inset and the
+            // narrow bottom navigation) leave; computing this from the viewport
+            // height would overflow once an inset is present.
             Rectangle {
-                height: root.viewport-height - (root.narrow ? 64px : 0px);
                 vertical-stretch: 1;
                 horizontal-stretch: 1;
                 background: ThemeTokens.surface;
@@ -405,12 +409,12 @@ export component AppWindow inherits Window {
                         background: ThemeTokens.surface;
                         if root.selected-tab == "receive" : ReceivePage {
                             width: root.viewport-width - (root.narrow ? 0px : root.sidebar-width);
-                            height: root.viewport-height - (root.narrow ? 64px : 0px);
+                            height: root.content-height - (root.narrow ? 64px : 0px);
                             compact-layout: root.compact-sidebar;
                             vertical-stretch: 1;
                             viewport-width: root.viewport-width - (root.narrow ? 0px : root.sidebar-width);
-                            viewport-height: root.viewport-height - (root.narrow ? 64px : 0px);
-                            container-height: root.viewport-height;
+                            viewport-height: root.content-height - (root.narrow ? 64px : 0px);
+                            container-height: root.content-height;
                             alias: root.device-alias;
                             device-id: root.device-id;
                             ip-summary: root.info-ip;
@@ -435,12 +439,12 @@ export component AppWindow inherits Window {
                         if root.selected-tab == "send" : SendPage {
                             visible: !root.device-details-open;
                             width: root.viewport-width - (root.narrow ? 0px : root.sidebar-width);
-                            height: root.viewport-height - (root.narrow ? 64px : 0px);
+                            height: root.content-height - (root.narrow ? 64px : 0px);
                             compact-layout: root.compact-sidebar;
                             vertical-stretch: 1;
                             viewport-width: root.viewport-width - (root.narrow ? 0px : root.sidebar-width);
-                            viewport-height: root.viewport-height - (root.narrow ? 64px : 0px);
-                            container-height: root.viewport-height;
+                            viewport-height: root.content-height - (root.narrow ? 64px : 0px);
+                            container-height: root.content-height;
                             devices: root.devices;
                             selected-files: root.selected-files;
                             transfers: root.transfer-items;
@@ -473,7 +477,7 @@ export component AppWindow inherits Window {
                         }
                         if root.device-details-open : Rectangle {
                             width: root.viewport-width - (root.narrow ? 0px : root.sidebar-width);
-                            height: root.viewport-height - (root.narrow ? 64px : 0px);
+                            height: root.content-height - (root.narrow ? 64px : 0px);
                             background: ThemeTokens.surface;
                             VerticalLayout {
                                 width: min(parent.width, 780px);
@@ -564,13 +568,13 @@ export component AppWindow inherits Window {
                         }
                         if root.selected-tab == "settings" : SettingsPage {
                             width: root.viewport-width - (root.narrow ? 0px : root.sidebar-width);
-                            height: root.viewport-height - (root.narrow ? 64px : 0px);
+                            height: root.content-height - (root.narrow ? 64px : 0px);
                             compact-layout: root.compact-sidebar;
                             vertical-stretch: 1;
                             status-message: root.message;
                             viewport-width: root.viewport-width - (root.narrow ? 0px : root.sidebar-width);
-                            viewport-height: root.viewport-height - (root.narrow ? 64px : 0px);
-                            container-height: root.viewport-height;
+                            viewport-height: root.content-height - (root.narrow ? 64px : 0px);
+                            container-height: root.content-height;
                             app-version: root.app-version;
                             brightness: root.settings-theme;
                             theme-code: root.settings-theme-code;
@@ -688,7 +692,7 @@ export component AppWindow inherits Window {
         width: min(root.viewport-width - 40px, 360px);
         height: 42px;
         x: root.viewport-width - self.width - 20px;
-        y: root.viewport-height - self.height - (root.narrow ? 76px : 20px);
+        y: root.content-height - self.height - (root.narrow ? 76px : 20px);
         border-radius: 9px;
         background: ThemeTokens.toast-background;
         drop-shadow-blur: 20px;
