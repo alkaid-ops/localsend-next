@@ -12,7 +12,7 @@ case "$ARCH" in
         TARGET=x86_64-unknown-linux-gnu
         RPM_ARCH=x86_64
         ;;
-    aarch64)
+    aarch64|arm64)
         TARGET=aarch64-unknown-linux-gnu
         RPM_ARCH=aarch64
         ;;
@@ -38,7 +38,7 @@ PACKAGES="$ROOT/target/release/packages"
 RPMROOT="$ROOT/target/release/rpmbuild-$ARCH"
 STAGE="$RPMROOT/stage"
 SPEC="$RPMROOT/SPECS/localsend.spec"
-OUTPUT="$PACKAGES/localsend-${RPM_VERSION}-1.${RPM_ARCH}.rpm"
+OUTPUT="$PACKAGES/LocalSend-${VERSION}-linux-${RPM_ARCH}.rpm"
 DESKTOP="$ROOT/apps/localsend-gui-slint/packaging/linux/org.localsend.pc.desktop"
 METAINFO="$ROOT/apps/localsend-gui-slint/packaging/linux/org.localsend.pc.metainfo.xml"
 ICON="$ROOT/apps/localsend-gui-slint/packaging/macos/app-icon.svg"

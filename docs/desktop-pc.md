@@ -117,7 +117,24 @@ Linux tar/deb 在对应架构的 Linux 主机中生成：
 ./scripts/package-linux.sh aarch64
 ```
 
-所有发布物统一输出到 `target/release/packages/`。Linux 默认从桌面菜单启动 `localsend-tray`；没有状态栏图标的桌面环境会进入 GUI 守护 fallback，也可显式运行 `localsend-launcher`，AppImage 使用 `--launcher`。GNOME 用户如果需要图标菜单，仍需安装并启用 AppIndicator 扩展。
+所有发布物统一输出到 `target/release/packages/`，文件名一律为
+`LocalSend-<版本>-<平台>-<架构>.<扩展名>`，平台取 `linux` / `windows` / `macos`，
+架构只取 `x86_64` / `aarch64`：
+
+| 产物 | 文件名 |
+| --- | --- |
+| Debian | `LocalSend-0.1.2-linux-x86_64.deb` |
+| RPM | `LocalSend-0.1.2-linux-aarch64.rpm` |
+| AppImage | `LocalSend-0.1.2-linux-x86_64.AppImage` |
+| Windows | `LocalSend-0.1.2-windows-aarch64.zip` |
+| macOS | `LocalSend-0.1.2-macos-x86_64.dmg` |
+
+`amd64`、`arm64`、`x64` 只作为脚本参数别名存在，不会出现在文件名里；
+deb/rpm 包内部的 `Architecture` 字段仍按各自生态填写（`amd64`/`arm64`、`x86_64`/`aarch64`）。
+`.github/workflows/release.yml` 的 `scripts/check-release-assets.sh` 步骤会校验完整资产清单，
+任一文件名偏离该规则都会让发布失败。
+
+Linux 默认从桌面菜单启动 `localsend-tray`；没有状态栏图标的桌面环境会进入 GUI 守护 fallback，也可显式运行 `localsend-launcher`，AppImage 使用 `--launcher`。GNOME 用户如果需要图标菜单，仍需安装并启用 AppIndicator 扩展。
 
 macOS 包内的 tray 可执行文件名为 `LocalSendTray`，GUI 为 `LocalSend`。Windows GUI、tray 和 launcher 使用 GUI subsystem；daemon 子进程使用无窗口创建标志。开机自启动在 Windows 指向 `localsend-tray.exe --minimized`，在 Linux 指向 `localsend-tray --minimized`。
 

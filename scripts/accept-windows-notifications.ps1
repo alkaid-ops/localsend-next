@@ -1,5 +1,5 @@
 param(
-    [ValidateSet("x64", "arm64")]
+    [ValidateSet("x64", "arm64", "x86_64", "aarch64")]
     [string]$Architecture = "x64",
     [string]$AppPath = ""
 )
@@ -12,7 +12,8 @@ if ($env:OS -ne "Windows_NT") {
 }
 
 if (-not $AppPath) {
-    $AppPath = Join-Path $PSScriptRoot "../target/release/packages/LocalSend-windows-$Architecture/LocalSend.exe"
+    $AssetArch = if ($Architecture -in @("x64", "x86_64")) { "x86_64" } else { "aarch64" }
+    $AppPath = Join-Path $PSScriptRoot "../target/release/packages/LocalSend-windows-$AssetArch/LocalSend.exe"
 }
 $AppPath = (Resolve-Path $AppPath).Path
 $TrayPath = Join-Path (Split-Path $AppPath) "localsend-tray.exe"

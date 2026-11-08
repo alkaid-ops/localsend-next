@@ -415,11 +415,13 @@ export component SettingsPage inherits Rectangle {
                         HorizontalLayout {
                             width: 176px;
                             spacing: 4px;
-                            alignment: center;
+                            alignment: end;
+                            cross-axis-alignment: center;
                             HorizontalLayout {
                                 width: 88px;
                                 spacing: 6px;
-                                alignment: center;
+                                alignment: end;
+                                cross-axis-alignment: center;
                                 Rectangle { width: 7px; height: 7px; border-radius: 4px; background: root.server-running ? ThemeTokens.success : ThemeTokens.on-surface-variant; }
                                 Text {
                                     text: root.server-running ? @tr("在线") : @tr("离线");

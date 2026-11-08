@@ -71,16 +71,13 @@ jobs:
     timeout-minutes: 60
     strategy:
       fail-fast: false
+      # One architecture vocabulary for every asset: x86_64 / aarch64.
       matrix:
         include:
           - arch: x86_64
             runner: ubuntu-22.04
-            deb_arch: amd64
-            rpm_arch: x86_64
           - arch: aarch64
             runner: ubuntu-22.04-arm
-            deb_arch: arm64
-            rpm_arch: aarch64
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
@@ -133,9 +130,8 @@ jobs:
         run: |
           set -euo pipefail
           version="${PACKAGE_VERSION#v}"
-          rpm_version="$(printf '%s' "$version" | tr '-' '~')"
-          deb="target/release/packages/localsend_${version}_${{ matrix.deb_arch }}.deb"
-          rpm="target/release/packages/localsend-${rpm_version}-1.${{ matrix.rpm_arch }}.rpm"
+          deb="target/release/packages/LocalSend-${version}-linux-${{ matrix.arch }}.deb"
+          rpm="target/release/packages/LocalSend-${version}-linux-${{ matrix.arch }}.rpm"
           appimage="target/release/packages/LocalSend-${version}-linux-${{ matrix.arch }}.AppImage"
           test -f "$deb" && test -f "$rpm" && test -x "$appimage"
           dpkg-deb --info "$deb" >/dev/null
@@ -163,10 +159,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - arch: x64
+          - arch: x86_64
             runner: windows-2022
             rust_target: x86_64-pc-windows-msvc
-          - arch: arm64
+          - arch: aarch64
             runner: windows-11-arm
             rust_target: aarch64-pc-windows-msvc
     runs-on: ${{ matrix.runner }}
@@ -177,7 +173,7 @@ jobs:
         shell: pwsh
         run: |
           $actual = [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString()
-          $expected = if ("${{ matrix.arch }}" -eq "x64") { "X64" } else { "Arm64" }
+          $expected = if ("${{ matrix.arch }}" -eq "x86_64") { "X64" } else { "Arm64" }
           if ($actual -ne $expected) { throw "expected $expected runner, got $actual" }
 
       - name: Install Rust
@@ -225,9 +221,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - arch: arm64
+          # `host` is what `uname -m` reports on the runner; `arch` names the asset.
+          - arch: aarch64
+            host: arm64
             runner: macos-15
           - arch: x86_64
+            host: x86_64
             runner: macos-15-intel
     runs-on: ${{ matrix.runner }}
     steps:
@@ -236,7 +235,7 @@ jobs:
       - name: Verify runner architecture
         shell: bash
         run: |
-          expected="${{ matrix.arch }}"
+          expected="${{ matrix.host }}"
           actual="$(uname -m)"
           test "$actual" = "$expected" || { echo "expected $expected runner, got $actual"; exit 1; }
 
@@ -251,7 +250,7 @@ jobs:
           save-if: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Build macOS DMG
-        run: ./apps/localsend-gui-slint/package-macos.sh "${{ matrix.arch }}"
+        run: ./apps/localsend-gui-slint/package-macos.sh "${{ matrix.host }}"
 
       - name: Verify macOS DMG
         shell: bash
@@ -267,7 +266,7 @@ jobs:
             target/release/bundle/macos/LocalSend.app/Contents/MacOS/localsendd \
             target/release/bundle/macos/LocalSend.app/Contents/Helpers/LocalSendTray.app/Contents/MacOS/LocalSendTray
           do
-            file "$binary" | grep -q "${{ matrix.arch }}"
+            file "$binary" | grep -q "${{ matrix.host }}"
           done
 
       - uses: actions/upload-artifact@v4
@@ -302,7 +301,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          ./scripts/check-release-assets.sh dist > dist/SHA256SUMS.txt
+          PACKAGE_VERSION="${PACKAGE_VERSION#v}" ./scripts/check-release-assets.sh dist > dist/SHA256SUMS.txt
           cat dist/SHA256SUMS.txt
 
       - uses: softprops/action-gh-release@v2

@@ -14,22 +14,22 @@ case "$VERSION" in
 esac
 
 case "$ARCH" in
-    x86_64|aarch64) ;;
+    x86_64) TARGET="x86_64-unknown-linux-gnu"; ASSET_ARCH=x86_64 ;;
+    aarch64|arm64) TARGET="aarch64-unknown-linux-gnu"; ASSET_ARCH=aarch64 ;;
     *)
         printf 'usage: %s x86_64|aarch64\n' "$0" >&2
         exit 64
         ;;
 esac
 
-TARGET="$ARCH-unknown-linux-gnu"
 RELEASE="$ROOT/target/$TARGET/release"
 PACKAGES="$ROOT/target/release/packages"
-APPDIR="$PACKAGES/LocalSend-${VERSION}-linux-$ARCH.AppDir"
-OUTPUT="$PACKAGES/LocalSend-${VERSION}-linux-$ARCH.AppImage"
+APPDIR="$PACKAGES/LocalSend-${VERSION}-linux-$ASSET_ARCH.AppDir"
+OUTPUT="$PACKAGES/LocalSend-${VERSION}-linux-$ASSET_ARCH.AppImage"
 TOOLS="$ROOT/target/release/tools"
-APPIMAGETOOL=${APPIMAGETOOL:-"$TOOLS/appimagetool-$ARCH.AppImage"}
-RUNTIME=${APPIMAGE_RUNTIME_FILE:-"$TOOLS/runtime-$ARCH"}
-RUNTIME_URL=${APPIMAGE_RUNTIME_URL:-"https://github.com/AppImage/type2-runtime/releases/download/continuous/runtime-$ARCH"}
+APPIMAGETOOL=${APPIMAGETOOL:-"$TOOLS/appimagetool-$ASSET_ARCH.AppImage"}
+RUNTIME=${APPIMAGE_RUNTIME_FILE:-"$TOOLS/runtime-$ASSET_ARCH"}
+RUNTIME_URL=${APPIMAGE_RUNTIME_URL:-"https://github.com/AppImage/type2-runtime/releases/download/continuous/runtime-$ASSET_ARCH"}
 DESKTOP="$ROOT/apps/localsend-gui-slint/packaging/linux/org.localsend.pc.desktop"
 METAINFO="$ROOT/apps/localsend-gui-slint/packaging/linux/org.localsend.pc.metainfo.xml"
 ICON="$ROOT/apps/localsend-gui-slint/packaging/macos/app-icon.svg"
@@ -58,7 +58,7 @@ if [ ! -x "$APPIMAGETOOL" ]; then
     mkdir -p "$TOOLS"
     curl -L --fail --retry 3 --connect-timeout 20 \
         -o "$APPIMAGETOOL" \
-        "https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-$ARCH.AppImage"
+        "https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-$ASSET_ARCH.AppImage"
     chmod +x "$APPIMAGETOOL"
 fi
 
@@ -128,7 +128,7 @@ rm -f "$APPDIR/.DirIcon" "$APPDIR/org.localsend.pc.svg"
 if [ -e "$OUTPUT" ]; then
     unlink "$OUTPUT"
 fi
-ARCH="$ARCH" APPIMAGE_EXTRACT_AND_RUN=1 \
+ARCH="$ASSET_ARCH" APPIMAGE_EXTRACT_AND_RUN=1 \
     "$APPIMAGETOOL" --runtime-file "$RUNTIME" "$APPDIR" "$OUTPUT"
 test -x "$OUTPUT"
 printf '%s\n' "$OUTPUT"

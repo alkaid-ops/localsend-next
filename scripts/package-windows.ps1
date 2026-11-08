@@ -1,5 +1,5 @@
 param(
-    [ValidateSet("x64", "arm64")]
+    [ValidateSet("x64", "arm64", "x86_64", "aarch64")]
     [string]$Architecture = "x64"
 )
 
@@ -15,11 +15,14 @@ $Version = if ([string]::IsNullOrWhiteSpace($env:PACKAGE_VERSION)) {
 if ($Version -notmatch '^[0-9A-Za-z][0-9A-Za-z._-]*$') {
     throw "invalid PACKAGE_VERSION: $Version"
 }
-$Target = if ($Architecture -eq "x64") { "x86_64-pc-windows-msvc" } else { "aarch64-pc-windows-msvc" }
+# Release asset names use one architecture vocabulary on every platform,
+# so x64/arm64 only survive as aliases on the command line.
+$AssetArch = if ($Architecture -in @("x64", "x86_64")) { "x86_64" } else { "aarch64" }
+$Target = if ($AssetArch -eq "x86_64") { "x86_64-pc-windows-msvc" } else { "aarch64-pc-windows-msvc" }
 $Release = Join-Path $Root "target/$Target/release"
 $Packages = Join-Path $Root "target/release/packages"
-$Stage = Join-Path $Packages "LocalSend-$Version-windows-$Architecture"
-$Zip = Join-Path $Packages "LocalSend-$Version-windows-$Architecture.zip"
+$Stage = Join-Path $Packages "LocalSend-$Version-windows-$AssetArch"
+$Zip = Join-Path $Packages "LocalSend-$Version-windows-$AssetArch.zip"
 $GuiSource = Join-Path $Release "localsend-gui-slint.exe"
 $Required = @(
     $GuiSource,
@@ -81,7 +84,7 @@ function Get-PeMetadata([string]$Path) {
     }
 }
 
-$ExpectedMachine = if ($Architecture -eq "x64") {
+$ExpectedMachine = if ($AssetArch -eq "x86_64") {
     [System.Reflection.PortableExecutable.Machine]::Amd64
 } else {
     [System.Reflection.PortableExecutable.Machine]::Arm64

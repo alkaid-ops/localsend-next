@@ -157,6 +157,11 @@ cargo run -q -p localsend-gui-slint --example compare_reference -- \
 - 导航 rail 的 HorizontalLayout 之前漏了 `cross-axis-alignment: center`，图标比文字高约 14px；
   已修正（动画图标同样受用）。窄屏底部导航的 stacked VerticalLayout 同样漏了横向居中，
   图标会偏左，也已补上。多弧 `Path` 在 Slint 里只画一条，改为三条单弧 SVG 图片。
+- 设置页“服务器状态”行：状态圆点（固定 7px 的 Rectangle）和文字在同一个
+  HorizontalLayout 里，但布局漏写 `cross-axis-alignment`，交叉轴默认 start/拉伸——
+  文字被拉满行高并垂直居中，圆点却贴在行顶部，看起来圆点浮在“在线”上方、与右侧
+  图标按钮不在一条线。补上内外两层 `cross-axis-alignment: center`，并按 CSS
+  `.server-actions` 的右对齐改为 `alignment: end`。
 - 打包装箱脚本会在签名后 `touch` App 与 Contents，避免原地覆盖安装后 Finder/Dock 继续显示
   旧的图标缓存（icns 本身是正确的青绿渐变）。
 - appimagetool 2026-10 之后的连续构建不再接受 SVG `.DirIcon`（直接报错不产出 AppImage）。

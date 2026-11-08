@@ -9,7 +9,10 @@ VERSION=${VERSION#v}
 BUILD_NUMBER=${BUILD_NUMBER:-1}
 
 case "$ARCH" in
-    arm64|x86_64) ;;
+    # Release asset names use one architecture vocabulary on every platform;
+    # macOS still calls arm64 what Linux calls aarch64.
+    arm64|aarch64) ASSET_ARCH=aarch64 ;;
+    x86_64) ASSET_ARCH=x86_64 ;;
     *)
         printf 'usage: %s arm64|x86_64\n' "$0" >&2
         exit 64
@@ -38,8 +41,8 @@ TRAY_CONTENTS_DIR="$TRAY_APP_DIR/Contents"
 TRAY_MACOS_DIR="$TRAY_CONTENTS_DIR/MacOS"
 ICON_WORK_DIR="$BUILD_DIR/icon-work"
 DMG_STAGE="$BUILD_DIR/dmg-$ARCH"
-ZIP="$PACKAGES_DIR/LocalSend-${VERSION}-macos-${ARCH}.zip"
-DMG="$PACKAGES_DIR/LocalSend-${VERSION}-macos-${ARCH}.dmg"
+ZIP="$PACKAGES_DIR/LocalSend-${VERSION}-macos-${ASSET_ARCH}.zip"
+DMG="$PACKAGES_DIR/LocalSend-${VERSION}-macos-${ASSET_ARCH}.dmg"
 
 export PATH="$HOME/.cargo/bin:$PATH"
 

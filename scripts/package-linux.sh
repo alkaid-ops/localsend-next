@@ -17,10 +17,13 @@ case "$ARCH" in
     x86_64)
         TARGET=x86_64-unknown-linux-gnu
         DEB_ARCH=amd64
+        # Release asset names use one architecture vocabulary on every platform.
+        ASSET_ARCH=x86_64
         ;;
-    aarch64)
+    aarch64|arm64)
         TARGET=aarch64-unknown-linux-gnu
         DEB_ARCH=arm64
+        ASSET_ARCH=aarch64
         ;;
     *)
         printf 'usage: %s x86_64|aarch64\n' "$0" >&2
@@ -30,10 +33,10 @@ esac
 
 RELEASE="$ROOT/target/$TARGET/release"
 PACKAGES="$ROOT/target/release/packages"
-TAR_STAGE="$PACKAGES/LocalSend-linux-$ARCH"
+TAR_STAGE="$PACKAGES/LocalSend-linux-$ASSET_ARCH"
 DEB_STAGE="$PACKAGES/deb-$DEB_ARCH"
-TARBALL="$PACKAGES/LocalSend-${VERSION}-linux-$ARCH.tar.gz"
-DEB="$PACKAGES/localsend_${VERSION}_${DEB_ARCH}.deb"
+TARBALL="$PACKAGES/LocalSend-${VERSION}-linux-$ASSET_ARCH.tar.gz"
+DEB="$PACKAGES/LocalSend-${VERSION}-linux-$ASSET_ARCH.deb"
 DESKTOP="$ROOT/apps/localsend-gui-slint/packaging/linux/org.localsend.pc.desktop"
 METAINFO="$ROOT/apps/localsend-gui-slint/packaging/linux/org.localsend.pc.metainfo.xml"
 ICON="$ROOT/apps/localsend-gui-slint/packaging/macos/app-icon.svg"
