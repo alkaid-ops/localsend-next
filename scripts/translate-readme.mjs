@@ -33,9 +33,18 @@ const languages = JSON.parse(
     "utf8",
   ),
 );
-const LOCALES = languages.map((entry) => entry.locale);
+// `languages.json` lists only the locales translated *from* the msgid language,
+// so the source locale (zh-CN) is not in it. The README is written in English,
+// so zh-CN needs a generated translation like any other.
+const LOCALES = [...new Set([...languages.map((entry) => entry.locale), "zh-CN"])].sort();
+
+// Simplified Chinese is hand-written (docs/zh-CN/README.md), because it is the
+// project's own language and the machine output was noticeably wrong there.
+// The generator translates every other locale and leaves this file alone.
+const HAND_WRITTEN = new Set(["zh-CN"]);
 const DISPLAY = Object.fromEntries(languages.map((entry) => [entry.locale, entry.name]));
 DISPLAY["en-US"] = "English";
+DISPLAY["zh-CN"] = "简体中文";
 
 // The README is written in English; every other locale is generated from it.
 const SOURCE_LOCALE = "en-US";
@@ -323,6 +332,7 @@ const cache = fs.existsSync(cacheFile) ? JSON.parse(fs.readFileSync(cacheFile, "
 if (process.argv.includes("--render")) {
   fs.mkdirSync(docsDir, { recursive: true });
   for (const locale of LOCALES) {
+    if (HAND_WRITTEN.has(locale)) continue;
     const output = path.join(docsDir, locale, "README.md");
     fs.mkdirSync(path.dirname(output), { recursive: true });
     fs.writeFileSync(output, renderLocale(source, locale, cache));
@@ -333,6 +343,7 @@ if (process.argv.includes("--render")) {
 
 let done = 0;
 for (const locale of LOCALES) {
+  if (HAND_WRITTEN.has(locale)) continue;
   const pending = segments.filter((text) => !cache[locale]?.[text]);
   if (pending.length === 0) continue;
   cache[locale] ??= {};
