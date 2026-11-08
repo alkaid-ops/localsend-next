@@ -58,10 +58,10 @@ fn bundled_translation_switches_navigation_at_runtime() {
         transfer_id: "test-transfer".into(),
         peer: "Peer".into(),
         summary: "1 KiB".into(),
-        status: "等待中".into(),
+        status: "waiting".into(),
         speed: "".into(),
         duration: "".into(),
-        direction: "发送".into(),
+        direction: "send".into(),
         terminal: false,
         progress_percent: 0,
         file_count: 1,
@@ -81,7 +81,7 @@ fn bundled_translation_switches_navigation_at_runtime() {
 
     ui.set_pin_dialog_open(true);
     i_slint_backend_testing::mock_elapsed_time(std::time::Duration::from_millis(50));
-    for label in ["Enter receiver PIN", "PIN value", "Confirm"] {
+    for label in ["Set PIN", "PIN", "Confirm"] {
         assert!(
             has_label(&ui, label),
             "missing English dialog label {label}"
@@ -119,4 +119,106 @@ fn bundled_translation_switches_navigation_at_runtime() {
             "missing English dialog label {label}"
         );
     }
+    ui.set_completion_dialog_open(false);
+
+    // Every bundled locale must be selectable and must leave the navigation
+    // translated; a missing bundle or a Chinese fallback fails here.
+    let locales = localsend_gui_slint::reference_language_items(false);
+    assert!(locales.len() >= 58, "bundled locale list is too short");
+    for (code, _) in locales.iter().skip(1) {
+        if code == "zh-CN" || code == "zh-HK" || code == "zh-TW" {
+            // Chinese variants legitimately keep Chinese glyphs.
+            continue;
+        }
+        slint::select_bundled_translation(code)
+            .unwrap_or_else(|error| panic!("cannot select {code}: {error:?}"));
+        i_slint_backend_testing::mock_elapsed_time(std::time::Duration::from_millis(50));
+        let has_nav = ["接收", "发送", "设置"]
+            .iter()
+            .any(|label| has_accessible_label(&ui, AccessibleRole::Button, label));
+        assert!(!has_nav, "locale {code} left the navigation in Chinese");
+    }
+}
+
+#[test]
+fn every_bundled_locale_translates_every_ui_string() {
+    // A locale whose catalog lacks a msgid silently falls back to Chinese, so
+    // check every bundled language covers the whole UI catalog.
+    let translations = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("translations");
+    let catalog =
+        std::fs::read_to_string(translations.join("languages.json")).expect("languages.json");
+    let locales: Vec<String> = catalog
+        .split("\"locale\": \"")
+        .skip(1)
+        .filter_map(|rest| rest.split('"').next().map(str::to_string))
+        .collect();
+    assert!(
+        locales.len() >= 57,
+        "expected the upstream locale list, got {}",
+        locales.len()
+    );
+
+    let ui: Vec<String> = walk_slint("ui")
+        .into_iter()
+        .flat_map(|file| {
+            let source = std::fs::read_to_string(file).unwrap_or_default();
+            extract_tr(&source)
+        })
+        .collect();
+    assert!(!ui.is_empty());
+
+    for locale in locales {
+        let path = translations
+            .join(&locale)
+            .join("LC_MESSAGES")
+            .join("localsend-gui-slint.po");
+        let po = std::fs::read_to_string(&path)
+            .unwrap_or_else(|_| panic!("missing catalog for {locale}: {}", path.display()));
+        let empty = count_empty_msgstr(&po);
+        assert_eq!(empty, 0, "{locale} has {empty} untranslated msgids");
+    }
+}
+
+fn walk_slint(dir: &str) -> Vec<std::path::PathBuf> {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(dir);
+    let mut files = Vec::new();
+    let mut stack = vec![root];
+    while let Some(path) = stack.pop() {
+        let Ok(entries) = std::fs::read_dir(&path) else {
+            continue;
+        };
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if path.is_dir() {
+                stack.push(path);
+            } else if path.extension().is_some_and(|ext| ext == "slint") {
+                files.push(path);
+            }
+        }
+    }
+    files
+}
+
+fn extract_tr(source: &str) -> Vec<String> {
+    source
+        .match_indices("@tr(\"")
+        .filter_map(|(index, _)| {
+            let rest = &source[index + 5..];
+            rest.find("\")").map(|end| rest[..end].to_string())
+        })
+        .collect()
+}
+
+/// Count real untranslated entries; the PO header's own empty msgstr is not one.
+fn count_empty_msgstr(po: &str) -> usize {
+    let mut previous_is_header = false;
+    po.lines()
+        .filter(|line| {
+            let is_header = *line == "msgid \"\"";
+            let empty = line.starts_with("msgstr ") && line.trim_end() == "msgstr \"\"";
+            let counted = empty && !previous_is_header;
+            previous_is_header = is_header;
+            counted
+        })
+        .count()
 }

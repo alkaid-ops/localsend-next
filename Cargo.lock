@@ -4372,6 +4372,7 @@ dependencies = [
  "directories",
  "i-slint-backend-testing",
  "libc",
+ "localsend-i18n",
  "localsend-platform",
  "localsend-rpc",
  "localsend-testkit",
@@ -4381,10 +4382,15 @@ dependencies = [
  "serde_json",
  "slint",
  "slint-build",
+ "sys-locale",
  "tempfile",
  "tokio",
  "winresource",
 ]
+
+[[package]]
+name = "localsend-i18n"
+version = "0.1.0"
 
 [[package]]
 name = "localsend-launcher"
@@ -4489,6 +4495,7 @@ dependencies = [
  "directories",
  "gtk",
  "libc",
+ "localsend-i18n",
  "localsend-platform",
  "localsend-rpc",
  "notify-rust",

@@ -1,0 +1,892 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: sl\n"
+
+msgid "Checksum 校验"
+msgstr "Preverjanje kontrolne vsote"
+
+msgid "HTTPS"
+msgstr "HTTPS"
+
+msgid "IP 地址"
+msgstr "IP naslov"
+
+msgid "IP 地址或主机名"
+msgstr "Naslov IP ali ime gostitelja"
+
+msgid "LocalSend Next {} · 桌面版"
+msgstr "LocalSend Naprej {} · Namizje"
+
+msgid "LocalSend 青绿色品牌色"
+msgstr "Teal barva znamke LocalSend"
+
+msgid "Multicast"
+msgstr "Multicast"
+
+msgid "PIN 不能为空"
+msgstr "PIN ne sme biti prazen"
+
+msgid "PIN 值"
+msgstr "PIN vrednost"
+
+msgid "PIN 密码"
+msgstr "PIN"
+
+msgid "PIN 需要 4 位数字"
+msgstr "PIN mora biti 4-mesten"
+
+msgid "PIN 验证"
+msgstr "PIN preverjanje"
+
+msgid "TCP {} 正在监听"
+msgstr "TCP {} posluša"
+
+msgid "Web Share 已验证"
+msgstr "Spletna skupna raba preverjena"
+
+msgid "Web Share 链接不可用"
+msgstr "Povezava Web Share ni na voljo"
+
+msgid "{} 个文件已保存到「下载 / LocalSend」。"
+msgstr "{} datotek je shranjenih v »Prenosi/Lokalno pošiljanje«."
+
+msgid "「收藏设备」只会自动接受来自已验证收藏设备的请求。文件保存到当前接收目录，并继续显示在历史记录中。"
+msgstr "»Priljubljene naprave« samodejno sprejemajo zahteve samo od preverjenih priljubljenih. Datoteke se shranijo v trenutno prejeto mapo in ostanejo v zgodovini."
+
+msgid "与后台服务的连接已断开，正在重连…"
+msgstr "Izgubljena povezava s storitvijo v ozadju; ponovno povezovanje ..."
+
+msgid "主题"
+msgstr "Tema"
+
+msgid "仅允许指定网段访问"
+msgstr "Dovolite dostop samo iz navedenega podomrežja"
+
+msgid "传输中"
+msgstr "Prenašanje"
+
+msgid "传输后校验文件完整性"
+msgstr "Po prenosu preverite celovitost datoteke"
+
+msgid "传输失败：{}"
+msgstr "Prenos ni uspel: {}"
+
+msgid "传输完成"
+msgstr "Prenos končan"
+
+msgid "传输用时"
+msgstr "Trajanje"
+
+msgid "保存"
+msgstr "Shrani"
+
+msgid "保留最近 100 条接收与发送记录"
+msgstr "Hranite zadnjih 100 zapisov o prejemanju in pošiljanju"
+
+msgid "保留状态变化和页面切换反馈"
+msgstr "Ohranite povratne informacije o spremembi stanja in prehodu strani"
+
+msgid "停止"
+msgstr "Ustavi"
+
+msgid "允许接收方校验传输内容"
+msgstr "Dovolite prejemniku, da preveri preneseno vsebino"
+
+msgid "全部开启"
+msgstr "Vklopi vse"
+
+msgid "全部接受"
+msgstr "Sprejmi vse"
+
+msgid "全部接口"
+msgstr "Vsi vmesniki"
+
+msgid "关于 LocalSend Next"
+msgstr "O LocalSend Next"
+
+msgid "关闭"
+msgstr "Zapri"
+
+msgid "关闭 ({})"
+msgstr "Zapri ({})"
+
+msgid "关闭后台服务"
+msgstr "Ustavi storitev v ozadju"
+
+msgid "关闭时最小化到托盘"
+msgstr "Pomanjšaj na pladenj, ko je zaprt"
+
+msgid "关闭窗口后保持接收服务运行"
+msgstr "Po zapiranju okna naj storitev sprejema teče"
+
+msgid "其他"
+msgstr "Drugo"
+
+msgid "再次发送"
+msgstr "Pošlji ponovno"
+
+msgid "刷新设备"
+msgstr "Osveži naprave"
+
+msgid "剪贴板"
+msgstr "Prilepi"
+
+msgid "剪贴板中没有可发送的文件、文件夹、图片或文本"
+msgstr "V odložišču ni datotek, map, slik ali besedila za pošiljanje"
+
+msgid "剪贴板文本已准备好，请选择附近设备发送"
+msgstr "Besedilo v odložišče pripravljeno; izberite bližnjo napravo za pošiljanje"
+
+msgid "动画效果"
+msgstr "Animacije"
+
+msgid "协议"
+msgstr "Protokol"
+
+msgid "协议 {}"
+msgstr "Protokol v{}"
+
+msgid "单位：秒；0 表示持续发现"
+msgstr "Enota: sekunde; 0 pomeni nenehno odkrivanje"
+
+msgid "单选"
+msgstr "Samski"
+
+msgid "历史记录"
+msgstr "Zgodovina"
+
+msgid "历史记录只保存在当前设备，不会同步到云服务。"
+msgstr "Zgodovina je shranjena samo v tej napravi in ​​se nikoli ne sinhronizira z oblakom."
+
+msgid "发现"
+msgstr "Odkritje"
+
+msgid "发现和传输使用的网络"
+msgstr "Omrežje, ki se uporablja za odkrivanje in prenos"
+
+msgid "发现超时必须是正整数"
+msgstr "Časovna omejitev odkritja mora biti pozitivno celo število"
+
+msgid "发送"
+msgstr "Pošlji"
+
+msgid "发送内容"
+msgstr "Vsebina za pošiljanje"
+
+msgid "发送到 "
+msgstr "Pošiljanje na"
+
+msgid "发送到所选设备"
+msgstr "Pošlji v izbrane naprave"
+
+msgid "发送完成"
+msgstr "Pošiljanje dokončano"
+
+msgid "发送文件时创建校验和"
+msgstr "Ustvari kontrolne vsote ob pošiljanju datotek"
+
+msgid "发送文本"
+msgstr "Pošlji besedilo"
+
+msgid "发送文本内容"
+msgstr "Sporočilo"
+
+msgid "发送给你了一条消息："
+msgstr "vam je poslal sporočilo:"
+
+msgid "发送请求已提交，请等待对端响应"
+msgstr "Pošlji zahtevo oddano; čaka na prejemnika"
+
+msgid "取消"
+msgstr "Prekliči"
+
+msgid "取消发送"
+msgstr "Prekliči pošiljanje"
+
+msgid "取消接收"
+msgstr "Prekliči prejemanje"
+
+msgid "取消收藏"
+msgstr "Nepriljubljeno"
+
+msgid "另一台设备未出现？"
+msgstr "Druga naprava se ne prikaže?"
+
+msgid "可信设备可以跳过每次接收确认"
+msgstr "Zaupanja vredne naprave lahko preskočijo potrditev posameznega prenosa"
+
+msgid "可被发现"
+msgstr "Odkriti"
+
+msgid "同一网络下的设备会自动出现。"
+msgstr "Naprave v istem omrežju se prikažejo samodejno."
+
+msgid "名称"
+msgstr "Ime"
+
+msgid "启动"
+msgstr "Začetek"
+
+msgid "启动时运行"
+msgstr "Zaženi ob zagonu"
+
+msgid "启用加密传输，速度可能略低"
+msgstr "Enable encrypted transfer; hitrost se lahko nekoliko zmanjša"
+
+msgid "在文件管理器中显示"
+msgstr "Prikaži v mapi"
+
+msgid "在线"
+msgstr "Na spletu"
+
+msgid "复制"
+msgstr "Kopiraj"
+
+msgid "复制诊断信息"
+msgstr "Kopiraj diagnostiko"
+
+msgid "复制链接"
+msgstr "Kopiraj povezavo"
+
+msgid "外观与桌面行为。"
+msgstr "Videz in obnašanje namizja."
+
+msgid "外部文档在当前评审原型中不可用"
+msgstr "Zunanji dokumenti v tem prototipu pregleda niso na voljo"
+
+msgid "外部链接在当前评审原型中不可用"
+msgstr "Zunanje povezave v tem prototipu pregleda niso na voljo"
+
+msgid "多选"
+msgstr "Večkratna"
+
+msgid "失败"
+msgstr "Ni uspelo"
+
+msgid "完成"
+msgstr "Končano"
+
+msgid "完成传输"
+msgstr "Dokončaj prenos"
+
+msgid "局域网组播发现地址"
+msgstr "LAN multicast odkrivanje naslova"
+
+msgid "已发送"
+msgstr "Poslano"
+
+msgid "已取消"
+msgstr "Preklicano"
+
+msgid "已完成"
+msgstr "Končano"
+
+msgid "已就绪"
+msgstr "pripravljena"
+
+msgid "已收藏"
+msgstr "Med priljubljene"
+
+msgid "已连接"
+msgstr "Povezan"
+
+msgid "已送达"
+msgstr "Dostavljeno"
+
+msgid "已选择 {} 个项目"
+msgstr "Izbranih {} elementov"
+
+msgid "已选择 {} 台设备"
+msgstr "Izbranih {} naprav"
+
+msgid "已选择文件夹，正在刷新附近设备"
+msgstr "Izbrana mapa; osveževanje bližnjih naprav"
+
+msgid "已选择文件，正在刷新附近设备"
+msgstr "Izbrana datoteka; osveževanje bližnjih naprav"
+
+msgid "已验证 · 快速保存已开启"
+msgstr "Preverjeno · Hitro shranjevanje je vklopljeno"
+
+msgid "当前接收服务的连接信息"
+msgstr "Informacije o povezavi za trenutno sprejemno storitev"
+
+msgid "当前没有可复制的接收链接"
+msgstr "Nobena povezava za prejemanje ni na voljo za kopiranje"
+
+msgid "待处理"
+msgstr "V teku"
+
+msgid "快速保存"
+msgstr "Hitro shranjevanje"
+
+msgid "快速保存说明"
+msgstr "Podrobnosti o hitrem shranjevanju"
+
+msgid "总大小"
+msgstr "Skupna velikost"
+
+msgid "所有文件均已通过 Checksum 校验"
+msgstr "Vse datoteke so opravile preverjanje kontrolne vsote"
+
+msgid "手动添加设备"
+msgstr "Dodajte napravo ročno"
+
+msgid "手动连接"
+msgstr "Ročna povezava"
+
+msgid "打开"
+msgstr "Odpri"
+
+msgid "打开主界面"
+msgstr "Odpri glavno okno"
+
+msgid "打开文件"
+msgstr "Odpri datoteko"
+
+msgid "打开文件夹"
+msgstr "Odpri mapo"
+
+msgid "执行"
+msgstr "Teči"
+
+msgid "拒绝"
+msgstr "Zavrni"
+
+msgid "指纹"
+msgstr "Prstni odtis"
+
+msgid "按顺序检查设备发现和连接"
+msgstr "Preveri odkrivanje in povezljivost po vrstnem redu"
+
+msgid "接受所选"
+msgstr "Sprejmi izbrano"
+
+msgid "接收"
+msgstr "Prejem"
+
+msgid "接收前要求发送方输入 PIN"
+msgstr "Od pošiljatelja zahtevajte, da pred prejemom vnese kodo PIN"
+
+msgid "接收历史"
+msgstr "Prejmi zgodovino"
+
+msgid "接收完成"
+msgstr "Prejem popoln"
+
+msgid "接收完成后自动关闭请求，不需要再次确认"
+msgstr "Po prejemu samodejno zaprite zahtevo brez nadaljnje potrditve"
+
+msgid "接收文件前，发送方需要输入 4 位 PIN"
+msgstr "Pošiljatelj mora pred prejemom datotek vnesti 4-mestno kodo PIN"
+
+msgid "接收服务使用的 TCP 端口"
+msgstr "Vrata TCP, ki jih uporablja sprejemna storitev"
+
+msgid "接收服务在线"
+msgstr "Prejmite storitev na spletu"
+
+msgid "接收服务已就绪，附近设备可以在同一网络中发现你。"
+msgstr "Prejemna storitev je pripravljena; naprave v bližini tega omrežja vas lahko odkrijejo."
+
+msgid "接收服务暂时无法启动。"
+msgstr "Prejemne storitve trenutno ni bilo mogoče začeti."
+
+msgid "接收服务离线"
+msgstr "Prejmite storitev brez povezave"
+
+msgid "接收状态"
+msgstr "Prejmi status"
+
+msgid "接收目录"
+msgstr "Prejmi mapo"
+
+msgid "接收链接"
+msgstr "Prejmi povezavo"
+
+msgid "接收链接已复制"
+msgstr "Povezava za prejemanje je kopirana"
+
+msgid "搜索历史"
+msgstr "Zgodovina iskanja"
+
+msgid "搜索消息、文件名或设备"
+msgstr "Iskanje sporočil, imen datotek ali naprav"
+
+msgid "搜索设备超时"
+msgstr "Časovna omejitev za odkrivanje"
+
+msgid "支持项目"
+msgstr "Podprite ta projekt"
+
+msgid "收到文件"
+msgstr "Datoteka prejeta"
+
+msgid "收到新文件"
+msgstr "Prejeta nova datoteka"
+
+msgid "收到新消息"
+msgstr "Prejeto novo sporočilo"
+
+msgid "收藏"
+msgstr "Priljubljena"
+
+msgid "收藏设备"
+msgstr "Priljubljene naprave"
+
+msgid "收藏设备可使用快速保存与快捷发送"
+msgstr "Priljubljene naprave omogočajo hitro shranjevanje in hitro pošiljanje"
+
+msgid "故障排除"
+msgstr "Odpravljanje težav"
+
+msgid "文件"
+msgstr "Datoteke"
+
+msgid "文件保存、接收确认与完整性校验。"
+msgstr "Shranjevanje datotek, prejemanje potrditve in preverjanje celovitosti."
+
+msgid "文件夹"
+msgstr "Mapa"
+
+msgid "文件已保存"
+msgstr "Datoteke shranjene"
+
+msgid "文件已发送到「{}」。"
+msgstr "Datoteka je bila poslana na »{}«."
+
+msgid "文件已成功送达"
+msgstr "Datoteka je bila uspešno dostavljena"
+
+msgid "文本"
+msgstr "Besedilo"
+
+msgid "文本会作为 .txt 文件发送到所选设备"
+msgstr "Besedilo je izbranim napravam poslano kot datoteka .txt"
+
+msgid "文本内容"
+msgstr "Besedilna vsebina"
+
+msgid "文本已准备好，请选择附近设备发送"
+msgstr "Besedilo pripravljeno; izberite bližnjo napravo za pošiljanje"
+
+msgid "文本消息"
+msgstr "Besedilno sporočilo"
+
+msgid "无法保存剪贴板图片"
+msgstr "Slike odložišča ni mogoče shraniti"
+
+msgid "无法定位剪贴板图片缓存目录"
+msgstr "Imenika predpomnilnika slik odložišča ni mogoče najti"
+
+msgid "无法将剪贴板图片转换为 PNG"
+msgstr "Slike odložišča ni mogoče pretvoriti v PNG"
+
+msgid "无法访问剪贴板"
+msgstr "Ni mogoče dostopati do odložišča"
+
+msgid "无法重启"
+msgstr "Ponovni zagon ni na voljo"
+
+msgid "日志"
+msgstr "Dnevniki"
+
+msgid "日本語"
+msgstr "日本語"
+
+msgid "暂不可用"
+msgstr "Ni na voljo"
+
+msgid "最近一次响应：刚刚"
+msgstr "Zadnji odgovor: pravkar"
+
+msgid "最近发现"
+msgstr "Nedavno odkrito"
+
+msgid "服务器已停止"
+msgstr "Strežnik je ustavljen"
+
+msgid "服务器状态"
+msgstr "Stanje strežnika"
+
+msgid "服务器运行中"
+msgstr "Strežnik deluje"
+
+msgid "服务暂停"
+msgstr "Storitev začasno ustavljena"
+
+msgid "服务条款"
+msgstr "Pogoji storitve"
+
+msgid "未知"
+msgstr "Neznano"
+
+msgid "本地端口"
+msgstr "Lokalno pristanišče"
+
+msgid "来自附近设备"
+msgstr "Iz bližnje naprave"
+
+msgid "查看"
+msgstr "Pogled"
+
+msgid "查看当前会话的调试日志"
+msgstr "Oglejte si dnevnike odpravljanja napak za trenutno sejo"
+
+msgid "查看详情"
+msgstr "Poglej podrobnosti"
+
+msgid "桌面"
+msgstr "Namizje"
+
+msgid "检查端口、网络与设备发现"
+msgstr "Preverite vrata, omrežje in odkrivanje naprav"
+
+msgid "正在传输"
+msgstr "Prenašanje"
+
+msgid "正在关闭后台服务"
+msgstr "Ustavitev storitve v ozadju"
+
+msgid "正在关闭浏览器接收页面"
+msgstr "Zaustavitev strani za prejemanje brskalnika"
+
+msgid "正在刷新设备连接…"
+msgstr "Osveževanje povezave naprave …"
+
+msgid "正在发送文件"
+msgstr "Pošiljanje datotek"
+
+msgid "正在发送文本，等待接收确认"
+msgstr "Pošiljanje besedila; čaka na potrditev prejemnika"
+
+msgid "正在取消传输"
+msgstr "Preklic prenosa"
+
+msgid "正在启动浏览器接收页面"
+msgstr "Zagon strani za prejemanje brskalnika"
+
+msgid "正在拒绝传输"
+msgstr "Zavračanje prenosa"
+
+msgid "正在接受传输"
+msgstr "Sprejem prenosa"
+
+msgid "正在接收来自 {} 的文件"
+msgstr "Prejemanje datotek od {}"
+
+msgid "正在查找附近设备"
+msgstr "Iskanje naprav v bližini"
+
+msgid "正在添加设备"
+msgstr "Dodajanje naprave"
+
+msgid "正在清空历史"
+msgstr "Brisanje zgodovine"
+
+msgid "正在连接"
+msgstr "Povezovanje"
+
+msgid "正在连接 localsendd..."
+msgstr "Povezovanje z localsendd ..."
+
+msgid "正在连接后台服务…"
+msgstr "Povezovanje s storitvijo v ozadju …"
+
+msgid "正在连接对端，等待接收确认"
+msgstr "Povezava s sprejemnikom; čaka na potrditev"
+
+msgid "正在重启服务器"
+msgstr "Ponovni zagon strežnika"
+
+msgid "正在重连"
+msgstr "Ponovno povezovanje"
+
+msgid "正常"
+msgstr "normalno"
+
+msgid "此设置不能通过文本输入修改"
+msgstr "Te nastavitve ni mogoče spremeniti z vnosom besedila"
+
+msgid "此项由系统自动检测或当前平台不支持编辑"
+msgstr "To vrednost zazna sistem ali je ni mogoče urejati na tej platformi"
+
+msgid "没有添加有效的文件或文件夹"
+msgstr "Dodana ni bila veljavna datoteka ali mapa"
+
+msgid "浅色"
+msgstr "Svetla"
+
+msgid "浏览器可在同一网络内访问此地址"
+msgstr "Brskalniki v istem omrežju lahko dosežejo ta naslov"
+
+msgid "消息已复制"
+msgstr "Sporočilo kopirano"
+
+msgid "深色"
+msgstr "Temna"
+
+msgid "添加"
+msgstr "Dodaj"
+
+msgid "清空历史"
+msgstr "Počisti zgodovino"
+
+msgid "清除所选项"
+msgstr "Počisti izbiro"
+
+msgid "版本"
+msgstr "Različica"
+
+msgid "版本、开源许可与项目信息"
+msgstr "Informacije o različici, odprtokodni licenci in projektu"
+
+msgid "版本、诊断与支持选项。"
+msgstr "Različica, diagnostika in možnosti podpore."
+
+msgid "版权"
+msgstr "Avtorske pravice"
+
+msgid "状态"
+msgstr "Stanje"
+
+msgid "用于匹配正确的平台图标"
+msgstr "Uporablja se za ujemanje s pravilno ikono platforme"
+
+msgid "用于区分设备信息"
+msgstr "Uporablja se za razlikovanje informacij o napravi"
+
+msgid "界面显示语言"
+msgstr "Jezik vmesnika"
+
+msgid "登录系统后自动启动 LocalSend"
+msgstr "Po prijavi samodejno zaženi LocalSend"
+
+msgid "目标地址"
+msgstr "Ciljni naslov"
+
+msgid "确保对方也打开了 LocalSend，并已连接到同一个 Wi-Fi 网络。"
+msgstr "Prepričajte se, da ima tudi druga naprava odprt LocalSend in je v istem omrežju Wi-Fi."
+
+msgid "确定"
+msgstr "OK"
+
+msgid "确认"
+msgstr "Potrdi"
+
+msgid "确认双方处于同一子网，并允许防火墙访问 LocalSend。"
+msgstr "Potrdite, da sta obe napravi v istem podomrežju in omogočite požarnemu zidu dostop do LocalSend."
+
+msgid "离线"
+msgstr "Brez povezave"
+
+msgid "移除收藏"
+msgstr "Odstrani priljubljeno"
+
+msgid "端口"
+msgstr "Vrata:"
+
+msgid "端口必须是 1 到 65535 之间的数字"
+msgstr "Vrata morajo biti številka od 1 do 65535"
+
+msgid "等待中"
+msgstr "Čakanje"
+
+msgid "简体中文"
+msgstr "简体中文"
+
+msgid "管理 LocalSend 的外观、接收、网络与支持选项。"
+msgstr "Upravljajte videz, prejemanje, omrežje in možnosti podpore LocalSend."
+
+msgid "管理收藏设备"
+msgstr "Upravljajte priljubljene naprave"
+
+msgid "系统"
+msgstr "Sistem"
+
+msgid "繁體中文（台灣）"
+msgstr "繁體中文（台灣）"
+
+msgid "繁體中文（香港）"
+msgstr "繁體中文（香港）"
+
+msgid "组播地址必须是有效 IPv4 地址"
+msgstr "Multicast naslov mora biti veljaven naslov IPv4"
+
+msgid "结束本实例的 localsendd"
+msgstr "Za ta primer zaustavite localsendd"
+
+msgid "绿色"
+msgstr "zelena"
+
+msgid "编辑"
+msgstr "Uredi"
+
+msgid "编辑设置"
+msgstr "Uredi nastavitev"
+
+msgid "网络"
+msgstr "Omrežje"
+
+msgid "网络不可用"
+msgstr "Omrežje ni na voljo"
+
+msgid "网络信息"
+msgstr "Informacije o omrežju"
+
+msgid "网络接口"
+msgstr "Omrežni vmesniki"
+
+msgid "网络筛选"
+msgstr "Omrežni filter"
+
+msgid "网络连接"
+msgstr "Omrežna povezava"
+
+msgid "自动完成"
+msgstr "Samodejni zaključek"
+
+msgid "自动接收来自可信设备的文件"
+msgstr "Samodejno prejemanje datotek iz zaupanja vrednih naprav"
+
+msgid "若设备指纹发生变化，LocalSend 会重新要求确认。你可以随时在收藏设备中取消信任。"
+msgstr "Če se prstni odtis naprave spremeni, LocalSend ponovno zahteva potrditev. Kadar koli ga lahko prekličete v priljubljenih napravah."
+
+msgid "蓝色"
+msgstr "Modra"
+
+msgid "记住本次窗口尺寸与位置"
+msgstr "Zapomnite si velikost in položaj tega okna"
+
+msgid "设备信息"
+msgstr "Informacije o napravi"
+
+msgid "设备名称"
+msgstr "Ime naprave:"
+
+msgid "设备型号"
+msgstr "Model naprave"
+
+msgid "设备已离线，请刷新设备列表"
+msgstr "Naprava je bila brez povezave; osvežite seznam naprav"
+
+msgid "设备类型"
+msgstr "Tip naprave"
+
+msgid "设备详情"
+msgstr "Podrobnosti naprave"
+
+msgid "设备身份、服务与发现协议。"
+msgstr "Identiteta naprave, storitev in protokol odkrivanja."
+
+msgid "设置"
+msgstr "Nastavitve"
+
+msgid "设置 PIN"
+msgstr "Nastavite PIN"
+
+msgid "设置值"
+msgstr "Vrednost nastavitve"
+
+msgid "设置已提交"
+msgstr "Nastavitve poslane"
+
+msgid "访问者需要通过 PIN 验证后才能上传文件。"
+msgstr "Obiskovalci morajo opraviti preverjanje PIN, preden lahko naložijo datoteke."
+
+msgid "诊断"
+msgstr "Diagnostika"
+
+msgid "诊断信息已复制"
+msgstr "Diagnostika je kopirana"
+
+msgid "语言"
+msgstr "Jezik"
+
+msgid "请先选择文件、文件夹、文本或剪贴板，再选择设备发送"
+msgstr "Preden izberete napravo, izberite datoteko, mapo, besedilo ali vsebino odložišča"
+
+msgid "请先选择文件或文件夹"
+msgstr "Najprej izberite datoteko ali mapo"
+
+msgid "请先选择至少一个设备"
+msgstr "Izberite vsaj eno napravo"
+
+msgid "请在系统设置中检查防火墙规则"
+msgstr "Preverite pravila požarnega zidu v sistemskih nastavitvah"
+
+msgid "请求发送 {} 个项目"
+msgstr "želi poslati {} elementov"
+
+msgid "请输入设备 IP 地址或主机名"
+msgstr "Vnesite naslov IP naprave ali ime gostitelja"
+
+msgid "请选择目标设备"
+msgstr "Izberite ciljno napravo"
+
+msgid "跟随系统"
+msgstr "Sistem"
+
+msgid "跟随系统或固定使用浅色、深色"
+msgstr "Sledite sistemu ali popravite na svetlo ali temno"
+
+msgid "路径可在文件管理器中打开"
+msgstr "Pot lahko odprete v upravitelju datotek"
+
+msgid "输入同一网络中设备的 IP 地址"
+msgstr "Vnesite naslov IP naprave v istem omrežju"
+
+msgid "返回"
+msgstr "Nazaj"
+
+msgid "还没有接收记录"
+msgstr "Še ni prejetih predmetov"
+
+msgid "还没有收藏设备"
+msgstr "Ni še priljubljenih naprav"
+
+msgid "连接"
+msgstr "Povežite se"
+
+msgid "退出"
+msgstr "Odnehaj"
+
+msgid "退出时保存窗口位置"
+msgstr "Shrani položaj okna ob izhodu"
+
+msgid "选择"
+msgstr "Izbira"
+
+msgid "选择要发送的内容，或从剪贴板快速创建一条文本消息。"
+msgstr "Izberite, kaj želite poslati, ali hitro ustvarite besedilno sporočilo iz odložišča."
+
+msgid "通用"
+msgstr "Splošno"
+
+msgid "通过链接接收"
+msgstr "Prejmi prek povezave"
+
+msgid "重启"
+msgstr "Ponovni zagon"
+
+msgid "重新启动接收"
+msgstr "Znova zaženi prejemanje"
+
+msgid "重新扫描"
+msgstr "Ponovno skeniraj"
+
+msgid "附近的设备"
+msgstr "Naprave v bližini"
+
+msgid "附近设备中显示的 alias"
+msgstr "Vzdevek, prikazan napravam v bližini"
+
+msgid "隐私政策"
+msgstr "Politika zasebnosti"
+
+msgid "颜色"
+msgstr "Barva"
+
+msgid "验证"
+msgstr "Preveri"

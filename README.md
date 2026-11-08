@@ -34,6 +34,97 @@ and `VENDORED_CORE.md` for upstream provenance.
 ./scripts/accept-slint.sh
 ```
 
+## Languages
+
+Matches upstream LocalSend's language list: 57 locales, including English and the
+Chinese variants, with Simplified Chinese as the catalog's msgid language. The settings page lists them under **Language**; "Follow
+system" uses the OS locale, and every other choice is applied immediately.
+
+| | |
+| --- | --- |
+| Bundled catalogs | `apps/localsend-gui-slint/translations/<locale>/LC_MESSAGES/localsend-gui-slint.po` |
+| UI source strings | `@tr("...")` in `apps/localsend-gui-slint/ui` |
+| English catalog | `translations/locale-en.json` (UI), `translations/locale-en-runtime.json` (Rust messages) |
+| Rust-side messages | `crates/localsend-i18n` (generated `lookup_generated.rs`) |
+| Upstream mirror | `translations/upstream/<locale>.json` |
+
+Regenerate after changing any UI string:
+
+```sh
+node scripts/update-slint-translations.mjs --collect > /tmp/collect.json
+node scripts/translate-slint-locales.mjs   # fills the machine-translation cache
+node scripts/update-slint-translations.mjs # writes the .po files and Rust table
+```
+
+`locale-machine-cache.json` is committed, so the generated catalogs are
+reproducible without network access; edit an entry there to correct a
+translation and rerun the generator.
+
+<details>
+<summary>Bundled locales</summary>
+
+| Locale | Language |
+| --- | --- |
+| `ar` | العربية |
+| `az` | Azərbaycanca |
+| `be` | Беларуская |
+| `bg` | Български |
+| `bn` | বাংলা |
+| `ca` | Català |
+| `cs` | Čeština |
+| `da` | Dansk |
+| `de` | Deutsch |
+| `el` | Ελληνικά |
+| `en-IN` | English (India) |
+| `es-ES` | Español |
+| `et` | Eesti |
+| `eu` | Euskara |
+| `fa` | فارسی |
+| `fi` | Suomi |
+| `fil-PH` | Filipino |
+| `fr` | Français |
+| `ga` | Gaeilge |
+| `gl` | Galego |
+| `gu` | ગુજરાતી |
+| `he` | עברית |
+| `hi` | हिन्दी |
+| `hu` | Magyar |
+| `hy` | Հայերեն |
+| `id` | Bahasa Indonesia |
+| `it` | Italiano |
+| `ja` | 日本語 |
+| `km` | ខ្មែរ |
+| `ko` | 한국어 |
+| `ky` | Кыргызча |
+| `lo` | ລາວ |
+| `ml` | മലയാളം |
+| `mn` | Монгол |
+| `ms` | Bahasa Melayu |
+| `ne` | नेपाली |
+| `nl` | Nederlands |
+| `pl` | Polski |
+| `pt-BR` | Português (Brasil) |
+| `pt-PT` | Português (Portugal) |
+| `ro` | Română |
+| `ru` | Русский |
+| `si` | සිංහල |
+| `sk` | Slovenčina |
+| `sl` | Slovenščina |
+| `sr` | Српски |
+| `sr-Cyrl` | Српски (ћирилица) |
+| `sv` | Svenska |
+| `ta` | தமிழ் |
+| `th` | ไทย |
+| `tr` | Türkçe |
+| `uk` | Українська |
+| `ur` | اردو |
+| `uz` | Oʻzbekcha |
+| `vi` | Tiếng Việt |
+| `zh-HK` | 繁體中文（香港） |
+| `zh-TW` | 繁體中文（台灣） |
+
+</details>
+
 ## macOS test build
 
 `apps/localsend-gui-slint/package-macos.sh` builds an arm64 ad-hoc signed test app at

@@ -1,0 +1,892 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: fil-PH\n"
+
+msgid "Checksum 校验"
+msgstr "Pag-verify ng checksum"
+
+msgid "HTTPS"
+msgstr "HTTPS"
+
+msgid "IP 地址"
+msgstr "IP Address"
+
+msgid "IP 地址或主机名"
+msgstr "IP address o hostname"
+
+msgid "LocalSend Next {} · 桌面版"
+msgstr "LocalSend Next {} · Desktop"
+
+msgid "LocalSend 青绿色品牌色"
+msgstr "LocalSend kulay ng brand ng teal"
+
+msgid "Multicast"
+msgstr "Multicast"
+
+msgid "PIN 不能为空"
+msgstr "Hindi maaaring walang laman ang PIN"
+
+msgid "PIN 值"
+msgstr "halaga ng PIN"
+
+msgid "PIN 密码"
+msgstr "PIN"
+
+msgid "PIN 需要 4 位数字"
+msgstr "Ang PIN ay dapat na 4 na digit"
+
+msgid "PIN 验证"
+msgstr "Pag-verify ng PIN"
+
+msgid "TCP {} 正在监听"
+msgstr "TCP {} na pakikinig"
+
+msgid "Web Share 已验证"
+msgstr "Na-verify ang Web Share"
+
+msgid "Web Share 链接不可用"
+msgstr "Hindi available ang link sa Web Share"
+
+msgid "{} 个文件已保存到「下载 / LocalSend」。"
+msgstr "{} (na) file ang na-save sa \"Mga Download / LocalSend.\""
+
+msgid "「收藏设备」只会自动接受来自已验证收藏设备的请求。文件保存到当前接收目录，并继续显示在历史记录中。"
+msgstr "Awtomatikong tinatanggap ng \"mga paboritong device\" ang mga kahilingan mula sa mga na-verify na paborito. Ang mga file ay nai-save sa kasalukuyang receive folder at manatili sa kasaysayan."
+
+msgid "与后台服务的连接已断开，正在重连…"
+msgstr "Nawala ang koneksyon sa serbisyo sa background; muling kumokonekta..."
+
+msgid "主题"
+msgstr "Tema"
+
+msgid "仅允许指定网段访问"
+msgstr "Payagan lamang ang pag-access mula sa tinukoy na subnet"
+
+msgid "传输中"
+msgstr "Paglilipat"
+
+msgid "传输后校验文件完整性"
+msgstr "I-verify ang integridad ng file pagkatapos ng paglipat"
+
+msgid "传输失败：{}"
+msgstr "Nabigo ang paglipat: {}"
+
+msgid "传输完成"
+msgstr "Tapos na ang paglipat"
+
+msgid "传输用时"
+msgstr "Tagal"
+
+msgid "保存"
+msgstr "Save"
+
+msgid "保留最近 100 条接收与发送记录"
+msgstr "Panatilihin ang huling 100 na tumanggap at nagpadala ng mga tala"
+
+msgid "保留状态变化和页面切换反馈"
+msgstr "Panatilihin ang feedback sa pagbabago ng status at page-transition"
+
+msgid "停止"
+msgstr "Ihinto"
+
+msgid "允许接收方校验传输内容"
+msgstr "Payagan ang receiver na i-verify ang inilipat na nilalaman"
+
+msgid "全部开启"
+msgstr "I-on ang lahat"
+
+msgid "全部接受"
+msgstr "Tanggapin lahat"
+
+msgid "全部接口"
+msgstr "Lahat ng mga interface"
+
+msgid "关于 LocalSend Next"
+msgstr "Tungkol sa LocalSend Next"
+
+msgid "关闭"
+msgstr "Isara"
+
+msgid "关闭 ({})"
+msgstr "Isara ({})"
+
+msgid "关闭后台服务"
+msgstr "Ihinto ang serbisyo sa background"
+
+msgid "关闭时最小化到托盘"
+msgstr "I-minimize sa tray kapag sarado"
+
+msgid "关闭窗口后保持接收服务运行"
+msgstr "Panatilihing tumatakbo ang serbisyo ng pagtanggap pagkatapos isara ang window"
+
+msgid "其他"
+msgstr "Iba Pa"
+
+msgid "再次发送"
+msgstr "Magpadala muli"
+
+msgid "刷新设备"
+msgstr "I-refresh ang mga device"
+
+msgid "剪贴板"
+msgstr "Paste"
+
+msgid "剪贴板中没有可发送的文件、文件夹、图片或文本"
+msgstr "Ang clipboard ay walang mga file, folder, larawan o text na ipapadala"
+
+msgid "剪贴板文本已准备好，请选择附近设备发送"
+msgstr "Handa na ang teksto ng clipboard; pumili ng malapit na device na ipapadala"
+
+msgid "动画效果"
+msgstr "Animations"
+
+msgid "协议"
+msgstr "Protocol"
+
+msgid "协议 {}"
+msgstr "Protocol v{}"
+
+msgid "单位：秒；0 表示持续发现"
+msgstr "Yunit: segundo; Ang ibig sabihin ng 0 ay patuloy na tumuklas"
+
+msgid "单选"
+msgstr "Walang asawa"
+
+msgid "历史记录"
+msgstr "Kasaysayan"
+
+msgid "历史记录只保存在当前设备，不会同步到云服务。"
+msgstr "Ang kasaysayan ay nakaimbak lamang sa device na ito at hindi kailanman naka-sync sa cloud."
+
+msgid "发现"
+msgstr "Pagtuklas"
+
+msgid "发现和传输使用的网络"
+msgstr "Network na ginagamit para sa pagtuklas at paglipat"
+
+msgid "发现超时必须是正整数"
+msgstr "Dapat na positive integer ang Discovery timeout"
+
+msgid "发送"
+msgstr "Magpadala"
+
+msgid "发送内容"
+msgstr "Nilalaman na ipapadala"
+
+msgid "发送到 "
+msgstr "Ipinapadala sa"
+
+msgid "发送到所选设备"
+msgstr "Ipadala sa mga napiling device"
+
+msgid "发送完成"
+msgstr "Kumpleto ang pagpapadala"
+
+msgid "发送文件时创建校验和"
+msgstr "Gumawa ng mga checksum kapag nagpapadala ng mga file"
+
+msgid "发送文本"
+msgstr "Magpadala ng text"
+
+msgid "发送文本内容"
+msgstr "Mensahe"
+
+msgid "发送给你了一条消息："
+msgstr "ay nagpadala sa iyo ng mensahe:"
+
+msgid "发送请求已提交，请等待对端响应"
+msgstr "Ipadala ang isinumiteng kahilingan; naghihintay para sa tatanggap"
+
+msgid "取消"
+msgstr "Kanselahin"
+
+msgid "取消发送"
+msgstr "Kanselahin ang pagpapadala"
+
+msgid "取消接收"
+msgstr "Kanselahin ang pagtanggap"
+
+msgid "取消收藏"
+msgstr "Hindi paborito"
+
+msgid "另一台设备未出现？"
+msgstr "Hindi lumalabas ang isa pang device?"
+
+msgid "可信设备可以跳过每次接收确认"
+msgstr "Maaaring laktawan ng mga pinagkakatiwalaang device ang kumpirmasyon sa bawat paglipat"
+
+msgid "可被发现"
+msgstr "Natutuklasan"
+
+msgid "同一网络下的设备会自动出现。"
+msgstr "Awtomatikong lumalabas ang mga device sa parehong network."
+
+msgid "名称"
+msgstr "Pangalan"
+
+msgid "启动"
+msgstr "Magsimula"
+
+msgid "启动时运行"
+msgstr "Tumakbo sa startup"
+
+msgid "启用加密传输，速度可能略低"
+msgstr "Paganahin ang naka-encrypt na paglipat; maaaring bumaba nang bahagya ang bilis"
+
+msgid "在文件管理器中显示"
+msgstr "Buksan sa folder"
+
+msgid "在线"
+msgstr "Online"
+
+msgid "复制"
+msgstr "Kopyahin"
+
+msgid "复制诊断信息"
+msgstr "Kopyahin ang mga diagnostic"
+
+msgid "复制链接"
+msgstr "Kopyahin ang link"
+
+msgid "外观与桌面行为。"
+msgstr "Hitsura at pag-uugali sa desktop."
+
+msgid "外部文档在当前评审原型中不可用"
+msgstr "Hindi available ang mga panlabas na doc sa prototype ng pagsusuri na ito"
+
+msgid "外部链接在当前评审原型中不可用"
+msgstr "Ang mga panlabas na link ay hindi magagamit sa prototype ng pagsusuri na ito"
+
+msgid "多选"
+msgstr "Maramihan"
+
+msgid "失败"
+msgstr "Nabigo"
+
+msgid "完成"
+msgstr "Tapos Na"
+
+msgid "完成传输"
+msgstr "Tapusin ang paglipat"
+
+msgid "局域网组播发现地址"
+msgstr "LAN multicast discovery address"
+
+msgid "已发送"
+msgstr "Ipinadala"
+
+msgid "已取消"
+msgstr "Kinansela"
+
+msgid "已完成"
+msgstr "Tapos Na"
+
+msgid "已就绪"
+msgstr "handa na"
+
+msgid "已收藏"
+msgstr "Paborito"
+
+msgid "已连接"
+msgstr "Nakakonekta"
+
+msgid "已送达"
+msgstr "Naihatid"
+
+msgid "已选择 {} 个项目"
+msgstr "Pinili ang {} (na) item"
+
+msgid "已选择 {} 台设备"
+msgstr "Piniling {} na device"
+
+msgid "已选择文件夹，正在刷新附近设备"
+msgstr "Pinili ang folder; nire-refresh ang mga kalapit na device"
+
+msgid "已选择文件，正在刷新附近设备"
+msgstr "Pinili ang file; nire-refresh ang mga kalapit na device"
+
+msgid "已验证 · 快速保存已开启"
+msgstr "Na-verify · Naka-on ang Quick Save"
+
+msgid "当前接收服务的连接信息"
+msgstr "Impormasyon sa koneksyon para sa kasalukuyang serbisyo ng pagtanggap"
+
+msgid "当前没有可复制的接收链接"
+msgstr "Walang makukuhang link sa pagtanggap upang kopyahin"
+
+msgid "待处理"
+msgstr "Nakabinbin"
+
+msgid "快速保存"
+msgstr "Mabilis na I-save"
+
+msgid "快速保存说明"
+msgstr "Mabilis na I-save ang mga detalye"
+
+msgid "总大小"
+msgstr "Kabuuang laki"
+
+msgid "所有文件均已通过 Checksum 校验"
+msgstr "Ang lahat ng mga file ay pumasa sa pag-verify ng checksum"
+
+msgid "手动添加设备"
+msgstr "Manu-manong magdagdag ng device"
+
+msgid "手动连接"
+msgstr "Manu-manong pagkonekta"
+
+msgid "打开"
+msgstr "Buksan"
+
+msgid "打开主界面"
+msgstr "Buksan ang pangunahing window"
+
+msgid "打开文件"
+msgstr "Buksan ang file"
+
+msgid "打开文件夹"
+msgstr "Buksan ang folder"
+
+msgid "执行"
+msgstr "Takbo"
+
+msgid "拒绝"
+msgstr "Tanggihan"
+
+msgid "指纹"
+msgstr "Fingerprint"
+
+msgid "按顺序检查设备发现和连接"
+msgstr "Sinusuri ang pagtuklas at pagkakakonekta sa pagkakasunud-sunod"
+
+msgid "接受所选"
+msgstr "Tanggapin ang napili"
+
+msgid "接收"
+msgstr "Tumanggap"
+
+msgid "接收前要求发送方输入 PIN"
+msgstr "Atasan ang nagpadala na magpasok ng PIN bago tumanggap"
+
+msgid "接收历史"
+msgstr "Tumanggap ng kasaysayan"
+
+msgid "接收完成"
+msgstr "Kumpleto ang pagtanggap"
+
+msgid "接收完成后自动关闭请求，不需要再次确认"
+msgstr "Awtomatikong isara ang kahilingan pagkatapos matanggap, nang walang karagdagang kumpirmasyon"
+
+msgid "接收文件前，发送方需要输入 4 位 PIN"
+msgstr "Ang nagpadala ay dapat magpasok ng 4-digit na PIN bago tumanggap ng mga file"
+
+msgid "接收服务使用的 TCP 端口"
+msgstr "TCP port na ginagamit ng receive service"
+
+msgid "接收服务在线"
+msgstr "Tumanggap ng serbisyo online"
+
+msgid "接收服务已就绪，附近设备可以在同一网络中发现你。"
+msgstr "Handa na ang serbisyo sa pagtanggap; Matutuklasan ka ng mga kalapit na device sa network na ito."
+
+msgid "接收服务暂时无法启动。"
+msgstr "Ang serbisyo sa pagtanggap ay hindi makapagsimula ngayon."
+
+msgid "接收服务离线"
+msgstr "Tumanggap ng serbisyo offline"
+
+msgid "接收状态"
+msgstr "Tumanggap ng katayuan"
+
+msgid "接收目录"
+msgstr "Tumanggap ng folder"
+
+msgid "接收链接"
+msgstr "Tumanggap ng link"
+
+msgid "接收链接已复制"
+msgstr "Tumanggap ng link na kinopya"
+
+msgid "搜索历史"
+msgstr "Kasaysayan ng paghahanap"
+
+msgid "搜索消息、文件名或设备"
+msgstr "Maghanap ng mga mensahe, pangalan ng file o device"
+
+msgid "搜索设备超时"
+msgstr "Nag Timeout ang Discovery"
+
+msgid "支持项目"
+msgstr "Suportahan ang proyektong ito"
+
+msgid "收到文件"
+msgstr "Natanggap ang file"
+
+msgid "收到新文件"
+msgstr "Bagong file na natanggap"
+
+msgid "收到新消息"
+msgstr "Bagong mensahe ang natanggap"
+
+msgid "收藏"
+msgstr "Paborito"
+
+msgid "收藏设备"
+msgstr "Mga paboritong device"
+
+msgid "收藏设备可使用快速保存与快捷发送"
+msgstr "Pinapagana ng mga paboritong device ang Quick Save at mabilis na pagpapadala"
+
+msgid "故障排除"
+msgstr "Troubleshoot"
+
+msgid "文件"
+msgstr "Files"
+
+msgid "文件保存、接收确认与完整性校验。"
+msgstr "Imbakan ng file, tumanggap ng kumpirmasyon at mga pagsusuri sa integridad."
+
+msgid "文件夹"
+msgstr "Folder"
+
+msgid "文件已保存"
+msgstr "Na-save ang mga file"
+
+msgid "文件已发送到「{}」。"
+msgstr "Ipinadala ang file sa \"{}\"."
+
+msgid "文件已成功送达"
+msgstr "Matagumpay na naihatid ang file"
+
+msgid "文本"
+msgstr "Text"
+
+msgid "文本会作为 .txt 文件发送到所选设备"
+msgstr "Ipinapadala ang text sa mga napiling device bilang isang .txt file"
+
+msgid "文本内容"
+msgstr "Nilalaman ng teksto"
+
+msgid "文本已准备好，请选择附近设备发送"
+msgstr "Handa ang teksto; pumili ng malapit na device na ipapadala"
+
+msgid "文本消息"
+msgstr "Text message"
+
+msgid "无法保存剪贴板图片"
+msgstr "Hindi ma-save ang larawan ng clipboard"
+
+msgid "无法定位剪贴板图片缓存目录"
+msgstr "Hindi mahanap ang direktoryo ng cache ng larawan sa clipboard"
+
+msgid "无法将剪贴板图片转换为 PNG"
+msgstr "Hindi ma-convert ang clipboard na larawan sa PNG"
+
+msgid "无法访问剪贴板"
+msgstr "Hindi ma-access ang clipboard"
+
+msgid "无法重启"
+msgstr "Hindi magagamit ang pag-restart"
+
+msgid "日志"
+msgstr "Mga Log"
+
+msgid "日本語"
+msgstr "日本語"
+
+msgid "暂不可用"
+msgstr "Hindi magagamit"
+
+msgid "最近一次响应：刚刚"
+msgstr "Huling tugon: ngayon lang"
+
+msgid "最近发现"
+msgstr "Natuklasan kamakailan"
+
+msgid "服务器已停止"
+msgstr "Huminto ang server"
+
+msgid "服务器状态"
+msgstr "Katayuan ng server"
+
+msgid "服务器运行中"
+msgstr "Tumatakbo ang server"
+
+msgid "服务暂停"
+msgstr "Naka-pause ang serbisyo"
+
+msgid "服务条款"
+msgstr "Mga Tuntunin ng Serbisyo"
+
+msgid "未知"
+msgstr "Hindi kilala"
+
+msgid "本地端口"
+msgstr "Lokal na daungan"
+
+msgid "来自附近设备"
+msgstr "Mula sa kalapit na device"
+
+msgid "查看"
+msgstr "Tingnan"
+
+msgid "查看当前会话的调试日志"
+msgstr "Tingnan ang mga debug log para sa kasalukuyang session"
+
+msgid "查看详情"
+msgstr "Tingnan ang mga detalye"
+
+msgid "桌面"
+msgstr "Desktop"
+
+msgid "检查端口、网络与设备发现"
+msgstr "Suriin ang pagtuklas ng port, network at device"
+
+msgid "正在传输"
+msgstr "Paglilipat"
+
+msgid "正在关闭后台服务"
+msgstr "Paghinto ng serbisyo sa background"
+
+msgid "正在关闭浏览器接收页面"
+msgstr "Paghinto sa pahina ng pagtanggap ng browser"
+
+msgid "正在刷新设备连接…"
+msgstr "Nire-refresh ang koneksyon ng device..."
+
+msgid "正在发送文件"
+msgstr "Nagpapadala ng mga file"
+
+msgid "正在发送文本，等待接收确认"
+msgstr "Pagpapadala ng text; naghihintay ng kumpirmasyon ng tatanggap"
+
+msgid "正在取消传输"
+msgstr "Kinakansela ang paglipat"
+
+msgid "正在启动浏览器接收页面"
+msgstr "Sinisimulan ang pahina ng pagtanggap ng browser"
+
+msgid "正在拒绝传输"
+msgstr "Ang pagtanggi sa paglipat"
+
+msgid "正在接受传输"
+msgstr "Tumatanggap ng paglipat"
+
+msgid "正在接收来自 {} 的文件"
+msgstr "Tumatanggap ng mga file mula kay {}"
+
+msgid "正在查找附近设备"
+msgstr "Naghahanap ng mga kalapit na device"
+
+msgid "正在添加设备"
+msgstr "Pagdaragdag ng device"
+
+msgid "正在清空历史"
+msgstr "Pag-clear ng kasaysayan"
+
+msgid "正在连接"
+msgstr "Kumokonekta"
+
+msgid "正在连接 localsendd..."
+msgstr "Kumokonekta sa localsend..."
+
+msgid "正在连接后台服务…"
+msgstr "Kumokonekta sa serbisyo sa background…"
+
+msgid "正在连接对端，等待接收确认"
+msgstr "Pagkonekta sa receiver; naghihintay ng kumpirmasyon"
+
+msgid "正在重启服务器"
+msgstr "I-restart ang server"
+
+msgid "正在重连"
+msgstr "Muling kumonekta"
+
+msgid "正常"
+msgstr "Normal"
+
+msgid "此设置不能通过文本输入修改"
+msgstr "Hindi mababago ang setting na ito sa pamamagitan ng text input"
+
+msgid "此项由系统自动检测或当前平台不支持编辑"
+msgstr "Ang halagang ito ay nakita ng system o hindi maaaring i-edit sa platform na ito"
+
+msgid "没有添加有效的文件或文件夹"
+msgstr "Walang naidagdag na mga wastong file o folder"
+
+msgid "浅色"
+msgstr "Maliwanag"
+
+msgid "浏览器可在同一网络内访问此地址"
+msgstr "Maaaring maabot ng mga browser sa parehong network ang address na ito"
+
+msgid "消息已复制"
+msgstr "Kinopya ang mensahe"
+
+msgid "深色"
+msgstr "Madilim"
+
+msgid "添加"
+msgstr "Magdagdag"
+
+msgid "清空历史"
+msgstr "I-clear ang kasaysayan"
+
+msgid "清除所选项"
+msgstr "I-clear ang pagpili"
+
+msgid "版本"
+msgstr "Bersyon"
+
+msgid "版本、开源许可与项目信息"
+msgstr "Bersyon, open-source na lisensya at impormasyon ng proyekto"
+
+msgid "版本、诊断与支持选项。"
+msgstr "Bersyon, diagnostic at mga opsyon sa suporta."
+
+msgid "版权"
+msgstr "Copyright"
+
+msgid "状态"
+msgstr "Katayuan"
+
+msgid "用于匹配正确的平台图标"
+msgstr "Ginagamit upang tumugma sa tamang icon ng platform"
+
+msgid "用于区分设备信息"
+msgstr "Ginagamit upang makilala ang impormasyon ng device"
+
+msgid "界面显示语言"
+msgstr "Wika ng interface"
+
+msgid "登录系统后自动启动 LocalSend"
+msgstr "Awtomatikong ilunsad ang LocalSend pagkatapos mag-login"
+
+msgid "目标地址"
+msgstr "Target na address"
+
+msgid "确保对方也打开了 LocalSend，并已连接到同一个 Wi-Fi 网络。"
+msgstr "Tiyaking nakabukas din ang ibang device ng LocalSend at nasa parehong Wi-Fi network."
+
+msgid "确定"
+msgstr "OK"
+
+msgid "确认"
+msgstr "Kumpirmahin"
+
+msgid "确认双方处于同一子网，并允许防火墙访问 LocalSend。"
+msgstr "Kumpirmahin ang parehong mga device sa parehong subnet at payagan ang firewall access sa LocalSend."
+
+msgid "离线"
+msgstr "Offline"
+
+msgid "移除收藏"
+msgstr "Alisin ang paborito"
+
+msgid "端口"
+msgstr "Port:"
+
+msgid "端口必须是 1 到 65535 之间的数字"
+msgstr "Ang port ay dapat na isang numero mula 1 hanggang 65535"
+
+msgid "等待中"
+msgstr "Naghihintay"
+
+msgid "简体中文"
+msgstr "简体中文"
+
+msgid "管理 LocalSend 的外观、接收、网络与支持选项。"
+msgstr "Pamahalaan ang hitsura, pagtanggap, network at mga opsyon sa suporta ng LocalSend."
+
+msgid "管理收藏设备"
+msgstr "Pamahalaan ang mga paboritong device"
+
+msgid "系统"
+msgstr "Sistema"
+
+msgid "繁體中文（台灣）"
+msgstr "繁體中文（台灣）"
+
+msgid "繁體中文（香港）"
+msgstr "繁體中文（香港）"
+
+msgid "组播地址必须是有效 IPv4 地址"
+msgstr "Ang multicast address ay dapat na isang wastong IPv4 address"
+
+msgid "结束本实例的 localsendd"
+msgstr "Itigil ang localsendd para sa pagkakataong ito"
+
+msgid "绿色"
+msgstr "Berde"
+
+msgid "编辑"
+msgstr "Baguhin"
+
+msgid "编辑设置"
+msgstr "I-edit ang setting"
+
+msgid "网络"
+msgstr "Network"
+
+msgid "网络不可用"
+msgstr "Hindi available ang network"
+
+msgid "网络信息"
+msgstr "Impormasyon sa network"
+
+msgid "网络接口"
+msgstr "Mga Interface ng Network"
+
+msgid "网络筛选"
+msgstr "Filter ng network"
+
+msgid "网络连接"
+msgstr "Koneksyon sa network"
+
+msgid "自动完成"
+msgstr "Auto Tapos"
+
+msgid "自动接收来自可信设备的文件"
+msgstr "Awtomatikong tumanggap ng mga file mula sa mga pinagkakatiwalaang device"
+
+msgid "若设备指纹发生变化，LocalSend 会重新要求确认。你可以随时在收藏设备中取消信任。"
+msgstr "Kung magbabago ang fingerprint ng isang device, hihingi muli ng kumpirmasyon ang LocalSend. Maaari mo itong hindi pagkatiwalaan mula sa Mga Paboritong device anumang oras."
+
+msgid "蓝色"
+msgstr "Asul"
+
+msgid "记住本次窗口尺寸与位置"
+msgstr "Tandaan ang laki at posisyon ng window na ito"
+
+msgid "设备信息"
+msgstr "Impormasyon ng device"
+
+msgid "设备名称"
+msgstr "Alias:"
+
+msgid "设备型号"
+msgstr "Device model"
+
+msgid "设备已离线，请刷新设备列表"
+msgstr "Nag-offline ang device; i-refresh ang listahan ng device"
+
+msgid "设备类型"
+msgstr "Device type"
+
+msgid "设备详情"
+msgstr "Mga Detalye ng Device"
+
+msgid "设备身份、服务与发现协议。"
+msgstr "Pagkakakilanlan ng device, serbisyo at protocol ng pagtuklas."
+
+msgid "设置"
+msgstr "Settings"
+
+msgid "设置 PIN"
+msgstr "Itakda ang PIN"
+
+msgid "设置值"
+msgstr "Pagtatakda ng halaga"
+
+msgid "设置已提交"
+msgstr "Naisumite ang mga setting"
+
+msgid "访问者需要通过 PIN 验证后才能上传文件。"
+msgstr "Dapat pumasa ang mga bisita sa PIN verification bago sila makapag-upload ng mga file."
+
+msgid "诊断"
+msgstr "Mga diagnostic"
+
+msgid "诊断信息已复制"
+msgstr "Kinopya ang mga diagnostic"
+
+msgid "语言"
+msgstr "Wika"
+
+msgid "请先选择文件、文件夹、文本或剪贴板，再选择设备发送"
+msgstr "Pumili ng file, folder, text, o nilalaman ng clipboard bago pumili ng device"
+
+msgid "请先选择文件或文件夹"
+msgstr "Pumili muna ng file o folder"
+
+msgid "请先选择至少一个设备"
+msgstr "Pumili ng kahit isang device"
+
+msgid "请在系统设置中检查防火墙规则"
+msgstr "Suriin ang mga panuntunan ng firewall sa mga setting ng system"
+
+msgid "请求发送 {} 个项目"
+msgstr "gustong magpadala ng {} (na) item"
+
+msgid "请输入设备 IP 地址或主机名"
+msgstr "Maglagay ng IP address o hostname ng device"
+
+msgid "请选择目标设备"
+msgstr "Pumili ng target na device"
+
+msgid "跟随系统"
+msgstr "System"
+
+msgid "跟随系统或固定使用浅色、深色"
+msgstr "Sundin ang system o ayusin sa maliwanag o madilim"
+
+msgid "路径可在文件管理器中打开"
+msgstr "Maaaring mabuksan ang landas sa file manager"
+
+msgid "输入同一网络中设备的 IP 地址"
+msgstr "Ilagay ang IP address ng isang device sa parehong network"
+
+msgid "返回"
+msgstr "Bumalik"
+
+msgid "还没有接收记录"
+msgstr "Wala pang natatanggap na item"
+
+msgid "还没有收藏设备"
+msgstr "Wala pang paboritong device"
+
+msgid "连接"
+msgstr "Kumonekta"
+
+msgid "退出"
+msgstr "quit"
+
+msgid "退出时保存窗口位置"
+msgstr "Quit: I-save ang window placement"
+
+msgid "选择"
+msgstr "Pagpipilian"
+
+msgid "选择要发送的内容，或从剪贴板快速创建一条文本消息。"
+msgstr "Piliin kung ano ang ipapadala, o mabilis na gumawa ng text message mula sa clipboard."
+
+msgid "通用"
+msgstr "General"
+
+msgid "通过链接接收"
+msgstr "Tumanggap sa pamamagitan ng link"
+
+msgid "重启"
+msgstr "Restart"
+
+msgid "重新启动接收"
+msgstr "I-restart ang pagtanggap"
+
+msgid "重新扫描"
+msgstr "Muling i-scan"
+
+msgid "附近的设备"
+msgstr "Malalapit na mga device"
+
+msgid "附近设备中显示的 alias"
+msgstr "Ipinakita ang alyas sa mga kalapit na device"
+
+msgid "隐私政策"
+msgstr "Patakaran sa Privacy"
+
+msgid "颜色"
+msgstr "Kulay"
+
+msgid "验证"
+msgstr "I-verify"

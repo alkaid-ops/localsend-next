@@ -1,0 +1,892 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: fr\n"
+
+msgid "Checksum 校验"
+msgstr "Vérification de la somme de contrôle"
+
+msgid "HTTPS"
+msgstr "HTTPS"
+
+msgid "IP 地址"
+msgstr "Adresse IP"
+
+msgid "IP 地址或主机名"
+msgstr "Adresse IP ou nom d'hôte"
+
+msgid "LocalSend Next {} · 桌面版"
+msgstr "LocalSend Suivant {} · Bureau"
+
+msgid "LocalSend 青绿色品牌色"
+msgstr "Couleur de la marque LocalSend bleu sarcelle"
+
+msgid "Multicast"
+msgstr "Multidiffusion"
+
+msgid "PIN 不能为空"
+msgstr "Le code PIN ne peut pas être vide"
+
+msgid "PIN 值"
+msgstr "Valeur du code PIN"
+
+msgid "PIN 密码"
+msgstr "ÉPINGLE"
+
+msgid "PIN 需要 4 位数字"
+msgstr "Le code PIN doit être composé de 4 chiffres"
+
+msgid "PIN 验证"
+msgstr "Vérification du code PIN"
+
+msgid "TCP {} 正在监听"
+msgstr "TCP {} en écoute"
+
+msgid "Web Share 已验证"
+msgstr "Partage Web vérifié"
+
+msgid "Web Share 链接不可用"
+msgstr "Le lien de partage Web n'est pas disponible"
+
+msgid "{} 个文件已保存到「下载 / LocalSend」。"
+msgstr "{} fichiers enregistrés dans \"Téléchargements/LocalSend\"."
+
+msgid "「收藏设备」只会自动接受来自已验证收藏设备的请求。文件保存到当前接收目录，并继续显示在历史记录中。"
+msgstr "« Appareils favoris » accepte automatiquement les demandes uniquement des favoris vérifiés. Les fichiers sont enregistrés dans le dossier de réception actuel et restent dans l'historique."
+
+msgid "与后台服务的连接已断开，正在重连…"
+msgstr "Perte de la connexion au service d'arrière-plan ; reconnexion…"
+
+msgid "主题"
+msgstr "Thème"
+
+msgid "仅允许指定网段访问"
+msgstr "Autoriser uniquement l'accès à partir du sous-réseau spécifié"
+
+msgid "传输中"
+msgstr "Transfert"
+
+msgid "传输后校验文件完整性"
+msgstr "Vérifier l'intégrité du fichier après le transfert"
+
+msgid "传输失败：{}"
+msgstr "Échec du transfert : {}"
+
+msgid "传输完成"
+msgstr "Transfert terminé"
+
+msgid "传输用时"
+msgstr "Durée"
+
+msgid "保存"
+msgstr "Sauvegarder"
+
+msgid "保留最近 100 条接收与发送记录"
+msgstr "Conserver les 100 derniers enregistrements de réception et d'envoi"
+
+msgid "保留状态变化和页面切换反馈"
+msgstr "Conserver les commentaires sur les changements de statut et les transitions de page"
+
+msgid "停止"
+msgstr "Arrêter"
+
+msgid "允许接收方校验传输内容"
+msgstr "Autoriser le destinataire à vérifier le contenu transféré"
+
+msgid "全部开启"
+msgstr "Allumez tout"
+
+msgid "全部接受"
+msgstr "Acceptez tout"
+
+msgid "全部接口"
+msgstr "Toutes les interfaces"
+
+msgid "关于 LocalSend Next"
+msgstr "À propos de LocalSend Suivant"
+
+msgid "关闭"
+msgstr "Fermer"
+
+msgid "关闭 ({})"
+msgstr "Fermer ({})"
+
+msgid "关闭后台服务"
+msgstr "Arrêter le service en arrière-plan"
+
+msgid "关闭时最小化到托盘"
+msgstr "Réduire dans le bac une fois fermé"
+
+msgid "关闭窗口后保持接收服务运行"
+msgstr "Maintenir le service de réception en cours d'exécution après la fermeture de la fenêtre"
+
+msgid "其他"
+msgstr "Autre"
+
+msgid "再次发送"
+msgstr "Envoyer à nouveau"
+
+msgid "刷新设备"
+msgstr "Actualiser les appareils"
+
+msgid "剪贴板"
+msgstr "Presse-papiers"
+
+msgid "剪贴板中没有可发送的文件、文件夹、图片或文本"
+msgstr "Le presse-papiers n'a aucun fichier, dossier, image ou texte à envoyer"
+
+msgid "剪贴板文本已准备好，请选择附近设备发送"
+msgstr "Texte du presse-papiers prêt ; sélectionnez un appareil à proximité à envoyer"
+
+msgid "动画效果"
+msgstr "Animations"
+
+msgid "协议"
+msgstr "Protocole"
+
+msgid "协议 {}"
+msgstr "Protocole v{}"
+
+msgid "单位：秒；0 表示持续发现"
+msgstr "Unité : secondes ; 0 signifie continuer à découvrir"
+
+msgid "单选"
+msgstr "Célibataire"
+
+msgid "历史记录"
+msgstr "Histoire"
+
+msgid "历史记录只保存在当前设备，不会同步到云服务。"
+msgstr "L'historique est stocké uniquement sur cet appareil et n'est jamais synchronisé avec le cloud."
+
+msgid "发现"
+msgstr "Découverte"
+
+msgid "发现和传输使用的网络"
+msgstr "Réseau utilisé pour la découverte et le transfert"
+
+msgid "发现超时必须是正整数"
+msgstr "Le délai d'expiration de la découverte doit être un entier positif"
+
+msgid "发送"
+msgstr "Envoyer"
+
+msgid "发送内容"
+msgstr "Contenu à envoyer"
+
+msgid "发送到 "
+msgstr "Envoi à"
+
+msgid "发送到所选设备"
+msgstr "Envoyer aux appareils sélectionnés"
+
+msgid "发送完成"
+msgstr "Envoyer terminé"
+
+msgid "发送文件时创建校验和"
+msgstr "Créer des sommes de contrôle lors de l'envoi de fichiers"
+
+msgid "发送文本"
+msgstr "Envoyer un texte"
+
+msgid "发送文本内容"
+msgstr "Message"
+
+msgid "发送给你了一条消息："
+msgstr "vous a envoyé un message :"
+
+msgid "发送请求已提交，请等待对端响应"
+msgstr "Envoyer la demande soumise ; en attendant le récepteur"
+
+msgid "取消"
+msgstr "Annuler"
+
+msgid "取消发送"
+msgstr "Annuler l'envoi"
+
+msgid "取消接收"
+msgstr "Annuler la réception"
+
+msgid "取消收藏"
+msgstr "Supprimer des favoris"
+
+msgid "另一台设备未出现？"
+msgstr "Un autre appareil ne s'affiche pas ?"
+
+msgid "可信设备可以跳过每次接收确认"
+msgstr "Les appareils de confiance peuvent ignorer la confirmation par transfert"
+
+msgid "可被发现"
+msgstr "Découvrable"
+
+msgid "同一网络下的设备会自动出现。"
+msgstr "Les appareils sur le même réseau apparaissent automatiquement."
+
+msgid "名称"
+msgstr "Nom"
+
+msgid "启动"
+msgstr "Commencer"
+
+msgid "启动时运行"
+msgstr "Exécuter au démarrage"
+
+msgid "启用加密传输，速度可能略低"
+msgstr "Activer le transfert crypté ; la vitesse peut baisser légèrement"
+
+msgid "在文件管理器中显示"
+msgstr "Ouvrir le dossier"
+
+msgid "在线"
+msgstr "En ligne"
+
+msgid "复制"
+msgstr "Copier"
+
+msgid "复制诊断信息"
+msgstr "Copier les diagnostics"
+
+msgid "复制链接"
+msgstr "Copier le lien"
+
+msgid "外观与桌面行为。"
+msgstr "Apparence et comportement du bureau."
+
+msgid "外部文档在当前评审原型中不可用"
+msgstr "Les documents externes ne sont pas disponibles dans ce prototype de révision"
+
+msgid "外部链接在当前评审原型中不可用"
+msgstr "Les liens externes ne sont pas disponibles dans ce prototype de revue"
+
+msgid "多选"
+msgstr "Multiple"
+
+msgid "失败"
+msgstr "Échoué"
+
+msgid "完成"
+msgstr "Terminé"
+
+msgid "完成传输"
+msgstr "Terminer le transfert"
+
+msgid "局域网组播发现地址"
+msgstr "Adresse de découverte de multidiffusion LAN"
+
+msgid "已发送"
+msgstr "Envoyé"
+
+msgid "已取消"
+msgstr "Annulé"
+
+msgid "已完成"
+msgstr "Terminé"
+
+msgid "已就绪"
+msgstr "Prêt"
+
+msgid "已收藏"
+msgstr "Favoris"
+
+msgid "已连接"
+msgstr "Connecté"
+
+msgid "已送达"
+msgstr "Livré"
+
+msgid "已选择 {} 个项目"
+msgstr "{} éléments sélectionnés"
+
+msgid "已选择 {} 台设备"
+msgstr "{} appareils sélectionnés"
+
+msgid "已选择文件夹，正在刷新附近设备"
+msgstr "Dossier sélectionné ; actualiser les appareils à proximité"
+
+msgid "已选择文件，正在刷新附近设备"
+msgstr "Fichier sélectionné ; actualiser les appareils à proximité"
+
+msgid "已验证 · 快速保存已开启"
+msgstr "Vérifié · L'enregistrement rapide est activé"
+
+msgid "当前接收服务的连接信息"
+msgstr "Informations de connexion pour le service de réception actuel"
+
+msgid "当前没有可复制的接收链接"
+msgstr "Aucun lien de réception n'est disponible pour copier"
+
+msgid "待处理"
+msgstr "En attente"
+
+msgid "快速保存"
+msgstr "Sauvegarde rapide"
+
+msgid "快速保存说明"
+msgstr "Détails de l'enregistrement rapide"
+
+msgid "总大小"
+msgstr "Taille totale"
+
+msgid "所有文件均已通过 Checksum 校验"
+msgstr "Tous les fichiers ont réussi la vérification de la somme de contrôle"
+
+msgid "手动添加设备"
+msgstr "Ajouter un appareil manuellement"
+
+msgid "手动连接"
+msgstr "Connexion manuelle"
+
+msgid "打开"
+msgstr "Ouvrir"
+
+msgid "打开主界面"
+msgstr "Ouvrir la fenêtre principale"
+
+msgid "打开文件"
+msgstr "Ouvrir le fichier"
+
+msgid "打开文件夹"
+msgstr "Ouvrir le dossier"
+
+msgid "执行"
+msgstr "Courir"
+
+msgid "拒绝"
+msgstr "Refuser"
+
+msgid "指纹"
+msgstr "Empreinte digitale"
+
+msgid "按顺序检查设备发现和连接"
+msgstr "Vérifie la découverte et la connectivité dans l'ordre"
+
+msgid "接受所选"
+msgstr "Accepter la sélection"
+
+msgid "接收"
+msgstr "Recevoir"
+
+msgid "接收前要求发送方输入 PIN"
+msgstr "Demander à l'expéditeur de saisir un code PIN avant de recevoir"
+
+msgid "接收历史"
+msgstr "Recevoir l'historique"
+
+msgid "接收完成"
+msgstr "Recevoir complet"
+
+msgid "接收完成后自动关闭请求，不需要再次确认"
+msgstr "Fermez la demande automatiquement après réception, sans autre confirmation"
+
+msgid "接收文件前，发送方需要输入 4 位 PIN"
+msgstr "L'expéditeur doit saisir un code PIN à 4 chiffres avant de recevoir des fichiers"
+
+msgid "接收服务使用的 TCP 端口"
+msgstr "Port TCP utilisé par le service de réception"
+
+msgid "接收服务在线"
+msgstr "Recevez un service en ligne"
+
+msgid "接收服务已就绪，附近设备可以在同一网络中发现你。"
+msgstr "Le service de réception est prêt ; les appareils à proximité de ce réseau peuvent vous découvrir."
+
+msgid "接收服务暂时无法启动。"
+msgstr "Le service de réception n'a pas pu démarrer pour le moment."
+
+msgid "接收服务离线"
+msgstr "Recevoir le service hors ligne"
+
+msgid "接收状态"
+msgstr "Recevoir le statut"
+
+msgid "接收目录"
+msgstr "Recevoir le dossier"
+
+msgid "接收链接"
+msgstr "Recevoir le lien"
+
+msgid "接收链接已复制"
+msgstr "Recevoir le lien copié"
+
+msgid "搜索历史"
+msgstr "Historique de recherche"
+
+msgid "搜索消息、文件名或设备"
+msgstr "Rechercher des messages, des noms de fichiers ou des appareils"
+
+msgid "搜索设备超时"
+msgstr "Délai d'expiration de la recherche"
+
+msgid "支持项目"
+msgstr "Soutenez ce projet"
+
+msgid "收到文件"
+msgstr "Fichier reçu"
+
+msgid "收到新文件"
+msgstr "Nouveau fichier reçu"
+
+msgid "收到新消息"
+msgstr "Nouveau message reçu"
+
+msgid "收藏"
+msgstr "Favori"
+
+msgid "收藏设备"
+msgstr "Appareils favoris"
+
+msgid "收藏设备可使用快速保存与快捷发送"
+msgstr "Les appareils favoris permettent l'enregistrement rapide et l'envoi rapide"
+
+msgid "故障排除"
+msgstr "Dépannage"
+
+msgid "文件"
+msgstr "Fichiers"
+
+msgid "文件保存、接收确认与完整性校验。"
+msgstr "Stockage de fichiers, réception de confirmations et de contrôles d'intégrité."
+
+msgid "文件夹"
+msgstr "Dossier"
+
+msgid "文件已保存"
+msgstr "Fichiers enregistrés"
+
+msgid "文件已发送到「{}」。"
+msgstr "Fichier envoyé à \"{}\"."
+
+msgid "文件已成功送达"
+msgstr "Fichier livré avec succès"
+
+msgid "文本"
+msgstr "Texte"
+
+msgid "文本会作为 .txt 文件发送到所选设备"
+msgstr "Le texte est envoyé aux appareils sélectionnés sous forme de fichier .txt"
+
+msgid "文本内容"
+msgstr "Contenu du texte"
+
+msgid "文本已准备好，请选择附近设备发送"
+msgstr "Texte prêt ; sélectionnez un appareil à proximité à envoyer"
+
+msgid "文本消息"
+msgstr "SMS"
+
+msgid "无法保存剪贴板图片"
+msgstr "Impossible d'enregistrer l'image du presse-papiers"
+
+msgid "无法定位剪贴板图片缓存目录"
+msgstr "Impossible de localiser le répertoire du cache d'images du presse-papiers"
+
+msgid "无法将剪贴板图片转换为 PNG"
+msgstr "Impossible de convertir l'image du presse-papiers en PNG"
+
+msgid "无法访问剪贴板"
+msgstr "Impossible d'accéder au presse-papiers"
+
+msgid "无法重启"
+msgstr "Redémarrage indisponible"
+
+msgid "日志"
+msgstr "Journaux"
+
+msgid "日本語"
+msgstr "日本語"
+
+msgid "暂不可用"
+msgstr "Indisponible"
+
+msgid "最近一次响应：刚刚"
+msgstr "Dernière réponse : tout à l'heure"
+
+msgid "最近发现"
+msgstr "Découvert récemment"
+
+msgid "服务器已停止"
+msgstr "Serveur arrêté"
+
+msgid "服务器状态"
+msgstr "Statut du serveur"
+
+msgid "服务器运行中"
+msgstr "Serveur en cours d'exécution"
+
+msgid "服务暂停"
+msgstr "Service suspendu"
+
+msgid "服务条款"
+msgstr "Conditions d'utilisation"
+
+msgid "未知"
+msgstr "Inconnu"
+
+msgid "本地端口"
+msgstr "Port local"
+
+msgid "来自附近设备"
+msgstr "Depuis un appareil à proximité"
+
+msgid "查看"
+msgstr "Voir"
+
+msgid "查看当前会话的调试日志"
+msgstr "Afficher les journaux de débogage pour la session en cours"
+
+msgid "查看详情"
+msgstr "Afficher les détails"
+
+msgid "桌面"
+msgstr "Bureau"
+
+msgid "检查端口、网络与设备发现"
+msgstr "Vérifiez la découverte des ports, du réseau et des périphériques"
+
+msgid "正在传输"
+msgstr "Transfert"
+
+msgid "正在关闭后台服务"
+msgstr "Arrêt du service en arrière-plan"
+
+msgid "正在关闭浏览器接收页面"
+msgstr "Arrêt de la page de réception du navigateur"
+
+msgid "正在刷新设备连接…"
+msgstr "Actualisation de la connexion de l'appareil…"
+
+msgid "正在发送文件"
+msgstr "Envoi de fichiers"
+
+msgid "正在发送文本，等待接收确认"
+msgstr "Envoi de texte ; en attente de la confirmation du récepteur"
+
+msgid "正在取消传输"
+msgstr "Annulation du transfert"
+
+msgid "正在启动浏览器接收页面"
+msgstr "Démarrage de la page de réception du navigateur"
+
+msgid "正在拒绝传输"
+msgstr "Transfert refusé"
+
+msgid "正在接受传输"
+msgstr "Accepter le transfert"
+
+msgid "正在接收来自 {} 的文件"
+msgstr "Réception de fichiers de {}"
+
+msgid "正在查找附近设备"
+msgstr "Rechercher des appareils à proximité"
+
+msgid "正在添加设备"
+msgstr "Ajout d'un appareil"
+
+msgid "正在清空历史"
+msgstr "Effacer l'historique"
+
+msgid "正在连接"
+msgstr "De liaison"
+
+msgid "正在连接 localsendd..."
+msgstr "Connexion à localsendd..."
+
+msgid "正在连接后台服务…"
+msgstr "Connexion au service d'arrière-plan…"
+
+msgid "正在连接对端，等待接收确认"
+msgstr "Connexion au récepteur ; en attente de confirmation"
+
+msgid "正在重启服务器"
+msgstr "Redémarrage du serveur"
+
+msgid "正在重连"
+msgstr "Reconnexion"
+
+msgid "正常"
+msgstr "Normale"
+
+msgid "此设置不能通过文本输入修改"
+msgstr "Ce paramètre ne peut pas être modifié via la saisie de texte"
+
+msgid "此项由系统自动检测或当前平台不支持编辑"
+msgstr "Cette valeur est détectée par le système ou ne peut pas être modifiée sur cette plateforme"
+
+msgid "没有添加有效的文件或文件夹"
+msgstr "Aucun fichier ou dossier valide n'a été ajouté"
+
+msgid "浅色"
+msgstr "Clair"
+
+msgid "浏览器可在同一网络内访问此地址"
+msgstr "Les navigateurs sur le même réseau peuvent atteindre cette adresse"
+
+msgid "消息已复制"
+msgstr "Message copié"
+
+msgid "深色"
+msgstr "Sombre"
+
+msgid "添加"
+msgstr "Ajouter"
+
+msgid "清空历史"
+msgstr "Effacer l'historique"
+
+msgid "清除所选项"
+msgstr "Effacer la sélection"
+
+msgid "版本"
+msgstr "Version"
+
+msgid "版本、开源许可与项目信息"
+msgstr "Version, licence open source et informations sur le projet"
+
+msgid "版本、诊断与支持选项。"
+msgstr "Version, diagnostics et options de support."
+
+msgid "版权"
+msgstr "Droit d'auteur"
+
+msgid "状态"
+msgstr "Statut"
+
+msgid "用于匹配正确的平台图标"
+msgstr "Utilisé pour correspondre à l'icône correcte de la plate-forme"
+
+msgid "用于区分设备信息"
+msgstr "Utilisé pour distinguer les informations sur l'appareil"
+
+msgid "界面显示语言"
+msgstr "Langue de l'interface"
+
+msgid "登录系统后自动启动 LocalSend"
+msgstr "Lancer LocalSend automatiquement après la connexion"
+
+msgid "目标地址"
+msgstr "Adresse cible"
+
+msgid "确保对方也打开了 LocalSend，并已连接到同一个 Wi-Fi 网络。"
+msgstr "Assurez-vous que LocalSend est également ouvert sur l'autre appareil et qu'il se trouve sur le même réseau Wi-Fi."
+
+msgid "确定"
+msgstr "D'ACCORD"
+
+msgid "确认"
+msgstr "Confirmer"
+
+msgid "确认双方处于同一子网，并允许防火墙访问 LocalSend。"
+msgstr "Vérifiez que les deux appareils sont sur le même sous-réseau et autorisez l'accès du pare-feu à LocalSend."
+
+msgid "离线"
+msgstr "Hors ligne"
+
+msgid "移除收藏"
+msgstr "Supprimer le favori"
+
+msgid "端口"
+msgstr "Port :"
+
+msgid "端口必须是 1 到 65535 之间的数字"
+msgstr "Le port doit être un nombre compris entre 1 et 65535"
+
+msgid "等待中"
+msgstr "En attendant"
+
+msgid "简体中文"
+msgstr "简体中文"
+
+msgid "管理 LocalSend 的外观、接收、网络与支持选项。"
+msgstr "Gérez les options d'apparence, de réception, de réseau et de support de LocalSend."
+
+msgid "管理收藏设备"
+msgstr "Gérer les appareils favoris"
+
+msgid "系统"
+msgstr "Système"
+
+msgid "繁體中文（台灣）"
+msgstr "繁體中文（台灣）"
+
+msgid "繁體中文（香港）"
+msgstr "繁體中文（香港）"
+
+msgid "组播地址必须是有效 IPv4 地址"
+msgstr "L'adresse de multidiffusion doit être une adresse IPv4 valide"
+
+msgid "结束本实例的 localsendd"
+msgstr "Arrêtez le localsendd pour cette instance"
+
+msgid "绿色"
+msgstr "Vert"
+
+msgid "编辑"
+msgstr "Modifier"
+
+msgid "编辑设置"
+msgstr "Modifier le paramètre"
+
+msgid "网络"
+msgstr "Réseau"
+
+msgid "网络不可用"
+msgstr "Réseau indisponible"
+
+msgid "网络信息"
+msgstr "Informations sur le réseau"
+
+msgid "网络接口"
+msgstr "Interfaces réseau"
+
+msgid "网络筛选"
+msgstr "Filtre réseau"
+
+msgid "网络连接"
+msgstr "Connexion réseau"
+
+msgid "自动完成"
+msgstr "Fin automatique"
+
+msgid "自动接收来自可信设备的文件"
+msgstr "Recevez automatiquement des fichiers provenant d'appareils de confiance"
+
+msgid "若设备指纹发生变化，LocalSend 会重新要求确认。你可以随时在收藏设备中取消信任。"
+msgstr "Si l'empreinte digitale d'un appareil change, LocalSend demande à nouveau une confirmation. Vous pouvez à tout moment ne plus lui faire confiance sur vos appareils favoris."
+
+msgid "蓝色"
+msgstr "Bleu"
+
+msgid "记住本次窗口尺寸与位置"
+msgstr "N'oubliez pas la taille et la position de cette fenêtre"
+
+msgid "设备信息"
+msgstr "Informations sur l'appareil"
+
+msgid "设备名称"
+msgstr "Nom du périphérique :"
+
+msgid "设备型号"
+msgstr "Modèle d'appareil"
+
+msgid "设备已离线，请刷新设备列表"
+msgstr "L'appareil s'est déconnecté ; actualiser la liste des appareils"
+
+msgid "设备类型"
+msgstr "Type d'appareil"
+
+msgid "设备详情"
+msgstr "Détails de l'appareil"
+
+msgid "设备身份、服务与发现协议。"
+msgstr "Protocole d’identité, de service et de découverte de l’appareil."
+
+msgid "设置"
+msgstr "Paramètres"
+
+msgid "设置 PIN"
+msgstr "Définir le code PIN"
+
+msgid "设置值"
+msgstr "Valeur de réglage"
+
+msgid "设置已提交"
+msgstr "Paramètres soumis"
+
+msgid "访问者需要通过 PIN 验证后才能上传文件。"
+msgstr "Les visiteurs doivent réussir la vérification du code PIN avant de pouvoir télécharger des fichiers."
+
+msgid "诊断"
+msgstr "Diagnostic"
+
+msgid "诊断信息已复制"
+msgstr "Diagnostic copié"
+
+msgid "语言"
+msgstr "Langue"
+
+msgid "请先选择文件、文件夹、文本或剪贴板，再选择设备发送"
+msgstr "Sélectionnez un fichier, un dossier, du texte ou le contenu du presse-papiers avant de choisir un appareil"
+
+msgid "请先选择文件或文件夹"
+msgstr "Sélectionnez d'abord un fichier ou un dossier"
+
+msgid "请先选择至少一个设备"
+msgstr "Sélectionnez au moins un appareil"
+
+msgid "请在系统设置中检查防火墙规则"
+msgstr "Vérifiez les règles de pare-feu dans les paramètres système"
+
+msgid "请求发送 {} 个项目"
+msgstr "souhaite envoyer {} éléments"
+
+msgid "请输入设备 IP 地址或主机名"
+msgstr "Entrez l'adresse IP ou le nom d'hôte d'un appareil"
+
+msgid "请选择目标设备"
+msgstr "Sélectionnez un appareil cible"
+
+msgid "跟随系统"
+msgstr "Système"
+
+msgid "跟随系统或固定使用浅色、深色"
+msgstr "Suivez le système ou fixez-le sur clair ou sombre"
+
+msgid "路径可在文件管理器中打开"
+msgstr "Le chemin peut être ouvert dans le gestionnaire de fichiers"
+
+msgid "输入同一网络中设备的 IP 地址"
+msgstr "Entrez l'adresse IP d'un appareil sur le même réseau"
+
+msgid "返回"
+msgstr "Dos"
+
+msgid "还没有接收记录"
+msgstr "Aucun article reçu pour l'instant"
+
+msgid "还没有收藏设备"
+msgstr "Aucun appareil favori pour l'instant"
+
+msgid "连接"
+msgstr "Connecter"
+
+msgid "退出"
+msgstr "Quitter"
+
+msgid "退出时保存窗口位置"
+msgstr "Sauvegarder l'emplacement de la fenêtre à la fermeture"
+
+msgid "选择"
+msgstr "Sélection"
+
+msgid "选择要发送的内容，或从剪贴板快速创建一条文本消息。"
+msgstr "Choisissez quoi envoyer ou créez rapidement un message texte à partir du presse-papiers."
+
+msgid "通用"
+msgstr "Général"
+
+msgid "通过链接接收"
+msgstr "Recevoir via un lien"
+
+msgid "重启"
+msgstr "Redémarrer"
+
+msgid "重新启动接收"
+msgstr "Redémarrer la réception"
+
+msgid "重新扫描"
+msgstr "Nouvelle analyse"
+
+msgid "附近的设备"
+msgstr "Appareils à proximité"
+
+msgid "附近设备中显示的 alias"
+msgstr "Alias ​​affiché sur les appareils à proximité"
+
+msgid "隐私政策"
+msgstr "Politique de confidentialité"
+
+msgid "颜色"
+msgstr "Couleur"
+
+msgid "验证"
+msgstr "Vérifier"

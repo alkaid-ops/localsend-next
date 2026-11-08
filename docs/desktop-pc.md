@@ -145,3 +145,20 @@ macOS 包内的 tray 可执行文件名为 `LocalSendTray`，GUI 为 `LocalSend`
 - 官方 core 目录保持上游 `v1.18.2` 字节一致，升级流程见 `VENDORED_CORE.md`。
 - Windows/Linux 通知、named pipe 和打包代码可进行静态检查；没有对应真机结果时，
   对应平台仍标记为 `UNVERIFIED`。
+
+## 多语言
+
+支持的语言与官方 LocalSend 一致，共 57 个语言目录（含英语与三个中文变体），
+简中作为词条源语言（msgid）。设置页"语言"打开列表弹窗，选择后立即生效；
+"跟随系统"读取系统 locale。
+
+- Slint 界面文案：`apps/localsend-gui-slint/ui` 里的 `@tr("...")`，
+  打包为 `translations/<locale>/LC_MESSAGES/localsend-gui-slint.po`。
+- Rust 侧文案（状态栏消息、历史/传输行、托盘菜单与通知）：
+  `crates/localsend-i18n`，由同一批词条生成 `lookup_generated.rs`，
+  调用 `localsend_i18n::translate(language, message)`。
+- 生成流程见 README 的 Languages 一节；`locale-machine-cache.json` 入库，
+  保证离线可复现，人工修正翻译后重跑生成器即可。
+
+已知取舍：除官方 LocalSend 已有词条外，其余文案为机器翻译初稿，
+精确措辞可按需在缓存中逐条修订。

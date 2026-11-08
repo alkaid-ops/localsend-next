@@ -1,0 +1,892 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: ja\n"
+
+msgid "Checksum 校验"
+msgstr "チェックサム検証"
+
+msgid "HTTPS"
+msgstr "HTTPS"
+
+msgid "IP 地址"
+msgstr "IPアドレス"
+
+msgid "IP 地址或主机名"
+msgstr "IPアドレスまたはホスト名"
+
+msgid "LocalSend Next {} · 桌面版"
+msgstr "LocalSend 次の {} · デスクトップ"
+
+msgid "LocalSend 青绿色品牌色"
+msgstr "LocalSend ティールのブランドカラー"
+
+msgid "Multicast"
+msgstr "マルチキャスト"
+
+msgid "PIN 不能为空"
+msgstr "PIN を空にすることはできません"
+
+msgid "PIN 值"
+msgstr "PIN 値"
+
+msgid "PIN 密码"
+msgstr "ピン"
+
+msgid "PIN 需要 4 位数字"
+msgstr "PIN は 4 桁である必要があります"
+
+msgid "PIN 验证"
+msgstr "PIN認証"
+
+msgid "TCP {} 正在监听"
+msgstr "TCP {} リスニング"
+
+msgid "Web Share 已验证"
+msgstr "Web 共有が確認されました"
+
+msgid "Web Share 链接不可用"
+msgstr "Web 共有リンクが利用できません"
+
+msgid "{} 个文件已保存到「下载 / LocalSend」。"
+msgstr "{} 個のファイルが「ダウンロード / LocalSend」に保存されました。"
+
+msgid "「收藏设备」只会自动接受来自已验证收藏设备的请求。文件保存到当前接收目录，并继续显示在历史记录中。"
+msgstr "「お気に入りデバイス」は、検証されたお気に入りからのリクエストのみを自動的に受け入れます。ファイルは現在の受信フォルダーに保存され、履歴に残ります。"
+
+msgid "与后台服务的连接已断开，正在重连…"
+msgstr "バックグラウンド サービスへの接続が失われました。再接続中…"
+
+msgid "主题"
+msgstr "明るさ"
+
+msgid "仅允许指定网段访问"
+msgstr "指定したサブネットからのアクセスのみを許可します"
+
+msgid "传输中"
+msgstr "転送中"
+
+msgid "传输后校验文件完整性"
+msgstr "転送後にファイルの整合性を確認する"
+
+msgid "传输失败：{}"
+msgstr "転送に失敗しました: {}"
+
+msgid "传输完成"
+msgstr "転送完了"
+
+msgid "传输用时"
+msgstr "間隔"
+
+msgid "保存"
+msgstr "保存"
+
+msgid "保留最近 100 条接收与发送记录"
+msgstr "過去 100 件の送受信記録を保持する"
+
+msgid "保留状态变化和页面切换反馈"
+msgstr "ステータス変更とページ遷移のフィードバックを保持する"
+
+msgid "停止"
+msgstr "停止"
+
+msgid "允许接收方校验传输内容"
+msgstr "受信者が転送されたコンテンツを検証できるようにする"
+
+msgid "全部开启"
+msgstr "すべてオンにする"
+
+msgid "全部接受"
+msgstr "すべてを受け入れる"
+
+msgid "全部接口"
+msgstr "すべてのインターフェース"
+
+msgid "关于 LocalSend Next"
+msgstr "LocalSend について次へ"
+
+msgid "关闭"
+msgstr "閉じる"
+
+msgid "关闭 ({})"
+msgstr "閉じる ({})"
+
+msgid "关闭后台服务"
+msgstr "バックグラウンドサービスを停止する"
+
+msgid "关闭时最小化到托盘"
+msgstr "閉じたときにトレイに最小化"
+
+msgid "关闭窗口后保持接收服务运行"
+msgstr "ウィンドウを閉じた後も受信サービスを実行し続ける"
+
+msgid "其他"
+msgstr "その他"
+
+msgid "再次发送"
+msgstr "再送信"
+
+msgid "刷新设备"
+msgstr "デバイスをリフレッシュする"
+
+msgid "剪贴板"
+msgstr "ペースト"
+
+msgid "剪贴板中没有可发送的文件、文件夹、图片或文本"
+msgstr "クリップボードには、送信するファイル、フォルダー、画像、テキストがありません"
+
+msgid "剪贴板文本已准备好，请选择附近设备发送"
+msgstr "クリップボードのテキストが準備できました。送信する近くのデバイスを選択してください"
+
+msgid "动画效果"
+msgstr "アニメーション"
+
+msgid "协议"
+msgstr "プロトコル"
+
+msgid "协议 {}"
+msgstr "プロトコル v{}"
+
+msgid "单位：秒；0 表示持续发现"
+msgstr "単位: 秒。 0 は発見し続けることを意味します"
+
+msgid "单选"
+msgstr "シングル"
+
+msgid "历史记录"
+msgstr "歴史"
+
+msgid "历史记录只保存在当前设备，不会同步到云服务。"
+msgstr "履歴はこのデバイスにのみ保存され、クラウドに同期されることはありません。"
+
+msgid "发现"
+msgstr "発見"
+
+msgid "发现和传输使用的网络"
+msgstr "検出と転送に使用されるネットワーク"
+
+msgid "发现超时必须是正整数"
+msgstr "検出タイムアウトは正の整数である必要があります"
+
+msgid "发送"
+msgstr "送信"
+
+msgid "发送内容"
+msgstr "送信する内容"
+
+msgid "发送到 "
+msgstr "送信先"
+
+msgid "发送到所选设备"
+msgstr "選択したデバイスに送信する"
+
+msgid "发送完成"
+msgstr "送信完了"
+
+msgid "发送文件时创建校验和"
+msgstr "ファイル送信時にチェックサムを作成する"
+
+msgid "发送文本"
+msgstr "テキストを送信する"
+
+msgid "发送文本内容"
+msgstr "メッセージ"
+
+msgid "发送给你了一条消息："
+msgstr "がメッセージを送信しました:"
+
+msgid "发送请求已提交，请等待对端响应"
+msgstr "送信リクエストが送信されました。受信者を待っています"
+
+msgid "取消"
+msgstr "キャンセル"
+
+msgid "取消发送"
+msgstr "送信をキャンセルする"
+
+msgid "取消接收"
+msgstr "受信をキャンセルする"
+
+msgid "取消收藏"
+msgstr "気に入らない"
+
+msgid "另一台设备未出现？"
+msgstr "別のデバイスが表示されませんか?"
+
+msgid "可信设备可以跳过每次接收确认"
+msgstr "信頼できるデバイスは転送ごとの確認をスキップできます"
+
+msgid "可被发现"
+msgstr "発見可能"
+
+msgid "同一网络下的设备会自动出现。"
+msgstr "同じネットワーク上のデバイスは自動的に表示されます。"
+
+msgid "名称"
+msgstr "名前"
+
+msgid "启动"
+msgstr "始める"
+
+msgid "启动时运行"
+msgstr "起動時に実行"
+
+msgid "启用加密传输，速度可能略低"
+msgstr "暗号化された転送を有効にします。速度が若干低下する可能性があります"
+
+msgid "在文件管理器中显示"
+msgstr "フォルダーに表示"
+
+msgid "在线"
+msgstr "オンライン"
+
+msgid "复制"
+msgstr "コピー"
+
+msgid "复制诊断信息"
+msgstr "コピー診断"
+
+msgid "复制链接"
+msgstr "リンクをコピー"
+
+msgid "外观与桌面行为。"
+msgstr "外観とデスクトップの動作。"
+
+msgid "外部文档在当前评审原型中不可用"
+msgstr "このレビュー プロトタイプでは外部ドキュメントは利用できません"
+
+msgid "外部链接在当前评审原型中不可用"
+msgstr "このレビュー プロトタイプでは外部リンクは利用できません"
+
+msgid "多选"
+msgstr "複数"
+
+msgid "失败"
+msgstr "失敗した"
+
+msgid "完成"
+msgstr "完了"
+
+msgid "完成传输"
+msgstr "転送を終了する"
+
+msgid "局域网组播发现地址"
+msgstr "LANマルチキャスト検出アドレス"
+
+msgid "已发送"
+msgstr "送信済み"
+
+msgid "已取消"
+msgstr "キャンセル"
+
+msgid "已完成"
+msgstr "完了しました"
+
+msgid "已就绪"
+msgstr "準備ができて"
+
+msgid "已收藏"
+msgstr "お気に入りに追加しました"
+
+msgid "已连接"
+msgstr "接続済み"
+
+msgid "已送达"
+msgstr "納品済み"
+
+msgid "已选择 {} 个项目"
+msgstr "{} 個のアイテムを選択しました"
+
+msgid "已选择 {} 台设备"
+msgstr "選択された {} 台のデバイス"
+
+msgid "已选择文件夹，正在刷新附近设备"
+msgstr "フォルダーが選択されました。近くのデバイスを更新する"
+
+msgid "已选择文件，正在刷新附近设备"
+msgstr "ファイルが選択されました。近くのデバイスを更新する"
+
+msgid "已验证 · 快速保存已开启"
+msgstr "確認済み · クイックセーブがオンになっています"
+
+msgid "当前接收服务的连接信息"
+msgstr "現在の受信サービスの接続情報"
+
+msgid "当前没有可复制的接收链接"
+msgstr "コピーできる受信リンクがありません"
+
+msgid "待处理"
+msgstr "保留中"
+
+msgid "快速保存"
+msgstr "クイックセーブ"
+
+msgid "快速保存说明"
+msgstr "クイックセーブの詳細"
+
+msgid "总大小"
+msgstr "合計サイズ"
+
+msgid "所有文件均已通过 Checksum 校验"
+msgstr "すべてのファイルはチェックサム検証に合格しました"
+
+msgid "手动添加设备"
+msgstr "デバイスを手動で追加する"
+
+msgid "手动连接"
+msgstr "手動接続"
+
+msgid "打开"
+msgstr "開く"
+
+msgid "打开主界面"
+msgstr "メインウィンドウを開く"
+
+msgid "打开文件"
+msgstr "ファイルを開く"
+
+msgid "打开文件夹"
+msgstr "フォルダーを開く"
+
+msgid "执行"
+msgstr "走る"
+
+msgid "拒绝"
+msgstr "拒否"
+
+msgid "指纹"
+msgstr "指紋"
+
+msgid "按顺序检查设备发现和连接"
+msgstr "検出と接続を順番にチェックします"
+
+msgid "接受所选"
+msgstr "選択したものを受け入れる"
+
+msgid "接收"
+msgstr "受信"
+
+msgid "接收前要求发送方输入 PIN"
+msgstr "受信前に送信者にPINの入力を要求する"
+
+msgid "接收历史"
+msgstr "受信履歴"
+
+msgid "接收完成"
+msgstr "受信完了"
+
+msgid "接收完成后自动关闭请求，不需要再次确认"
+msgstr "リクエストを受信した後、確認を行わずに自動的にクローズします。"
+
+msgid "接收文件前，发送方需要输入 4 位 PIN"
+msgstr "送信者はファイルを受信する前に 4 桁の PIN を入力する必要があります"
+
+msgid "接收服务使用的 TCP 端口"
+msgstr "受信サービスが使用する TCP ポート"
+
+msgid "接收服务在线"
+msgstr "オンラインでサービスを受ける"
+
+msgid "接收服务已就绪，附近设备可以在同一网络中发现你。"
+msgstr "受信サービスの準備が完了しました。このネットワーク上の近くのデバイスがあなたを検出できます。"
+
+msgid "接收服务暂时无法启动。"
+msgstr "現在、受信サービスを開始できませんでした。"
+
+msgid "接收服务离线"
+msgstr "オフラインでサービスを受ける"
+
+msgid "接收状态"
+msgstr "受信ステータス"
+
+msgid "接收目录"
+msgstr "受信フォルダー"
+
+msgid "接收链接"
+msgstr "リンクを受信する"
+
+msgid "接收链接已复制"
+msgstr "受信リンクがコピーされました"
+
+msgid "搜索历史"
+msgstr "検索履歴"
+
+msgid "搜索消息、文件名或设备"
+msgstr "メッセージ、ファイル名、またはデバイスを検索する"
+
+msgid "搜索设备超时"
+msgstr "探索がタイムアウトしました"
+
+msgid "支持项目"
+msgstr "このプロジェクトを支援する"
+
+msgid "收到文件"
+msgstr "ファイルを受信しました"
+
+msgid "收到新文件"
+msgstr "新しいファイルを受信しました"
+
+msgid "收到新消息"
+msgstr "新しいメッセージを受信しました"
+
+msgid "收藏"
+msgstr "お気に入り"
+
+msgid "收藏设备"
+msgstr "お気に入りのデバイス"
+
+msgid "收藏设备可使用快速保存与快捷发送"
+msgstr "お気に入りのデバイスでクイック保存とクイック送信が可能"
+
+msgid "故障排除"
+msgstr "トラブルシューティング"
+
+msgid "文件"
+msgstr "ファイル"
+
+msgid "文件保存、接收确认与完整性校验。"
+msgstr "ファイルの保存、受信確認、整合性チェック。"
+
+msgid "文件夹"
+msgstr "フォルダー"
+
+msgid "文件已保存"
+msgstr "保存されたファイル"
+
+msgid "文件已发送到「{}」。"
+msgstr "ファイルは「{}」に送信されました。"
+
+msgid "文件已成功送达"
+msgstr "ファイルは正常に配信されました"
+
+msgid "文本"
+msgstr "テキスト"
+
+msgid "文本会作为 .txt 文件发送到所选设备"
+msgstr "テキストは、選択したデバイスに .txt ファイルとして送信されます。"
+
+msgid "文本内容"
+msgstr "テキストの内容"
+
+msgid "文本已准备好，请选择附近设备发送"
+msgstr "テキストの準備ができました。送信する近くのデバイスを選択してください"
+
+msgid "文本消息"
+msgstr "テキストメッセージ"
+
+msgid "无法保存剪贴板图片"
+msgstr "クリップボード画像を保存できません"
+
+msgid "无法定位剪贴板图片缓存目录"
+msgstr "クリップボードの画像キャッシュ ディレクトリが見つかりません"
+
+msgid "无法将剪贴板图片转换为 PNG"
+msgstr "クリップボード画像をPNGに変換できません"
+
+msgid "无法访问剪贴板"
+msgstr "クリップボードにアクセスできません"
+
+msgid "无法重启"
+msgstr "再起動不可"
+
+msgid "日志"
+msgstr "ログ"
+
+msgid "日本語"
+msgstr "日本語"
+
+msgid "暂不可用"
+msgstr "利用不可"
+
+msgid "最近一次响应：刚刚"
+msgstr "最後の返信: たった今"
+
+msgid "最近发现"
+msgstr "最近発見された"
+
+msgid "服务器已停止"
+msgstr "サーバーが停止しました"
+
+msgid "服务器状态"
+msgstr "サーバーのステータス"
+
+msgid "服务器运行中"
+msgstr "サーバー稼働中"
+
+msgid "服务暂停"
+msgstr "サービスが一時停止されました"
+
+msgid "服务条款"
+msgstr "利用規約"
+
+msgid "未知"
+msgstr "未知"
+
+msgid "本地端口"
+msgstr "ローカルポート"
+
+msgid "来自附近设备"
+msgstr "近くのデバイスから"
+
+msgid "查看"
+msgstr "ビュー"
+
+msgid "查看当前会话的调试日志"
+msgstr "現在のセッションのデバッグ ログを表示する"
+
+msgid "查看详情"
+msgstr "詳細を見る"
+
+msgid "桌面"
+msgstr "デスクトップ"
+
+msgid "检查端口、网络与设备发现"
+msgstr "ポート、ネットワーク、デバイスの検出を確認する"
+
+msgid "正在传输"
+msgstr "転送中"
+
+msgid "正在关闭后台服务"
+msgstr "バックグラウンドサービスを停止しています"
+
+msgid "正在关闭浏览器接收页面"
+msgstr "ブラウザ受信ページの停止"
+
+msgid "正在刷新设备连接…"
+msgstr "デバイスの接続を更新しています…"
+
+msgid "正在发送文件"
+msgstr "ファイルを送信中"
+
+msgid "正在发送文本，等待接收确认"
+msgstr "テキストの送信。受信者の確認を待っています"
+
+msgid "正在取消传输"
+msgstr "転送をキャンセルする"
+
+msgid "正在启动浏览器接收页面"
+msgstr "ブラウザ受信ページの起動"
+
+msgid "正在拒绝传输"
+msgstr "転送の拒否"
+
+msgid "正在接受传输"
+msgstr "転送の受け入れ"
+
+msgid "正在接收来自 {} 的文件"
+msgstr "{} からファイルを受信して​​います"
+
+msgid "正在查找附近设备"
+msgstr "近くのデバイスを探しています"
+
+msgid "正在添加设备"
+msgstr "デバイスの追加"
+
+msgid "正在清空历史"
+msgstr "履歴の消去"
+
+msgid "正在连接"
+msgstr "接続中"
+
+msgid "正在连接 localsendd..."
+msgstr "ローカル送信に接続しています..."
+
+msgid "正在连接后台服务…"
+msgstr "バックグラウンドサービスに接続中…"
+
+msgid "正在连接对端，等待接收确认"
+msgstr "受信機に接続します。確認を待っています"
+
+msgid "正在重启服务器"
+msgstr "サーバーを再起動しています"
+
+msgid "正在重连"
+msgstr "再接続中"
+
+msgid "正常"
+msgstr "普通"
+
+msgid "此设置不能通过文本输入修改"
+msgstr "この設定はテキスト入力では変更できません"
+
+msgid "此项由系统自动检测或当前平台不支持编辑"
+msgstr "この値はシステムによって検出されたか、このプラットフォームでは編集できません"
+
+msgid "没有添加有效的文件或文件夹"
+msgstr "有効なファイルまたはフォルダーが追加されませんでした"
+
+msgid "浅色"
+msgstr "ライト"
+
+msgid "浏览器可在同一网络内访问此地址"
+msgstr "同じネットワーク上のブラウザはこのアドレスにアクセスできます"
+
+msgid "消息已复制"
+msgstr "メッセージがコピーされました"
+
+msgid "深色"
+msgstr "ダーク"
+
+msgid "添加"
+msgstr "追加"
+
+msgid "清空历史"
+msgstr "履歴をクリアする"
+
+msgid "清除所选项"
+msgstr "選択をクリア"
+
+msgid "版本"
+msgstr "バージョン"
+
+msgid "版本、开源许可与项目信息"
+msgstr "バージョン、オープンソースライセンス、プロジェクト情報"
+
+msgid "版本、诊断与支持选项。"
+msgstr "バージョン、診断、サポート オプション。"
+
+msgid "版权"
+msgstr "著作権"
+
+msgid "状态"
+msgstr "状態"
+
+msgid "用于匹配正确的平台图标"
+msgstr "正しいプラットフォームのアイコンを照合するために使用されます"
+
+msgid "用于区分设备信息"
+msgstr "デバイス情報を区別するために使用されます"
+
+msgid "界面显示语言"
+msgstr "インターフェース言語"
+
+msgid "登录系统后自动启动 LocalSend"
+msgstr "ログイン後に LocalSend を自動的に起動する"
+
+msgid "目标地址"
+msgstr "ターゲットアドレス"
+
+msgid "确保对方也打开了 LocalSend，并已连接到同一个 Wi-Fi 网络。"
+msgstr "他のデバイスでも LocalSend が開いており、同じ Wi-Fi ネットワーク上にあることを確認してください。"
+
+msgid "确定"
+msgstr "わかりました"
+
+msgid "确认"
+msgstr "確認"
+
+msgid "确认双方处于同一子网，并允许防火墙访问 LocalSend。"
+msgstr "両方のデバイスが同じサブネット上にあることを確認し、ファイアウォールから LocalSend へのアクセスを許可します。"
+
+msgid "离线"
+msgstr "オフライン"
+
+msgid "移除收藏"
+msgstr "お気に入りを削除"
+
+msgid "端口"
+msgstr "ポート:"
+
+msgid "端口必须是 1 到 65535 之间的数字"
+msgstr "ポートは 1 ～ 65535 の数値である必要があります"
+
+msgid "等待中"
+msgstr "待っている"
+
+msgid "简体中文"
+msgstr "简体中文"
+
+msgid "管理 LocalSend 的外观、接收、网络与支持选项。"
+msgstr "LocalSend の外観、受信、ネットワーク、およびサポートのオプションを管理します。"
+
+msgid "管理收藏设备"
+msgstr "お気に入りのデバイスを管理する"
+
+msgid "系统"
+msgstr "システム"
+
+msgid "繁體中文（台灣）"
+msgstr "繁體中文（台灣）"
+
+msgid "繁體中文（香港）"
+msgstr "繁體中文（香港）"
+
+msgid "组播地址必须是有效 IPv4 地址"
+msgstr "マルチキャスト アドレスは有効な IPv4 アドレスである必要があります"
+
+msgid "结束本实例的 localsendd"
+msgstr "このインスタンスの localsendd を停止します"
+
+msgid "绿色"
+msgstr "緑"
+
+msgid "编辑"
+msgstr "編集"
+
+msgid "编辑设置"
+msgstr "設定を編集する"
+
+msgid "网络"
+msgstr "ネットワーク"
+
+msgid "网络不可用"
+msgstr "ネットワークが利用できません"
+
+msgid "网络信息"
+msgstr "ネットワーク情報"
+
+msgid "网络接口"
+msgstr "ネットワークインターフェース"
+
+msgid "网络筛选"
+msgstr "ネットワークフィルター"
+
+msgid "网络连接"
+msgstr "ネットワーク接続"
+
+msgid "自动完成"
+msgstr "自動終了"
+
+msgid "自动接收来自可信设备的文件"
+msgstr "信頼できるデバイスからファイルを自動的に受信する"
+
+msgid "若设备指纹发生变化，LocalSend 会重新要求确认。你可以随时在收藏设备中取消信任。"
+msgstr "デバイスのフィンガープリントが変更されると、LocalSend は再度確認を求めます。お気に入りのデバイスからいつでも信頼を解除できます。"
+
+msgid "蓝色"
+msgstr "青"
+
+msgid "记住本次窗口尺寸与位置"
+msgstr "このウィンドウのサイズと位置を覚えておいてください"
+
+msgid "设备信息"
+msgstr "デバイス情報"
+
+msgid "设备名称"
+msgstr "別名:"
+
+msgid "设备型号"
+msgstr "デバイスモデル"
+
+msgid "设备已离线，请刷新设备列表"
+msgstr "デバイスがオフラインになりました。デバイスリストを更新する"
+
+msgid "设备类型"
+msgstr "デバイスタイプ"
+
+msgid "设备详情"
+msgstr "デバイスの詳細"
+
+msgid "设备身份、服务与发现协议。"
+msgstr "デバイス ID、サービス、および検出プロトコル。"
+
+msgid "设置"
+msgstr "設定"
+
+msgid "设置 PIN"
+msgstr "暗証番号を設定する"
+
+msgid "设置值"
+msgstr "設定値"
+
+msgid "设置已提交"
+msgstr "送信された設定"
+
+msgid "访问者需要通过 PIN 验证后才能上传文件。"
+msgstr "訪問者はファイルをアップロードする前に PIN 認証に合格する必要があります。"
+
+msgid "诊断"
+msgstr "診断"
+
+msgid "诊断信息已复制"
+msgstr "診断がコピーされました"
+
+msgid "语言"
+msgstr "言語"
+
+msgid "请先选择文件、文件夹、文本或剪贴板，再选择设备发送"
+msgstr "デバイスを選択する前に、ファイル、フォルダー、テキスト、またはクリップボードのコンテンツを選択してください"
+
+msgid "请先选择文件或文件夹"
+msgstr "最初にファイルまたはフォルダーを選択してください"
+
+msgid "请先选择至少一个设备"
+msgstr "少なくとも 1 つのデバイスを選択してください"
+
+msgid "请在系统设置中检查防火墙规则"
+msgstr "システム設定でファイアウォールルールを確認してください"
+
+msgid "请求发送 {} 个项目"
+msgstr "{} 個のアイテムを送信したい"
+
+msgid "请输入设备 IP 地址或主机名"
+msgstr "デバイスのIPアドレスまたはホスト名を入力してください"
+
+msgid "请选择目标设备"
+msgstr "ターゲットデバイスを選択してください"
+
+msgid "跟随系统"
+msgstr "システム"
+
+msgid "跟随系统或固定使用浅色、深色"
+msgstr "システムに従うか、明るいか暗いかを修正します"
+
+msgid "路径可在文件管理器中打开"
+msgstr "パスはファイルマネージャーで開くことができます"
+
+msgid "输入同一网络中设备的 IP 地址"
+msgstr "同じネットワーク上のデバイスの IP アドレスを入力します"
+
+msgid "返回"
+msgstr "戻る"
+
+msgid "还没有接收记录"
+msgstr "まだ受け取ったアイテムはありません"
+
+msgid "还没有收藏设备"
+msgstr "お気に入りのデバイスはまだありません"
+
+msgid "连接"
+msgstr "接続する"
+
+msgid "退出"
+msgstr "やめる"
+
+msgid "退出时保存窗口位置"
+msgstr "終了時: ウィンドウ配置を記憶"
+
+msgid "选择"
+msgstr "選択"
+
+msgid "选择要发送的内容，或从剪贴板快速创建一条文本消息。"
+msgstr "送信する内容を選択するか、クリップボードからテキスト メッセージをすばやく作成します。"
+
+msgid "通用"
+msgstr "一般"
+
+msgid "通过链接接收"
+msgstr "リンク経由で受信"
+
+msgid "重启"
+msgstr "再起動"
+
+msgid "重新启动接收"
+msgstr "受信を再開する"
+
+msgid "重新扫描"
+msgstr "再スキャン"
+
+msgid "附近的设备"
+msgstr "近くのデバイス"
+
+msgid "附近设备中显示的 alias"
+msgstr "近くのデバイスにエイリアスが表示される"
+
+msgid "隐私政策"
+msgstr "プライバシーポリシー"
+
+msgid "颜色"
+msgstr "カラー"
+
+msgid "验证"
+msgstr "検証"

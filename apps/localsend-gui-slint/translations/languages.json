@@ -1,0 +1,287 @@
+[
+  {
+    "locale": "ar",
+    "name": "العربية",
+    "mt": "ar"
+  },
+  {
+    "locale": "az",
+    "name": "Azərbaycanca",
+    "mt": "az"
+  },
+  {
+    "locale": "be",
+    "name": "Беларуская",
+    "mt": "be"
+  },
+  {
+    "locale": "bg",
+    "name": "Български",
+    "mt": "bg"
+  },
+  {
+    "locale": "bn",
+    "name": "বাংলা",
+    "mt": "bn"
+  },
+  {
+    "locale": "ca",
+    "name": "Català",
+    "mt": "ca"
+  },
+  {
+    "locale": "cs",
+    "name": "Čeština",
+    "mt": "cs"
+  },
+  {
+    "locale": "da",
+    "name": "Dansk",
+    "mt": "da"
+  },
+  {
+    "locale": "de",
+    "name": "Deutsch",
+    "mt": "de"
+  },
+  {
+    "locale": "el",
+    "name": "Ελληνικά",
+    "mt": "el"
+  },
+  {
+    "locale": "en-IN",
+    "name": "English (India)",
+    "mt": "en"
+  },
+  {
+    "locale": "es-ES",
+    "name": "Español",
+    "mt": "es"
+  },
+  {
+    "locale": "et",
+    "name": "Eesti",
+    "mt": "et"
+  },
+  {
+    "locale": "eu",
+    "name": "Euskara",
+    "mt": "eu"
+  },
+  {
+    "locale": "fa",
+    "name": "فارسی",
+    "mt": "fa"
+  },
+  {
+    "locale": "fi",
+    "name": "Suomi",
+    "mt": "fi"
+  },
+  {
+    "locale": "fil-PH",
+    "name": "Filipino",
+    "mt": "tl"
+  },
+  {
+    "locale": "fr",
+    "name": "Français",
+    "mt": "fr"
+  },
+  {
+    "locale": "ga",
+    "name": "Gaeilge",
+    "mt": "ga"
+  },
+  {
+    "locale": "gl",
+    "name": "Galego",
+    "mt": "gl"
+  },
+  {
+    "locale": "gu",
+    "name": "ગુજરાતી",
+    "mt": "gu"
+  },
+  {
+    "locale": "he",
+    "name": "עברית",
+    "mt": "he"
+  },
+  {
+    "locale": "hi",
+    "name": "हिन्दी",
+    "mt": "hi"
+  },
+  {
+    "locale": "hu",
+    "name": "Magyar",
+    "mt": "hu"
+  },
+  {
+    "locale": "hy",
+    "name": "Հայերեն",
+    "mt": "hy"
+  },
+  {
+    "locale": "id",
+    "name": "Bahasa Indonesia",
+    "mt": "id"
+  },
+  {
+    "locale": "it",
+    "name": "Italiano",
+    "mt": "it"
+  },
+  {
+    "locale": "ja",
+    "name": "日本語",
+    "mt": "ja"
+  },
+  {
+    "locale": "km",
+    "name": "ខ្មែរ",
+    "mt": "km"
+  },
+  {
+    "locale": "ko",
+    "name": "한국어",
+    "mt": "ko"
+  },
+  {
+    "locale": "ky",
+    "name": "Кыргызча",
+    "mt": "ky"
+  },
+  {
+    "locale": "lo",
+    "name": "ລາວ",
+    "mt": "lo"
+  },
+  {
+    "locale": "ml",
+    "name": "മലയാളം",
+    "mt": "ml"
+  },
+  {
+    "locale": "mn",
+    "name": "Монгол",
+    "mt": "mn"
+  },
+  {
+    "locale": "ms",
+    "name": "Bahasa Melayu",
+    "mt": "ms"
+  },
+  {
+    "locale": "ne",
+    "name": "नेपाली",
+    "mt": "ne"
+  },
+  {
+    "locale": "nl",
+    "name": "Nederlands",
+    "mt": "nl"
+  },
+  {
+    "locale": "pl",
+    "name": "Polski",
+    "mt": "pl"
+  },
+  {
+    "locale": "pt-BR",
+    "name": "Português (Brasil)",
+    "mt": "pt"
+  },
+  {
+    "locale": "pt-PT",
+    "name": "Português (Portugal)",
+    "mt": "pt"
+  },
+  {
+    "locale": "ro",
+    "name": "Română",
+    "mt": "ro"
+  },
+  {
+    "locale": "ru",
+    "name": "Русский",
+    "mt": "ru"
+  },
+  {
+    "locale": "si",
+    "name": "සිංහල",
+    "mt": "si"
+  },
+  {
+    "locale": "sk",
+    "name": "Slovenčina",
+    "mt": "sk"
+  },
+  {
+    "locale": "sl",
+    "name": "Slovenščina",
+    "mt": "sl"
+  },
+  {
+    "locale": "sr",
+    "name": "Српски",
+    "mt": "sr"
+  },
+  {
+    "locale": "sr-Cyrl",
+    "name": "Српски (ћирилица)",
+    "mt": "sr"
+  },
+  {
+    "locale": "sv",
+    "name": "Svenska",
+    "mt": "sv"
+  },
+  {
+    "locale": "ta",
+    "name": "தமிழ்",
+    "mt": "ta"
+  },
+  {
+    "locale": "th",
+    "name": "ไทย",
+    "mt": "th"
+  },
+  {
+    "locale": "tr",
+    "name": "Türkçe",
+    "mt": "tr"
+  },
+  {
+    "locale": "uk",
+    "name": "Українська",
+    "mt": "uk"
+  },
+  {
+    "locale": "ur",
+    "name": "اردو",
+    "mt": "ur"
+  },
+  {
+    "locale": "uz",
+    "name": "Oʻzbekcha",
+    "mt": "uz"
+  },
+  {
+    "locale": "vi",
+    "name": "Tiếng Việt",
+    "mt": "vi"
+  },
+  {
+    "locale": "zh-HK",
+    "name": "繁體中文（香港）",
+    "mt": "zh-TW"
+  },
+  {
+    "locale": "zh-TW",
+    "name": "繁體中文（台灣）",
+    "mt": "zh-TW"
+  }
+]

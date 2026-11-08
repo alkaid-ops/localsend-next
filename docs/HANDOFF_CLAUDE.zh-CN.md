@@ -239,3 +239,26 @@ open -n -a /Applications/LocalSend.app
 - 所有弹窗 panel crop 无结构性差异（当前达标），残余差异可归因于字体栅格化。
 - 真实 App 人工检查关键页面与弹窗。
 - 最终重新打包、签名、安装并记录命令输出与产物路径。
+
+## 10. 多语言（2026-11-08）
+
+目标：对齐官方 LocalSend 的全部语言，界面、托盘、通知一致。
+
+- 语言清单与官方 `app/assets/i18n` 相同，共 57 个 locale（镜像在
+  `apps/localsend-gui-slint/translations/upstream/`），简中为 msgid 源语言。
+- 译文来自三处，优先级从高到低：
+  1. `locale-en.json` / `locale-en-runtime.json`（人工英文基线）；
+  2. 官方对应词条（按 zh-CN 归一化匹配）；
+  3. `locale-machine-cache.json`（机器翻译，已入库，可逐条人工修正）。
+- Rust 侧长落在 `crates/localsend-i18n`：`translate()` 查整串，
+  `t()` / `t!` 宏先翻译模板再填占位符，保证语序正确的插值消息。
+- 界面数据契约不再使用译文：`direction` 取 `send`/`receive`，
+  `status` 取 `waiting`/`transferring`/`finished`/`failed`/`cancelled`，
+  由 `UiText.transfer-status` / `transfer-direction` 在渲染时翻译。
+- 语言名（日本語、简体中文等）永远按自身文字显示，不参与机翻。
+- 生成流程：`--collect` → `translate-slint-locales.mjs` → 生成器；
+  生成器同时产出 59 份 `.po` 与 `lookup_generated.rs`。
+- 回归测试：`tests/language.rs` 会遍历全部 locale 验证可切换且不回退中文，
+  并校验每份目录没有空 msgstr；`localsend-i18n` 覆盖占位符与 locale 解析。
+
+已知取舍：官方没有的定制文案为机器翻译初稿，措辞可在 cache 中修订后重跑生成器。

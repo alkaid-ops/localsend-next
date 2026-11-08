@@ -59,57 +59,44 @@ impl HeadlessGuiGuard {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-enum TrayLanguage {
-    English,
-    SimplifiedChinese,
-}
+struct TrayLanguage(&'static str);
 
 impl TrayLanguage {
+    /// Resolve the stored setting (""/"system" follows the OS locale) to a bundled tag.
     fn from_settings(language: &str) -> Self {
-        if language.starts_with("zh") {
-            Self::SimplifiedChinese
-        } else if language.starts_with("en") {
-            Self::English
-        } else if sys_locale::get_locale().is_some_and(|locale| locale.starts_with("zh")) {
-            Self::SimplifiedChinese
+        if language.is_empty() || language == "system" {
+            Self::from_locale(sys_locale::get_locale().as_deref().unwrap_or("en-US"))
         } else {
-            Self::English
+            Self::from_locale(language)
         }
     }
 
-    fn open_app(self) -> &'static str {
-        match self {
-            Self::English => "Open main window",
-            Self::SimplifiedChinese => "打开主界面",
-        }
+    fn from_locale(locale: &str) -> Self {
+        Self(localsend_i18n::resolve_tag(locale))
     }
 
-    fn restart_app(self) -> &'static str {
-        match self {
-            Self::English => "Restart",
-            Self::SimplifiedChinese => "重启",
-        }
+    fn text(self, message: &str) -> String {
+        localsend_i18n::translate(self.0, message)
     }
 
-    fn quit_app(self) -> &'static str {
-        match self {
-            Self::English => "Quit",
-            Self::SimplifiedChinese => "退出",
-        }
+    fn open_app(self) -> String {
+        self.text("打开主界面")
     }
 
-    fn restart_unavailable(self) -> &'static str {
-        match self {
-            Self::English => "Restart unavailable",
-            Self::SimplifiedChinese => "无法重启",
-        }
+    fn restart_app(self) -> String {
+        self.text("重启")
     }
 
-    fn externally_managed_daemon(self) -> &'static str {
-        match self {
-            Self::English => "LocalSend is using an externally managed daemon.",
-            Self::SimplifiedChinese => "LocalSend 正在使用外部管理的后台服务。",
-        }
+    fn quit_app(self) -> String {
+        self.text("退出")
+    }
+
+    fn restart_unavailable(self) -> String {
+        self.text("无法重启")
+    }
+
+    fn externally_managed_daemon(self) -> String {
+        self.text("LocalSend 正在使用外部管理的后台服务。")
     }
 }
 
@@ -163,7 +150,13 @@ pub fn run_tray() -> anyhow::Result<()> {
         return Ok(());
     }
 
-    let language = TrayLanguage::from_settings("system");
+    // The tray menu language follows the daemon's stored setting, so a user who
+    // picked e.g. German in the GUI also gets a German tray menu.
+    let configured_language = client
+        .snapshot()
+        .map(|snapshot| snapshot.settings.language.clone())
+        .unwrap_or_default();
+    let language = TrayLanguage::from_settings(&configured_language);
     notifications::init(gui_action_tx);
     let mut _menu_keepalive: Option<TrayMenu> = None;
     let mut _tray_keepalive: Option<tray_icon::TrayIcon> = None;
@@ -274,25 +267,23 @@ pub fn run_tray() -> anyhow::Result<()> {
                         characters = text.chars().count(),
                         "received text notification event"
                     );
-                    let (title, body) = if language == TrayLanguage::English {
-                        ("New message received", format!("{sender_alias}: {text}"))
+                    let separator = if language.0.starts_with("zh") {
+                        "："
                     } else {
-                        ("收到新消息", format!("{sender_alias}：{text}"))
+                        ": "
                     };
-                    let action_label = if language == TrayLanguage::English {
-                        "Open"
-                    } else {
-                        "打开"
-                    };
+                    let title = language.text("收到新消息");
+                    let body = format!("{sender_alias}{separator}{text}");
+                    let action_label = language.text("打开");
                     notifications::show(
                         GuiAction::OpenMessage {
                             sender: sender_alias,
                             device: sender_device_model.unwrap_or_default(),
                             text,
                         },
-                        title,
+                        &title,
                         &body,
-                        action_label,
+                        &action_label,
                     );
                 }
                 ServiceEvent::HistoryAppended { entry } if should_notify_received_file(&entry) => {
@@ -302,37 +293,19 @@ pub fn run_tray() -> anyhow::Result<()> {
                         .and_then(|path| path.parent().map(std::path::Path::to_path_buf))
                         .or_else(download_directory);
                     if let Some(folder) = folder {
-                        let (title, body) = if language == TrayLanguage::English {
-                            (
-                                "File received",
-                                format!(
-                                    "{} · {} · {}",
-                                    entry.peer_alias,
-                                    entry.file_name,
-                                    format_bytes(entry.size)
-                                ),
-                            )
-                        } else {
-                            (
-                                "收到文件",
-                                format!(
-                                    "{} · {} · {}",
-                                    entry.peer_alias,
-                                    entry.file_name,
-                                    format_bytes(entry.size)
-                                ),
-                            )
-                        };
-                        let action_label = if language == TrayLanguage::English {
-                            "Open"
-                        } else {
-                            "打开"
-                        };
+                        let title = language.text("收到文件");
+                        let body = format!(
+                            "{} · {} · {}",
+                            entry.peer_alias,
+                            entry.file_name,
+                            format_bytes(entry.size)
+                        );
+                        let action_label = language.text("打开");
                         notifications::show(
                             GuiAction::OpenReceiveFolder { path: folder },
-                            title,
+                            &title,
                             &body,
-                            action_label,
+                            &action_label,
                         );
                     }
                 }
@@ -349,8 +322,8 @@ pub fn run_tray() -> anyhow::Result<()> {
                 RESTART_APP => {
                     if !client.owns_lifecycle() {
                         show_message(
-                            language.restart_unavailable(),
-                            language.externally_managed_daemon(),
+                            &language.restart_unavailable(),
+                            &language.externally_managed_daemon(),
                         );
                         continue;
                     }
@@ -894,17 +867,19 @@ mod tests {
 
     #[test]
     fn tray_language_honors_explicit_settings() {
-        assert_eq!(
-            TrayLanguage::from_settings("zh-CN"),
-            TrayLanguage::SimplifiedChinese
-        );
-        assert_eq!(TrayLanguage::from_settings("en-US"), TrayLanguage::English);
+        assert_eq!(TrayLanguage::from_settings("zh-CN").0, "zh-CN");
+        assert_eq!(TrayLanguage::from_settings("en-US").0, "en-US");
+        assert_eq!(TrayLanguage::from_settings("de-DE").0, "de");
         assert_eq!(
             TrayLanguage::from_settings("zh-CN").open_app(),
             "打开主界面"
         );
         assert_eq!(TrayLanguage::from_settings("zh-CN").restart_app(), "重启");
         assert_eq!(TrayLanguage::from_settings("zh-CN").quit_app(), "退出");
+        assert_eq!(
+            TrayLanguage::from_settings("de").open_app(),
+            localsend_i18n::translate("de", "打开主界面")
+        );
     }
 
     #[test]

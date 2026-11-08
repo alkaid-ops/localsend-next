@@ -314,6 +314,7 @@ pub fn build_app(
     };
     let ui = AppWindow::new()?;
     ui.set_app_version(env!("CARGO_PKG_VERSION").into());
+    ui.set_language_items(ModelRc::new(VecModel::from(language_items())));
     if let Some(tab) = options.initial_tab.as_deref() {
         ui.set_selected_tab(tab.into());
     }
@@ -448,7 +449,7 @@ pub fn build_app(
                 .and_then(|mut clipboard| clipboard.set_text(diagnostics))
             {
                 Ok(()) => update_message(&weak, "诊断信息已复制"),
-                Err(error) => update_message(&weak, &format!("复制诊断信息失败：{error}")),
+                Err(error) => update_message(&weak, &t!("复制诊断信息失败：{}", error)),
             }
         }
     });
@@ -646,11 +647,7 @@ pub fn build_app(
             ui.set_device_details_favorite(device.5);
             let log = format!(
                 "{} · {} · {} ({})",
-                if ui_is_english() {
-                    "Recent discovery"
-                } else {
-                    "最近发现"
-                },
+                l10n("最近发现"),
                 device.6,
                 device.4,
                 if device.2.is_empty() {
@@ -728,14 +725,7 @@ pub fn build_app(
                     update_snapshot(&weak, &snapshot, &selection);
                 }
                 let count = selection.devices.borrow().len();
-                update_message(
-                    &weak,
-                    &if ui_is_english() {
-                        format!("{count} devices selected; press Send")
-                    } else {
-                        format!("已选择 {count} 台设备；点击发送")
-                    },
-                );
+                update_message(&weak, &t!("已选择 {} 台设备；点击发送", count));
                 return;
             }
             if let Some(snapshot) = latest_snapshot.borrow().clone() {
@@ -814,7 +804,7 @@ pub fn build_app(
                     ui.set_message_received_open(false);
                     update_message(&weak, "消息已复制");
                 }
-                Err(error) => update_message(&weak, &format!("复制消息失败：{error}")),
+                Err(error) => update_message(&weak, &t!("复制消息失败：{}", error)),
             }
         }
     });
@@ -827,7 +817,7 @@ pub fn build_app(
             };
             let path = PathBuf::from(ui.get_completion_file_path().to_string());
             if let Err(error) = open_path(&path) {
-                update_message(&weak, &format!("无法打开文件：{error}"));
+                update_message(&weak, &t!("无法打开文件：{}", error));
             }
         }
     });
@@ -840,7 +830,7 @@ pub fn build_app(
             };
             let path = PathBuf::from(ui.get_completion_file_path().to_string());
             if let Err(error) = reveal_path(&path) {
-                update_message(&weak, &format!("无法定位文件：{error}"));
+                update_message(&weak, &t!("无法定位文件：{}", error));
             }
         }
     });
@@ -912,8 +902,9 @@ pub fn build_app(
                     };
                 }
                 "language" => {
+                    // The language row opens a picker; this cycle stays for keyboard/API callers.
                     settings.language = match settings.language.as_str() {
-                        "system" => "zh-CN".to_string(),
+                        "" | "system" => "zh-CN".to_string(),
                         "zh-CN" => "en".to_string(),
                         _ => "system".to_string(),
                     };
@@ -939,6 +930,30 @@ pub fn build_app(
             let revision = snapshot.settings.revision;
             let mut settings = snapshot.settings;
             settings.theme = theme.to_string();
+            dispatch_settings(&weak, &commands, revision, settings);
+        }
+    });
+
+    ui.on_set_language({
+        let weak = weak.clone();
+        let commands = commands.clone();
+        let latest_snapshot = latest_snapshot.clone();
+        move |language| {
+            // Apply the bundled catalog immediately so the UI switches before the
+            // daemon confirms the new setting.
+            apply_interface_language(language.as_str());
+            if let Some(ui) = weak.upgrade() {
+                ui.set_settings_language_code(language.clone());
+                ui.set_settings_language_name(language_label(language.as_str()).into());
+                ui.set_language_items(ModelRc::new(VecModel::from(language_items())));
+            }
+            let Some(snapshot) = latest_snapshot.borrow().as_ref().cloned() else {
+                update_message(&weak, "等待 localsendd 连接");
+                return;
+            };
+            let revision = snapshot.settings.revision;
+            let mut settings = snapshot.settings;
+            settings.language = language.to_string();
             dispatch_settings(&weak, &commands, revision, settings);
         }
     });
@@ -1149,7 +1164,7 @@ pub fn build_app(
             }
             match arboard::Clipboard::new().and_then(|mut clipboard| clipboard.set_text(url)) {
                 Ok(()) => update_message(&weak, "接收链接已复制"),
-                Err(error) => update_message(&weak, &format!("无法复制链接：{error}")),
+                Err(error) => update_message(&weak, &t!("无法复制链接：{}", error)),
             }
         }
     });
@@ -1166,7 +1181,7 @@ pub fn build_app(
                 return;
             };
             if let Err(error) = open_url(&url) {
-                update_message(&weak, &format!("无法打开浏览器：{error}"));
+                update_message(&weak, &t!("无法打开浏览器：{}", error));
             }
         }
     });
@@ -1175,7 +1190,7 @@ pub fn build_app(
         let weak = weak.clone();
         move |path| {
             if let Err(error) = open_path(&PathBuf::from(path.to_string())) {
-                update_message(&weak, &format!("无法打开文件：{error}"));
+                update_message(&weak, &t!("无法打开文件：{}", error));
             }
         }
     });
@@ -1495,7 +1510,7 @@ pub fn build_app(
                         show_notice,
                     } => {
                         if let Some(ui) = weak.upgrade() {
-                            ui.set_server_status(message.clone().into());
+                            ui.set_server_status(localize_message(&message).into());
                         }
                         if !connected && show_notice {
                             update_message(&weak, &message);
@@ -1506,16 +1521,8 @@ pub fn build_app(
                         sender_device_model,
                         text,
                     } => {
-                        let title = if ui_is_english() {
-                            "New message received"
-                        } else {
-                            "收到新消息"
-                        };
-                        let body = if ui_is_english() {
-                            format!("{sender_alias}: {text}")
-                        } else {
-                            format!("{sender_alias}：{text}")
-                        };
+                        let title = l10n("收到新消息");
+                        let body = t!("{}：{}", sender_alias, text);
                         let _device = sender_device_model.unwrap_or_default();
                         if let Some(ui) = weak.upgrade() {
                             ui.set_last_received_title(title.into());
@@ -1606,25 +1613,11 @@ fn stage_clipboard(
             *selection.selected_target.borrow_mut() = None;
             update_selection(weak, selection);
             dispatch_command(commands, UiCommand::RefreshDiscovery);
-            update_message(
-                weak,
-                if ui_is_english() {
-                    "Clipboard text ready; select a nearby device to send"
-                } else {
-                    "剪贴板文本已准备好，请选择附近设备发送"
-                },
-            );
+            update_message(weak, &l10n("剪贴板文本已准备好，请选择附近设备发送"));
         }
         Ok(ClipboardPayload::Files(paths)) => {
             if paths.is_empty() {
-                update_message(
-                    weak,
-                    if ui_is_english() {
-                        "No file, folder, image, or text in clipboard"
-                    } else {
-                        "剪贴板中没有可发送的文件、文件夹、图片或文本"
-                    },
-                );
+                update_message(weak, &l10n("剪贴板中没有可发送的文件、文件夹、图片或文本"));
                 return;
             }
             activate_send_page(weak);
@@ -1637,17 +1630,10 @@ fn stage_clipboard(
             dispatch_command(commands, UiCommand::RefreshDiscovery);
             update_message(
                 weak,
-                &if ui_is_english() {
-                    format!(
-                        "{} clipboard item(s) ready; refreshing nearby devices",
-                        paths.len()
-                    )
-                } else {
-                    format!(
-                        "剪贴板中有 {} 项内容，已准备发送并刷新附近设备",
-                        paths.len()
-                    )
-                },
+                &t!(
+                    "剪贴板中有 {} 项内容，已准备发送并刷新附近设备",
+                    paths.len()
+                ),
             );
         }
         Err(error) => {
@@ -1667,14 +1653,7 @@ fn stage_dropped_paths(
         .filter(|path| path.exists())
         .collect::<Vec<_>>();
     if paths.is_empty() {
-        update_message(
-            weak,
-            if ui_is_english() {
-                "No valid files or folders were dropped"
-            } else {
-                "没有添加有效的文件或文件夹"
-            },
-        );
+        update_message(weak, &l10n("没有添加有效的文件或文件夹"));
         return;
     }
     activate_send_page(weak);
@@ -1686,14 +1665,7 @@ fn stage_dropped_paths(
     dispatch_command(commands, UiCommand::RefreshDiscovery);
     update_message(
         weak,
-        &if ui_is_english() {
-            format!(
-                "{} dropped item(s) added; refreshing nearby devices",
-                paths.len()
-            )
-        } else {
-            format!("已添加 {} 项拖入内容，正在刷新附近设备", paths.len())
-        },
+        &t!("已添加 {} 项拖入内容，正在刷新附近设备", paths.len()),
     );
 }
 
@@ -1815,11 +1787,7 @@ fn update_selection(weak: &Weak<AppWindow>, selection: &SelectionState) {
                 is_text: false,
                 is_image: !is_directory && is_image_path(path),
                 size: if is_directory {
-                    if ui_is_english() {
-                        "Folder".to_string().into()
-                    } else {
-                        "文件夹".to_string().into()
-                    }
+                    l10n("文件夹").into()
                 } else {
                     view_model::format_bytes(metadata.as_ref().map_or(0, |metadata| metadata.len()))
                         .into()
@@ -1833,11 +1801,7 @@ fn update_selection(weak: &Weak<AppWindow>, selection: &SelectionState) {
         file_total = text.len() as u64;
         files.push(SelectedFileItem {
             path: "".into(),
-            name: if ui_is_english() {
-                "Text message".into()
-            } else {
-                "文本消息".into()
-            },
+            name: l10n("文本消息").into(),
             is_directory: false,
             is_text: true,
             is_image: false,
@@ -1863,10 +1827,8 @@ fn update_selection(weak: &Weak<AppWindow>, selection: &SelectionState) {
                 })
                 .collect::<Vec<_>>()
                 .join(" · ")
-        } else if ui_is_english() {
-            "Text message".to_string()
         } else {
-            "文本消息".to_string()
+            l10n("文本消息")
         }
         .into(),
     );
@@ -1960,88 +1922,15 @@ fn update_message(weak: &Weak<AppWindow>, message: &str) {
     }
 }
 
+/// Translate UI text for the active interface language.
+fn l10n(message: &str) -> String {
+    localize_message(message)
+}
+
 fn localize_message(message: &str) -> String {
-    if !ui_is_english() {
-        return message.to_string();
-    }
-    for (prefix, replacement) in [
-        ("复制消息失败：", "Copy failed: "),
-        ("无法打开文件：", "Cannot open file: "),
-        ("无法定位文件：", "Cannot reveal file: "),
-        ("无法复制链接：", "Cannot copy link: "),
-        ("无法打开浏览器：", "Cannot open browser: "),
-        ("已创建传输 ", "Transfer created "),
-        ("传输失败：", "Transfer failed: "),
-        ("文本已发送给 ", "Text sent to "),
-        ("文件已发送给 ", "File sent to "),
-    ] {
-        if let Some(rest) = message.strip_prefix(prefix) {
-            return format!("{replacement}{rest}");
-        }
-    }
-    match message {
-        "已选择文件，正在刷新附近设备" => "File selected; refreshing nearby devices",
-        "已选择文件夹，正在刷新附近设备" => {
-            "Folder selected; refreshing nearby devices"
-        }
-        "文本已准备好，请选择附近设备发送" => {
-            "Text ready; select a nearby device to send"
-        }
-        "无法访问剪贴板" => "Cannot access the clipboard",
-        "剪贴板中没有文本" => "No text in clipboard",
-        "剪贴板文本已准备好，请选择附近设备发送" => {
-            "Clipboard text ready; select a nearby device to send"
-        }
-        "请输入设备 IP 地址或主机名" => "Enter a device IP address or hostname",
-        "正在添加设备" => "Adding device",
-        "正在发送文本，等待接收确认" => {
-            "Sending text; waiting for receiver confirmation"
-        }
-        "请先选择文件、文件夹、文本或剪贴板，再选择设备发送" => {
-            "Select a file, folder, text, or clipboard content before choosing a device"
-        }
-        "请先选择至少一个设备" => "Select at least one device",
-        "正在清空历史" => "Clearing history",
-        "消息已复制" => "Message copied",
-        "等待 localsendd 连接" => "Waiting for localsendd connection",
-        "正在接受传输" => "Accepting transfer",
-        "正在拒绝传输" => "Declining transfer",
-        "正在取消传输" => "Cancelling transfer",
-        "正在启动浏览器接收页面" => "Starting browser receive page",
-        "正在关闭浏览器接收页面" => "Stopping browser receive page",
-        "当前没有可复制的接收链接" => "No receive link is available to copy",
-        "接收链接已复制" => "Receive link copied",
-        "Web Share 链接不可用" => "Web Share link is unavailable",
-        "正在重启服务器" => "Restarting server",
-        "此项由系统自动检测或当前平台不支持编辑" => {
-            "This value is detected by the system or cannot be edited on this platform"
-        }
-        "端口必须是 1 到 65535 之间的数字" => "Port must be a number from 1 to 65535",
-        "PIN 不能为空" => "PIN cannot be empty",
-        "发现超时必须是正整数" => "Discovery timeout must be a positive integer",
-        "组播地址必须是有效 IPv4 地址" => {
-            "Multicast address must be a valid IPv4 address"
-        }
-        "此设置不能通过文本输入修改" => {
-            "This setting cannot be changed through text input"
-        }
-        "请先选择文件或文件夹" => "Select a file or folder first",
-        "发送请求已提交，请等待对端响应" => {
-            "Send request submitted; waiting for the receiver"
-        }
-        "正在连接对端，等待接收确认" => {
-            "Connecting to the receiver; waiting for confirmation"
-        }
-        "daemon worker 已关闭" => "Daemon worker is closed",
-        "设置已提交" => "Settings submitted",
-        "收到新消息" => "New message received",
-        "收到新文件" => "New file received",
-        "服务器运行中" => "Server running",
-        "服务器已停止" => "Server stopped",
-        "请在系统设置中检查防火墙规则" => "Check firewall rules in system settings",
-        _ => return message.to_string(),
-    }
-    .to_string()
+    // Status messages are written in Chinese (the msgid language) and looked up
+    // in the bundled catalog for the selected interface language.
+    localsend_i18n::translate(crate::runtime_strings::current_language(), message)
 }
 
 fn update_snapshot(weak: &Weak<AppWindow>, snapshot: &ServiceSnapshot, selection: &SelectionState) {
@@ -2081,7 +1970,8 @@ fn update_snapshot(weak: &Weak<AppWindow>, snapshot: &ServiceSnapshot, selection
     ui.set_settings_theme(theme_label(&snapshot.settings.theme).into());
     ui.set_settings_theme_code(snapshot.settings.theme.clone().into());
     ui.set_settings_color(color_label(&snapshot.settings.color).into());
-    ui.set_settings_language(language_label(&snapshot.settings.language).into());
+    ui.set_settings_language_code(snapshot.settings.language.clone().into());
+    ui.set_settings_language_name(language_label(&snapshot.settings.language).into());
     ui.set_save_window_position(snapshot.settings.save_window_position);
     ui.set_settings_minimize_to_tray(snapshot.settings.minimize_to_tray);
     ui.set_launch_on_login(snapshot.settings.launch_on_login);
@@ -2179,13 +2069,7 @@ fn update_snapshot(weak: &Weak<AppWindow>, snapshot: &ServiceSnapshot, selection
                         .map(|favorite| favorite.alias.clone())
                 })
         })
-        .unwrap_or_else(|| {
-            if ui_is_english() {
-                "Select a target device".to_string()
-            } else {
-                "请选择目标设备".to_string()
-            }
-        });
+        .unwrap_or_else(|| l10n("请选择目标设备"));
     ui.set_selected_target_label(target_alias.into());
     ui.set_selected_device_count(selection.devices.borrow().len().min(i32::MAX as usize) as i32);
     if let Some(request) = snapshot.incoming_requests.first() {
@@ -2197,14 +2081,7 @@ fn update_snapshot(weak: &Weak<AppWindow>, snapshot: &ServiceSnapshot, selection
         }
         ui.set_incoming_request_count(1);
         ui.set_incoming_request_id(request.request_id.clone().into());
-        ui.set_incoming_request_title(
-            if ui_is_english() {
-                format!("{} wants to send files", request.sender.alias)
-            } else {
-                format!("{} 想发送文件", request.sender.alias)
-            }
-            .into(),
-        );
+        ui.set_incoming_request_title(t!("{} 想发送文件", request.sender.alias).into());
         let rows = view_model::request_files(request, &selection.request_files.borrow());
         let selected = rows
             .iter()
@@ -2222,14 +2099,7 @@ fn update_snapshot(weak: &Weak<AppWindow>, snapshot: &ServiceSnapshot, selection
                 })
                 .collect::<Vec<_>>(),
         )));
-        ui.set_incoming_request_body(
-            if ui_is_english() {
-                format!("{} files", request.files.len())
-            } else {
-                format!("{} 个文件", request.files.len())
-            }
-            .into(),
-        );
+        ui.set_incoming_request_body(t!("{} 个文件", request.files.len()).into());
     } else {
         ui.set_incoming_request_count(0);
         ui.set_incoming_request_id("".into());
@@ -2310,18 +2180,7 @@ fn update_snapshot(weak: &Weak<AppWindow>, snapshot: &ServiceSnapshot, selection
         if previous.as_deref() != Some(entry.id.as_str()) {
             let is_new = previous.is_some();
             let (title, body) = if let Some(message) = entry.message.as_deref() {
-                (
-                    if ui_is_english() {
-                        "New message received".to_string()
-                    } else {
-                        "收到新消息".to_string()
-                    },
-                    if ui_is_english() {
-                        format!("{}: {}", entry.peer_alias, message)
-                    } else {
-                        format!("{}：{}", entry.peer_alias, message)
-                    },
-                )
+                (l10n("收到新消息"), t!("{}：{}", entry.peer_alias, message))
             } else {
                 (
                     if ui_is_english() {
@@ -2354,43 +2213,26 @@ fn update_snapshot(weak: &Weak<AppWindow>, snapshot: &ServiceSnapshot, selection
             *selection.last_history_id.borrow_mut() = Some(entry.id.clone());
         }
     }
-    let english = ui_is_english();
-    let running = if snapshot.server_running {
-        if english {
-            "Server running"
-        } else {
-            "服务器运行中"
-        }
-    } else if english {
-        "Server stopped"
+    let running = localize_message(if snapshot.server_running {
+        "服务器运行中"
     } else {
         "服务器已停止"
-    };
-    let status = if english {
-        format!(
-            "{running} · port {} · transfers {} · history {}{}",
-            snapshot.server_port.unwrap_or(snapshot.settings.port),
-            snapshot.active_transfers.len(),
-            snapshot.history.len(),
-            snapshot
-                .last_error
-                .as_deref()
-                .map(|error| format!(" · {error}"))
-                .unwrap_or_default()
-        )
-    } else {
-        format!(
-            "{running} · 端口 {} · 传输 {} · 历史 {}{}",
-            snapshot.server_port.unwrap_or(snapshot.settings.port),
-            snapshot.active_transfers.len(),
-            snapshot.history.len(),
-            snapshot
-                .last_error
-                .as_deref()
-                .map(|error| format!(" · {error}"))
-                .unwrap_or_default()
-        )
-    };
+    });
+    let status = t!(
+        "{} · {} {} · {} {} · {} {}{}",
+        running,
+        localize_message("端口"),
+        snapshot.server_port.unwrap_or(snapshot.settings.port),
+        localize_message("传输中"),
+        snapshot.active_transfers.len(),
+        localize_message("历史记录"),
+        snapshot.history.len(),
+        snapshot
+            .last_error
+            .as_deref()
+            .map(|error| format!(" · {error}"))
+            .unwrap_or_default()
+    );
     ui.set_server_status(status.into());
     ui.set_devices(build_devices(snapshot, selection));
     ui.set_favorites(build_favorites(snapshot));
@@ -2399,12 +2241,156 @@ fn update_snapshot(weak: &Weak<AppWindow>, snapshot: &ServiceSnapshot, selection
     update_selection(weak, selection);
 }
 
-fn apply_interface_language(language: &str) {
-    let locale = if language.starts_with("en") {
-        "en-US"
+/// Every locale bundled from `translations/` (see scripts/update-slint-translations.mjs).
+/// `en-IN` reuses the English catalog; the rest match their Slint directory name.
+const BUNDLED_LANGUAGES: &[(&str, &str)] = &[
+    ("ar", "العربية"),
+    ("az", "Azərbaycanca"),
+    ("be", "Беларуская"),
+    ("bg", "Български"),
+    ("bn", "বাংলা"),
+    ("ca", "Català"),
+    ("cs", "Čeština"),
+    ("da", "Dansk"),
+    ("de", "Deutsch"),
+    ("el", "Ελληνικά"),
+    ("en-US", "English"),
+    ("en-IN", "English (India)"),
+    ("es-ES", "Español"),
+    ("et", "Eesti"),
+    ("eu", "Euskara"),
+    ("fa", "فارسی"),
+    ("fi", "Suomi"),
+    ("fil-PH", "Filipino"),
+    ("fr", "Français"),
+    ("ga", "Gaeilge"),
+    ("gl", "Galego"),
+    ("gu", "ગુજરાતી"),
+    ("he", "עברית"),
+    ("hi", "हिन्दी"),
+    ("hu", "Magyar"),
+    ("hy", "Հայերեն"),
+    ("id", "Bahasa Indonesia"),
+    ("it", "Italiano"),
+    ("ja", "日本語"),
+    ("km", "ខ្មែរ"),
+    ("ko", "한국어"),
+    ("ky", "Кыргызча"),
+    ("lo", "ລາວ"),
+    ("ml", "മലയാളം"),
+    ("mn", "Монгол"),
+    ("ms", "Bahasa Melayu"),
+    ("ne", "नेपाली"),
+    ("nl", "Nederlands"),
+    ("pl", "Polski"),
+    ("pt-BR", "Português (Brasil)"),
+    ("pt-PT", "Português (Portugal)"),
+    ("ro", "Română"),
+    ("ru", "Русский"),
+    ("si", "සිංහල"),
+    ("sk", "Slovenčina"),
+    ("sl", "Slovenščina"),
+    ("sr", "Српски"),
+    ("sr-Cyrl", "Српски (ћирилица)"),
+    ("sv", "Svenska"),
+    ("ta", "தமிழ்"),
+    ("th", "ไทย"),
+    ("tr", "Türkçe"),
+    ("uk", "Українська"),
+    ("ur", "اردو"),
+    ("uz", "Oʻzbekcha"),
+    ("vi", "Tiếng Việt"),
+    ("zh-CN", "简体中文"),
+    ("zh-HK", "繁體中文（香港）"),
+    ("zh-TW", "繁體中文（台灣）"),
+];
+
+/// Resolve the stored language setting to a bundled locale tag.
+///
+/// `""`/`"system"` follow the OS locale; anything else matches a bundled tag
+/// (exactly, then by its language part), and finally falls back to English.
+fn resolve_interface_language(language: &str) -> &'static str {
+    if language.is_empty() || language == "system" {
+        return locale_tag_from_system();
+    }
+    let wanted = language.replace('_', "-");
+    if let Some((tag, _)) = BUNDLED_LANGUAGES.iter().find(|(tag, _)| *tag == wanted) {
+        return tag;
+    }
+    let base = wanted
+        .split(['-', '@'])
+        .next()
+        .unwrap_or_default()
+        .to_lowercase();
+    BUNDLED_LANGUAGES
+        .iter()
+        .find(|(tag, _)| tag.split('-').next() == Some(base.as_str()))
+        .map(|(tag, _)| *tag)
+        .unwrap_or("en-US")
+}
+
+fn locale_tag_from_system() -> &'static str {
+    static SYSTEM_LOCALE: OnceLock<&'static str> = OnceLock::new();
+    SYSTEM_LOCALE.get_or_init(|| {
+        sys_locale::get_locale()
+            .map(|locale| resolve_bundled_tag(&locale))
+            .unwrap_or("en-US")
+    })
+}
+
+fn resolve_bundled_tag(locale: &str) -> &'static str {
+    let wanted = locale.replace('_', "-");
+    if let Some((tag, _)) = BUNDLED_LANGUAGES.iter().find(|(tag, _)| *tag == wanted) {
+        return tag;
+    }
+    let base = wanted
+        .split(['-', '@'])
+        .next()
+        .unwrap_or_default()
+        .to_lowercase();
+    BUNDLED_LANGUAGES
+        .iter()
+        .find(|(tag, _)| tag.split('-').next() == Some(base.as_str()))
+        .map(|(tag, _)| *tag)
+        .unwrap_or("en-US")
+}
+
+/// The label the settings row shows for the stored setting.
+fn language_label(language: &str) -> String {
+    if language.is_empty() || language == "system" {
+        ui_system_label()
     } else {
-        "zh-CN"
-    };
+        language_display_name(resolve_interface_language(language)).to_string()
+    }
+}
+
+/// "跟随系统" / "System", in the language currently shown.
+fn ui_system_label() -> String {
+    l10n("跟随系统")
+}
+
+fn language_display_name(tag: &str) -> &'static str {
+    BUNDLED_LANGUAGES
+        .iter()
+        .find(|(code, _)| *code == tag)
+        .map(|(_, name)| *name)
+        .unwrap_or("English")
+}
+
+/// The two-column language picker's contents: "follow system" first, then every
+/// bundled locale in its own script.
+fn language_items() -> Vec<LanguageItem> {
+    crate::reference_language_items(ui_is_english())
+        .into_iter()
+        .map(|(code, name)| LanguageItem {
+            code: code.into(),
+            name: name.into(),
+        })
+        .collect()
+}
+
+fn apply_interface_language(language: &str) {
+    let locale = resolve_interface_language(language);
     let changed = ACTIVE_LANGUAGE.with(|active| {
         let mut active = active.borrow_mut();
         if active.as_deref() == Some(locale) {
@@ -2414,8 +2400,11 @@ fn apply_interface_language(language: &str) {
             true
         }
     });
-    if changed && let Err(error) = slint::select_bundled_translation(locale) {
-        eprintln!("failed to select Slint translation {locale}: {error}");
+    if changed {
+        crate::runtime_strings::set_current_language(locale);
+        if let Err(error) = slint::select_bundled_translation(locale) {
+            eprintln!("failed to select Slint translation {locale}: {error}");
+        }
     }
 }
 
@@ -2533,11 +2522,7 @@ fn local_ip_summary(snapshot: &ServiceSnapshot) -> String {
         .filter_map(|device| device.device.ip.clone())
         .collect();
     if addresses.is_empty() {
-        if ui_is_english() {
-            "Unknown".to_string()
-        } else {
-            "未知".to_string()
-        }
+        l10n("未知")
     } else {
         addresses.join(" ")
     }
@@ -2601,11 +2586,7 @@ fn format_network_filter(settings: &DesktopSettings) -> String {
         .map(|items| items.join(","))
         .unwrap_or_default();
     if allow.is_empty() && deny.is_empty() {
-        if ui_is_english() {
-            "All interfaces".to_string()
-        } else {
-            "全部接口".to_string()
-        }
+        l10n("全部接口")
     } else {
         format!("allow={allow}; deny={deny}")
     }
@@ -2907,22 +2888,6 @@ fn present_main_window(weak: &Weak<AppWindow>) {
     });
 }
 
-fn language_label(language: &str) -> &'static str {
-    if ui_is_english() {
-        match language {
-            "en" | "en-US" => "English",
-            "zh" | "zh-CN" => "Simplified Chinese",
-            _ => "System",
-        }
-    } else {
-        match language {
-            "en" | "en-US" => "English",
-            "zh" | "zh-CN" => "简体中文",
-            _ => "跟随系统",
-        }
-    }
-}
-
 fn ui_is_english() -> bool {
     ACTIVE_LANGUAGE.with(|active| active.borrow().as_deref() == Some("en-US"))
 }
@@ -2987,7 +2952,7 @@ mod tests {
         assert_eq!(theme_label("dark"), "Dark");
         assert_eq!(theme_label("light"), "Light");
         assert_eq!(color_label("blue"), "Blue");
-        assert_eq!(language_label("zh-CN"), "Simplified Chinese");
+        assert_eq!(language_label("zh-CN"), "简体中文");
         ACTIVE_LANGUAGE.with(|active| *active.borrow_mut() = Some("zh-CN"));
         assert_eq!(theme_label("dark"), "深色");
         assert_eq!(language_label("zh-CN"), "简体中文");

@@ -51,6 +51,7 @@ uuid = { version = "1.24", features = ["v4", "serde"] }
 
 localsend-rpc = { path = "crates/localsend-rpc" }
 localsend-platform = { path = "crates/localsend-platform" }
+localsend-i18n = { path = "crates/localsend-i18n" }
 localsend-service = { path = "crates/localsend-service" }
 
 

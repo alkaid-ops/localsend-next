@@ -1,6 +1,6 @@
 import { ScrollView } from "std-widgets.slint";
 import { ThemeTokens } from "theme.slint";
-import { DeviceItem, DeviceLogItem, FavoriteItem, HistoryItem, RequestFileItem, SelectedFileItem, TransferItem } from "models.slint";
+import { DeviceItem, DeviceLogItem, FavoriteItem, HistoryItem, LanguageItem, RequestFileItem, SelectedFileItem, TransferItem } from "models.slint";
 import {
     FlutterBooleanEntry,
     FlutterBigButton,
@@ -15,7 +15,7 @@ import { SendPage } from "pages/send-page.slint";
 import { SettingsPage } from "pages/settings-page.slint";
 import { DialogLayer } from "dialogs/dialog-layer.slint";
 export { ThemeTokens }
-export { DeviceItem, DeviceLogItem, FavoriteItem, HistoryItem, RequestFileItem, SelectedFileItem, TransferItem }
+export { DeviceItem, DeviceLogItem, FavoriteItem, HistoryItem, LanguageItem, RequestFileItem, SelectedFileItem, TransferItem }
 
 export component AppWindow inherits Window {
     title: "LocalSend";
@@ -69,7 +69,9 @@ export component AppWindow inherits Window {
     in-out property <string> settings-theme: @tr("跟随系统");
     in-out property <string> settings-theme-code: "system";
     in-out property <string> settings-color: "LocalSend";
-    in-out property <string> settings-language: @tr("跟随系统");
+    in-out property <string> settings-language-code: "system";
+    in-out property <string> settings-language-name: @tr("跟随系统");
+    in-out property <[LanguageItem]> language-items: [];
     in-out property <bool> save-window-position: true;
     in-out property <bool> launch-on-login: false;
     in-out property <bool> animations-enabled: true;
@@ -134,6 +136,7 @@ export component AppWindow inherits Window {
     in-out property <string> completion-file-path: "";
     in-out property <int> completion-countdown: 0;
     in-out property <bool> auto-save-help-dialog-open: false;
+    in-out property <bool> language-dialog-open: false;
 
     out property <length> viewport-width: 1120px;
     out property <length> viewport-height: 760px;
@@ -162,6 +165,8 @@ export component AppWindow inherits Window {
     callback open-troubleshoot-firewall();
     callback cycle-setting(string);
     callback set-theme(string);
+    callback open-language(string);
+    callback set-language(string);
     callback set-toggle(string, bool);
     callback respond-transfer(string, [string], bool);
     callback toggle-request-file(string);
@@ -513,7 +518,7 @@ export component AppWindow inherits Window {
                                         spacing: 9px;
                                         Text { text: @tr("设备信息"); color: ThemeTokens.on-surface; font-size: 16px; font-weight: 600; height: 24px; }
                                         HorizontalLayout { Text { text: @tr("名称"); width: 96px; color: ThemeTokens.on-surface-variant; font-size: 13px; } Text { text: root.device-details-alias; color: ThemeTokens.on-surface; font-size: 13px; horizontal-stretch: 1; overflow: elide; } }
-                                        HorizontalLayout { Text { text: @tr("版本"); width: 96px; color: ThemeTokens.on-surface-variant; font-size: 13px; } Text { text: @tr("协议 ") + root.device-details-version; color: ThemeTokens.on-surface; font-size: 13px; horizontal-stretch: 1; overflow: elide; } }
+                                        HorizontalLayout { Text { text: @tr("版本"); width: 96px; color: ThemeTokens.on-surface-variant; font-size: 13px; } Text { text: @tr("协议 {}", root.device-details-version); color: ThemeTokens.on-surface; font-size: 13px; horizontal-stretch: 1; overflow: elide; } }
                                         HorizontalLayout { Text { text: @tr("指纹"); width: 96px; color: ThemeTokens.on-surface-variant; font-size: 13px; } Text { text: root.device-details-fingerprint; color: ThemeTokens.on-surface; font-size: 13px; horizontal-stretch: 1; overflow: elide; } }
                                     }
                                 }
@@ -555,7 +560,8 @@ export component AppWindow inherits Window {
                             brightness: root.settings-theme;
                             theme-code: root.settings-theme-code;
                             color-mode: root.settings-color;
-                            language: root.settings-language;
+                            language-code: root.settings-language-code;
+                            language-name: root.settings-language-name;
                             always-on-top: root.settings-always-on-top;
                             minimize-to-tray: root.settings-minimize-to-tray;
                             save-window-position: root.save-window-position;
@@ -586,6 +592,7 @@ export component AppWindow inherits Window {
                             scroll-y <=> root.settings-scroll-y;
                             cycle-setting(name) => { root.cycle-setting(name); }
                             set-theme(code) => { root.set-theme(code); }
+                            set-language(code) => { root.language-dialog-open = true; }
                             set-toggle(name, value) => { root.set-toggle(name, value); }
                             set-auto-save(all, favorites) => { root.set-auto-save(all, favorites); }
                             edit-setting(key) => { root.edit-setting(key); }
@@ -736,6 +743,9 @@ export component AppWindow inherits Window {
         setting-open: root.setting-dialog-open;
         setting-value: root.setting-edit-value;
         setting-key: root.setting-edit-key;
+        language-open: root.language-dialog-open;
+        language-items: root.language-items;
+        language-code: root.settings-language-code;
         web-share-open: root.web-share-dialog-open;
         web-share-running: root.web-share-running;
         web-share-url: root.web-share-url;
@@ -791,6 +801,15 @@ export component AppWindow inherits Window {
         reveal-completion => { root.reveal-completion-file(); root.completion-dialog-open = false; }
         close-completion => { root.close-completion(); }
         close-auto-save-help => { root.close-auto-save-help(); }
+        close-language => { root.language-dialog-open = false; }
+        language-selected(code) => {
+            root.language-dialog-open = false;
+            if code == "system" {
+                root.set-language("");
+            } else {
+                root.set-language(code);
+            }
+        }
         copy-diagnostics => { root.copy-diagnostics(); }
         open-favorites-from-auto-save => {
             root.close-auto-save-help();

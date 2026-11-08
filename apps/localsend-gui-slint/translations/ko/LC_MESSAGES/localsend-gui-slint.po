@@ -1,0 +1,892 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: ko\n"
+
+msgid "Checksum 校验"
+msgstr "체크섬 확인"
+
+msgid "HTTPS"
+msgstr "HTTPS"
+
+msgid "IP 地址"
+msgstr "IP 주소"
+
+msgid "IP 地址或主机名"
+msgstr "IP 주소 또는 호스트 이름"
+
+msgid "LocalSend Next {} · 桌面版"
+msgstr "LocalSend 다음 {} · 데스크탑"
+
+msgid "LocalSend 青绿色品牌色"
+msgstr "LocalSend 청록색 브랜드 색상"
+
+msgid "Multicast"
+msgstr "멀티캐스트"
+
+msgid "PIN 不能为空"
+msgstr "PIN은 비워둘 수 없습니다."
+
+msgid "PIN 值"
+msgstr "PIN 값"
+
+msgid "PIN 密码"
+msgstr "핀"
+
+msgid "PIN 需要 4 位数字"
+msgstr "PIN은 4자리여야 합니다."
+
+msgid "PIN 验证"
+msgstr "PIN 확인"
+
+msgid "TCP {} 正在监听"
+msgstr "TCP {} 수신 중"
+
+msgid "Web Share 已验证"
+msgstr "웹 공유가 확인되었습니다."
+
+msgid "Web Share 链接不可用"
+msgstr "웹 공유 링크를 사용할 수 없습니다."
+
+msgid "{} 个文件已保存到「下载 / LocalSend」。"
+msgstr "{}개의 파일이 \"다운로드/LocalSend\"에 저장되었습니다."
+
+msgid "「收藏设备」只会自动接受来自已验证收藏设备的请求。文件保存到当前接收目录，并继续显示在历史记录中。"
+msgstr "\"즐겨찾기 장치\"는 검증된 즐겨찾기의 요청만 자동으로 수락합니다. 파일은 현재 수신 폴더에 저장되며 기록에 남습니다."
+
+msgid "与后台服务的连接已断开，正在重连…"
+msgstr "백그라운드 서비스 연결이 끊어졌습니다. 다시 연결 중…"
+
+msgid "主题"
+msgstr "테마"
+
+msgid "仅允许指定网段访问"
+msgstr "지정된 서브넷에서만 액세스 허용"
+
+msgid "传输中"
+msgstr "환승 중"
+
+msgid "传输后校验文件完整性"
+msgstr "전송 후 파일 무결성 확인"
+
+msgid "传输失败：{}"
+msgstr "전송 실패: {}"
+
+msgid "传输完成"
+msgstr "전송 완료"
+
+msgid "传输用时"
+msgstr "지속"
+
+msgid "保存"
+msgstr "저장"
+
+msgid "保留最近 100 条接收与发送记录"
+msgstr "최근 100개의 수신 및 전송 기록을 유지합니다."
+
+msgid "保留状态变化和页面切换反馈"
+msgstr "상태 변경 및 페이지 전환 피드백 유지"
+
+msgid "停止"
+msgstr "정지"
+
+msgid "允许接收方校验传输内容"
+msgstr "수신자가 전송된 콘텐츠를 확인할 수 있도록 허용"
+
+msgid "全部开启"
+msgstr "모두 켜세요"
+
+msgid "全部接受"
+msgstr "모두 수락"
+
+msgid "全部接口"
+msgstr "모든 인터페이스"
+
+msgid "关于 LocalSend Next"
+msgstr "LocalSend 소개 다음"
+
+msgid "关闭"
+msgstr "닫기"
+
+msgid "关闭 ({})"
+msgstr "닫기({})"
+
+msgid "关闭后台服务"
+msgstr "백그라운드 서비스 중지"
+
+msgid "关闭时最小化到托盘"
+msgstr "닫으면 트레이로 최소화"
+
+msgid "关闭窗口后保持接收服务运行"
+msgstr "창을 닫은 후에도 수신 서비스를 계속 실행하십시오."
+
+msgid "其他"
+msgstr "기타"
+
+msgid "再次发送"
+msgstr "다시 보내기"
+
+msgid "刷新设备"
+msgstr "장치 새로 고침"
+
+msgid "剪贴板"
+msgstr "붙여넣기"
+
+msgid "剪贴板中没有可发送的文件、文件夹、图片或文本"
+msgstr "클립보드에 보낼 파일, 폴더, 이미지 또는 텍스트가 없습니다."
+
+msgid "剪贴板文本已准备好，请选择附近设备发送"
+msgstr "클립보드 텍스트가 준비되었습니다. 보낼 근처 기기를 선택하세요"
+
+msgid "动画效果"
+msgstr "애니메이션"
+
+msgid "协议"
+msgstr "규약"
+
+msgid "协议 {}"
+msgstr "프로토콜 v{}"
+
+msgid "单位：秒；0 表示持续发现"
+msgstr "단위: 초; 0은 계속 발견함을 의미합니다."
+
+msgid "单选"
+msgstr "하나의"
+
+msgid "历史记录"
+msgstr "역사"
+
+msgid "历史记录只保存在当前设备，不会同步到云服务。"
+msgstr "기록은 이 기기에만 저장되며 클라우드와 동기화되지 않습니다."
+
+msgid "发现"
+msgstr "발견"
+
+msgid "发现和传输使用的网络"
+msgstr "검색 및 전송에 사용되는 네트워크"
+
+msgid "发现超时必须是正整数"
+msgstr "검색 제한 시간은 양의 정수여야 합니다."
+
+msgid "发送"
+msgstr "보내기"
+
+msgid "发送内容"
+msgstr "보낼 내용"
+
+msgid "发送到 "
+msgstr "다음으로 보내는 중"
+
+msgid "发送到所选设备"
+msgstr "선택한 장치로 보내기"
+
+msgid "发送完成"
+msgstr "보내기 완료"
+
+msgid "发送文件时创建校验和"
+msgstr "파일을 보낼 때 체크섬 생성"
+
+msgid "发送文本"
+msgstr "문자 보내기"
+
+msgid "发送文本内容"
+msgstr "메시지"
+
+msgid "发送给你了一条消息："
+msgstr "에서 메시지를 보냈습니다:"
+
+msgid "发送请求已提交，请等待对端响应"
+msgstr "보내기 요청이 제출되었습니다. 수신자를 기다리고 있다"
+
+msgid "取消"
+msgstr "취소"
+
+msgid "取消发送"
+msgstr "보내기 취소"
+
+msgid "取消接收"
+msgstr "수신 취소"
+
+msgid "取消收藏"
+msgstr "즐겨찾기 안함"
+
+msgid "另一台设备未出现？"
+msgstr "다른 장치가 표시되지 않습니까?"
+
+msgid "可信设备可以跳过每次接收确认"
+msgstr "신뢰할 수 있는 장치는 전송별 확인을 건너뛸 수 있습니다."
+
+msgid "可被发现"
+msgstr "검색 가능"
+
+msgid "同一网络下的设备会自动出现。"
+msgstr "동일한 네트워크에 있는 장치는 자동으로 나타납니다."
+
+msgid "名称"
+msgstr "이름"
+
+msgid "启动"
+msgstr "시작"
+
+msgid "启动时运行"
+msgstr "시작 시 실행"
+
+msgid "启用加密传输，速度可能略低"
+msgstr "암호화된 전송을 활성화합니다. 속도가 약간 떨어질 수 있습니다"
+
+msgid "在文件管理器中显示"
+msgstr "폴더에서 보기"
+
+msgid "在线"
+msgstr "온라인"
+
+msgid "复制"
+msgstr "복사"
+
+msgid "复制诊断信息"
+msgstr "진단 복사"
+
+msgid "复制链接"
+msgstr "링크 복사"
+
+msgid "外观与桌面行为。"
+msgstr "모양 및 데스크탑 동작."
+
+msgid "外部文档在当前评审原型中不可用"
+msgstr "이 리뷰 프로토타입에서는 외부 문서를 사용할 수 없습니다."
+
+msgid "外部链接在当前评审原型中不可用"
+msgstr "이 리뷰 프로토타입에서는 외부 링크를 사용할 수 없습니다."
+
+msgid "多选"
+msgstr "다수의"
+
+msgid "失败"
+msgstr "실패한"
+
+msgid "完成"
+msgstr "완료"
+
+msgid "完成传输"
+msgstr "전송 완료"
+
+msgid "局域网组播发现地址"
+msgstr "LAN 멀티캐스트 검색 주소"
+
+msgid "已发送"
+msgstr "전송된"
+
+msgid "已取消"
+msgstr "취소"
+
+msgid "已完成"
+msgstr "완료"
+
+msgid "已就绪"
+msgstr "준비가 된"
+
+msgid "已收藏"
+msgstr "즐겨찾기"
+
+msgid "已连接"
+msgstr "연결됨"
+
+msgid "已送达"
+msgstr "배달됨"
+
+msgid "已选择 {} 个项目"
+msgstr "선택된 {}개 항목"
+
+msgid "已选择 {} 台设备"
+msgstr "선택된 {}개의 기기"
+
+msgid "已选择文件夹，正在刷新附近设备"
+msgstr "폴더가 선택되었습니다. 주변 기기 새로고침"
+
+msgid "已选择文件，正在刷新附近设备"
+msgstr "파일이 선택되었습니다. 주변 기기 새로고침"
+
+msgid "已验证 · 快速保存已开启"
+msgstr "확인됨 · 빠른 저장이 켜져 있습니다."
+
+msgid "当前接收服务的连接信息"
+msgstr "현재 수신 서비스에 대한 연결 정보"
+
+msgid "当前没有可复制的接收链接"
+msgstr "복사할 수 있는 수신 링크가 없습니다."
+
+msgid "待处理"
+msgstr "보류 중"
+
+msgid "快速保存"
+msgstr "빠른 저장"
+
+msgid "快速保存说明"
+msgstr "빠른 저장 세부정보"
+
+msgid "总大小"
+msgstr "전체 크기"
+
+msgid "所有文件均已通过 Checksum 校验"
+msgstr "모든 파일이 체크섬 확인을 통과했습니다."
+
+msgid "手动添加设备"
+msgstr "수동으로 장치 추가"
+
+msgid "手动连接"
+msgstr "수동 연결"
+
+msgid "打开"
+msgstr "열기"
+
+msgid "打开主界面"
+msgstr "메인 창 열기"
+
+msgid "打开文件"
+msgstr "파일 열기"
+
+msgid "打开文件夹"
+msgstr "폴더 열기"
+
+msgid "执行"
+msgstr "달리다"
+
+msgid "拒绝"
+msgstr "거부"
+
+msgid "指纹"
+msgstr "지문"
+
+msgid "按顺序检查设备发现和连接"
+msgstr "검색 및 연결을 순서대로 확인합니다."
+
+msgid "接受所选"
+msgstr "선택 항목 수락"
+
+msgid "接收"
+msgstr "받기"
+
+msgid "接收前要求发送方输入 PIN"
+msgstr "수신하기 전에 발신자에게 PIN을 입력하도록 요구"
+
+msgid "接收历史"
+msgstr "수신내역"
+
+msgid "接收完成"
+msgstr "수신 완료"
+
+msgid "接收完成后自动关闭请求，不需要再次确认"
+msgstr "추가 확인 없이 요청을 받은 후 자동으로 종료합니다."
+
+msgid "接收文件前，发送方需要输入 4 位 PIN"
+msgstr "파일을 받기 전에 발신자는 4자리 PIN을 입력해야 합니다."
+
+msgid "接收服务使用的 TCP 端口"
+msgstr "수신 서비스가 사용하는 TCP 포트"
+
+msgid "接收服务在线"
+msgstr "온라인으로 서비스 받기"
+
+msgid "接收服务已就绪，附近设备可以在同一网络中发现你。"
+msgstr "수신 서비스가 준비되었습니다. 이 네트워크에 있는 주변 기기가 나를 발견할 수 있습니다."
+
+msgid "接收服务暂时无法启动。"
+msgstr "지금은 수신 서비스를 시작할 수 없습니다."
+
+msgid "接收服务离线"
+msgstr "오프라인으로 서비스 받기"
+
+msgid "接收状态"
+msgstr "수신상태"
+
+msgid "接收目录"
+msgstr "폴더 수신"
+
+msgid "接收链接"
+msgstr "링크 받기"
+
+msgid "接收链接已复制"
+msgstr "복사된 링크 수신"
+
+msgid "搜索历史"
+msgstr "검색 기록"
+
+msgid "搜索消息、文件名或设备"
+msgstr "메시지, 파일 이름 또는 장치 검색"
+
+msgid "搜索设备超时"
+msgstr "탐색 제한시간"
+
+msgid "支持项目"
+msgstr "이 프로젝트를 지원하세요"
+
+msgid "收到文件"
+msgstr "파일 수신됨"
+
+msgid "收到新文件"
+msgstr "새 파일을 받았습니다."
+
+msgid "收到新消息"
+msgstr "새 메시지가 수신되었습니다."
+
+msgid "收藏"
+msgstr "즐겨찾기"
+
+msgid "收藏设备"
+msgstr "즐겨찾는 장치"
+
+msgid "收藏设备可使用快速保存与快捷发送"
+msgstr "즐겨찾는 장치를 사용하면 빠른 저장 및 빠른 전송이 가능합니다."
+
+msgid "故障排除"
+msgstr "문제 해결"
+
+msgid "文件"
+msgstr "파일"
+
+msgid "文件保存、接收确认与完整性校验。"
+msgstr "파일 저장, 수신 확인 및 무결성 검사."
+
+msgid "文件夹"
+msgstr "폴더"
+
+msgid "文件已保存"
+msgstr "저장된 파일"
+
+msgid "文件已发送到「{}」。"
+msgstr "파일이 \"{}\"로 전송되었습니다."
+
+msgid "文件已成功送达"
+msgstr "파일이 성공적으로 전달되었습니다."
+
+msgid "文本"
+msgstr "텍스트"
+
+msgid "文本会作为 .txt 文件发送到所选设备"
+msgstr "텍스트는 선택한 장치에 .txt 파일로 전송됩니다."
+
+msgid "文本内容"
+msgstr "텍스트 내용"
+
+msgid "文本已准备好，请选择附近设备发送"
+msgstr "텍스트가 준비되었습니다. 보낼 근처 기기를 선택하세요"
+
+msgid "文本消息"
+msgstr "문자 메시지"
+
+msgid "无法保存剪贴板图片"
+msgstr "클립보드 이미지를 저장할 수 없습니다"
+
+msgid "无法定位剪贴板图片缓存目录"
+msgstr "클립보드 이미지 캐시 디렉터리를 찾을 수 없습니다."
+
+msgid "无法将剪贴板图片转换为 PNG"
+msgstr "클립보드 이미지를 PNG로 변환할 수 없습니다"
+
+msgid "无法访问剪贴板"
+msgstr "클립보드에 접근할 수 없습니다"
+
+msgid "无法重启"
+msgstr "다시 시작할 수 없음"
+
+msgid "日志"
+msgstr "로그"
+
+msgid "日本語"
+msgstr "日本語"
+
+msgid "暂不可用"
+msgstr "없는"
+
+msgid "最近一次响应：刚刚"
+msgstr "마지막 응답: 지금 막"
+
+msgid "最近发现"
+msgstr "최근에 발견됨"
+
+msgid "服务器已停止"
+msgstr "서버가 중지되었습니다"
+
+msgid "服务器状态"
+msgstr "서버 상태"
+
+msgid "服务器运行中"
+msgstr "서버 실행 중"
+
+msgid "服务暂停"
+msgstr "서비스가 일시중지되었습니다"
+
+msgid "服务条款"
+msgstr "서비스 약관"
+
+msgid "未知"
+msgstr "알려지지 않은"
+
+msgid "本地端口"
+msgstr "로컬 포트"
+
+msgid "来自附近设备"
+msgstr "주변 기기에서"
+
+msgid "查看"
+msgstr "보다"
+
+msgid "查看当前会话的调试日志"
+msgstr "현재 세션에 대한 디버그 로그 보기"
+
+msgid "查看详情"
+msgstr "세부정보 보기"
+
+msgid "桌面"
+msgstr "데스크탑"
+
+msgid "检查端口、网络与设备发现"
+msgstr "포트, 네트워크 및 장치 검색 확인"
+
+msgid "正在传输"
+msgstr "환승 중"
+
+msgid "正在关闭后台服务"
+msgstr "백그라운드 서비스 중지 중"
+
+msgid "正在关闭浏览器接收页面"
+msgstr "브라우저 수신 페이지 중지"
+
+msgid "正在刷新设备连接…"
+msgstr "기기 연결을 새로 고치는 중…"
+
+msgid "正在发送文件"
+msgstr "파일 보내는 중"
+
+msgid "正在发送文本，等待接收确认"
+msgstr "문자 보내기; 수신자 확인을 기다리는 중"
+
+msgid "正在取消传输"
+msgstr "이체 취소 중"
+
+msgid "正在启动浏览器接收页面"
+msgstr "브라우저 수신 페이지 시작"
+
+msgid "正在拒绝传输"
+msgstr "이체 거부 중"
+
+msgid "正在接受传输"
+msgstr "이체 수락"
+
+msgid "正在接收来自 {} 的文件"
+msgstr "{}에서 파일 수신 중"
+
+msgid "正在查找附近设备"
+msgstr "주변 기기를 찾고 있습니다."
+
+msgid "正在添加设备"
+msgstr "장치 추가 중"
+
+msgid "正在清空历史"
+msgstr "기록 삭제"
+
+msgid "正在连接"
+msgstr "연결 중"
+
+msgid "正在连接 localsendd..."
+msgstr "localsend에 연결하는 중..."
+
+msgid "正在连接后台服务…"
+msgstr "백그라운드 서비스에 연결하는 중…"
+
+msgid "正在连接对端，等待接收确认"
+msgstr "수신기에 연결; 확인을 기다리는 중"
+
+msgid "正在重启服务器"
+msgstr "서버를 다시 시작하는 중"
+
+msgid "正在重连"
+msgstr "다시 연결하는 중"
+
+msgid "正常"
+msgstr "정상"
+
+msgid "此设置不能通过文本输入修改"
+msgstr "이 설정은 텍스트 입력을 통해 변경할 수 없습니다."
+
+msgid "此项由系统自动检测或当前平台不支持编辑"
+msgstr "이 값은 시스템에서 감지되었거나 이 플랫폼에서 편집할 수 없습니다."
+
+msgid "没有添加有效的文件或文件夹"
+msgstr "유효한 파일이나 폴더가 추가되지 않았습니다."
+
+msgid "浅色"
+msgstr "라이트"
+
+msgid "浏览器可在同一网络内访问此地址"
+msgstr "동일한 네트워크에 있는 브라우저는 이 주소에 접근할 수 있습니다."
+
+msgid "消息已复制"
+msgstr "메시지가 복사되었습니다."
+
+msgid "深色"
+msgstr "다크"
+
+msgid "添加"
+msgstr "추가"
+
+msgid "清空历史"
+msgstr "기록 지우기"
+
+msgid "清除所选项"
+msgstr "선택 취소"
+
+msgid "版本"
+msgstr "버전"
+
+msgid "版本、开源许可与项目信息"
+msgstr "버전, 오픈소스 라이선스, 프로젝트 정보"
+
+msgid "版本、诊断与支持选项。"
+msgstr "버전, 진단 및 지원 옵션."
+
+msgid "版权"
+msgstr "저작권"
+
+msgid "状态"
+msgstr "상태"
+
+msgid "用于匹配正确的平台图标"
+msgstr "올바른 플랫폼 아이콘을 일치시키는 데 사용됩니다."
+
+msgid "用于区分设备信息"
+msgstr "장치 정보를 구별하는 데 사용됩니다."
+
+msgid "界面显示语言"
+msgstr "인터페이스 언어"
+
+msgid "登录系统后自动启动 LocalSend"
+msgstr "로그인 후 자동으로 LocalSend 실행"
+
+msgid "目标地址"
+msgstr "대상 주소"
+
+msgid "确保对方也打开了 LocalSend，并已连接到同一个 Wi-Fi 网络。"
+msgstr "다른 장치에도 LocalSend가 열려 있고 동일한 Wi-Fi 네트워크에 있는지 확인하세요."
+
+msgid "确定"
+msgstr "좋아요"
+
+msgid "确认"
+msgstr "확인"
+
+msgid "确认双方处于同一子网，并允许防火墙访问 LocalSend。"
+msgstr "두 장치가 동일한 서브넷에 있는지 확인하고 LocalSend에 대한 방화벽 액세스를 허용하십시오."
+
+msgid "离线"
+msgstr "오프라인"
+
+msgid "移除收藏"
+msgstr "즐겨찾기 삭제"
+
+msgid "端口"
+msgstr "포트:"
+
+msgid "端口必须是 1 到 65535 之间的数字"
+msgstr "포트는 1~65535 사이의 숫자여야 합니다."
+
+msgid "等待中"
+msgstr "대기 중"
+
+msgid "简体中文"
+msgstr "简体中文"
+
+msgid "管理 LocalSend 的外观、接收、网络与支持选项。"
+msgstr "LocalSend의 모양, 수신, 네트워크 및 지원 옵션을 관리합니다."
+
+msgid "管理收藏设备"
+msgstr "즐겨찾는 장치 관리"
+
+msgid "系统"
+msgstr "체계"
+
+msgid "繁體中文（台灣）"
+msgstr "繁體中文（台灣）"
+
+msgid "繁體中文（香港）"
+msgstr "繁體中文（香港）"
+
+msgid "组播地址必须是有效 IPv4 地址"
+msgstr "멀티캐스트 주소는 유효한 IPv4 주소여야 합니다."
+
+msgid "结束本实例的 localsendd"
+msgstr "이 인스턴스에 대한 localsendd를 중지합니다."
+
+msgid "绿色"
+msgstr "녹색"
+
+msgid "编辑"
+msgstr "편집"
+
+msgid "编辑设置"
+msgstr "설정 수정"
+
+msgid "网络"
+msgstr "네트워크"
+
+msgid "网络不可用"
+msgstr "네트워크를 사용할 수 없음"
+
+msgid "网络信息"
+msgstr "네트워크 정보"
+
+msgid "网络接口"
+msgstr "네트워크 인터페이스"
+
+msgid "网络筛选"
+msgstr "네트워크 필터"
+
+msgid "网络连接"
+msgstr "네트워크 연결"
+
+msgid "自动完成"
+msgstr "자동 마무리"
+
+msgid "自动接收来自可信设备的文件"
+msgstr "신뢰할 수 있는 장치로부터 자동으로 파일 수신"
+
+msgid "若设备指纹发生变化，LocalSend 会重新要求确认。你可以随时在收藏设备中取消信任。"
+msgstr "장치의 지문이 변경되면 LocalSend는 다시 확인을 요청합니다. 언제든지 즐겨찾는 장치에서 신뢰를 해제할 수 있습니다."
+
+msgid "蓝色"
+msgstr "파란색"
+
+msgid "记住本次窗口尺寸与位置"
+msgstr "이 창 크기와 위치를 기억하세요"
+
+msgid "设备信息"
+msgstr "장치 정보"
+
+msgid "设备名称"
+msgstr "별명:"
+
+msgid "设备型号"
+msgstr "기기 모델"
+
+msgid "设备已离线，请刷新设备列表"
+msgstr "장치가 오프라인 상태가 되었습니다. 기기 목록 새로고침"
+
+msgid "设备类型"
+msgstr "기기 유형"
+
+msgid "设备详情"
+msgstr "기기 세부 정보"
+
+msgid "设备身份、服务与发现协议。"
+msgstr "장치 ID, 서비스 및 검색 프로토콜."
+
+msgid "设置"
+msgstr "설정"
+
+msgid "设置 PIN"
+msgstr "PIN 설정"
+
+msgid "设置值"
+msgstr "설정값"
+
+msgid "设置已提交"
+msgstr "제출된 설정"
+
+msgid "访问者需要通过 PIN 验证后才能上传文件。"
+msgstr "방문자는 파일을 업로드하기 전에 PIN 확인을 통과해야 합니다."
+
+msgid "诊断"
+msgstr "진단"
+
+msgid "诊断信息已复制"
+msgstr "진단이 복사되었습니다."
+
+msgid "语言"
+msgstr "언어"
+
+msgid "请先选择文件、文件夹、文本或剪贴板，再选择设备发送"
+msgstr "장치를 선택하기 전에 파일, 폴더, 텍스트 또는 클립보드 콘텐츠를 선택하세요."
+
+msgid "请先选择文件或文件夹"
+msgstr "먼저 파일이나 폴더를 선택하세요."
+
+msgid "请先选择至少一个设备"
+msgstr "기기를 하나 이상 선택하세요."
+
+msgid "请在系统设置中检查防火墙规则"
+msgstr "시스템 설정에서 방화벽 규칙을 확인하세요."
+
+msgid "请求发送 {} 个项目"
+msgstr "{}개 ​​항목을 보내려고 합니다"
+
+msgid "请输入设备 IP 地址或主机名"
+msgstr "기기 IP 주소 또는 호스트 이름을 입력하세요."
+
+msgid "请选择目标设备"
+msgstr "대상 장치 선택"
+
+msgid "跟随系统"
+msgstr "시스템"
+
+msgid "跟随系统或固定使用浅色、深色"
+msgstr "시스템을 따르거나 밝거나 어둡게 수정하세요."
+
+msgid "路径可在文件管理器中打开"
+msgstr "파일 관리자에서 경로를 열 수 있습니다"
+
+msgid "输入同一网络中设备的 IP 地址"
+msgstr "동일한 네트워크에 있는 장치의 IP 주소를 입력하세요."
+
+msgid "返回"
+msgstr "뒤쪽에"
+
+msgid "还没有接收记录"
+msgstr "아직 받은 상품이 없습니다."
+
+msgid "还没有收藏设备"
+msgstr "아직 즐겨찾는 기기가 없습니다."
+
+msgid "连接"
+msgstr "연결하다"
+
+msgid "退出"
+msgstr "그만두다"
+
+msgid "退出时保存窗口位置"
+msgstr "종료 후 창 위치 기억"
+
+msgid "选择"
+msgstr "선택"
+
+msgid "选择要发送的内容，或从剪贴板快速创建一条文本消息。"
+msgstr "보낼 내용을 선택하거나 클립보드에서 빠르게 문자 메시지를 작성하세요."
+
+msgid "通用"
+msgstr "일반"
+
+msgid "通过链接接收"
+msgstr "링크로 받기"
+
+msgid "重启"
+msgstr "재시작"
+
+msgid "重新启动接收"
+msgstr "수신을 다시 시작하세요"
+
+msgid "重新扫描"
+msgstr "다시 스캔"
+
+msgid "附近的设备"
+msgstr "근처 기기"
+
+msgid "附近设备中显示的 alias"
+msgstr "주변 기기에 별칭 표시"
+
+msgid "隐私政策"
+msgstr "개인정보 처리 방침"
+
+msgid "颜色"
+msgstr "색상"
+
+msgid "验证"
+msgstr "검증"

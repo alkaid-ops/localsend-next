@@ -1,0 +1,892 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: hu\n"
+
+msgid "Checksum 校验"
+msgstr "Ellenőrző összeg ellenőrzése"
+
+msgid "HTTPS"
+msgstr "HTTPS"
+
+msgid "IP 地址"
+msgstr "IP cím"
+
+msgid "IP 地址或主机名"
+msgstr "IP-cím vagy gazdagépnév"
+
+msgid "LocalSend Next {} · 桌面版"
+msgstr "LocalSend Next {} · Asztali"
+
+msgid "LocalSend 青绿色品牌色"
+msgstr "LocalSend kékeszöld márkaszín"
+
+msgid "Multicast"
+msgstr "Multicast"
+
+msgid "PIN 不能为空"
+msgstr "A PIN kód nem lehet üres"
+
+msgid "PIN 值"
+msgstr "PIN-kód"
+
+msgid "PIN 密码"
+msgstr "PIN kódot"
+
+msgid "PIN 需要 4 位数字"
+msgstr "A PIN-kódnak 4 számjegyből kell állnia"
+
+msgid "PIN 验证"
+msgstr "PIN-kód ellenőrzése"
+
+msgid "TCP {} 正在监听"
+msgstr "TCP {} figyel"
+
+msgid "Web Share 已验证"
+msgstr "Web Share ellenőrizve"
+
+msgid "Web Share 链接不可用"
+msgstr "A Web Share link nem érhető el"
+
+msgid "{} 个文件已保存到「下载 / LocalSend」。"
+msgstr "{} fájl mentve a \"Letöltések / LocalSend\" mappába."
+
+msgid "「收藏设备」只会自动接受来自已验证收藏设备的请求。文件保存到当前接收目录，并继续显示在历史记录中。"
+msgstr "A „Kedvenc eszközök” automatikusan csak az ellenőrzött kedvencektől fogadja el a kéréseket. A fájlok az aktuális fogadási mappába kerülnek, és az előzményekben maradnak."
+
+msgid "与后台服务的连接已断开，正在重连…"
+msgstr "Megszakadt a kapcsolat a háttérszolgáltatással; újracsatlakozás…"
+
+msgid "主题"
+msgstr "Fényerő"
+
+msgid "仅允许指定网段访问"
+msgstr "Csak a megadott alhálózatról engedélyezze a hozzáférést"
+
+msgid "传输中"
+msgstr "Átadó"
+
+msgid "传输后校验文件完整性"
+msgstr "Az átvitel után ellenőrizze a fájl integritását"
+
+msgid "传输失败：{}"
+msgstr "Sikertelen átvitel: {}"
+
+msgid "传输完成"
+msgstr "Az átvitel kész"
+
+msgid "传输用时"
+msgstr "Időtartam"
+
+msgid "保存"
+msgstr "Ment"
+
+msgid "保留最近 100 条接收与发送记录"
+msgstr "Őrizze meg az utolsó 100 fogadási és küldési rekordot"
+
+msgid "保留状态变化和页面切换反馈"
+msgstr "Tartsa visszajelzést az állapotváltozásról és az oldalváltásról"
+
+msgid "停止"
+msgstr "Stop"
+
+msgid "允许接收方校验传输内容"
+msgstr "Engedélyezze a vevő számára az átvitt tartalom ellenőrzését"
+
+msgid "全部开启"
+msgstr "Kapcsolja be az összeset"
+
+msgid "全部接受"
+msgstr "Elfogadja az összeset"
+
+msgid "全部接口"
+msgstr "Minden interfész"
+
+msgid "关于 LocalSend Next"
+msgstr "A LocalSend Nextről"
+
+msgid "关闭"
+msgstr "Bezár"
+
+msgid "关闭 ({})"
+msgstr "Bezárás ({})"
+
+msgid "关闭后台服务"
+msgstr "A háttérszolgáltatás leállítása"
+
+msgid "关闭时最小化到托盘"
+msgstr "Zárt állapotban a tálcára minimalizálva"
+
+msgid "关闭窗口后保持接收服务运行"
+msgstr "Az ablak bezárása után tartsa futva a fogadási szolgáltatást"
+
+msgid "其他"
+msgstr "Egyéb"
+
+msgid "再次发送"
+msgstr "Küldje el újra"
+
+msgid "刷新设备"
+msgstr "Frissítse az eszközöket"
+
+msgid "剪贴板"
+msgstr "Beillesztés"
+
+msgid "剪贴板中没有可发送的文件、文件夹、图片或文本"
+msgstr "A vágólapon nincsenek elküldendő fájlok, mappák, képek vagy szövegek"
+
+msgid "剪贴板文本已准备好，请选择附近设备发送"
+msgstr "A vágólap szövege készen áll; válasszon egy közeli eszközt a küldéshez"
+
+msgid "动画效果"
+msgstr "Animációk"
+
+msgid "协议"
+msgstr "Jegyzőkönyv"
+
+msgid "协议 {}"
+msgstr "Protokoll v{}"
+
+msgid "单位：秒；0 表示持续发现"
+msgstr "Mértékegysége: másodperc; A 0 azt jelenti, hogy folytasd a felfedezést"
+
+msgid "单选"
+msgstr "Egyetlen"
+
+msgid "历史记录"
+msgstr "Történelem"
+
+msgid "历史记录只保存在当前设备，不会同步到云服务。"
+msgstr "Az előzmények csak ezen az eszközön tárolódnak, és soha nem szinkronizálódnak a felhővel."
+
+msgid "发现"
+msgstr "Felfedezés"
+
+msgid "发现和传输使用的网络"
+msgstr "Felderítésre és átvitelre használt hálózat"
+
+msgid "发现超时必须是正整数"
+msgstr "A felfedezés időtúllépésének pozitív egész számnak kell lennie"
+
+msgid "发送"
+msgstr "Küldés"
+
+msgid "发送内容"
+msgstr "Elküldendő tartalom"
+
+msgid "发送到 "
+msgstr "Küldés ide"
+
+msgid "发送到所选设备"
+msgstr "Küldje el a kiválasztott eszközökre"
+
+msgid "发送完成"
+msgstr "A küldés kész"
+
+msgid "发送文件时创建校验和"
+msgstr "Ellenőrzőösszegek létrehozása fájlok küldésekor"
+
+msgid "发送文本"
+msgstr "Szöveg küldése"
+
+msgid "发送文本内容"
+msgstr "Üzenet"
+
+msgid "发送给你了一条消息："
+msgstr "üzenetet küldött:"
+
+msgid "发送请求已提交，请等待对端响应"
+msgstr "Kérelem elküldése benyújtva; várja a vevőt"
+
+msgid "取消"
+msgstr "Mégse"
+
+msgid "取消发送"
+msgstr "Küldés megszakítása"
+
+msgid "取消接收"
+msgstr "Fogadás megszakítása"
+
+msgid "取消收藏"
+msgstr "Nem kedvenc"
+
+msgid "另一台设备未出现？"
+msgstr "Egy másik készülék nem jelenik meg?"
+
+msgid "可信设备可以跳过每次接收确认"
+msgstr "A megbízható eszközök kihagyhatják az átvitelenkénti megerősítést"
+
+msgid "可被发现"
+msgstr "Felfedezhető"
+
+msgid "同一网络下的设备会自动出现。"
+msgstr "Az azonos hálózaton lévő eszközök automatikusan megjelennek."
+
+msgid "名称"
+msgstr "Név"
+
+msgid "启动"
+msgstr "Indul"
+
+msgid "启动时运行"
+msgstr "Indításkor futtassa"
+
+msgid "启用加密传输，速度可能略低"
+msgstr "Engedélyezze a titkosított átvitelt; sebessége kissé csökkenhet"
+
+msgid "在文件管理器中显示"
+msgstr "Megjelenítés a mappában"
+
+msgid "在线"
+msgstr "Online"
+
+msgid "复制"
+msgstr "Másol"
+
+msgid "复制诊断信息"
+msgstr "Diagnosztika másolása"
+
+msgid "复制链接"
+msgstr "Link másolása"
+
+msgid "外观与桌面行为。"
+msgstr "Megjelenés és az asztali viselkedés."
+
+msgid "外部文档在当前评审原型中不可用"
+msgstr "Ebben a felülvizsgálati prototípusban nem érhetők el külső dokumentumok"
+
+msgid "外部链接在当前评审原型中不可用"
+msgstr "Ebben a felülvizsgálati prototípusban nem érhetők el külső hivatkozások"
+
+msgid "多选"
+msgstr "Több"
+
+msgid "失败"
+msgstr "Sikertelen"
+
+msgid "完成"
+msgstr "Kész"
+
+msgid "完成传输"
+msgstr "Fejezd be az átvitelt"
+
+msgid "局域网组播发现地址"
+msgstr "LAN multicast felderítési cím"
+
+msgid "已发送"
+msgstr "Küldött"
+
+msgid "已取消"
+msgstr "Törölve"
+
+msgid "已完成"
+msgstr "Befejezve"
+
+msgid "已就绪"
+msgstr "Kész"
+
+msgid "已收藏"
+msgstr "Kedvenc"
+
+msgid "已连接"
+msgstr "Csatlakozva"
+
+msgid "已送达"
+msgstr "Szállítva"
+
+msgid "已选择 {} 个项目"
+msgstr "{} elem kiválasztva"
+
+msgid "已选择 {} 台设备"
+msgstr "Kijelölt {} eszköz"
+
+msgid "已选择文件夹，正在刷新附近设备"
+msgstr "Mappa kiválasztva; közeli eszközök frissítése"
+
+msgid "已选择文件，正在刷新附近设备"
+msgstr "Fájl kiválasztva; közeli eszközök frissítése"
+
+msgid "已验证 · 快速保存已开启"
+msgstr "Ellenőrzött · Gyors mentés be van kapcsolva"
+
+msgid "当前接收服务的连接信息"
+msgstr "Kapcsolódási információk az aktuális fogadási szolgáltatáshoz"
+
+msgid "当前没有可复制的接收链接"
+msgstr "Nincs másolható fogadási hivatkozás"
+
+msgid "待处理"
+msgstr "Függőben levő"
+
+msgid "快速保存"
+msgstr "Gyors mentés"
+
+msgid "快速保存说明"
+msgstr "Részletek gyors mentése"
+
+msgid "总大小"
+msgstr "Teljes méret"
+
+msgid "所有文件均已通过 Checksum 校验"
+msgstr "Minden fájl megfelelt az ellenőrző összeg ellenőrzésének"
+
+msgid "手动添加设备"
+msgstr "Eszköz hozzáadása manuálisan"
+
+msgid "手动连接"
+msgstr "Manuális csatlakozás"
+
+msgid "打开"
+msgstr "Megnyit"
+
+msgid "打开主界面"
+msgstr "Nyissa meg a fő ablakot"
+
+msgid "打开文件"
+msgstr "Fájl megnyitás"
+
+msgid "打开文件夹"
+msgstr "Nyissa meg a mappát"
+
+msgid "执行"
+msgstr "Fut"
+
+msgid "拒绝"
+msgstr "Elutasít"
+
+msgid "指纹"
+msgstr "Ujjlenyomat"
+
+msgid "按顺序检查设备发现和连接"
+msgstr "Sorrendben ellenőrzi a felfedezést és a kapcsolódást"
+
+msgid "接受所选"
+msgstr "A kiválasztottak elfogadása"
+
+msgid "接收"
+msgstr "Fogadás"
+
+msgid "接收前要求发送方输入 PIN"
+msgstr "Kérje meg a feladótól, hogy adjon meg egy PIN-kódot a fogadás előtt"
+
+msgid "接收历史"
+msgstr "Előzmények fogadása"
+
+msgid "接收完成"
+msgstr "A fogadás befejeződött"
+
+msgid "接收完成后自动关闭请求，不需要再次确认"
+msgstr "A beérkezés után automatikusan zárja be a kérést további megerősítés nélkül"
+
+msgid "接收文件前，发送方需要输入 4 位 PIN"
+msgstr "A fájlok fogadása előtt a küldőnek meg kell adnia egy 4 számjegyű PIN-kódot"
+
+msgid "接收服务使用的 TCP 端口"
+msgstr "A fogadó szolgáltatás által használt TCP port"
+
+msgid "接收服务在线"
+msgstr "Online szolgáltatás igénybevétele"
+
+msgid "接收服务已就绪，附近设备可以在同一网络中发现你。"
+msgstr "A fogadási szolgáltatás készen áll; a hálózat közeli eszközei felfedezhetik Önt."
+
+msgid "接收服务暂时无法启动。"
+msgstr "A fogadási szolgáltatás jelenleg nem indulhat el."
+
+msgid "接收服务离线"
+msgstr "Offline szolgáltatás fogadása"
+
+msgid "接收状态"
+msgstr "Fogadási állapot"
+
+msgid "接收目录"
+msgstr "Fogadási mappa"
+
+msgid "接收链接"
+msgstr "Link fogadása"
+
+msgid "接收链接已复制"
+msgstr "Fogadási hivatkozás másolva"
+
+msgid "搜索历史"
+msgstr "Keresési előzmények"
+
+msgid "搜索消息、文件名或设备"
+msgstr "Üzenetek, fájlnevek vagy eszközök keresése"
+
+msgid "搜索设备超时"
+msgstr "Felfedezési időtúllépés"
+
+msgid "支持项目"
+msgstr "Támogassa ezt a projektet"
+
+msgid "收到文件"
+msgstr "Fájl érkezett"
+
+msgid "收到新文件"
+msgstr "Új fájl érkezett"
+
+msgid "收到新消息"
+msgstr "Új üzenet érkezett"
+
+msgid "收藏"
+msgstr "Kedvenc"
+
+msgid "收藏设备"
+msgstr "Kedvenc eszközök"
+
+msgid "收藏设备可使用快速保存与快捷发送"
+msgstr "A kedvenc eszközök lehetővé teszik a gyors mentést és a gyors küldést"
+
+msgid "故障排除"
+msgstr "Hibaelhárítás"
+
+msgid "文件"
+msgstr "Fájlok"
+
+msgid "文件保存、接收确认与完整性校验。"
+msgstr "Fájltárolás, megerősítés és integritásellenőrzés."
+
+msgid "文件夹"
+msgstr "Mappa"
+
+msgid "文件已保存"
+msgstr "A fájlok mentve"
+
+msgid "文件已发送到「{}」。"
+msgstr "A fájl elküldve ide: \"{}\"."
+
+msgid "文件已成功送达"
+msgstr "A fájl sikeresen kézbesítve"
+
+msgid "文本"
+msgstr "Szöveg"
+
+msgid "文本会作为 .txt 文件发送到所选设备"
+msgstr "A szöveg .txt fájlként kerül elküldésre a kiválasztott eszközökre"
+
+msgid "文本内容"
+msgstr "Szöveges tartalom"
+
+msgid "文本已准备好，请选择附近设备发送"
+msgstr "A szöveg készen áll; válasszon egy közeli eszközt a küldéshez"
+
+msgid "文本消息"
+msgstr "Szöveges üzenet"
+
+msgid "无法保存剪贴板图片"
+msgstr "A vágólap képe nem menthető"
+
+msgid "无法定位剪贴板图片缓存目录"
+msgstr "A vágólap kép-gyorsítótárának könyvtára nem található"
+
+msgid "无法将剪贴板图片转换为 PNG"
+msgstr "A vágólap képét nem lehet PNG-re konvertálni"
+
+msgid "无法访问剪贴板"
+msgstr "Nem lehet hozzáférni a vágólaphoz"
+
+msgid "无法重启"
+msgstr "Az újraindítás nem elérhető"
+
+msgid "日志"
+msgstr "Naplók"
+
+msgid "日本語"
+msgstr "日本語"
+
+msgid "暂不可用"
+msgstr "Nem elérhető"
+
+msgid "最近一次响应：刚刚"
+msgstr "Utolsó válasz: csak most"
+
+msgid "最近发现"
+msgstr "Nemrég fedezték fel"
+
+msgid "服务器已停止"
+msgstr "A szerver leállt"
+
+msgid "服务器状态"
+msgstr "Szerver állapota"
+
+msgid "服务器运行中"
+msgstr "Szerver fut"
+
+msgid "服务暂停"
+msgstr "A szolgáltatás szünetel"
+
+msgid "服务条款"
+msgstr "Szolgáltatási feltételek"
+
+msgid "未知"
+msgstr "Ismeretlen"
+
+msgid "本地端口"
+msgstr "Helyi kikötő"
+
+msgid "来自附近设备"
+msgstr "A közeli eszközről"
+
+msgid "查看"
+msgstr "Kilátás"
+
+msgid "查看当前会话的调试日志"
+msgstr "Tekintse meg az aktuális munkamenet hibakeresési naplóit"
+
+msgid "查看详情"
+msgstr "Részletek megtekintése"
+
+msgid "桌面"
+msgstr "Asztali"
+
+msgid "检查端口、网络与设备发现"
+msgstr "Ellenőrizze a port, a hálózat és az eszköz felderítését"
+
+msgid "正在传输"
+msgstr "Átadó"
+
+msgid "正在关闭后台服务"
+msgstr "A háttérszolgáltatás leállítása"
+
+msgid "正在关闭浏览器接收页面"
+msgstr "A böngésző fogadási oldalának leállítása"
+
+msgid "正在刷新设备连接…"
+msgstr "Eszközkapcsolat frissítése…"
+
+msgid "正在发送文件"
+msgstr "Fájlok küldése"
+
+msgid "正在发送文本，等待接收确认"
+msgstr "Szöveg küldése; várja a vevő megerősítését"
+
+msgid "正在取消传输"
+msgstr "Az átvitel megszakítása"
+
+msgid "正在启动浏览器接收页面"
+msgstr "A böngésző fogadási oldalának elindítása"
+
+msgid "正在拒绝传输"
+msgstr "Csökkenő transzfer"
+
+msgid "正在接受传输"
+msgstr "Átutalás elfogadása"
+
+msgid "正在接收来自 {} 的文件"
+msgstr "Fájlok fogadása innen: {}"
+
+msgid "正在查找附近设备"
+msgstr "Közeli eszközök keresése"
+
+msgid "正在添加设备"
+msgstr "Eszköz hozzáadása"
+
+msgid "正在清空历史"
+msgstr "Előzmények törlése"
+
+msgid "正在连接"
+msgstr "Csatlakozás"
+
+msgid "正在连接 localsendd..."
+msgstr "Csatlakozás a helyi küldéshez..."
+
+msgid "正在连接后台服务…"
+msgstr "Csatlakozás a háttérszolgáltatáshoz…"
+
+msgid "正在连接对端，等待接收确认"
+msgstr "Csatlakozás a vevőhöz; megerősítésre vár"
+
+msgid "正在重启服务器"
+msgstr "Szerver újraindítása"
+
+msgid "正在重连"
+msgstr "Újracsatlakozás"
+
+msgid "正常"
+msgstr "Normál"
+
+msgid "此设置不能通过文本输入修改"
+msgstr "Ez a beállítás nem módosítható szövegbevitellel"
+
+msgid "此项由系统自动检测或当前平台不支持编辑"
+msgstr "Ezt az értéket a rendszer észleli, vagy nem szerkeszthető ezen a platformon"
+
+msgid "没有添加有效的文件或文件夹"
+msgstr "Nem lettek hozzáadva érvényes fájlok vagy mappák"
+
+msgid "浅色"
+msgstr "Világos"
+
+msgid "浏览器可在同一网络内访问此地址"
+msgstr "Az azonos hálózaton lévő böngészők elérhetik ezt a címet"
+
+msgid "消息已复制"
+msgstr "Üzenet másolva"
+
+msgid "深色"
+msgstr "Sötét"
+
+msgid "添加"
+msgstr "Hozzáad"
+
+msgid "清空历史"
+msgstr "Törölje az előzményeket"
+
+msgid "清除所选项"
+msgstr "Kiválasztás törlése"
+
+msgid "版本"
+msgstr "Verzió"
+
+msgid "版本、开源许可与项目信息"
+msgstr "Verzió, nyílt forráskódú licenc és projektinformációk"
+
+msgid "版本、诊断与支持选项。"
+msgstr "Verzió, diagnosztika és támogatási lehetőségek."
+
+msgid "版权"
+msgstr "Szerzői jog"
+
+msgid "状态"
+msgstr "Állapot"
+
+msgid "用于匹配正确的平台图标"
+msgstr "A megfelelő platform ikonhoz való illesztésre szolgál"
+
+msgid "用于区分设备信息"
+msgstr "Az eszköz információinak megkülönböztetésére szolgál"
+
+msgid "界面显示语言"
+msgstr "Interfész nyelve"
+
+msgid "登录系统后自动启动 LocalSend"
+msgstr "A LocalSend automatikus elindítása bejelentkezés után"
+
+msgid "目标地址"
+msgstr "Célcím"
+
+msgid "确保对方也打开了 LocalSend，并已连接到同一个 Wi-Fi 网络。"
+msgstr "Győződjön meg arról, hogy a másik eszközön is nyitva van a LocalSend, és ugyanazon a Wi-Fi hálózaton van."
+
+msgid "确定"
+msgstr "RENDBEN"
+
+msgid "确认"
+msgstr "Megerősít"
+
+msgid "确认双方处于同一子网，并允许防火墙访问 LocalSend。"
+msgstr "Győződjön meg arról, hogy mindkét eszköz ugyanazon az alhálózaton van, és engedélyezze a tűzfal hozzáférését a LocalSend szolgáltatáshoz."
+
+msgid "离线"
+msgstr "Offline"
+
+msgid "移除收藏"
+msgstr "Kedvenc eltávolítása"
+
+msgid "端口"
+msgstr "Port:"
+
+msgid "端口必须是 1 到 65535 之间的数字"
+msgstr "A portnak 1 és 65535 közötti számnak kell lennie"
+
+msgid "等待中"
+msgstr "Várakozás"
+
+msgid "简体中文"
+msgstr "简体中文"
+
+msgid "管理 LocalSend 的外观、接收、网络与支持选项。"
+msgstr "Kezelje a LocalSend megjelenését, fogadását, hálózati és támogatási lehetőségeit."
+
+msgid "管理收藏设备"
+msgstr "Kedvenc eszközök kezelése"
+
+msgid "系统"
+msgstr "Rendszer"
+
+msgid "繁體中文（台灣）"
+msgstr "繁體中文（台灣）"
+
+msgid "繁體中文（香港）"
+msgstr "繁體中文（香港）"
+
+msgid "组播地址必须是有效 IPv4 地址"
+msgstr "A multicast címnek érvényes IPv4-címnek kell lennie"
+
+msgid "结束本实例的 localsendd"
+msgstr "Állítsa le a helyi küldést erre az esetre"
+
+msgid "绿色"
+msgstr "Zöld"
+
+msgid "编辑"
+msgstr "Szerkeszt"
+
+msgid "编辑设置"
+msgstr "Beállítás szerkesztése"
+
+msgid "网络"
+msgstr "Hálózat"
+
+msgid "网络不可用"
+msgstr "A hálózat nem elérhető"
+
+msgid "网络信息"
+msgstr "Hálózati információk"
+
+msgid "网络接口"
+msgstr "Hálózati interfészek"
+
+msgid "网络筛选"
+msgstr "Hálózati szűrő"
+
+msgid "网络连接"
+msgstr "Hálózati kapcsolat"
+
+msgid "自动完成"
+msgstr "Automatikus befejezés"
+
+msgid "自动接收来自可信设备的文件"
+msgstr "Fájlok automatikus fogadása megbízható eszközökről"
+
+msgid "若设备指纹发生变化，LocalSend 会重新要求确认。你可以随时在收藏设备中取消信任。"
+msgstr "Ha egy eszköz ujjlenyomata megváltozik, a LocalSend ismét megerősítést kér. A Kedvenc eszközök közül bármikor megbízhatatlanná teheti."
+
+msgid "蓝色"
+msgstr "Kék"
+
+msgid "记住本次窗口尺寸与位置"
+msgstr "Ne felejtse el ezt az ablakméretet és pozíciót"
+
+msgid "设备信息"
+msgstr "Eszköz információ"
+
+msgid "设备名称"
+msgstr "Álnév:"
+
+msgid "设备型号"
+msgstr "Eszköz modell"
+
+msgid "设备已离线，请刷新设备列表"
+msgstr "Az eszköz offline állapotba került; frissítse az eszközlistát"
+
+msgid "设备类型"
+msgstr "Eszköz típusa"
+
+msgid "设备详情"
+msgstr "Eszköz részletei"
+
+msgid "设备身份、服务与发现协议。"
+msgstr "Eszközazonosító, szolgáltatás és felderítési protokoll."
+
+msgid "设置"
+msgstr "Beállítások"
+
+msgid "设置 PIN"
+msgstr "PIN-kód beállítása"
+
+msgid "设置值"
+msgstr "Beállítási érték"
+
+msgid "设置已提交"
+msgstr "Beállítások elküldve"
+
+msgid "访问者需要通过 PIN 验证后才能上传文件。"
+msgstr "A látogatóknak át kell menniük a PIN-kód ellenőrzésén, mielőtt fájlokat tölthetnek fel."
+
+msgid "诊断"
+msgstr "Diagnosztika"
+
+msgid "诊断信息已复制"
+msgstr "Diagnosztika másolva"
+
+msgid "语言"
+msgstr "Nyelv"
+
+msgid "请先选择文件、文件夹、文本或剪贴板，再选择设备发送"
+msgstr "Eszköz kiválasztása előtt válasszon ki egy fájlt, mappát, szöveget vagy vágólap tartalmát"
+
+msgid "请先选择文件或文件夹"
+msgstr "Először válasszon ki egy fájlt vagy mappát"
+
+msgid "请先选择至少一个设备"
+msgstr "Válasszon ki legalább egy eszközt"
+
+msgid "请在系统设置中检查防火墙规则"
+msgstr "Ellenőrizze a tűzfalszabályokat a rendszerbeállításokban"
+
+msgid "请求发送 {} 个项目"
+msgstr "{} elemet szeretne küldeni"
+
+msgid "请输入设备 IP 地址或主机名"
+msgstr "Adja meg az eszköz IP-címét vagy gazdagépnevét"
+
+msgid "请选择目标设备"
+msgstr "Válasszon ki egy céleszközt"
+
+msgid "跟随系统"
+msgstr "Rendszer"
+
+msgid "跟随系统或固定使用浅色、深色"
+msgstr "Kövesse a rendszert, vagy állítsa világosra vagy sötétre"
+
+msgid "路径可在文件管理器中打开"
+msgstr "Az elérési út a fájlkezelőben nyitható meg"
+
+msgid "输入同一网络中设备的 IP 地址"
+msgstr "Adja meg az ugyanazon a hálózaton lévő eszköz IP-címét"
+
+msgid "返回"
+msgstr "Vissza"
+
+msgid "还没有接收记录"
+msgstr "Még nincsenek beérkezett tételek"
+
+msgid "还没有收藏设备"
+msgstr "Még nincsenek kedvenc készülékei"
+
+msgid "连接"
+msgstr "Csatlakozás"
+
+msgid "退出"
+msgstr "Kilép"
+
+msgid "退出时保存窗口位置"
+msgstr "Kilépés: Ablak pozíció mentése"
+
+msgid "选择"
+msgstr "Kiválasztás"
+
+msgid "选择要发送的内容，或从剪贴板快速创建一条文本消息。"
+msgstr "Válassza ki, hogy mit szeretne küldeni, vagy gyorsan hozzon létre szöveges üzenetet a vágólapról."
+
+msgid "通用"
+msgstr "Általános"
+
+msgid "通过链接接收"
+msgstr "Fogadás hivatkozáson keresztül"
+
+msgid "重启"
+msgstr "Újraindít"
+
+msgid "重新启动接收"
+msgstr "Fogadás újraindítása"
+
+msgid "重新扫描"
+msgstr "Újraszkennelés"
+
+msgid "附近的设备"
+msgstr "Közeli eszközök"
+
+msgid "附近设备中显示的 alias"
+msgstr "Alias ​​látható a közeli eszközök számára"
+
+msgid "隐私政策"
+msgstr "Adatvédelmi irányelvek"
+
+msgid "颜色"
+msgstr "Színek"
+
+msgid "验证"
+msgstr "Ellenőrzés"

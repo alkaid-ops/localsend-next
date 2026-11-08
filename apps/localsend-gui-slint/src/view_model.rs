@@ -154,6 +154,14 @@ pub fn history(snapshot: &ServiceSnapshot) -> Vec<HistoryRow> {
     history_with_language(snapshot, false)
 }
 
+/// Translate a status string into the active interface language.
+///
+/// `_english` keeps the public signatures stable (tests and the headless
+/// fixture pass `true`); the language actually comes from the GUI state.
+fn t(message: &str, _english: bool) -> String {
+    localsend_i18n::translate(crate::runtime_strings::current_language(), message)
+}
+
 pub fn history_with_language(snapshot: &ServiceSnapshot, english: bool) -> Vec<HistoryRow> {
     snapshot
         .history
@@ -168,24 +176,20 @@ fn history_entry(entry: &HistoryEntry, english: bool) -> HistoryRow {
     HistoryRow {
         id: entry.id.clone(),
         name: if is_message {
-            if english {
-                "Text message".to_string()
-            } else {
-                "文本消息".to_string()
-            }
+            t("文本消息", english)
         } else {
             entry.file_name.clone()
         },
         subtitle: format!(
             "{} · {} · {} · {}",
             if entry.direction == TransferDirection::Receive {
-                if english { "Received" } else { "接收" }
+                t("接收", english)
             } else {
-                if english { "Sent" } else { "发送" }
+                t("发送", english)
             },
             entry.peer_alias,
             format_bytes(entry.size),
-            transfer_status_text(entry.status, english)
+            t(transfer_status_label(entry.status), english)
         ),
         path: entry
             .path
@@ -269,21 +273,13 @@ fn transfer_row(item: &TransferView, english: bool, auto_finish: bool) -> Transf
             format_bytes(item.bytes_done),
             format_bytes(item.bytes_total)
         ),
-        status: transfer_status_text(item.status, english).to_string(),
+        status: transfer_status_code(item.status).to_string(),
         speed,
         duration,
         direction: if item.direction == TransferDirection::Receive {
-            if english {
-                "Receive".to_string()
-            } else {
-                "接收".to_string()
-            }
+            "receive".to_string()
         } else {
-            if english {
-                "Send".to_string()
-            } else {
-                "发送".to_string()
-            }
+            "send".to_string()
         },
         terminal: matches!(
             item.status,
@@ -306,25 +302,11 @@ fn transfer_row(item: &TransferView, english: bool, auto_finish: bool) -> Transf
                     || (file.size > 0 && file.bytes_done >= file.size);
                 let in_progress = !completed && file.bytes_done > 0;
                 let (status, detail) = if completed {
-                    (
-                        (if english { "Completed" } else { "已完成" }).to_string(),
-                        (if english { "Delivered" } else { "已送达" }).to_string(),
-                    )
+                    (t("已完成", english), t("已送达", english))
                 } else if in_progress {
-                    (
-                        format!("{progress_percent}%"),
-                        (if english {
-                            "Transferring"
-                        } else {
-                            "正在传输"
-                        })
-                        .to_string(),
-                    )
+                    (format!("{progress_percent}%"), t("正在传输", english))
                 } else {
-                    (
-                        (if english { "Pending" } else { "待处理" }).to_string(),
-                        (if english { "Waiting" } else { "等待中" }).to_string(),
-                    )
+                    (t("待处理", english), t("等待中", english))
                 };
                 TransferFileRow {
                     name: file.file_name.clone(),
@@ -367,18 +349,25 @@ pub fn transfer_status_label(status: TransferStatus) -> &'static str {
     }
 }
 
-fn transfer_status_text(status: TransferStatus, english: bool) -> &'static str {
-    if english {
-        match status {
-            TransferStatus::Waiting => "Waiting",
-            TransferStatus::Transferring => "Transferring",
-            TransferStatus::Finished => "Completed",
-            TransferStatus::Failed => "Failed",
-            TransferStatus::Cancelled => "Cancelled",
-        }
-    } else {
-        transfer_status_label(status)
+/// Stable code for comparisons in the Slint markup; `UiText.transfer-status`
+/// turns it into a translated label.
+fn transfer_status_code(status: TransferStatus) -> &'static str {
+    match status {
+        TransferStatus::Waiting => "waiting",
+        TransferStatus::Transferring => "transferring",
+        TransferStatus::Finished => "finished",
+        TransferStatus::Failed => "failed",
+        TransferStatus::Cancelled => "cancelled",
     }
+}
+
+#[cfg(test)]
+fn with_language<R>(language: &'static str, body: impl FnOnce() -> R) -> R {
+    let previous = crate::runtime_strings::current_language();
+    crate::runtime_strings::set_current_language(language);
+    let result = body();
+    crate::runtime_strings::set_current_language(previous);
+    result
 }
 
 #[cfg(test)]
@@ -453,9 +442,9 @@ mod tests {
         item.bytes_total = 4;
         item.bytes_done = 3;
         assert_eq!(transfer_row(&item, false, true).progress_percent, 75);
-        let english = transfer_row(&item, true, true);
-        assert_eq!(english.status, "Transferring");
-        assert_eq!(english.direction, "Send");
+        let english = with_language("en-US", || transfer_row(&item, true, true));
+        assert_eq!(english.status, "transferring");
+        assert_eq!(english.direction, "send");
 
         item.status = TransferStatus::Failed;
         item.ended_at_ms = Some(unix_ms_now());
@@ -525,10 +514,10 @@ mod tests {
         assert!(finished.files.iter().all(|file| file.status == "已完成"));
 
         item.status = TransferStatus::Transferring;
-        let english = transfer_row(&item, true, false);
+        let english = with_language("en-US", || transfer_row(&item, true, false));
         assert_eq!(english.files[0].status, "Pending");
         assert_eq!(english.files[1].detail, "Transferring");
-        assert_eq!(english.files[2].status, "Completed");
+        assert_eq!(english.files[2].status, "Finished");
     }
 
     #[test]
@@ -603,10 +592,13 @@ mod tests {
         assert_eq!(history[0].message, "hello world!");
         assert!(history[0].is_message);
         assert_eq!(history[0].name, "文本消息");
-        let english_history = history_with_language(&snapshot, true);
+        let english_history = with_language("en-US", || history_with_language(&snapshot, true));
         assert_eq!(english_history[0].name, "Text message");
-        assert!(english_history[0].subtitle.contains("Received"));
-        assert!(english_history[0].subtitle.contains("Completed"));
+        assert!(english_history[0].subtitle.contains("Receive"));
+        assert!(
+            english_history[0].subtitle.contains("Finished")
+                || english_history[0].subtitle.contains("Completed")
+        );
 
         let request = TransferRequestView {
             request_id: "request-1".to_string(),

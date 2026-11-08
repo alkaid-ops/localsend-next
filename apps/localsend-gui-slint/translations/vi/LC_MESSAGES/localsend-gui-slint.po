@@ -1,0 +1,892 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: vi\n"
+
+msgid "Checksum 校验"
+msgstr "Xác minh tổng kiểm tra"
+
+msgid "HTTPS"
+msgstr "HTTPS"
+
+msgid "IP 地址"
+msgstr "Địa chỉ IP"
+
+msgid "IP 地址或主机名"
+msgstr "Địa chỉ IP hoặc tên máy chủ"
+
+msgid "LocalSend Next {} · 桌面版"
+msgstr "LocalSend Tiếp theo {} · Máy tính để bàn"
+
+msgid "LocalSend 青绿色品牌色"
+msgstr "Màu thương hiệu LocalSend xanh mòng két"
+
+msgid "Multicast"
+msgstr "Đa phương tiện"
+
+msgid "PIN 不能为空"
+msgstr "Mã PIN không được để trống"
+
+msgid "PIN 值"
+msgstr "Giá trị mã PIN"
+
+msgid "PIN 密码"
+msgstr "GHIM"
+
+msgid "PIN 需要 4 位数字"
+msgstr "Mã PIN phải có 4 chữ số"
+
+msgid "PIN 验证"
+msgstr "Xác minh mã PIN"
+
+msgid "TCP {} 正在监听"
+msgstr "Đang nghe TCP {}"
+
+msgid "Web Share 已验证"
+msgstr "Chia sẻ web đã được xác minh"
+
+msgid "Web Share 链接不可用"
+msgstr "Liên kết chia sẻ web không khả dụng"
+
+msgid "{} 个文件已保存到「下载 / LocalSend」。"
+msgstr "{} tệp được lưu vào \"Tải xuống / LocalSend\"."
+
+msgid "「收藏设备」只会自动接受来自已验证收藏设备的请求。文件保存到当前接收目录，并继续显示在历史记录中。"
+msgstr "\"Thiết bị yêu thích\" chỉ tự động chấp nhận yêu cầu từ các mục yêu thích đã được xác minh. Các tập tin được lưu vào thư mục nhận hiện tại và lưu lại trong lịch sử."
+
+msgid "与后台服务的连接已断开，正在重连…"
+msgstr "Mất kết nối với dịch vụ nền; đang kết nối lại…"
+
+msgid "主题"
+msgstr "Chủ đề"
+
+msgid "仅允许指定网段访问"
+msgstr "Chỉ cho phép truy cập từ mạng con được chỉ định"
+
+msgid "传输中"
+msgstr "Chuyển giao"
+
+msgid "传输后校验文件完整性"
+msgstr "Xác minh tính toàn vẹn của tệp sau khi chuyển"
+
+msgid "传输失败：{}"
+msgstr "Chuyển không thành công: {}"
+
+msgid "传输完成"
+msgstr "Chuyển hoàn tất"
+
+msgid "传输用时"
+msgstr "Khoảng thời gian"
+
+msgid "保存"
+msgstr "Lưu"
+
+msgid "保留最近 100 条接收与发送记录"
+msgstr "Giữ 100 hồ sơ nhận và gửi cuối cùng"
+
+msgid "保留状态变化和页面切换反馈"
+msgstr "Giữ phản hồi về thay đổi trạng thái và chuyển trang"
+
+msgid "停止"
+msgstr "Dừng"
+
+msgid "允许接收方校验传输内容"
+msgstr "Cho phép người nhận xác minh nội dung được chuyển"
+
+msgid "全部开启"
+msgstr "Bật tất cả"
+
+msgid "全部接受"
+msgstr "Chấp nhận tất cả"
+
+msgid "全部接口"
+msgstr "Tất cả các giao diện"
+
+msgid "关于 LocalSend Next"
+msgstr "Giới thiệu về LocalSend Tiếp theo"
+
+msgid "关闭"
+msgstr "Đóng"
+
+msgid "关闭 ({})"
+msgstr "Đóng ({})"
+
+msgid "关闭后台服务"
+msgstr "Dừng dịch vụ nền"
+
+msgid "关闭时最小化到托盘"
+msgstr "Thu nhỏ vào khay khi đóng"
+
+msgid "关闭窗口后保持接收服务运行"
+msgstr "Giữ dịch vụ nhận chạy sau khi đóng cửa sổ"
+
+msgid "其他"
+msgstr "Khác"
+
+msgid "再次发送"
+msgstr "Gửi lại"
+
+msgid "刷新设备"
+msgstr "Làm mới thiết bị"
+
+msgid "剪贴板"
+msgstr "Dán"
+
+msgid "剪贴板中没有可发送的文件、文件夹、图片或文本"
+msgstr "Clipboard không có tập tin, thư mục, hình ảnh hoặc văn bản để gửi"
+
+msgid "剪贴板文本已准备好，请选择附近设备发送"
+msgstr "Văn bản bảng tạm đã sẵn sàng; chọn một thiết bị ở gần để gửi"
+
+msgid "动画效果"
+msgstr "Hoạt ảnh"
+
+msgid "协议"
+msgstr "Giao thức"
+
+msgid "协议 {}"
+msgstr "Giao thức v{}"
+
+msgid "单位：秒；0 表示持续发现"
+msgstr "Đơn vị: giây; 0 có nghĩa là tiếp tục khám phá"
+
+msgid "单选"
+msgstr "Đơn"
+
+msgid "历史记录"
+msgstr "Lịch sử"
+
+msgid "历史记录只保存在当前设备，不会同步到云服务。"
+msgstr "Lịch sử chỉ được lưu trữ trên thiết bị này và không bao giờ được đồng bộ hóa với đám mây."
+
+msgid "发现"
+msgstr "Khám phá"
+
+msgid "发现和传输使用的网络"
+msgstr "Mạng được sử dụng để khám phá và chuyển giao"
+
+msgid "发现超时必须是正整数"
+msgstr "Thời gian chờ khám phá phải là số nguyên dương"
+
+msgid "发送"
+msgstr "Gửi"
+
+msgid "发送内容"
+msgstr "Nội dung cần gửi"
+
+msgid "发送到 "
+msgstr "Gửi tới"
+
+msgid "发送到所选设备"
+msgstr "Gửi đến các thiết bị đã chọn"
+
+msgid "发送完成"
+msgstr "Gửi hoàn tất"
+
+msgid "发送文件时创建校验和"
+msgstr "Tạo checksum khi gửi tệp"
+
+msgid "发送文本"
+msgstr "Gửi văn bản"
+
+msgid "发送文本内容"
+msgstr "Tin nhắn"
+
+msgid "发送给你了一条消息："
+msgstr "đã gửi cho bạn một tin nhắn:"
+
+msgid "发送请求已提交，请等待对端响应"
+msgstr "Gửi yêu cầu đã gửi; đang chờ người nhận"
+
+msgid "取消"
+msgstr "Thoát"
+
+msgid "取消发送"
+msgstr "Hủy gửi"
+
+msgid "取消接收"
+msgstr "Hủy nhận"
+
+msgid "取消收藏"
+msgstr "Không yêu thích"
+
+msgid "另一台设备未出现？"
+msgstr "Một thiết bị khác không hiển thị?"
+
+msgid "可信设备可以跳过每次接收确认"
+msgstr "Các thiết bị đáng tin cậy có thể bỏ qua xác nhận mỗi lần chuyển"
+
+msgid "可被发现"
+msgstr "Có thể khám phá"
+
+msgid "同一网络下的设备会自动出现。"
+msgstr "Các thiết bị trên cùng một mạng sẽ tự động xuất hiện."
+
+msgid "名称"
+msgstr "Tên"
+
+msgid "启动"
+msgstr "Bắt đầu"
+
+msgid "启动时运行"
+msgstr "Chạy lúc khởi động"
+
+msgid "启用加密传输，速度可能略低"
+msgstr "Cho phép chuyển mã hóa; tốc độ có thể giảm nhẹ"
+
+msgid "在文件管理器中显示"
+msgstr "Hiển thị trong thư mục"
+
+msgid "在线"
+msgstr "Trực tuyến"
+
+msgid "复制"
+msgstr "Sao chép"
+
+msgid "复制诊断信息"
+msgstr "Sao chép chẩn đoán"
+
+msgid "复制链接"
+msgstr "Sao chép liên kết"
+
+msgid "外观与桌面行为。"
+msgstr "Ngoại hình và hành vi của máy tính để bàn."
+
+msgid "外部文档在当前评审原型中不可用"
+msgstr "Tài liệu bên ngoài không có sẵn trong nguyên mẫu đánh giá này"
+
+msgid "外部链接在当前评审原型中不可用"
+msgstr "Liên kết bên ngoài không có sẵn trong nguyên mẫu đánh giá này"
+
+msgid "多选"
+msgstr "Nhiều"
+
+msgid "失败"
+msgstr "Thất bại"
+
+msgid "完成"
+msgstr "Hoàn thành"
+
+msgid "完成传输"
+msgstr "Kết thúc chuyển khoản"
+
+msgid "局域网组播发现地址"
+msgstr "Địa chỉ phát hiện multicast LAN"
+
+msgid "已发送"
+msgstr "Đã gửi"
+
+msgid "已取消"
+msgstr "Đã hủy"
+
+msgid "已完成"
+msgstr "Đã xong"
+
+msgid "已就绪"
+msgstr "Sẵn sàng"
+
+msgid "已收藏"
+msgstr "Yêu thích"
+
+msgid "已连接"
+msgstr "Đã kết nối"
+
+msgid "已送达"
+msgstr "Đã giao hàng"
+
+msgid "已选择 {} 个项目"
+msgstr "Đã chọn {} mục"
+
+msgid "已选择 {} 台设备"
+msgstr "Đã chọn {} thiết bị"
+
+msgid "已选择文件夹，正在刷新附近设备"
+msgstr "Thư mục đã chọn; làm mới các thiết bị lân cận"
+
+msgid "已选择文件，正在刷新附近设备"
+msgstr "Tệp đã chọn; làm mới các thiết bị lân cận"
+
+msgid "已验证 · 快速保存已开启"
+msgstr "Đã xác minh · Lưu nhanh đang bật"
+
+msgid "当前接收服务的连接信息"
+msgstr "Thông tin kết nối cho dịch vụ nhận hiện tại"
+
+msgid "当前没有可复制的接收链接"
+msgstr "Không có liên kết nhận có sẵn để sao chép"
+
+msgid "待处理"
+msgstr "Chưa giải quyết"
+
+msgid "快速保存"
+msgstr "Lưu nhanh"
+
+msgid "快速保存说明"
+msgstr "Lưu nhanh chi tiết"
+
+msgid "总大小"
+msgstr "Tổng kích thước"
+
+msgid "所有文件均已通过 Checksum 校验"
+msgstr "Tất cả các tệp đã vượt qua xác minh tổng kiểm tra"
+
+msgid "手动添加设备"
+msgstr "Thêm thiết bị theo cách thủ công"
+
+msgid "手动连接"
+msgstr "Kết nối thủ công"
+
+msgid "打开"
+msgstr "Mở"
+
+msgid "打开主界面"
+msgstr "Mở cửa sổ chính"
+
+msgid "打开文件"
+msgstr "Mở tập tin"
+
+msgid "打开文件夹"
+msgstr "Mở thư mục"
+
+msgid "执行"
+msgstr "Chạy"
+
+msgid "拒绝"
+msgstr "Từ chối"
+
+msgid "指纹"
+msgstr "Dấu vân tay"
+
+msgid "按顺序检查设备发现和连接"
+msgstr "Kiểm tra việc khám phá và kết nối theo thứ tự"
+
+msgid "接受所选"
+msgstr "Chấp nhận đã chọn"
+
+msgid "接收"
+msgstr "Nhận"
+
+msgid "接收前要求发送方输入 PIN"
+msgstr "Yêu cầu người gửi nhập mã PIN trước khi nhận"
+
+msgid "接收历史"
+msgstr "Nhận lịch sử"
+
+msgid "接收完成"
+msgstr "Nhận hoàn tất"
+
+msgid "接收完成后自动关闭请求，不需要再次确认"
+msgstr "Tự động đóng yêu cầu sau khi nhận được mà không cần xác nhận thêm"
+
+msgid "接收文件前，发送方需要输入 4 位 PIN"
+msgstr "Người gửi phải nhập mã PIN gồm 4 chữ số trước khi nhận file"
+
+msgid "接收服务使用的 TCP 端口"
+msgstr "Cổng TCP mà dịch vụ nhận sử dụng"
+
+msgid "接收服务在线"
+msgstr "Nhận dịch vụ trực tuyến"
+
+msgid "接收服务已就绪，附近设备可以在同一网络中发现你。"
+msgstr "Dịch vụ nhận đã sẵn sàng; các thiết bị lân cận trên mạng này có thể phát hiện ra bạn."
+
+msgid "接收服务暂时无法启动。"
+msgstr "Dịch vụ nhận không thể bắt đầu ngay bây giờ."
+
+msgid "接收服务离线"
+msgstr "Nhận dịch vụ ngoại tuyến"
+
+msgid "接收状态"
+msgstr "Nhận trạng thái"
+
+msgid "接收目录"
+msgstr "Nhận thư mục"
+
+msgid "接收链接"
+msgstr "Nhận liên kết"
+
+msgid "接收链接已复制"
+msgstr "Nhận liên kết được sao chép"
+
+msgid "搜索历史"
+msgstr "Lịch sử tìm kiếm"
+
+msgid "搜索消息、文件名或设备"
+msgstr "Tìm kiếm tin nhắn, tên tập tin hoặc thiết bị"
+
+msgid "搜索设备超时"
+msgstr "Hết thời gian tìm kiếm"
+
+msgid "支持项目"
+msgstr "Hỗ trợ dự án này"
+
+msgid "收到文件"
+msgstr "Đã nhận được tệp"
+
+msgid "收到新文件"
+msgstr "Đã nhận được tập tin mới"
+
+msgid "收到新消息"
+msgstr "Đã nhận được tin nhắn mới"
+
+msgid "收藏"
+msgstr "Yêu thích"
+
+msgid "收藏设备"
+msgstr "Thiết bị yêu thích"
+
+msgid "收藏设备可使用快速保存与快捷发送"
+msgstr "Thiết bị yêu thích bật Lưu nhanh và gửi nhanh"
+
+msgid "故障排除"
+msgstr "Gỡ lỗi"
+
+msgid "文件"
+msgstr "Tập tin"
+
+msgid "文件保存、接收确认与完整性校验。"
+msgstr "Lưu trữ tập tin, nhận xác nhận và kiểm tra tính toàn vẹn."
+
+msgid "文件夹"
+msgstr "Thư mục"
+
+msgid "文件已保存"
+msgstr "Đã lưu tệp"
+
+msgid "文件已发送到「{}」。"
+msgstr "Tệp được gửi tới \"{}\"."
+
+msgid "文件已成功送达"
+msgstr "Tệp đã được gửi thành công"
+
+msgid "文本"
+msgstr "Văn bản"
+
+msgid "文本会作为 .txt 文件发送到所选设备"
+msgstr "Văn bản được gửi đến các thiết bị đã chọn dưới dạng tệp .txt"
+
+msgid "文本内容"
+msgstr "Nội dung văn bản"
+
+msgid "文本已准备好，请选择附近设备发送"
+msgstr "Văn bản đã sẵn sàng; chọn một thiết bị ở gần để gửi"
+
+msgid "文本消息"
+msgstr "Tin nhắn văn bản"
+
+msgid "无法保存剪贴板图片"
+msgstr "Không thể lưu hình ảnh clipboard"
+
+msgid "无法定位剪贴板图片缓存目录"
+msgstr "Không thể định vị thư mục bộ đệm hình ảnh clipboard"
+
+msgid "无法将剪贴板图片转换为 PNG"
+msgstr "Không thể chuyển đổi hình ảnh clipboard sang PNG"
+
+msgid "无法访问剪贴板"
+msgstr "Không thể truy cập vào bảng nhớ tạm"
+
+msgid "无法重启"
+msgstr "Khởi động lại không có sẵn"
+
+msgid "日志"
+msgstr "Nhật ký"
+
+msgid "日本語"
+msgstr "日本語"
+
+msgid "暂不可用"
+msgstr "Không có sẵn"
+
+msgid "最近一次响应：刚刚"
+msgstr "Phản hồi cuối cùng: vừa rồi"
+
+msgid "最近发现"
+msgstr "Được phát hiện gần đây"
+
+msgid "服务器已停止"
+msgstr "Máy chủ đã dừng"
+
+msgid "服务器状态"
+msgstr "Trạng thái máy chủ"
+
+msgid "服务器运行中"
+msgstr "Máy chủ đang chạy"
+
+msgid "服务暂停"
+msgstr "Dịch vụ bị tạm dừng"
+
+msgid "服务条款"
+msgstr "Điều khoản dịch vụ"
+
+msgid "未知"
+msgstr "Không xác định"
+
+msgid "本地端口"
+msgstr "Cảng địa phương"
+
+msgid "来自附近设备"
+msgstr "Từ thiết bị lân cận"
+
+msgid "查看"
+msgstr "Xem"
+
+msgid "查看当前会话的调试日志"
+msgstr "Xem nhật ký gỡ lỗi cho phiên hiện tại"
+
+msgid "查看详情"
+msgstr "Xem chi tiết"
+
+msgid "桌面"
+msgstr "Máy tính để bàn"
+
+msgid "检查端口、网络与设备发现"
+msgstr "Kiểm tra cổng, mạng và phát hiện thiết bị"
+
+msgid "正在传输"
+msgstr "Chuyển giao"
+
+msgid "正在关闭后台服务"
+msgstr "Dừng dịch vụ nền"
+
+msgid "正在关闭浏览器接收页面"
+msgstr "Dừng trình duyệt nhận trang"
+
+msgid "正在刷新设备连接…"
+msgstr "Đang làm mới kết nối thiết bị…"
+
+msgid "正在发送文件"
+msgstr "Đang gửi tập tin"
+
+msgid "正在发送文本，等待接收确认"
+msgstr "Gửi văn bản; đang chờ xác nhận của người nhận"
+
+msgid "正在取消传输"
+msgstr "Hủy chuyển khoản"
+
+msgid "正在启动浏览器接收页面"
+msgstr "Khởi động trình duyệt nhận trang"
+
+msgid "正在拒绝传输"
+msgstr "Chuyển khoản giảm dần"
+
+msgid "正在接受传输"
+msgstr "Chấp nhận chuyển khoản"
+
+msgid "正在接收来自 {} 的文件"
+msgstr "Đang nhận tệp từ {}"
+
+msgid "正在查找附近设备"
+msgstr "Đang tìm kiếm các thiết bị ở gần"
+
+msgid "正在添加设备"
+msgstr "Thêm thiết bị"
+
+msgid "正在清空历史"
+msgstr "Xóa lịch sử"
+
+msgid "正在连接"
+msgstr "Đang kết nối"
+
+msgid "正在连接 localsendd..."
+msgstr "Đang kết nối với địa phương..."
+
+msgid "正在连接后台服务…"
+msgstr "Đang kết nối với dịch vụ nền…"
+
+msgid "正在连接对端，等待接收确认"
+msgstr "Kết nối với máy thu; đang chờ xác nhận"
+
+msgid "正在重启服务器"
+msgstr "Khởi động lại máy chủ"
+
+msgid "正在重连"
+msgstr "Đang kết nối lại"
+
+msgid "正常"
+msgstr "Bình thường"
+
+msgid "此设置不能通过文本输入修改"
+msgstr "Không thể thay đổi cài đặt này thông qua nhập văn bản"
+
+msgid "此项由系统自动检测或当前平台不支持编辑"
+msgstr "Giá trị này được hệ thống phát hiện hoặc không thể chỉnh sửa trên nền tảng này"
+
+msgid "没有添加有效的文件或文件夹"
+msgstr "Không có tệp hoặc thư mục hợp lệ nào được thêm vào"
+
+msgid "浅色"
+msgstr "Sáng"
+
+msgid "浏览器可在同一网络内访问此地址"
+msgstr "Các trình duyệt trên cùng một mạng có thể truy cập địa chỉ này"
+
+msgid "消息已复制"
+msgstr "Đã sao chép tin nhắn"
+
+msgid "深色"
+msgstr "Tối"
+
+msgid "添加"
+msgstr "Thêm"
+
+msgid "清空历史"
+msgstr "Xóa lịch sử"
+
+msgid "清除所选项"
+msgstr "Xóa lựa chọn"
+
+msgid "版本"
+msgstr "Phiên bản"
+
+msgid "版本、开源许可与项目信息"
+msgstr "Phiên bản, giấy phép nguồn mở và thông tin dự án"
+
+msgid "版本、诊断与支持选项。"
+msgstr "Tùy chọn phiên bản, chẩn đoán và hỗ trợ."
+
+msgid "版权"
+msgstr "Bản quyền"
+
+msgid "状态"
+msgstr "Trạng thái"
+
+msgid "用于匹配正确的平台图标"
+msgstr "Được sử dụng để khớp với biểu tượng nền tảng chính xác"
+
+msgid "用于区分设备信息"
+msgstr "Dùng để phân biệt thông tin thiết bị"
+
+msgid "界面显示语言"
+msgstr "Ngôn ngữ giao diện"
+
+msgid "登录系统后自动启动 LocalSend"
+msgstr "Tự động khởi chạy LocalSend sau khi đăng nhập"
+
+msgid "目标地址"
+msgstr "Địa chỉ mục tiêu"
+
+msgid "确保对方也打开了 LocalSend，并已连接到同一个 Wi-Fi 网络。"
+msgstr "Đảm bảo thiết bị kia cũng mở LocalSend và nằm trên cùng một mạng Wi-Fi."
+
+msgid "确定"
+msgstr "ĐƯỢC RỒI"
+
+msgid "确认"
+msgstr "Xác nhận"
+
+msgid "确认双方处于同一子网，并允许防火墙访问 LocalSend。"
+msgstr "Xác nhận cả hai thiết bị đều nằm trên cùng một mạng con và cho phép truy cập tường lửa vào LocalSend."
+
+msgid "离线"
+msgstr "Ngoại tuyến"
+
+msgid "移除收藏"
+msgstr "Xóa yêu thích"
+
+msgid "端口"
+msgstr "Port:"
+
+msgid "端口必须是 1 到 65535 之间的数字"
+msgstr "Cổng phải là số từ 1 đến 65535"
+
+msgid "等待中"
+msgstr "Chờ"
+
+msgid "简体中文"
+msgstr "简体中文"
+
+msgid "管理 LocalSend 的外观、接收、网络与支持选项。"
+msgstr "Quản lý các tùy chọn giao diện, nhận, mạng và hỗ trợ của LocalSend."
+
+msgid "管理收藏设备"
+msgstr "Quản lý thiết bị yêu thích"
+
+msgid "系统"
+msgstr "Hệ thống"
+
+msgid "繁體中文（台灣）"
+msgstr "繁體中文（台灣）"
+
+msgid "繁體中文（香港）"
+msgstr "繁體中文（香港）"
+
+msgid "组播地址必须是有效 IPv4 地址"
+msgstr "Địa chỉ Multicast phải là địa chỉ IPv4 hợp lệ"
+
+msgid "结束本实例的 localsendd"
+msgstr "Dừng Localsendd cho trường hợp này"
+
+msgid "绿色"
+msgstr "Màu xanh lá"
+
+msgid "编辑"
+msgstr "Sửa"
+
+msgid "编辑设置"
+msgstr "Chỉnh sửa cài đặt"
+
+msgid "网络"
+msgstr "Mạng"
+
+msgid "网络不可用"
+msgstr "Mạng không khả dụng"
+
+msgid "网络信息"
+msgstr "Thông tin mạng"
+
+msgid "网络接口"
+msgstr "Card mạng"
+
+msgid "网络筛选"
+msgstr "Bộ lọc mạng"
+
+msgid "网络连接"
+msgstr "Kết nối mạng"
+
+msgid "自动完成"
+msgstr "Tự động hoàn tất"
+
+msgid "自动接收来自可信设备的文件"
+msgstr "Tự động nhận tập tin từ các thiết bị đáng tin cậy"
+
+msgid "若设备指纹发生变化，LocalSend 会重新要求确认。你可以随时在收藏设备中取消信任。"
+msgstr "Nếu dấu vân tay của thiết bị thay đổi, LocalSend sẽ yêu cầu xác nhận lại. Bạn có thể hủy tin cậy nó khỏi các thiết bị Yêu thích bất cứ lúc nào."
+
+msgid "蓝色"
+msgstr "Màu xanh da trời"
+
+msgid "记住本次窗口尺寸与位置"
+msgstr "Hãy nhớ kích thước và vị trí cửa sổ này"
+
+msgid "设备信息"
+msgstr "Thông tin thiết bị"
+
+msgid "设备名称"
+msgstr "Biệt danh:"
+
+msgid "设备型号"
+msgstr "Model thiết bị"
+
+msgid "设备已离线，请刷新设备列表"
+msgstr "Thiết bị đã ngoại tuyến; làm mới danh sách thiết bị"
+
+msgid "设备类型"
+msgstr "Loại thiết bị"
+
+msgid "设备详情"
+msgstr "Chi tiết thiết bị"
+
+msgid "设备身份、服务与发现协议。"
+msgstr "Giao thức nhận dạng, dịch vụ và khám phá thiết bị."
+
+msgid "设置"
+msgstr "Cài đặt"
+
+msgid "设置 PIN"
+msgstr "Đặt mã PIN"
+
+msgid "设置值"
+msgstr "Giá trị cài đặt"
+
+msgid "设置已提交"
+msgstr "Đã gửi cài đặt"
+
+msgid "访问者需要通过 PIN 验证后才能上传文件。"
+msgstr "Khách truy cập phải vượt qua xác minh mã PIN trước khi họ có thể tải tệp lên."
+
+msgid "诊断"
+msgstr "Chẩn đoán"
+
+msgid "诊断信息已复制"
+msgstr "Đã sao chép chẩn đoán"
+
+msgid "语言"
+msgstr "Ngôn ngữ"
+
+msgid "请先选择文件、文件夹、文本或剪贴板，再选择设备发送"
+msgstr "Chọn nội dung tệp, thư mục, văn bản hoặc bảng nhớ tạm trước khi chọn thiết bị"
+
+msgid "请先选择文件或文件夹"
+msgstr "Trước tiên hãy chọn một tập tin hoặc thư mục"
+
+msgid "请先选择至少一个设备"
+msgstr "Chọn ít nhất một thiết bị"
+
+msgid "请在系统设置中检查防火墙规则"
+msgstr "Kiểm tra quy tắc tường lửa trong cài đặt hệ thống"
+
+msgid "请求发送 {} 个项目"
+msgstr "muốn gửi {} mặt hàng"
+
+msgid "请输入设备 IP 地址或主机名"
+msgstr "Nhập địa chỉ IP hoặc tên máy chủ của thiết bị"
+
+msgid "请选择目标设备"
+msgstr "Chọn thiết bị mục tiêu"
+
+msgid "跟随系统"
+msgstr "Hệ thống"
+
+msgid "跟随系统或固定使用浅色、深色"
+msgstr "Theo hệ thống hoặc chỉnh sáng hoặc tối"
+
+msgid "路径可在文件管理器中打开"
+msgstr "Đường dẫn có thể được mở trong trình quản lý tập tin"
+
+msgid "输入同一网络中设备的 IP 地址"
+msgstr "Nhập địa chỉ IP của một thiết bị trên cùng một mạng"
+
+msgid "返回"
+msgstr "Mặt sau"
+
+msgid "还没有接收记录"
+msgstr "Chưa nhận được mặt hàng nào"
+
+msgid "还没有收藏设备"
+msgstr "Chưa có thiết bị yêu thích nào"
+
+msgid "连接"
+msgstr "Kết nối"
+
+msgid "退出"
+msgstr "Từ bỏ"
+
+msgid "退出时保存窗口位置"
+msgstr "Thoát: Lưu vị trí cửa sổ hiển thị"
+
+msgid "选择"
+msgstr "Lựa chọn"
+
+msgid "选择要发送的内容，或从剪贴板快速创建一条文本消息。"
+msgstr "Chọn nội dung cần gửi hoặc tạo nhanh tin nhắn văn bản từ bảng nhớ tạm."
+
+msgid "通用"
+msgstr "Chung"
+
+msgid "通过链接接收"
+msgstr "Nhận qua liên kết"
+
+msgid "重启"
+msgstr "Khởi động lại"
+
+msgid "重新启动接收"
+msgstr "Khởi động lại nhận"
+
+msgid "重新扫描"
+msgstr "Quét lại"
+
+msgid "附近的设备"
+msgstr "Thiết bị lân cận"
+
+msgid "附近设备中显示的 alias"
+msgstr "Bí danh được hiển thị cho các thiết bị ở gần"
+
+msgid "隐私政策"
+msgstr "Chính sách bảo mật"
+
+msgid "颜色"
+msgstr "Màu sắc"
+
+msgid "验证"
+msgstr "Xác minh"

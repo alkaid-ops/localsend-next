@@ -12,6 +12,7 @@ winresource = "0.1"
 [dependencies]
 anyhow.workspace = true
 directories.workspace = true
+localsend-i18n.workspace = true
 localsend-platform.workspace = true
 localsend-rpc.workspace = true
 serde_json.workspace = true

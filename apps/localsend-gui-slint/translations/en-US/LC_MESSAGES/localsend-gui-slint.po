@@ -3,29 +3,98 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Language: en-US\n"
 
-msgid "IP 地址："
-msgstr "IP address: "
+msgid "Checksum 校验"
+msgstr "Checksum verification"
+
+msgid "HTTPS"
+msgstr "HTTPS"
+
+msgid "IP 地址"
+msgstr "IP Address"
+
+msgid "IP 地址或主机名"
+msgstr "IP address or hostname"
+
+msgid "LocalSend Next {} · 桌面版"
+msgstr "LocalSend Next {} · Desktop"
+
+msgid "LocalSend 青绿色品牌色"
+msgstr "LocalSend teal brand color"
+
+msgid "Multicast"
+msgstr "Multicast"
+
+msgid "PIN 不能为空"
+msgstr "PIN cannot be empty"
 
 msgid "PIN 值"
 msgstr "PIN value"
 
+msgid "PIN 密码"
+msgstr "PIN"
+
+msgid "PIN 需要 4 位数字"
+msgstr "PIN must be 4 digits"
+
+msgid "PIN 验证"
+msgstr "PIN verification"
+
+msgid "TCP {} 正在监听"
+msgstr "TCP {} listening"
+
+msgid "Web Share 已验证"
+msgstr "Web Share verified"
+
+msgid "Web Share 链接不可用"
+msgstr "Web Share link is unavailable"
+
+msgid "{} 个文件已保存到「下载 / LocalSend」。"
+msgstr "{} files saved to \"Downloads / LocalSend\"."
+
+msgid "「收藏设备」只会自动接受来自已验证收藏设备的请求。文件保存到当前接收目录，并继续显示在历史记录中。"
+msgstr "\"Favorite devices\" automatically accepts requests only from verified favorites. Files are saved to the current receive folder and stay in history."
+
+msgid "与后台服务的连接已断开，正在重连…"
+msgstr "Lost the connection to the background service; reconnecting…"
+
 msgid "主题"
 msgstr "Theme"
+
+msgid "仅允许指定网段访问"
+msgstr "Only allow access from the specified subnet"
 
 msgid "传输中"
 msgstr "Transferring"
 
-msgid "使用条款"
-msgstr "Terms of Use"
+msgid "传输后校验文件完整性"
+msgstr "Verify file integrity after transfer"
+
+msgid "传输失败：{}"
+msgstr "Transfer failed: {}"
+
+msgid "传输完成"
+msgstr "Transfer complete"
+
+msgid "传输用时"
+msgstr "Duration"
 
 msgid "保存"
 msgstr "Save"
 
-msgid "保存到历史记录"
-msgstr "Save to history"
+msgid "保留最近 100 条接收与发送记录"
+msgstr "Keep the last 100 receive and send records"
 
-msgid "保存目录"
-msgstr "Save folder"
+msgid "保留状态变化和页面切换反馈"
+msgstr "Keep status-change and page-transition feedback"
+
+msgid "停止"
+msgstr "Stop"
+
+msgid "允许接收方校验传输内容"
+msgstr "Allow the receiver to verify transferred content"
+
+msgid "全部开启"
+msgstr "Turn all on"
 
 msgid "全部接受"
 msgstr "Accept all"
@@ -33,20 +102,29 @@ msgstr "Accept all"
 msgid "全部接口"
 msgstr "All interfaces"
 
-msgid "关于 LocalSend"
-msgstr "About LocalSend"
+msgid "关于 LocalSend Next"
+msgstr "About LocalSend Next"
 
 msgid "关闭"
 msgstr "Close"
 
-msgid "关闭 ("
-msgstr "Close ("
+msgid "关闭 ({})"
+msgstr "Close ({})"
 
-msgid "关闭时最小化到系统托盘"
+msgid "关闭后台服务"
+msgstr "Stop background service"
+
+msgid "关闭时最小化到托盘"
 msgstr "Minimize to tray when closed"
+
+msgid "关闭窗口后保持接收服务运行"
+msgstr "Keep the receive service running after closing the window"
 
 msgid "其他"
 msgstr "Other"
+
+msgid "再次发送"
+msgstr "Send again"
 
 msgid "刷新设备"
 msgstr "Refresh devices"
@@ -54,20 +132,56 @@ msgstr "Refresh devices"
 msgid "剪贴板"
 msgstr "Clipboard"
 
-msgid "加密"
-msgstr "Encryption"
+msgid "剪贴板中没有可发送的文件、文件夹、图片或文本"
+msgstr "The clipboard has no files, folders, images or text to send"
+
+msgid "剪贴板文本已准备好，请选择附近设备发送"
+msgstr "Clipboard text ready; select a nearby device to send"
 
 msgid "动画效果"
 msgstr "Animations"
 
+msgid "协议"
+msgstr "Protocol"
+
+msgid "协议 {}"
+msgstr "Protocol v{}"
+
+msgid "单位：秒；0 表示持续发现"
+msgstr "Unit: seconds; 0 means keep discovering"
+
 msgid "单选"
 msgstr "Single"
 
-msgid "单选模式：点击设备后立即发送。"
-msgstr "Single-recipient mode: send immediately after selecting a device."
+msgid "历史记录"
+msgstr "History"
+
+msgid "历史记录只保存在当前设备，不会同步到云服务。"
+msgstr "History is stored only on this device and is never synced to the cloud."
+
+msgid "发现"
+msgstr "Discovery"
+
+msgid "发现和传输使用的网络"
+msgstr "Network used for discovery and transfer"
+
+msgid "发现超时必须是正整数"
+msgstr "Discovery timeout must be a positive integer"
 
 msgid "发送"
 msgstr "Send"
+
+msgid "发送内容"
+msgstr "Content to send"
+
+msgid "发送到 "
+msgstr "Sending to "
+
+msgid "发送到所选设备"
+msgstr "Send to selected devices"
+
+msgid "发送完成"
+msgstr "Send complete"
 
 msgid "发送文件时创建校验和"
 msgstr "Create checksums when sending files"
@@ -78,65 +192,173 @@ msgstr "Send text"
 msgid "发送文本内容"
 msgstr "Message"
 
-msgid "发送模式"
-msgstr "Send mode"
+msgid "发送给你了一条消息："
+msgstr "sent you a message:"
+
+msgid "发送请求已提交，请等待对端响应"
+msgstr "Send request submitted; waiting for the receiver"
 
 msgid "取消"
 msgstr "Cancel"
 
-msgid "启用 PIN 密码"
-msgstr "Require PIN"
+msgid "取消发送"
+msgstr "Cancel sending"
+
+msgid "取消接收"
+msgstr "Cancel receiving"
+
+msgid "取消收藏"
+msgstr "Unfavorite"
+
+msgid "另一台设备未出现？"
+msgstr "Another device not showing up?"
+
+msgid "可信设备可以跳过每次接收确认"
+msgstr "Trusted devices can skip the per-transfer confirmation"
+
+msgid "可被发现"
+msgstr "Discoverable"
+
+msgid "同一网络下的设备会自动出现。"
+msgstr "Devices on the same network appear automatically."
+
+msgid "名称"
+msgstr "Name"
+
+msgid "启动"
+msgstr "Start"
+
+msgid "启动时运行"
+msgstr "Run at startup"
+
+msgid "启用加密传输，速度可能略低"
+msgstr "Enable encrypted transfer; speed may drop slightly"
 
 msgid "在文件管理器中显示"
 msgstr "Show in file manager"
 
-msgid "在浏览器中打开链接："
-msgstr "Open link in browser:"
+msgid "在线"
+msgstr "Online"
 
 msgid "复制"
 msgstr "Copy"
 
-msgid "多播"
-msgstr "Multicast"
+msgid "复制诊断信息"
+msgstr "Copy diagnostics"
+
+msgid "复制链接"
+msgstr "Copy link"
+
+msgid "外观与桌面行为。"
+msgstr "Appearance and desktop behavior."
+
+msgid "外部文档在当前评审原型中不可用"
+msgstr "External docs are unavailable in this review prototype"
+
+msgid "外部链接在当前评审原型中不可用"
+msgstr "External links are unavailable in this review prototype"
 
 msgid "多选"
 msgstr "Multiple"
 
-msgid "多选模式：选择设备后按发送按钮。"
-msgstr "Multiple-recipient mode: select devices, then press Send."
-
 msgid "失败"
 msgstr "Failed"
+
+msgid "完成"
+msgstr "Done"
+
+msgid "完成传输"
+msgstr "Finish transfer"
+
+msgid "局域网组播发现地址"
+msgstr "LAN multicast discovery address"
+
+msgid "已发送"
+msgstr "Sent"
 
 msgid "已取消"
 msgstr "Cancelled"
 
 msgid "已完成"
-msgstr "Completed"
+msgstr "Finished"
 
-msgid "已选择 "
-msgstr "Selected "
+msgid "已就绪"
+msgstr "Ready"
 
-msgid "您是否要打开接收的文件？"
-msgstr "Do you want to open the received file?"
+msgid "已收藏"
+msgstr "Favorited"
+
+msgid "已连接"
+msgstr "Connected"
+
+msgid "已送达"
+msgstr "Delivered"
+
+msgid "已选择 {} 个项目"
+msgstr "Selected {} items"
+
+msgid "已选择 {} 台设备"
+msgstr "Selected {} devices"
+
+msgid "已选择文件夹，正在刷新附近设备"
+msgstr "Folder selected; refreshing nearby devices"
+
+msgid "已选择文件，正在刷新附近设备"
+msgstr "File selected; refreshing nearby devices"
+
+msgid "已验证 · 快速保存已开启"
+msgstr "Verified · Quick Save is on"
+
+msgid "当前接收服务的连接信息"
+msgstr "Connection information for the current receive service"
+
+msgid "当前没有可复制的接收链接"
+msgstr "No receive link is available to copy"
+
+msgid "待处理"
+msgstr "Pending"
+
+msgid "快速保存"
+msgstr "Quick Save"
+
+msgid "快速保存说明"
+msgstr "Quick Save details"
+
+msgid "总大小"
+msgstr "Total size"
+
+msgid "所有文件均已通过 Checksum 校验"
+msgstr "All files passed checksum verification"
 
 msgid "手动添加设备"
 msgstr "Add device manually"
 
+msgid "手动连接"
+msgstr "Manual connect"
+
 msgid "打开"
 msgstr "Open"
 
-msgid "打开接收目录"
-msgstr "Open receive folder"
+msgid "打开主界面"
+msgstr "Open main window"
 
 msgid "打开文件"
 msgstr "Open file"
 
-msgid "打开防火墙设置"
-msgstr "Open firewall settings"
+msgid "打开文件夹"
+msgstr "Open folder"
+
+msgid "执行"
+msgstr "Run"
 
 msgid "拒绝"
 msgstr "Decline"
+
+msgid "指纹"
+msgstr "Fingerprint"
+
+msgid "按顺序检查设备发现和连接"
+msgstr "Checks discovery and connectivity in order"
 
 msgid "接受所选"
 msgstr "Accept selected"
@@ -144,17 +366,68 @@ msgstr "Accept selected"
 msgid "接收"
 msgstr "Receive"
 
-msgid "接收历史"
-msgstr "History"
+msgid "接收前要求发送方输入 PIN"
+msgstr "Require the sender to enter a PIN before receiving"
 
-msgid "接收文件时验证校验和"
-msgstr "Verify checksums when receiving files"
+msgid "接收历史"
+msgstr "Receive history"
+
+msgid "接收完成"
+msgstr "Receive complete"
+
+msgid "接收完成后自动关闭请求，不需要再次确认"
+msgstr "Close the request automatically after receiving, with no further confirmation"
+
+msgid "接收文件前，发送方需要输入 4 位 PIN"
+msgstr "The sender must enter a 4-digit PIN before receiving files"
+
+msgid "接收服务使用的 TCP 端口"
+msgstr "TCP port the receive service uses"
+
+msgid "接收服务在线"
+msgstr "Receive service online"
+
+msgid "接收服务已就绪，附近设备可以在同一网络中发现你。"
+msgstr "The receive service is ready; nearby devices on this network can discover you."
+
+msgid "接收服务暂时无法启动。"
+msgstr "The receive service could not start right now."
+
+msgid "接收服务离线"
+msgstr "Receive service offline"
+
+msgid "接收状态"
+msgstr "Receive status"
+
+msgid "接收目录"
+msgstr "Receive folder"
+
+msgid "接收链接"
+msgstr "Receive link"
+
+msgid "接收链接已复制"
+msgstr "Receive link copied"
+
+msgid "搜索历史"
+msgstr "Search history"
+
+msgid "搜索消息、文件名或设备"
+msgstr "Search messages, file names or devices"
 
 msgid "搜索设备超时"
 msgstr "Discovery timeout"
 
-msgid "支持 LocalSend"
-msgstr "Support LocalSend"
+msgid "支持项目"
+msgstr "Support this project"
+
+msgid "收到文件"
+msgstr "File received"
+
+msgid "收到新文件"
+msgstr "New file received"
+
+msgid "收到新消息"
+msgstr "New message received"
 
 msgid "收藏"
 msgstr "Favorite"
@@ -162,41 +435,200 @@ msgstr "Favorite"
 msgid "收藏设备"
 msgstr "Favorite devices"
 
-msgid "收藏设备可用于自动保存规则。"
-msgstr "Favorite devices can be used for auto-save rules."
+msgid "收藏设备可使用快速保存与快捷发送"
+msgstr "Favorite devices enable Quick Save and quick sending"
 
 msgid "故障排除"
-msgstr "Troubleshooting"
+msgstr "Troubleshoot"
 
 msgid "文件"
 msgstr "File"
 
+msgid "文件保存、接收确认与完整性校验。"
+msgstr "File storage, receive confirmation and integrity checks."
+
 msgid "文件夹"
 msgstr "Folder"
+
+msgid "文件已保存"
+msgstr "Files saved"
+
+msgid "文件已发送到「{}」。"
+msgstr "File sent to \"{}\"."
+
+msgid "文件已成功送达"
+msgstr "File delivered successfully"
 
 msgid "文本"
 msgstr "Text"
 
+msgid "文本会作为 .txt 文件发送到所选设备"
+msgstr "The text is sent to the selected devices as a .txt file"
+
+msgid "文本内容"
+msgstr "Text content"
+
+msgid "文本已准备好，请选择附近设备发送"
+msgstr "Text ready; select a nearby device to send"
+
 msgid "文本消息"
 msgstr "Text message"
 
-msgid "服务器"
-msgstr "Server"
+msgid "无法保存剪贴板图片"
+msgstr "Cannot save the clipboard image"
 
-msgid "正在查找设备"
-msgstr "Looking for devices"
+msgid "无法定位剪贴板图片缓存目录"
+msgstr "Cannot locate the clipboard image cache directory"
+
+msgid "无法将剪贴板图片转换为 PNG"
+msgstr "Cannot convert the clipboard image to PNG"
+
+msgid "无法访问剪贴板"
+msgstr "Cannot access the clipboard"
+
+msgid "无法重启"
+msgstr "Restart unavailable"
+
+msgid "日志"
+msgstr "Logs"
+
+msgid "日本語"
+msgstr "日本語"
+
+msgid "暂不可用"
+msgstr "Unavailable"
+
+msgid "最近一次响应：刚刚"
+msgstr "Last response: just now"
+
+msgid "最近发现"
+msgstr "Recently discovered"
+
+msgid "服务器已停止"
+msgstr "Server stopped"
+
+msgid "服务器状态"
+msgstr "Server status"
+
+msgid "服务器运行中"
+msgstr "Server running"
+
+msgid "服务暂停"
+msgstr "Service paused"
+
+msgid "服务条款"
+msgstr "Terms of Service"
+
+msgid "未知"
+msgstr "Unknown"
+
+msgid "本地端口"
+msgstr "Local port"
+
+msgid "来自附近设备"
+msgstr "From nearby device"
+
+msgid "查看"
+msgstr "View"
+
+msgid "查看当前会话的调试日志"
+msgstr "View debug logs for the current session"
+
+msgid "查看详情"
+msgstr "View details"
+
+msgid "桌面"
+msgstr "Desktop"
+
+msgid "检查端口、网络与设备发现"
+msgstr "Check port, network and device discovery"
+
+msgid "正在传输"
+msgstr "Transferring"
+
+msgid "正在关闭后台服务"
+msgstr "Stopping background service"
+
+msgid "正在关闭浏览器接收页面"
+msgstr "Stopping the browser receive page"
+
+msgid "正在刷新设备连接…"
+msgstr "Refreshing device connection…"
+
+msgid "正在发送文件"
+msgstr "Sending files"
+
+msgid "正在发送文本，等待接收确认"
+msgstr "Sending text; waiting for receiver confirmation"
+
+msgid "正在取消传输"
+msgstr "Cancelling transfer"
+
+msgid "正在启动浏览器接收页面"
+msgstr "Starting the browser receive page"
+
+msgid "正在拒绝传输"
+msgstr "Declining transfer"
+
+msgid "正在接受传输"
+msgstr "Accepting transfer"
+
+msgid "正在接收来自 {} 的文件"
+msgstr "Receiving files from {}"
+
+msgid "正在查找附近设备"
+msgstr "Looking for nearby devices"
+
+msgid "正在添加设备"
+msgstr "Adding device"
+
+msgid "正在清空历史"
+msgstr "Clearing history"
+
+msgid "正在连接"
+msgstr "Connecting"
 
 msgid "正在连接 localsendd..."
 msgstr "Connecting to localsendd..."
 
+msgid "正在连接后台服务…"
+msgstr "Connecting to the background service…"
+
+msgid "正在连接对端，等待接收确认"
+msgstr "Connecting to the receiver; waiting for confirmation"
+
+msgid "正在重启服务器"
+msgstr "Restarting server"
+
+msgid "正在重连"
+msgstr "Reconnecting"
+
+msgid "正常"
+msgstr "Normal"
+
+msgid "此设置不能通过文本输入修改"
+msgstr "This setting cannot be changed through text input"
+
+msgid "此项由系统自动检测或当前平台不支持编辑"
+msgstr "This value is detected by the system or cannot be edited on this platform"
+
+msgid "没有添加有效的文件或文件夹"
+msgstr "No valid files or folders were added"
+
+msgid "浅色"
+msgstr "Light"
+
+msgid "浏览器可在同一网络内访问此地址"
+msgstr "Browsers on the same network can reach this address"
+
+msgid "消息已复制"
+msgstr "Message copied"
+
+msgid "深色"
+msgstr "Dark"
+
 msgid "添加"
 msgstr "Add"
-
-msgid "添加文件"
-msgstr "Add files"
-
-msgid "添加文件夹"
-msgstr "Add folder"
 
 msgid "清空历史"
 msgstr "Clear history"
@@ -204,35 +636,92 @@ msgstr "Clear history"
 msgid "清除所选项"
 msgstr "Clear selection"
 
-msgid "版本与更新日志"
-msgstr "Version and changelog"
+msgid "版本"
+msgstr "Version"
 
-msgid "状态："
-msgstr "Status:"
+msgid "版本、开源许可与项目信息"
+msgstr "Version, open-source license and project information"
 
-msgid "登录系统后自动启动程序"
-msgstr "Launch automatically after login"
+msgid "版本、诊断与支持选项。"
+msgstr "Version, diagnostics and support options."
 
-msgid "目标设备要求 PIN 才会接收传输。"
-msgstr "The target device requires a PIN before accepting transfers."
+msgid "版权"
+msgstr "Copyright"
+
+msgid "状态"
+msgstr "Status"
+
+msgid "用于匹配正确的平台图标"
+msgstr "Used to match the correct platform icon"
+
+msgid "用于区分设备信息"
+msgstr "Used to distinguish device information"
+
+msgid "界面显示语言"
+msgstr "Interface language"
+
+msgid "登录系统后自动启动 LocalSend"
+msgstr "Launch LocalSend automatically after login"
+
+msgid "目标地址"
+msgstr "Target address"
+
+msgid "确保对方也打开了 LocalSend，并已连接到同一个 Wi-Fi 网络。"
+msgstr "Make sure the other device also has LocalSend open and is on the same Wi-Fi network."
 
 msgid "确定"
 msgstr "OK"
 
-msgid "移除"
-msgstr "Remove"
+msgid "确认"
+msgstr "Confirm"
 
-msgid "移除所选项"
-msgstr "Remove selected"
+msgid "确认双方处于同一子网，并允许防火墙访问 LocalSend。"
+msgstr "Confirm both devices are on the same subnet and allow firewall access to LocalSend."
+
+msgid "离线"
+msgstr "Offline"
+
+msgid "移除收藏"
+msgstr "Remove favorite"
 
 msgid "端口"
 msgstr "Port"
 
-msgid "端口："
-msgstr "Port:"
+msgid "端口必须是 1 到 65535 之间的数字"
+msgstr "Port must be a number from 1 to 65535"
 
 msgid "等待中"
 msgstr "Waiting"
+
+msgid "简体中文"
+msgstr "简体中文"
+
+msgid "管理 LocalSend 的外观、接收、网络与支持选项。"
+msgstr "Manage LocalSend's appearance, receive, network and support options."
+
+msgid "管理收藏设备"
+msgstr "Manage favorite devices"
+
+msgid "系统"
+msgstr "System"
+
+msgid "繁體中文（台灣）"
+msgstr "繁體中文（台灣）"
+
+msgid "繁體中文（香港）"
+msgstr "繁體中文（香港）"
+
+msgid "组播地址必须是有效 IPv4 地址"
+msgstr "Multicast address must be a valid IPv4 address"
+
+msgid "结束本实例的 localsendd"
+msgstr "Stop the localsendd for this instance"
+
+msgid "绿色"
+msgstr "Green"
+
+msgid "编辑"
+msgstr "Edit"
 
 msgid "编辑设置"
 msgstr "Edit setting"
@@ -240,56 +729,113 @@ msgstr "Edit setting"
 msgid "网络"
 msgstr "Network"
 
+msgid "网络不可用"
+msgstr "Network unavailable"
+
 msgid "网络信息"
 msgstr "Network info"
 
-msgid "自动保存"
-msgstr "Auto save"
+msgid "网络接口"
+msgstr "Network Interfaces"
 
-msgid "自动保存来自“收藏夹(白名单)”设备的文件"
-msgstr "Auto-save files from favorite (allowlist) devices"
+msgid "网络筛选"
+msgstr "Network filter"
 
-msgid "自动完成传输任务"
-msgstr "Auto finish transfers"
+msgid "网络连接"
+msgstr "Network connection"
 
-msgid "自动接受所有文件传输请求。请注意，这会让此网络中的所有人都可以向你发送文件。"
-msgstr "Automatically accept all file transfer requests. Anyone on this network can send you files."
+msgid "自动完成"
+msgstr "Auto Finish"
 
-msgid "自动接受请求"
-msgstr "Auto accept requests"
+msgid "自动接收来自可信设备的文件"
+msgstr "Automatically receive files from trusted devices"
 
-msgid "设备不可见：确认设备连接到同一 Wi-Fi 或局域网，并检查防火墙权限。"
-msgstr "Device not visible: make sure both devices are on the same Wi-Fi or LAN, and check firewall permissions."
+msgid "若设备指纹发生变化，LocalSend 会重新要求确认。你可以随时在收藏设备中取消信任。"
+msgstr "If a device's fingerprint changes, LocalSend asks for confirmation again. You can untrust it from Favorite devices at any time."
+
+msgid "蓝色"
+msgstr "Blue"
+
+msgid "记住本次窗口尺寸与位置"
+msgstr "Remember this window size and position"
+
+msgid "设备信息"
+msgstr "Device information"
 
 msgid "设备名称"
 msgstr "Device name"
 
-msgid "设备名称："
-msgstr "Device name:"
-
 msgid "设备型号"
 msgstr "Device model"
+
+msgid "设备已离线，请刷新设备列表"
+msgstr "Device went offline; refresh the device list"
 
 msgid "设备类型"
 msgstr "Device type"
 
-msgid "设备需要连接到同一网络"
-msgstr "Devices must be on the same network"
+msgid "设备详情"
+msgstr "Device details"
+
+msgid "设备身份、服务与发现协议。"
+msgstr "Device identity, service and discovery protocol."
 
 msgid "设置"
 msgstr "Settings"
 
+msgid "设置 PIN"
+msgstr "Set PIN"
+
 msgid "设置值"
 msgstr "Setting value"
+
+msgid "设置已提交"
+msgstr "Settings submitted"
+
+msgid "访问者需要通过 PIN 验证后才能上传文件。"
+msgstr "Visitors must pass PIN verification before they can upload files."
+
+msgid "诊断"
+msgstr "Diagnostics"
+
+msgid "诊断信息已复制"
+msgstr "Diagnostics copied"
 
 msgid "语言"
 msgstr "Language"
 
+msgid "请先选择文件、文件夹、文本或剪贴板，再选择设备发送"
+msgstr "Select a file, folder, text, or clipboard content before choosing a device"
+
+msgid "请先选择文件或文件夹"
+msgstr "Select a file or folder first"
+
+msgid "请先选择至少一个设备"
+msgstr "Select at least one device"
+
+msgid "请在系统设置中检查防火墙规则"
+msgstr "Check firewall rules in system settings"
+
+msgid "请求发送 {} 个项目"
+msgstr "wants to send {} items"
+
+msgid "请输入设备 IP 地址或主机名"
+msgstr "Enter a device IP address or hostname"
+
+msgid "请选择目标设备"
+msgstr "Select a target device"
+
 msgid "跟随系统"
 msgstr "System"
 
-msgid "输入接收方 PIN"
-msgstr "Enter receiver PIN"
+msgid "跟随系统或固定使用浅色、深色"
+msgstr "Follow the system or fix to light or dark"
+
+msgid "路径可在文件管理器中打开"
+msgstr "The path can be opened in the file manager"
+
+msgid "输入同一网络中设备的 IP 地址"
+msgstr "Enter the IP address of a device on the same network"
 
 msgid "返回"
 msgstr "Back"
@@ -297,59 +843,50 @@ msgstr "Back"
 msgid "还没有接收记录"
 msgstr "No received items yet"
 
-msgid "连接失败：检查端口、HTTPS、PIN 和目标设备的网络隔离设置。"
-msgstr "Connection failed: check the port, HTTPS, PIN, and target network isolation settings."
+msgid "还没有收藏设备"
+msgstr "No favorite devices yet"
+
+msgid "连接"
+msgstr "Connect"
+
+msgid "退出"
+msgstr "Quit"
 
 msgid "退出时保存窗口位置"
-msgstr "Save window position on exit"
+msgstr "Save window position after quit"
 
 msgid "选择"
-msgstr "Select"
+msgstr "Selection"
+
+msgid "选择要发送的内容，或从剪贴板快速创建一条文本消息。"
+msgstr "Choose what to send, or quickly create a text message from the clipboard."
 
 msgid "通用"
 msgstr "General"
 
-msgid "通过链接分享：自动同意接收请求"
-msgstr "Share via link: automatically accept receive requests"
-
 msgid "通过链接接收"
 msgstr "Receive via link"
 
-msgid "重试"
-msgstr "Retry"
+msgid "重启"
+msgstr "Restart"
+
+msgid "重新启动接收"
+msgstr "Restart receiving"
+
+msgid "重新扫描"
+msgstr "Rescan"
 
 msgid "附近的设备"
 msgstr "Nearby devices"
 
+msgid "附近设备中显示的 alias"
+msgstr "Alias shown to nearby devices"
+
 msgid "隐私政策"
-msgstr "Privacy policy"
+msgstr "Privacy Policy"
 
 msgid "颜色"
 msgstr "Color"
 
-msgid "高级设置"
-msgstr "Advanced settings"
-
-msgid "接收文件前，发送方需要输入 4 位 PIN"
-msgstr "Enter receiver PIN"
-
-msgid "确认"
-msgstr "Confirm"
-
-msgid "复制链接"
-msgstr "Copy link"
-
-msgid "接收链接"
-msgstr "Receive link"
-
-msgid "浏览器可在同一网络内访问此地址"
-msgstr "Browsers on the same network can access this address"
-
-msgid "Web Share 已验证"
-msgstr "Web Share verified"
-
-msgid "访问者需要通过 PIN 验证后才能上传文件。"
-msgstr "Visitors must verify with a PIN before uploading files."
-
-msgid "已就绪"
-msgstr "Ready"
+msgid "验证"
+msgstr "Verify"

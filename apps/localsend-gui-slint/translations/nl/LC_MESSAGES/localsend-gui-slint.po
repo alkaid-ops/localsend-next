@@ -1,0 +1,892 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: nl\n"
+
+msgid "Checksum 校验"
+msgstr "Controlesomverificatie"
+
+msgid "HTTPS"
+msgstr "HTTPS"
+
+msgid "IP 地址"
+msgstr "IP-adres"
+
+msgid "IP 地址或主机名"
+msgstr "IP-adres of hostnaam"
+
+msgid "LocalSend Next {} · 桌面版"
+msgstr "LocalSend Volgende {} · Bureaublad"
+
+msgid "LocalSend 青绿色品牌色"
+msgstr "LocalSend blauwgroen merkkleur"
+
+msgid "Multicast"
+msgstr "Multicast"
+
+msgid "PIN 不能为空"
+msgstr "Pincode mag niet leeg zijn"
+
+msgid "PIN 值"
+msgstr "PIN-waarde"
+
+msgid "PIN 密码"
+msgstr "PIN"
+
+msgid "PIN 需要 4 位数字"
+msgstr "De pincode moet uit 4 cijfers bestaan"
+
+msgid "PIN 验证"
+msgstr "PIN-verificatie"
+
+msgid "TCP {} 正在监听"
+msgstr "TCP {} luistert"
+
+msgid "Web Share 已验证"
+msgstr "Webshare geverifieerd"
+
+msgid "Web Share 链接不可用"
+msgstr "De Web Share-link is niet beschikbaar"
+
+msgid "{} 个文件已保存到「下载 / LocalSend」。"
+msgstr "{} bestanden opgeslagen in \"Downloads / LocalSend\"."
+
+msgid "「收藏设备」只会自动接受来自已验证收藏设备的请求。文件保存到当前接收目录，并继续显示在历史记录中。"
+msgstr "\"Favoriete apparaten\" accepteert automatisch alleen verzoeken van geverifieerde favorieten. Bestanden worden opgeslagen in de huidige ontvangstmap en blijven in de geschiedenis."
+
+msgid "与后台服务的连接已断开，正在重连…"
+msgstr "De verbinding met de achtergrondservice is verbroken; opnieuw verbinden…"
+
+msgid "主题"
+msgstr "Thema"
+
+msgid "仅允许指定网段访问"
+msgstr "Sta alleen toegang toe vanaf het opgegeven subnet"
+
+msgid "传输中"
+msgstr "Overdragen"
+
+msgid "传输后校验文件完整性"
+msgstr "Controleer de bestandsintegriteit na de overdracht"
+
+msgid "传输失败：{}"
+msgstr "Overdracht mislukt: {}"
+
+msgid "传输完成"
+msgstr "Overdracht voltooid"
+
+msgid "传输用时"
+msgstr "Duur"
+
+msgid "保存"
+msgstr "Opslaan"
+
+msgid "保留最近 100 条接收与发送记录"
+msgstr "Bewaar de laatste 100 ontvangst- en verzendrecords"
+
+msgid "保留状态变化和页面切换反馈"
+msgstr "Houd feedback over statuswijzigingen en paginaovergangen bij"
+
+msgid "停止"
+msgstr "Stoppen"
+
+msgid "允许接收方校验传输内容"
+msgstr "Laat de ontvanger de overgedragen inhoud verifiëren"
+
+msgid "全部开启"
+msgstr "Zet alles aan"
+
+msgid "全部接受"
+msgstr "Accepteer alles"
+
+msgid "全部接口"
+msgstr "Alle interfaces"
+
+msgid "关于 LocalSend Next"
+msgstr "Over LocalSend Volgende"
+
+msgid "关闭"
+msgstr "Sluiten"
+
+msgid "关闭 ({})"
+msgstr "Sluiten ({})"
+
+msgid "关闭后台服务"
+msgstr "Achtergrondservice stoppen"
+
+msgid "关闭时最小化到托盘"
+msgstr "Minimaliseer naar lade wanneer gesloten"
+
+msgid "关闭窗口后保持接收服务运行"
+msgstr "Houd de ontvangstservice actief nadat u het venster hebt gesloten"
+
+msgid "其他"
+msgstr "Overig"
+
+msgid "再次发送"
+msgstr "Opnieuw verzenden"
+
+msgid "刷新设备"
+msgstr "Apparaten vernieuwen"
+
+msgid "剪贴板"
+msgstr "Plakken"
+
+msgid "剪贴板中没有可发送的文件、文件夹、图片或文本"
+msgstr "Het klembord heeft geen bestanden, mappen, afbeeldingen of tekst om te verzenden"
+
+msgid "剪贴板文本已准备好，请选择附近设备发送"
+msgstr "Klembordtekst klaar; selecteer een apparaat in de buurt om te verzenden"
+
+msgid "动画效果"
+msgstr "Animaties"
+
+msgid "协议"
+msgstr "Protocol"
+
+msgid "协议 {}"
+msgstr "Protocol v{}"
+
+msgid "单位：秒；0 表示持续发现"
+msgstr "Eenheid: seconden; 0 betekent blijven ontdekken"
+
+msgid "单选"
+msgstr "Enkel"
+
+msgid "历史记录"
+msgstr "Geschiedenis"
+
+msgid "历史记录只保存在当前设备，不会同步到云服务。"
+msgstr "De geschiedenis wordt alleen op dit apparaat opgeslagen en wordt nooit met de cloud gesynchroniseerd."
+
+msgid "发现"
+msgstr "Ontdekking"
+
+msgid "发现和传输使用的网络"
+msgstr "Netwerk dat wordt gebruikt voor detectie en overdracht"
+
+msgid "发现超时必须是正整数"
+msgstr "Time-out voor detectie moet een positief geheel getal zijn"
+
+msgid "发送"
+msgstr "Verzenden"
+
+msgid "发送内容"
+msgstr "Inhoud om te verzenden"
+
+msgid "发送到 "
+msgstr "Verzenden naar"
+
+msgid "发送到所选设备"
+msgstr "Verzenden naar geselecteerde apparaten"
+
+msgid "发送完成"
+msgstr "Verstuur compleet"
+
+msgid "发送文件时创建校验和"
+msgstr "Controlesommen aanmaken bij het verzenden van bestanden"
+
+msgid "发送文本"
+msgstr "Stuur tekst"
+
+msgid "发送文本内容"
+msgstr "Bericht"
+
+msgid "发送给你了一条消息："
+msgstr "heeft een bericht naar je verzonden:"
+
+msgid "发送请求已提交，请等待对端响应"
+msgstr "Verstuur verzoek ingediend; wachten op de ontvanger"
+
+msgid "取消"
+msgstr "Annuleren"
+
+msgid "取消发送"
+msgstr "Annuleer het verzenden"
+
+msgid "取消接收"
+msgstr "Ontvangst annuleren"
+
+msgid "取消收藏"
+msgstr "Niet favoriet"
+
+msgid "另一台设备未出现？"
+msgstr "Een ander apparaat verschijnt niet?"
+
+msgid "可信设备可以跳过每次接收确认"
+msgstr "Vertrouwde apparaten kunnen de bevestiging per overdracht overslaan"
+
+msgid "可被发现"
+msgstr "Vindbaar"
+
+msgid "同一网络下的设备会自动出现。"
+msgstr "Apparaten op hetzelfde netwerk verschijnen automatisch."
+
+msgid "名称"
+msgstr "Naam"
+
+msgid "启动"
+msgstr "Begin"
+
+msgid "启动时运行"
+msgstr "Uitvoeren bij opstarten"
+
+msgid "启用加密传输，速度可能略低"
+msgstr "Versleutelde overdracht inschakelen; snelheid kan iets afnemen"
+
+msgid "在文件管理器中显示"
+msgstr "Weergeven in map"
+
+msgid "在线"
+msgstr "Online"
+
+msgid "复制"
+msgstr "Kopiëren"
+
+msgid "复制诊断信息"
+msgstr "Diagnostische gegevens kopiëren"
+
+msgid "复制链接"
+msgstr "Kopieer link"
+
+msgid "外观与桌面行为。"
+msgstr "Uiterlijk en desktopgedrag."
+
+msgid "外部文档在当前评审原型中不可用"
+msgstr "Externe documenten zijn niet beschikbaar in dit beoordelingsprototype"
+
+msgid "外部链接在当前评审原型中不可用"
+msgstr "Externe links zijn niet beschikbaar in dit recensie-prototype"
+
+msgid "多选"
+msgstr "Meerdere"
+
+msgid "失败"
+msgstr "Mislukt"
+
+msgid "完成"
+msgstr "Gereed"
+
+msgid "完成传输"
+msgstr "Voltooi de overdracht"
+
+msgid "局域网组播发现地址"
+msgstr "LAN-multicast-detectieadres"
+
+msgid "已发送"
+msgstr "Verstuurd"
+
+msgid "已取消"
+msgstr "Geannuleerd"
+
+msgid "已完成"
+msgstr "Voltooid"
+
+msgid "已就绪"
+msgstr "Klaar"
+
+msgid "已收藏"
+msgstr "Favoriet"
+
+msgid "已连接"
+msgstr "Aangesloten"
+
+msgid "已送达"
+msgstr "Afgeleverd"
+
+msgid "已选择 {} 个项目"
+msgstr "Geselecteerde {} artikelen"
+
+msgid "已选择 {} 台设备"
+msgstr "Geselecteerde {} apparaten"
+
+msgid "已选择文件夹，正在刷新附近设备"
+msgstr "Map geselecteerd; apparaten in de buurt vernieuwen"
+
+msgid "已选择文件，正在刷新附近设备"
+msgstr "Bestand geselecteerd; apparaten in de buurt vernieuwen"
+
+msgid "已验证 · 快速保存已开启"
+msgstr "Geverifieerd · Snel opslaan is ingeschakeld"
+
+msgid "当前接收服务的连接信息"
+msgstr "Verbindingsinformatie voor de huidige ontvangstservice"
+
+msgid "当前没有可复制的接收链接"
+msgstr "Er is geen ontvangstlink beschikbaar om te kopiëren"
+
+msgid "待处理"
+msgstr "In behandeling"
+
+msgid "快速保存"
+msgstr "Snel opslaan"
+
+msgid "快速保存说明"
+msgstr "Details snel opslaan"
+
+msgid "总大小"
+msgstr "Totale grootte"
+
+msgid "所有文件均已通过 Checksum 校验"
+msgstr "Alle bestanden zijn geslaagd voor de controlesomverificatie"
+
+msgid "手动添加设备"
+msgstr "Apparaat handmatig toevoegen"
+
+msgid "手动连接"
+msgstr "Handmatig verbinden"
+
+msgid "打开"
+msgstr "Openen"
+
+msgid "打开主界面"
+msgstr "Open het hoofdvenster"
+
+msgid "打开文件"
+msgstr "Bestand openen"
+
+msgid "打开文件夹"
+msgstr "Map openen"
+
+msgid "执行"
+msgstr "Loop"
+
+msgid "拒绝"
+msgstr "Weigeren"
+
+msgid "指纹"
+msgstr "Vingerafdruk"
+
+msgid "按顺序检查设备发现和连接"
+msgstr "Controleert de detectie en connectiviteit op volgorde"
+
+msgid "接受所选"
+msgstr "Accepteer geselecteerd"
+
+msgid "接收"
+msgstr "Ontvangen"
+
+msgid "接收前要求发送方输入 PIN"
+msgstr "Vereisen dat de afzender een pincode invoert voordat hij ontvangt"
+
+msgid "接收历史"
+msgstr "Ontvang geschiedenis"
+
+msgid "接收完成"
+msgstr "Ontvang compleet"
+
+msgid "接收完成后自动关闭请求，不需要再次确认"
+msgstr "Sluit de aanvraag automatisch af na ontvangst, zonder verdere bevestiging"
+
+msgid "接收文件前，发送方需要输入 4 位 PIN"
+msgstr "De afzender moet een viercijferige pincode invoeren voordat hij bestanden kan ontvangen"
+
+msgid "接收服务使用的 TCP 端口"
+msgstr "TCP-poort die de ontvangstservice gebruikt"
+
+msgid "接收服务在线"
+msgstr "Ontvang online service"
+
+msgid "接收服务已就绪，附近设备可以在同一网络中发现你。"
+msgstr "De ontvangstservice is gereed; Apparaten in de buurt op dit netwerk kunnen u ontdekken."
+
+msgid "接收服务暂时无法启动。"
+msgstr "De ontvangstservice kan momenteel niet starten."
+
+msgid "接收服务离线"
+msgstr "Ontvang service offline"
+
+msgid "接收状态"
+msgstr "Ontvang status"
+
+msgid "接收目录"
+msgstr "Map ontvangen"
+
+msgid "接收链接"
+msgstr "Link ontvangen"
+
+msgid "接收链接已复制"
+msgstr "Ontvangstlink gekopieerd"
+
+msgid "搜索历史"
+msgstr "Zoekgeschiedenis"
+
+msgid "搜索消息、文件名或设备"
+msgstr "Zoek naar berichten, bestandsnamen of apparaten"
+
+msgid "搜索设备超时"
+msgstr "Time-out voor scannen"
+
+msgid "支持项目"
+msgstr "Steun dit project"
+
+msgid "收到文件"
+msgstr "Bestand ontvangen"
+
+msgid "收到新文件"
+msgstr "Nieuw bestand ontvangen"
+
+msgid "收到新消息"
+msgstr "Nieuw bericht ontvangen"
+
+msgid "收藏"
+msgstr "Favoriet"
+
+msgid "收藏设备"
+msgstr "Favoriete apparaten"
+
+msgid "收藏设备可使用快速保存与快捷发送"
+msgstr "Favoriete apparaten maken Snel opslaan en snel verzenden mogelijk"
+
+msgid "故障排除"
+msgstr "Problemen oplossen"
+
+msgid "文件"
+msgstr "Bestanden"
+
+msgid "文件保存、接收确认与完整性校验。"
+msgstr "Bestandsopslag, ontvangstbevestiging en integriteitscontroles."
+
+msgid "文件夹"
+msgstr "Map"
+
+msgid "文件已保存"
+msgstr "Bestanden opgeslagen"
+
+msgid "文件已发送到「{}」。"
+msgstr "Bestand verzonden naar \"{}\"."
+
+msgid "文件已成功送达"
+msgstr "Bestand afgeleverd"
+
+msgid "文本"
+msgstr "Tekst"
+
+msgid "文本会作为 .txt 文件发送到所选设备"
+msgstr "De tekst wordt als .txt-bestand naar de geselecteerde apparaten verzonden"
+
+msgid "文本内容"
+msgstr "Tekstinhoud"
+
+msgid "文本已准备好，请选择附近设备发送"
+msgstr "Tekst gereed; selecteer een apparaat in de buurt om te verzenden"
+
+msgid "文本消息"
+msgstr "Sms-bericht"
+
+msgid "无法保存剪贴板图片"
+msgstr "Kan de klembordafbeelding niet opslaan"
+
+msgid "无法定位剪贴板图片缓存目录"
+msgstr "Kan de cachemap voor klembordafbeeldingen niet vinden"
+
+msgid "无法将剪贴板图片转换为 PNG"
+msgstr "Kan de klembordafbeelding niet converteren naar PNG"
+
+msgid "无法访问剪贴板"
+msgstr "Geen toegang tot het klembord"
+
+msgid "无法重启"
+msgstr "Opnieuw opstarten niet beschikbaar"
+
+msgid "日志"
+msgstr "Logboeken"
+
+msgid "日本語"
+msgstr "日本語"
+
+msgid "暂不可用"
+msgstr "Niet beschikbaar"
+
+msgid "最近一次响应：刚刚"
+msgstr "Laatste reactie: zojuist"
+
+msgid "最近发现"
+msgstr "Onlangs ontdekt"
+
+msgid "服务器已停止"
+msgstr "Server gestopt"
+
+msgid "服务器状态"
+msgstr "Serverstatus"
+
+msgid "服务器运行中"
+msgstr "Server actief"
+
+msgid "服务暂停"
+msgstr "Dienst onderbroken"
+
+msgid "服务条款"
+msgstr "Servicevoorwaarden"
+
+msgid "未知"
+msgstr "Onbekend"
+
+msgid "本地端口"
+msgstr "Lokale haven"
+
+msgid "来自附近设备"
+msgstr "Vanaf een apparaat in de buurt"
+
+msgid "查看"
+msgstr "Weergave"
+
+msgid "查看当前会话的调试日志"
+msgstr "Bekijk foutopsporingslogboeken voor de huidige sessie"
+
+msgid "查看详情"
+msgstr "Bekijk details"
+
+msgid "桌面"
+msgstr "Bureaublad"
+
+msgid "检查端口、网络与设备发现"
+msgstr "Controleer poort-, netwerk- en apparaatdetectie"
+
+msgid "正在传输"
+msgstr "Overdragen"
+
+msgid "正在关闭后台服务"
+msgstr "Achtergrondservice stoppen"
+
+msgid "正在关闭浏览器接收页面"
+msgstr "De ontvangstpagina van de browser stoppen"
+
+msgid "正在刷新设备连接…"
+msgstr "Apparaatverbinding vernieuwen…"
+
+msgid "正在发送文件"
+msgstr "Bestanden verzenden"
+
+msgid "正在发送文本，等待接收确认"
+msgstr "Tekst verzenden; wachten op bevestiging van de ontvanger"
+
+msgid "正在取消传输"
+msgstr "Overdracht annuleren"
+
+msgid "正在启动浏览器接收页面"
+msgstr "De ontvangstpagina van de browser starten"
+
+msgid "正在拒绝传输"
+msgstr "Dalende overdracht"
+
+msgid "正在接受传输"
+msgstr "Overdracht accepteren"
+
+msgid "正在接收来自 {} 的文件"
+msgstr "Bestanden ontvangen van {}"
+
+msgid "正在查找附近设备"
+msgstr "Zoeken naar apparaten in de buurt"
+
+msgid "正在添加设备"
+msgstr "Apparaat toevoegen"
+
+msgid "正在清空历史"
+msgstr "Geschiedenis wissen"
+
+msgid "正在连接"
+msgstr "Verbinden"
+
+msgid "正在连接 localsendd..."
+msgstr "Verbinding maken met localsendd..."
+
+msgid "正在连接后台服务…"
+msgstr "Verbinding maken met de achtergrondservice…"
+
+msgid "正在连接对端，等待接收确认"
+msgstr "Verbinding maken met de ontvanger; wachten op bevestiging"
+
+msgid "正在重启服务器"
+msgstr "Server opnieuw opstarten"
+
+msgid "正在重连"
+msgstr "Opnieuw verbinding maken"
+
+msgid "正常"
+msgstr "Normaal"
+
+msgid "此设置不能通过文本输入修改"
+msgstr "Deze instelling kan niet worden gewijzigd via tekstinvoer"
+
+msgid "此项由系统自动检测或当前平台不支持编辑"
+msgstr "Deze waarde wordt door het systeem gedetecteerd of kan niet op dit platform worden bewerkt"
+
+msgid "没有添加有效的文件或文件夹"
+msgstr "Er zijn geen geldige bestanden of mappen toegevoegd"
+
+msgid "浅色"
+msgstr "Licht"
+
+msgid "浏览器可在同一网络内访问此地址"
+msgstr "Browsers op hetzelfde netwerk kunnen dit adres bereiken"
+
+msgid "消息已复制"
+msgstr "Bericht gekopieerd"
+
+msgid "深色"
+msgstr "Donker"
+
+msgid "添加"
+msgstr "Toevoegen"
+
+msgid "清空历史"
+msgstr "Geschiedenis wissen"
+
+msgid "清除所选项"
+msgstr "Duidelijke selectie"
+
+msgid "版本"
+msgstr "Versie"
+
+msgid "版本、开源许可与项目信息"
+msgstr "Versie, open-source licentie en projectinformatie"
+
+msgid "版本、诊断与支持选项。"
+msgstr "Versie, diagnose en ondersteuningsopties."
+
+msgid "版权"
+msgstr "Copyright"
+
+msgid "状态"
+msgstr "Status"
+
+msgid "用于匹配正确的平台图标"
+msgstr "Wordt gebruikt om het juiste platformpictogram te matchen"
+
+msgid "用于区分设备信息"
+msgstr "Wordt gebruikt om apparaatinformatie te onderscheiden"
+
+msgid "界面显示语言"
+msgstr "Interfacetaal"
+
+msgid "登录系统后自动启动 LocalSend"
+msgstr "Start LocalSend automatisch na het inloggen"
+
+msgid "目标地址"
+msgstr "Doeladres"
+
+msgid "确保对方也打开了 LocalSend，并已连接到同一个 Wi-Fi 网络。"
+msgstr "Zorg ervoor dat het andere apparaat ook LocalSend geopend heeft en zich op hetzelfde Wi-Fi-netwerk bevindt."
+
+msgid "确定"
+msgstr "OK"
+
+msgid "确认"
+msgstr "Bevestigen"
+
+msgid "确认双方处于同一子网，并允许防火墙访问 LocalSend。"
+msgstr "Controleer of beide apparaten zich op hetzelfde subnet bevinden en firewalltoegang tot LocalSend toestaan."
+
+msgid "离线"
+msgstr "Offline"
+
+msgid "移除收藏"
+msgstr "Favoriet verwijderen"
+
+msgid "端口"
+msgstr "Poort:"
+
+msgid "端口必须是 1 到 65535 之间的数字"
+msgstr "Poort moet een nummer zijn tussen 1 en 65535"
+
+msgid "等待中"
+msgstr "Wachten"
+
+msgid "简体中文"
+msgstr "简体中文"
+
+msgid "管理 LocalSend 的外观、接收、网络与支持选项。"
+msgstr "Beheer de weergave-, ontvangst-, netwerk- en ondersteuningsopties van LocalSend."
+
+msgid "管理收藏设备"
+msgstr "Beheer favoriete apparaten"
+
+msgid "系统"
+msgstr "Systeem"
+
+msgid "繁體中文（台灣）"
+msgstr "繁體中文（台灣）"
+
+msgid "繁體中文（香港）"
+msgstr "繁體中文（香港）"
+
+msgid "组播地址必须是有效 IPv4 地址"
+msgstr "Multicast-adres moet een geldig IPv4-adres zijn"
+
+msgid "结束本实例的 localsendd"
+msgstr "Stop de localsendd voor deze instantie"
+
+msgid "绿色"
+msgstr "Groente"
+
+msgid "编辑"
+msgstr "Bewerken"
+
+msgid "编辑设置"
+msgstr "Instelling bewerken"
+
+msgid "网络"
+msgstr "Netwerk"
+
+msgid "网络不可用"
+msgstr "Netwerk niet beschikbaar"
+
+msgid "网络信息"
+msgstr "Netwerkinformatie"
+
+msgid "网络接口"
+msgstr "Netwerkinterfaces"
+
+msgid "网络筛选"
+msgstr "Netwerkfilter"
+
+msgid "网络连接"
+msgstr "Netwerkverbinding"
+
+msgid "自动完成"
+msgstr "Automatische voltooiing"
+
+msgid "自动接收来自可信设备的文件"
+msgstr "Ontvang automatisch bestanden van vertrouwde apparaten"
+
+msgid "若设备指纹发生变化，LocalSend 会重新要求确认。你可以随时在收藏设备中取消信任。"
+msgstr "Als de vingerafdruk van een apparaat verandert, vraagt ​​LocalSend opnieuw om bevestiging. Je kunt het op elk moment niet meer vertrouwen op je favoriete apparaten."
+
+msgid "蓝色"
+msgstr "Blauw"
+
+msgid "记住本次窗口尺寸与位置"
+msgstr "Onthoud deze venstergrootte en -positie"
+
+msgid "设备信息"
+msgstr "Apparaatinformatie"
+
+msgid "设备名称"
+msgstr "Apparaatnaam:"
+
+msgid "设备型号"
+msgstr "Apparaatmodel"
+
+msgid "设备已离线，请刷新设备列表"
+msgstr "Apparaat is offline gegaan; vernieuw de apparatenlijst"
+
+msgid "设备类型"
+msgstr "Apparaattype"
+
+msgid "设备详情"
+msgstr "Apparaatdetails"
+
+msgid "设备身份、服务与发现协议。"
+msgstr "Apparaatidentiteit, service en detectieprotocol."
+
+msgid "设置"
+msgstr "Instellingen"
+
+msgid "设置 PIN"
+msgstr "Pincode instellen"
+
+msgid "设置值"
+msgstr "Waarde instellen"
+
+msgid "设置已提交"
+msgstr "Instellingen verzonden"
+
+msgid "访问者需要通过 PIN 验证后才能上传文件。"
+msgstr "Bezoekers moeten een pincodeverificatie doorstaan ​​voordat ze bestanden kunnen uploaden."
+
+msgid "诊断"
+msgstr "Diagnostiek"
+
+msgid "诊断信息已复制"
+msgstr "Diagnostiek gekopieerd"
+
+msgid "语言"
+msgstr "Taal"
+
+msgid "请先选择文件、文件夹、文本或剪贴板，再选择设备发送"
+msgstr "Selecteer een bestand, map, tekst of klembordinhoud voordat u een apparaat kiest"
+
+msgid "请先选择文件或文件夹"
+msgstr "Selecteer eerst een bestand of map"
+
+msgid "请先选择至少一个设备"
+msgstr "Selecteer ten minste één apparaat"
+
+msgid "请在系统设置中检查防火墙规则"
+msgstr "Controleer de firewallregels in de systeeminstellingen"
+
+msgid "请求发送 {} 个项目"
+msgstr "wil {} items verzenden"
+
+msgid "请输入设备 IP 地址或主机名"
+msgstr "Voer een IP-adres of hostnaam van het apparaat in"
+
+msgid "请选择目标设备"
+msgstr "Selecteer een doelapparaat"
+
+msgid "跟随系统"
+msgstr "Systeem"
+
+msgid "跟随系统或固定使用浅色、深色"
+msgstr "Volg het systeem of fixeer op licht of donker"
+
+msgid "路径可在文件管理器中打开"
+msgstr "Het pad kan worden geopend in Bestandsbeheer"
+
+msgid "输入同一网络中设备的 IP 地址"
+msgstr "Voer het IP-adres in van een apparaat op hetzelfde netwerk"
+
+msgid "返回"
+msgstr "Rug"
+
+msgid "还没有接收记录"
+msgstr "Nog geen ontvangen artikelen"
+
+msgid "还没有收藏设备"
+msgstr "Nog geen favoriete apparaten"
+
+msgid "连接"
+msgstr "Verbinden"
+
+msgid "退出"
+msgstr "Ontslag nemen"
+
+msgid "退出时保存窗口位置"
+msgstr "Vensterpositie na beëindigen opslaan"
+
+msgid "选择"
+msgstr "Selectie"
+
+msgid "选择要发送的内容，或从剪贴板快速创建一条文本消息。"
+msgstr "Kies wat u wilt verzenden of maak snel een sms-bericht vanaf het klembord."
+
+msgid "通用"
+msgstr "Algemeen"
+
+msgid "通过链接接收"
+msgstr "Ontvangen via link"
+
+msgid "重启"
+msgstr "Opnieuw starten"
+
+msgid "重新启动接收"
+msgstr "Begin opnieuw met ontvangen"
+
+msgid "重新扫描"
+msgstr "Opnieuw scannen"
+
+msgid "附近的设备"
+msgstr "Apparaten in de buurt"
+
+msgid "附近设备中显示的 alias"
+msgstr "Alias ​​getoond aan apparaten in de buurt"
+
+msgid "隐私政策"
+msgstr "Privacybeleid"
+
+msgid "颜色"
+msgstr "Kleur"
+
+msgid "验证"
+msgstr "Verifiëren"

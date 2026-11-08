@@ -294,7 +294,7 @@ async fn run_worker(
         }
         let _ = events_out.send(WorkerEvent::Connection {
             connected: false,
-            message: "Connection to localsendd lost; reconnecting".to_string(),
+            message: "与后台服务的连接已断开，正在重连…".to_string(),
             show_notice: false,
         });
         pending_sends.clear();

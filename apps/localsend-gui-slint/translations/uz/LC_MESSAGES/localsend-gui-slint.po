@@ -1,0 +1,892 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: uz\n"
+
+msgid "Checksum 校验"
+msgstr "Tekshirish summasini tekshirish"
+
+msgid "HTTPS"
+msgstr "HTTPS"
+
+msgid "IP 地址"
+msgstr "IP manzil"
+
+msgid "IP 地址或主机名"
+msgstr "IP manzili yoki xost nomi"
+
+msgid "LocalSend Next {} · 桌面版"
+msgstr "LocalSend Next {} · Ish stoli"
+
+msgid "LocalSend 青绿色品牌色"
+msgstr "LocalSend ko'k rangli brend rangi"
+
+msgid "Multicast"
+msgstr "Multicast"
+
+msgid "PIN 不能为空"
+msgstr "PIN kod bo‘sh bo‘lishi mumkin emas"
+
+msgid "PIN 值"
+msgstr "PIN-kod qiymati"
+
+msgid "PIN 密码"
+msgstr "PIN-kod"
+
+msgid "PIN 需要 4 位数字"
+msgstr "PIN kod 4 ta raqamdan iborat bo‘lishi kerak"
+
+msgid "PIN 验证"
+msgstr "PIN-kodni tekshirish"
+
+msgid "TCP {} 正在监听"
+msgstr "TCP {} tinglanmoqda"
+
+msgid "Web Share 已验证"
+msgstr "Web Share tasdiqlandi"
+
+msgid "Web Share 链接不可用"
+msgstr "Web Share havolasi mavjud emas"
+
+msgid "{} 个文件已保存到「下载 / LocalSend」。"
+msgstr "{} ta fayl “Yuklashlar / LocalSend”ga saqlangan."
+
+msgid "「收藏设备」只会自动接受来自已验证收藏设备的请求。文件保存到当前接收目录，并继续显示在历史记录中。"
+msgstr "\"Sevimli qurilmalar\" avtomatik ravishda faqat tasdiqlangan sevimlilardan so'rovlarni qabul qiladi. Fayllar joriy qabul qilish papkasida saqlanadi va tarixda qoladi."
+
+msgid "与后台服务的连接已断开，正在重连…"
+msgstr "Fon xizmatiga ulanish uzildi; qayta ulanmoqda…"
+
+msgid "主题"
+msgstr "Mavzu"
+
+msgid "仅允许指定网段访问"
+msgstr "Faqat belgilangan quyi tarmoqdan kirishga ruxsat bering"
+
+msgid "传输中"
+msgstr "Oʻtkazilmoqda"
+
+msgid "传输后校验文件完整性"
+msgstr "O'tkazishdan keyin faylning yaxlitligini tekshiring"
+
+msgid "传输失败：{}"
+msgstr "O‘tkazish amalga oshmadi: {}"
+
+msgid "传输完成"
+msgstr "Oʻtkazish tugallandi"
+
+msgid "传输用时"
+msgstr "Davomiyligi"
+
+msgid "保存"
+msgstr "Saqlash"
+
+msgid "保留最近 100 条接收与发送记录"
+msgstr "Oxirgi 100 ta qabul qilish va yuborish yozuvlarini saqlang"
+
+msgid "保留状态变化和页面切换反馈"
+msgstr "Holatni o'zgartirish va sahifaga o'tish haqida fikr-mulohazalarni saqlang"
+
+msgid "停止"
+msgstr "Toʻxtatish"
+
+msgid "允许接收方校验传输内容"
+msgstr "Qabul qiluvchiga uzatilgan kontentni tekshirishga ruxsat bering"
+
+msgid "全部开启"
+msgstr "Hammasini yoqing"
+
+msgid "全部接受"
+msgstr "Hammasini qabul qiling"
+
+msgid "全部接口"
+msgstr "Barcha interfeyslar"
+
+msgid "关于 LocalSend Next"
+msgstr "LocalSend Next haqida"
+
+msgid "关闭"
+msgstr "Yopish"
+
+msgid "关闭 ({})"
+msgstr "Yopish ({})"
+
+msgid "关闭后台服务"
+msgstr "Fon xizmatini to'xtatish"
+
+msgid "关闭时最小化到托盘"
+msgstr "Yopiq bo'lsa, patnisga kichraytiring"
+
+msgid "关闭窗口后保持接收服务运行"
+msgstr "Oynani yopgandan so'ng qabul qilish xizmatini davom ettiring"
+
+msgid "其他"
+msgstr "Boshqa"
+
+msgid "再次发送"
+msgstr "Yana yuboring"
+
+msgid "刷新设备"
+msgstr "Qurilmalarni yangilang"
+
+msgid "剪贴板"
+msgstr "Joylashtirish"
+
+msgid "剪贴板中没有可发送的文件、文件夹、图片或文本"
+msgstr "Buferda fayllar, papkalar, rasmlar yoki yuborish uchun matn mavjud emas"
+
+msgid "剪贴板文本已准备好，请选择附近设备发送"
+msgstr "Bufer matni tayyor; yuborish uchun yaqin-atrofdagi qurilmani tanlang"
+
+msgid "动画效果"
+msgstr "Animatsiyalar"
+
+msgid "协议"
+msgstr "Protokol"
+
+msgid "协议 {}"
+msgstr "Protokol v{}"
+
+msgid "单位：秒；0 表示持续发现"
+msgstr "Birlik: soniya; 0 kashf qilishda davom eting degan ma'noni anglatadi"
+
+msgid "单选"
+msgstr "Yagona"
+
+msgid "历史记录"
+msgstr "Tarix"
+
+msgid "历史记录只保存在当前设备，不会同步到云服务。"
+msgstr "Tarix faqat ushbu qurilmada saqlanadi va hech qachon bulutga sinxronlanmaydi."
+
+msgid "发现"
+msgstr "Kashfiyot"
+
+msgid "发现和传输使用的网络"
+msgstr "Tarmoq kashf qilish va uzatish uchun ishlatiladi"
+
+msgid "发现超时必须是正整数"
+msgstr "Kashf qilish vaqti musbat butun son bo'lishi kerak"
+
+msgid "发送"
+msgstr "Yuborish"
+
+msgid "发送内容"
+msgstr "Yuborish uchun kontent"
+
+msgid "发送到 "
+msgstr "Kimga yuborilmoqda"
+
+msgid "发送到所选设备"
+msgstr "Tanlangan qurilmalarga yuborish"
+
+msgid "发送完成"
+msgstr "Yuborish tugallandi"
+
+msgid "发送文件时创建校验和"
+msgstr "Fayllarni yuborishda nazorat summalarini yaratish"
+
+msgid "发送文本"
+msgstr "Matn yuboring"
+
+msgid "发送文本内容"
+msgstr "Xabar"
+
+msgid "发送给你了一条消息："
+msgstr "sizga xabar yubordi:"
+
+msgid "发送请求已提交，请等待对端响应"
+msgstr "So'rov yuborildi; qabul qiluvchini kutish"
+
+msgid "取消"
+msgstr "Bekor qilish"
+
+msgid "取消发送"
+msgstr "Yuborishni bekor qilish"
+
+msgid "取消接收"
+msgstr "Qabul qilishni bekor qilish"
+
+msgid "取消收藏"
+msgstr "Sevimli emas"
+
+msgid "另一台设备未出现？"
+msgstr "Boshqa qurilma ko'rinmayaptimi?"
+
+msgid "可信设备可以跳过每次接收确认"
+msgstr "Ishonchli qurilmalar har bir uzatishni tasdiqlashni o'tkazib yuborishi mumkin"
+
+msgid "可被发现"
+msgstr "Ko'rish mumkin"
+
+msgid "同一网络下的设备会自动出现。"
+msgstr "Xuddi shu tarmoqdagi qurilmalar avtomatik ravishda paydo bo'ladi."
+
+msgid "名称"
+msgstr "Nomi"
+
+msgid "启动"
+msgstr "Boshlash"
+
+msgid "启动时运行"
+msgstr "Ishga tushganda ishga tushirish"
+
+msgid "启用加密传输，速度可能略低"
+msgstr "Shifrlangan uzatishni yoqish; tezligi biroz pasayishi mumkin"
+
+msgid "在文件管理器中显示"
+msgstr "Papkada koʻrsatish"
+
+msgid "在线"
+msgstr "Onlayn"
+
+msgid "复制"
+msgstr "Nusxa olish"
+
+msgid "复制诊断信息"
+msgstr "Diagnostikani nusxalash"
+
+msgid "复制链接"
+msgstr "Havolani nusxalash"
+
+msgid "外观与桌面行为。"
+msgstr "Tashqi ko'rinish va ish stoli harakati."
+
+msgid "外部文档在当前评审原型中不可用"
+msgstr "Ushbu ko'rib chiqish prototipida tashqi hujjatlar mavjud emas"
+
+msgid "外部链接在当前评审原型中不可用"
+msgstr "Ushbu sharh prototipida tashqi havolalar mavjud emas"
+
+msgid "多选"
+msgstr "Bir nechta"
+
+msgid "失败"
+msgstr "Muvaffaqiyatsiz"
+
+msgid "完成"
+msgstr "Tayyor"
+
+msgid "完成传输"
+msgstr "Transferni yakunlang"
+
+msgid "局域网组播发现地址"
+msgstr "LAN multicast kashfiyot manzili"
+
+msgid "已发送"
+msgstr "Yuborildi"
+
+msgid "已取消"
+msgstr "Bekor qilingan"
+
+msgid "已完成"
+msgstr "Tugadi"
+
+msgid "已就绪"
+msgstr "Tayyor"
+
+msgid "已收藏"
+msgstr "Sevimlilar"
+
+msgid "已连接"
+msgstr "Ulangan"
+
+msgid "已送达"
+msgstr "Yetkazib berildi"
+
+msgid "已选择 {} 个项目"
+msgstr "{} ta element tanlandi"
+
+msgid "已选择 {} 台设备"
+msgstr "{} ta qurilma tanlandi"
+
+msgid "已选择文件夹，正在刷新附近设备"
+msgstr "Jild tanlangan; yaqin atrofdagi qurilmalarni yangilash"
+
+msgid "已选择文件，正在刷新附近设备"
+msgstr "Fayl tanlangan; yaqin atrofdagi qurilmalarni yangilash"
+
+msgid "已验证 · 快速保存已开启"
+msgstr "Tasdiqlangan · Tez saqlash yoqilgan"
+
+msgid "当前接收服务的连接信息"
+msgstr "Joriy qabul qilish xizmati uchun ulanish ma'lumotlari"
+
+msgid "当前没有可复制的接收链接"
+msgstr "Nusxa olish uchun havola mavjud emas"
+
+msgid "待处理"
+msgstr "Kutilmoqda"
+
+msgid "快速保存"
+msgstr "Tez saqlash"
+
+msgid "快速保存说明"
+msgstr "Tez saqlash tafsilotlari"
+
+msgid "总大小"
+msgstr "Umumiy hajmi"
+
+msgid "所有文件均已通过 Checksum 校验"
+msgstr "Barcha fayllar nazorat summasi tekshiruvidan oʻtdi"
+
+msgid "手动添加设备"
+msgstr "Qurilmani qo'lda qo'shing"
+
+msgid "手动连接"
+msgstr "Qo'lda ulanish"
+
+msgid "打开"
+msgstr "Ochish"
+
+msgid "打开主界面"
+msgstr "Asosiy oynani oching"
+
+msgid "打开文件"
+msgstr "Faylni ochish"
+
+msgid "打开文件夹"
+msgstr "Jildni oching"
+
+msgid "执行"
+msgstr "Yugurish"
+
+msgid "拒绝"
+msgstr "Rad etish"
+
+msgid "指纹"
+msgstr "Barmoq izi"
+
+msgid "按顺序检查设备发现和连接"
+msgstr "Topish va ulanishni tartibda tekshiradi"
+
+msgid "接受所选"
+msgstr "Tanlanganni qabul qiling"
+
+msgid "接收"
+msgstr "Qabul qilish"
+
+msgid "接收前要求发送方输入 PIN"
+msgstr "Qabul qilishdan oldin yuboruvchidan PIN-kodni kiritishni talab qiling"
+
+msgid "接收历史"
+msgstr "Tarixni qabul qilish"
+
+msgid "接收完成"
+msgstr "Qabul qilish to'liq"
+
+msgid "接收完成后自动关闭请求，不需要再次确认"
+msgstr "So'rovni qabul qilgandan so'ng, boshqa tasdiqlamasdan avtomatik ravishda yoping"
+
+msgid "接收文件前，发送方需要输入 4 位 PIN"
+msgstr "Yuboruvchi fayllarni qabul qilishdan oldin 4 xonali PIN-kodni kiritishi kerak"
+
+msgid "接收服务使用的 TCP 端口"
+msgstr "Qabul qilish xizmati foydalanadigan TCP porti"
+
+msgid "接收服务在线"
+msgstr "Xizmatni onlayn qabul qiling"
+
+msgid "接收服务已就绪，附近设备可以在同一网络中发现你。"
+msgstr "Qabul qilish xizmati tayyor; ushbu tarmoqdagi yaqin-atrofdagi qurilmalar sizni topishi mumkin."
+
+msgid "接收服务暂时无法启动。"
+msgstr "Qabul qilish xizmati hozir ishga tushmadi."
+
+msgid "接收服务离线"
+msgstr "Xizmatni oflayn rejimda qabul qiling"
+
+msgid "接收状态"
+msgstr "Holatni qabul qilish"
+
+msgid "接收目录"
+msgstr "Qabul qilish papkasi"
+
+msgid "接收链接"
+msgstr "Havolani qabul qilish"
+
+msgid "接收链接已复制"
+msgstr "Qabul qilish havolasi nusxalandi"
+
+msgid "搜索历史"
+msgstr "Qidiruv tarixi"
+
+msgid "搜索消息、文件名或设备"
+msgstr "Xabarlarni, fayl nomlarini yoki qurilmalarni qidiring"
+
+msgid "搜索设备超时"
+msgstr "Aniqlash vaqti tugashi"
+
+msgid "支持项目"
+msgstr "Ushbu loyihani qo'llab-quvvatlang"
+
+msgid "收到文件"
+msgstr "Fayl qabul qilindi"
+
+msgid "收到新文件"
+msgstr "Yangi fayl qabul qilindi"
+
+msgid "收到新消息"
+msgstr "Yangi xabar qabul qilindi"
+
+msgid "收藏"
+msgstr "Sevimli"
+
+msgid "收藏设备"
+msgstr "Sevimli qurilmalar"
+
+msgid "收藏设备可使用快速保存与快捷发送"
+msgstr "Sevimli qurilmalar Tez saqlash va tezkor yuborishni yoqadi"
+
+msgid "故障排除"
+msgstr "Muammolarni bartaraf etish"
+
+msgid "文件"
+msgstr "Fayllar"
+
+msgid "文件保存、接收确认与完整性校验。"
+msgstr "Faylni saqlash, tasdiqlash va yaxlitlikni tekshirish."
+
+msgid "文件夹"
+msgstr "Papka"
+
+msgid "文件已保存"
+msgstr "Fayllar saqlangan"
+
+msgid "文件已发送到「{}」。"
+msgstr "Fayl “{}”ga yuborildi."
+
+msgid "文件已成功送达"
+msgstr "Fayl muvaffaqiyatli yetkazib berildi"
+
+msgid "文本"
+msgstr "Matn"
+
+msgid "文本会作为 .txt 文件发送到所选设备"
+msgstr "Matn tanlangan qurilmalarga .txt fayli sifatida yuboriladi"
+
+msgid "文本内容"
+msgstr "Matn tarkibi"
+
+msgid "文本已准备好，请选择附近设备发送"
+msgstr "Matn tayyor; yuborish uchun yaqin-atrofdagi qurilmani tanlang"
+
+msgid "文本消息"
+msgstr "Matnli xabar"
+
+msgid "无法保存剪贴板图片"
+msgstr "Bufer tasvirini saqlab bo‘lmadi"
+
+msgid "无法定位剪贴板图片缓存目录"
+msgstr "Bufer tasvir kesh katalogini topib bo'lmadi"
+
+msgid "无法将剪贴板图片转换为 PNG"
+msgstr "Bufer tasvirini PNG formatiga o‘zgartirib bo‘lmadi"
+
+msgid "无法访问剪贴板"
+msgstr "Buferga kirish imkonsiz"
+
+msgid "无法重启"
+msgstr "Qayta ishga tushirish mavjud emas"
+
+msgid "日志"
+msgstr "Jurnallar"
+
+msgid "日本語"
+msgstr "日本語"
+
+msgid "暂不可用"
+msgstr "Mavjud emas"
+
+msgid "最近一次响应：刚刚"
+msgstr "Oxirgi javob: hozir"
+
+msgid "最近发现"
+msgstr "Yaqinda kashf etilgan"
+
+msgid "服务器已停止"
+msgstr "Server toʻxtadi"
+
+msgid "服务器状态"
+msgstr "Server holati"
+
+msgid "服务器运行中"
+msgstr "Server ishlayapti"
+
+msgid "服务暂停"
+msgstr "Xizmat pauza qilindi"
+
+msgid "服务条款"
+msgstr "Xizmat shartlari"
+
+msgid "未知"
+msgstr "Noma'lum"
+
+msgid "本地端口"
+msgstr "Mahalliy port"
+
+msgid "来自附近设备"
+msgstr "Yaqin-atrofdagi qurilmadan"
+
+msgid "查看"
+msgstr "Ko‘rish"
+
+msgid "查看当前会话的调试日志"
+msgstr "Joriy seans uchun disk raskadrovka jurnallarini ko'ring"
+
+msgid "查看详情"
+msgstr "Tafsilotlarni ko'rish"
+
+msgid "桌面"
+msgstr "Ish stoli"
+
+msgid "检查端口、网络与设备发现"
+msgstr "Port, tarmoq va qurilma topilganligini tekshiring"
+
+msgid "正在传输"
+msgstr "Oʻtkazilmoqda"
+
+msgid "正在关闭后台服务"
+msgstr "Fon xizmati toʻxtatilmoqda"
+
+msgid "正在关闭浏览器接收页面"
+msgstr "Brauzerni qabul qilish sahifasini to'xtatish"
+
+msgid "正在刷新设备连接…"
+msgstr "Qurilma ulanishi yangilanmoqda…"
+
+msgid "正在发送文件"
+msgstr "Fayllar yuborilmoqda"
+
+msgid "正在发送文本，等待接收确认"
+msgstr "Matn yuborish; qabul qiluvchining tasdiqlanishini kutish"
+
+msgid "正在取消传输"
+msgstr "Transfer bekor qilinmoqda"
+
+msgid "正在启动浏览器接收页面"
+msgstr "Brauzerni qabul qilish sahifasini ishga tushirish"
+
+msgid "正在拒绝传输"
+msgstr "O'tkazmani rad etish"
+
+msgid "正在接受传输"
+msgstr "Transfer qabul qilinmoqda"
+
+msgid "正在接收来自 {} 的文件"
+msgstr "{} dan fayllar qabul qilinmoqda"
+
+msgid "正在查找附近设备"
+msgstr "Yaqin-atrofdagi qurilmalar qidirilmoqda"
+
+msgid "正在添加设备"
+msgstr "Qurilma qo'shilmoqda"
+
+msgid "正在清空历史"
+msgstr "Tarixni tozalash"
+
+msgid "正在连接"
+msgstr "Ulanmoqda"
+
+msgid "正在连接 localsendd..."
+msgstr "localsendd ga ulanmoqda..."
+
+msgid "正在连接后台服务…"
+msgstr "Orqa fon xizmatiga ulanmoqda…"
+
+msgid "正在连接对端，等待接收确认"
+msgstr "Qabul qilgichga ulanish; tasdiqlashni kutish"
+
+msgid "正在重启服务器"
+msgstr "Server qayta ishga tushirilmoqda"
+
+msgid "正在重连"
+msgstr "Qayta ulanmoqda"
+
+msgid "正常"
+msgstr "Oddiy"
+
+msgid "此设置不能通过文本输入修改"
+msgstr "Bu sozlamani matn kiritish orqali oʻzgartirib boʻlmaydi"
+
+msgid "此项由系统自动检测或当前平台不支持编辑"
+msgstr "Bu qiymat tizim tomonidan aniqlangan yoki uni ushbu platformada tahrirlab bo‘lmaydi"
+
+msgid "没有添加有效的文件或文件夹"
+msgstr "Hech qanday to'g'ri fayl yoki papka qo'shilmagan"
+
+msgid "浅色"
+msgstr "Yorugʻ"
+
+msgid "浏览器可在同一网络内访问此地址"
+msgstr "Xuddi shu tarmoqdagi brauzerlar ushbu manzilga kirishlari mumkin"
+
+msgid "消息已复制"
+msgstr "Xabar nusxalandi"
+
+msgid "深色"
+msgstr "Qorongʻi"
+
+msgid "添加"
+msgstr "Qoʻshish"
+
+msgid "清空历史"
+msgstr "Tarixni tozalash"
+
+msgid "清除所选项"
+msgstr "Tanlovni tozalash"
+
+msgid "版本"
+msgstr "Versiya"
+
+msgid "版本、开源许可与项目信息"
+msgstr "Versiya, ochiq kodli litsenziya va loyiha ma'lumotlari"
+
+msgid "版本、诊断与支持选项。"
+msgstr "Versiya, diagnostika va qo'llab-quvvatlash imkoniyatlari."
+
+msgid "版权"
+msgstr "Mualliflik huquqi"
+
+msgid "状态"
+msgstr "Status"
+
+msgid "用于匹配正确的平台图标"
+msgstr "To'g'ri platforma belgisiga mos kelish uchun foydalaniladi"
+
+msgid "用于区分设备信息"
+msgstr "Qurilma ma'lumotlarini farqlash uchun ishlatiladi"
+
+msgid "界面显示语言"
+msgstr "Interfeys tili"
+
+msgid "登录系统后自动启动 LocalSend"
+msgstr "LocalSend-ni tizimga kirgandan so'ng avtomatik ravishda ishga tushiring"
+
+msgid "目标地址"
+msgstr "Maqsadli manzil"
+
+msgid "确保对方也打开了 LocalSend，并已连接到同一个 Wi-Fi 网络。"
+msgstr "Boshqa qurilmada ham LocalSend ochiq va bir xil Wi-Fi tarmog‘ida ekanligiga ishonch hosil qiling."
+
+msgid "确定"
+msgstr "KELISHDIKMI"
+
+msgid "确认"
+msgstr "Tasdiqlash"
+
+msgid "确认双方处于同一子网，并允许防火墙访问 LocalSend。"
+msgstr "Ikkala qurilma ham bir xil quyi tarmoqda ekanligini tasdiqlang va xavfsizlik devoriga LocalSend-ga kirishiga ruxsat bering."
+
+msgid "离线"
+msgstr "Oflayn"
+
+msgid "移除收藏"
+msgstr "Sevimlilarni olib tashlang"
+
+msgid "端口"
+msgstr "Port:"
+
+msgid "端口必须是 1 到 65535 之间的数字"
+msgstr "Port 1 dan 65535 gacha bo'lgan raqam bo'lishi kerak"
+
+msgid "等待中"
+msgstr "Kutilmoqda"
+
+msgid "简体中文"
+msgstr "简体中文"
+
+msgid "管理 LocalSend 的外观、接收、网络与支持选项。"
+msgstr "LocalSend tashqi koʻrinishi, qabul qilish, tarmoq va qoʻllab-quvvatlash opsiyalarini boshqaring."
+
+msgid "管理收藏设备"
+msgstr "Sevimli qurilmalarni boshqaring"
+
+msgid "系统"
+msgstr "Tizim"
+
+msgid "繁體中文（台灣）"
+msgstr "繁體中文（台灣）"
+
+msgid "繁體中文（香港）"
+msgstr "繁體中文（香港）"
+
+msgid "组播地址必须是有效 IPv4 地址"
+msgstr "Multicast manzili yaroqli IPv4 manzili boʻlishi kerak"
+
+msgid "结束本实例的 localsendd"
+msgstr "Ushbu misol uchun localsenddni to'xtating"
+
+msgid "绿色"
+msgstr "Yashil"
+
+msgid "编辑"
+msgstr "Tahrirlash"
+
+msgid "编辑设置"
+msgstr "Sozlamani tahrirlash"
+
+msgid "网络"
+msgstr "Tarmoq"
+
+msgid "网络不可用"
+msgstr "Tarmoq mavjud emas"
+
+msgid "网络信息"
+msgstr "Tarmoq ma'lumotlari"
+
+msgid "网络接口"
+msgstr "Tarmoq interfeyslari"
+
+msgid "网络筛选"
+msgstr "Tarmoq filtri"
+
+msgid "网络连接"
+msgstr "Tarmoq ulanishi"
+
+msgid "自动完成"
+msgstr "Avtomatik tugatish"
+
+msgid "自动接收来自可信设备的文件"
+msgstr "Ishonchli qurilmalardan fayllarni avtomatik qabul qilish"
+
+msgid "若设备指纹发生变化，LocalSend 会重新要求确认。你可以随时在收藏设备中取消信任。"
+msgstr "Agar qurilmaning barmoq izi oʻzgarsa, LocalSend yana tasdiqlashni soʻraydi. Istalgan vaqtda Sevimli qurilmalardan unga ishonmaslik mumkin."
+
+msgid "蓝色"
+msgstr "Moviy"
+
+msgid "记住本次窗口尺寸与位置"
+msgstr "Ushbu oyna o'lchami va joylashuvini eslang"
+
+msgid "设备信息"
+msgstr "Qurilma haqida ma'lumot"
+
+msgid "设备名称"
+msgstr "Qurilma nomi:"
+
+msgid "设备型号"
+msgstr "Qurilma modeli"
+
+msgid "设备已离线，请刷新设备列表"
+msgstr "Qurilma oflayn rejimga o'tdi; qurilmalar ro'yxatini yangilang"
+
+msgid "设备类型"
+msgstr "Qurilma turi"
+
+msgid "设备详情"
+msgstr "Qurilma tafsilotlari"
+
+msgid "设备身份、服务与发现协议。"
+msgstr "Qurilma identifikatori, xizmat va kashfiyot protokoli."
+
+msgid "设置"
+msgstr "Sozlamalar"
+
+msgid "设置 PIN"
+msgstr "PIN-kodni o'rnating"
+
+msgid "设置值"
+msgstr "Qiymatni sozlash"
+
+msgid "设置已提交"
+msgstr "Sozlamalar yuborildi"
+
+msgid "访问者需要通过 PIN 验证后才能上传文件。"
+msgstr "Mehmonlar fayllarni yuklashdan oldin PIN-kod tekshiruvidan o‘tishlari kerak."
+
+msgid "诊断"
+msgstr "Diagnostika"
+
+msgid "诊断信息已复制"
+msgstr "Diagnostikadan nusxa olindi"
+
+msgid "语言"
+msgstr "Til"
+
+msgid "请先选择文件、文件夹、文本或剪贴板，再选择设备发送"
+msgstr "Qurilmani tanlashdan oldin fayl, jild, matn yoki bufer tarkibini tanlang"
+
+msgid "请先选择文件或文件夹"
+msgstr "Avval fayl yoki jildni tanlang"
+
+msgid "请先选择至少一个设备"
+msgstr "Kamida bitta qurilmani tanlang"
+
+msgid "请在系统设置中检查防火墙规则"
+msgstr "Tizim sozlamalarida xavfsizlik devori qoidalarini tekshiring"
+
+msgid "请求发送 {} 个项目"
+msgstr "{} ta element yubormoqchi"
+
+msgid "请输入设备 IP 地址或主机名"
+msgstr "Qurilmaning IP manzilini yoki xost nomini kiriting"
+
+msgid "请选择目标设备"
+msgstr "Maqsadli qurilmani tanlang"
+
+msgid "跟随系统"
+msgstr "Tizim"
+
+msgid "跟随系统或固定使用浅色、深色"
+msgstr "Tizimga rioya qiling yoki yorug'lik yoki qorong'ilikka o'rnating"
+
+msgid "路径可在文件管理器中打开"
+msgstr "Yo'l fayl boshqaruvchisida ochilishi mumkin"
+
+msgid "输入同一网络中设备的 IP 地址"
+msgstr "Xuddi shu tarmoqdagi qurilmaning IP manzilini kiriting"
+
+msgid "返回"
+msgstr "Orqaga"
+
+msgid "还没有接收记录"
+msgstr "Hali hech narsa qabul qilinmadi"
+
+msgid "还没有收藏设备"
+msgstr "Sevimli qurilmalar hali topilmadi"
+
+msgid "连接"
+msgstr "Ulanish"
+
+msgid "退出"
+msgstr "Chiqish"
+
+msgid "退出时保存窗口位置"
+msgstr "Chiqishdan soʻng oyna joylashuvini saqlash"
+
+msgid "选择"
+msgstr "Tanlov"
+
+msgid "选择要发送的内容，或从剪贴板快速创建一条文本消息。"
+msgstr "Nima yuborishni tanlang yoki buferdan tezda matnli xabar yarating."
+
+msgid "通用"
+msgstr "Umumiy"
+
+msgid "通过链接接收"
+msgstr "Havola orqali qabul qilish"
+
+msgid "重启"
+msgstr "Qayta ishga tushirish"
+
+msgid "重新启动接收"
+msgstr "Qabul qilishni qayta ishga tushiring"
+
+msgid "重新扫描"
+msgstr "Qayta skanerlash"
+
+msgid "附近的设备"
+msgstr "Yaqin atrofdagi qurilmalar"
+
+msgid "附近设备中显示的 alias"
+msgstr "Taxallus yaqin-atrofdagi qurilmalarga ko'rsatiladi"
+
+msgid "隐私政策"
+msgstr "Maxfiylik siyosati"
+
+msgid "颜色"
+msgstr "Rang"
+
+msgid "验证"
+msgstr "Tasdiqlash"

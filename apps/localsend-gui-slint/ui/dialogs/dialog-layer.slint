@@ -1,7 +1,7 @@
 import { ScrollView } from "std-widgets.slint";
 import { FlutterDialogButton, FlutterIconButton, FlutterOutlinedButton, FlutterSettingsEntry } from "../components/common.slint";
 import { ThemeTokens } from "../theme.slint";
-import { DeviceItem, FavoriteItem, HistoryItem } from "../models.slint";
+import { DeviceItem, FavoriteItem, HistoryItem, LanguageItem } from "../models.slint";
 component DialogShell inherits Rectangle {
     in property <string> title;
     in property <string> subtitle: "";
@@ -184,6 +184,9 @@ export component DialogLayer inherits Rectangle {
     in property <string> completion-file-path: "";
     in-out property <int> completion-countdown: 0;
     in property <bool> auto-save-help-open: false;
+    in property <bool> language-open: false;
+    in property <[LanguageItem]> language-items: [];
+    in property <string> language-code: "system";
 
     callback send-text(string);
     callback cancel-text();
@@ -195,6 +198,8 @@ export component DialogLayer inherits Rectangle {
     callback close-message();
     callback copy-message();
     callback close-info();
+    callback close-language();
+    callback language-selected(string);
     callback add-manual(string);
     callback close-manual();
     callback toggle-favorite(string);
@@ -645,7 +650,7 @@ export component DialogLayer inherits Rectangle {
                 FlutterDialogButton { label: @tr("在文件管理器中显示"); enabled: root.completion-file-path != ""; clicked => { root.reveal-completion(); } }
                 Rectangle { horizontal-stretch: 1; background: transparent; }
                 FlutterDialogButton {
-                    label: root.completion-countdown > 0 ? @tr("关闭 (") + root.completion-countdown + ")" : @tr("关闭");
+                    label: root.completion-countdown > 0 ? @tr("关闭 ({})", root.completion-countdown) : @tr("关闭");
                     clicked => { root.close-completion(); }
                 }
             }
@@ -699,7 +704,7 @@ export component DialogLayer inherits Rectangle {
         VerticalLayout {
             spacing: 8px;
             DiagnosticRow { title: @tr("网络连接"); description: "Wi-Fi · en0 · " + root.info-ip; }
-            DiagnosticRow { title: @tr("本地端口"); description: "TCP " + root.info-port + @tr(" 正在监听"); }
+            DiagnosticRow { title: @tr("本地端口"); description: @tr("TCP {} 正在监听", root.info-port); }
             DiagnosticRow { title: "Multicast " + @tr("发现"); description: @tr("最近一次响应：刚刚"); }
             DiagnosticRow {
                 title: @tr("另一台设备未出现？");
@@ -868,5 +873,54 @@ export component DialogLayer inherits Rectangle {
             }
         }
     }
-}
 
+    // The language picker lists every bundled locale in a three-column grid;
+    // "system" is the first entry and follows the OS locale.
+    if root.language-open : DialogShell {
+        title: @tr("语言");
+        target-width: 620px;
+        target-height: 620px;
+        close-clicked => { root.close-language(); }
+        Rectangle {
+            vertical-stretch: 1;
+            horizontal-stretch: 1;
+            background: transparent;
+            property <length> cell-width: (self.width - 12px) / 3;
+            property <length> list-height: Math.ceil(root.language-items.length / 3) * 44px;
+            ScrollView {
+                width: parent.width;
+                height: parent.height;
+                content-width: self.visible-width;
+                content-height: max(self.visible-height, root.language-items.length * 0px + list-height);
+                for item[index] in root.language-items : Rectangle {
+                    x: Math.mod(index, 3) * (cell-width + 6px);
+                    y: Math.floor(index / 3) * 44px;
+                    width: cell-width;
+                    height: 38px;
+                    border-radius: 8px;
+                    border-width: 1px;
+                    border-color: root.language-code == item.code ? ThemeTokens.primary.with-alpha(0.55) : ThemeTokens.outline.with-alpha(0.30);
+                    background: root.language-code == item.code ? ThemeTokens.primary.with-alpha(0.12) : ThemeTokens.surface-lowest;
+                    accessible-role: button;
+                    accessible-label: item.name;
+                    accessible-checked: root.language-code == item.code;
+                    Text {
+                        x: 10px;
+                        y: 0px;
+                        width: parent.width - 20px;
+                        height: parent.height;
+                        text: item.name;
+                        color: root.language-code == item.code ? ThemeTokens.primary : ThemeTokens.on-surface;
+                        font-size: 13px;
+                        vertical-alignment: center;
+                        overflow: elide;
+                    }
+                    TouchArea {
+                        mouse-cursor: pointer;
+                        clicked => { root.language-selected(item.code); }
+                    }
+                }
+            }
+        }
+    }
+}

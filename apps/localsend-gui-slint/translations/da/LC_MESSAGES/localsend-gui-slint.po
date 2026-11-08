@@ -1,0 +1,892 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: da\n"
+
+msgid "Checksum 校验"
+msgstr "Kontrolsum verifikation"
+
+msgid "HTTPS"
+msgstr "HTTPS"
+
+msgid "IP 地址"
+msgstr "IP-adresse"
+
+msgid "IP 地址或主机名"
+msgstr "IP-adresse eller værtsnavn"
+
+msgid "LocalSend Next {} · 桌面版"
+msgstr "LocalSend Next {} · Desktop"
+
+msgid "LocalSend 青绿色品牌色"
+msgstr "LocalSend blågrøn mærkefarve"
+
+msgid "Multicast"
+msgstr "Multicast"
+
+msgid "PIN 不能为空"
+msgstr "PIN-koden må ikke være tom"
+
+msgid "PIN 值"
+msgstr "PIN-værdi"
+
+msgid "PIN 密码"
+msgstr "STIFT"
+
+msgid "PIN 需要 4 位数字"
+msgstr "PIN-koden skal være på 4 cifre"
+
+msgid "PIN 验证"
+msgstr "PIN-bekræftelse"
+
+msgid "TCP {} 正在监听"
+msgstr "TCP {} lytter"
+
+msgid "Web Share 已验证"
+msgstr "Webdeling bekræftet"
+
+msgid "Web Share 链接不可用"
+msgstr "Link til webdeling er ikke tilgængeligt"
+
+msgid "{} 个文件已保存到「下载 / LocalSend」。"
+msgstr "{} filer gemt i \"Downloads / LocalSend\"."
+
+msgid "「收藏设备」只会自动接受来自已验证收藏设备的请求。文件保存到当前接收目录，并继续显示在历史记录中。"
+msgstr "\"Favorit-enheder\" accepterer automatisk kun anmodninger fra bekræftede favoritter. Filer gemmes i den aktuelle modtagemappe og forbliver i historikken."
+
+msgid "与后台服务的连接已断开，正在重连…"
+msgstr "Mistet forbindelsen til baggrundstjenesten; genopretter forbindelse..."
+
+msgid "主题"
+msgstr "Tema"
+
+msgid "仅允许指定网段访问"
+msgstr "Tillad kun adgang fra det angivne undernet"
+
+msgid "传输中"
+msgstr "Overfører"
+
+msgid "传输后校验文件完整性"
+msgstr "Bekræft filens integritet efter overførsel"
+
+msgid "传输失败：{}"
+msgstr "Overførsel mislykkedes: {}"
+
+msgid "传输完成"
+msgstr "Overførslen gennemført"
+
+msgid "传输用时"
+msgstr "Varighed"
+
+msgid "保存"
+msgstr "Gem"
+
+msgid "保留最近 100 条接收与发送记录"
+msgstr "Behold de sidste 100 modtagelses- og sendposter"
+
+msgid "保留状态变化和页面切换反馈"
+msgstr "Behold statusændringer og sideovergangsfeedback"
+
+msgid "停止"
+msgstr "Stop"
+
+msgid "允许接收方校验传输内容"
+msgstr "Tillad modtageren at bekræfte overført indhold"
+
+msgid "全部开启"
+msgstr "Tænd alt"
+
+msgid "全部接受"
+msgstr "Accepter alle"
+
+msgid "全部接口"
+msgstr "Alle grænseflader"
+
+msgid "关于 LocalSend Next"
+msgstr "Om LocalSend Next"
+
+msgid "关闭"
+msgstr "Luk"
+
+msgid "关闭 ({})"
+msgstr "Luk ({})"
+
+msgid "关闭后台服务"
+msgstr "Stop baggrundstjeneste"
+
+msgid "关闭时最小化到托盘"
+msgstr "Minimer til bakken, når den er lukket"
+
+msgid "关闭窗口后保持接收服务运行"
+msgstr "Hold modtagetjenesten kørende efter lukning af vinduet"
+
+msgid "其他"
+msgstr "Andet"
+
+msgid "再次发送"
+msgstr "Send igen"
+
+msgid "刷新设备"
+msgstr "Opdater enheder"
+
+msgid "剪贴板"
+msgstr "Indsæt"
+
+msgid "剪贴板中没有可发送的文件、文件夹、图片或文本"
+msgstr "Udklipsholderen har ingen filer, mapper, billeder eller tekst at sende"
+
+msgid "剪贴板文本已准备好，请选择附近设备发送"
+msgstr "Udklipsholder tekst klar; vælg en enhed i nærheden at sende"
+
+msgid "动画效果"
+msgstr "Animationer"
+
+msgid "协议"
+msgstr "Protokol"
+
+msgid "协议 {}"
+msgstr "Protokol v{}"
+
+msgid "单位：秒；0 表示持续发现"
+msgstr "Enhed: sekunder; 0 betyder at blive ved med at opdage"
+
+msgid "单选"
+msgstr "Enkelt"
+
+msgid "历史记录"
+msgstr "Historie"
+
+msgid "历史记录只保存在当前设备，不会同步到云服务。"
+msgstr "Historien gemmes kun på denne enhed og synkroniseres aldrig til skyen."
+
+msgid "发现"
+msgstr "Opdagelse"
+
+msgid "发现和传输使用的网络"
+msgstr "Netværk bruges til opdagelse og overførsel"
+
+msgid "发现超时必须是正整数"
+msgstr "Discovery timeout skal være et positivt heltal"
+
+msgid "发送"
+msgstr "Send"
+
+msgid "发送内容"
+msgstr "Indhold at sende"
+
+msgid "发送到 "
+msgstr "Sender til"
+
+msgid "发送到所选设备"
+msgstr "Send til udvalgte enheder"
+
+msgid "发送完成"
+msgstr "Send komplet"
+
+msgid "发送文件时创建校验和"
+msgstr "Opret kontrolsummer ved afsendelse af filer"
+
+msgid "发送文本"
+msgstr "Send tekst"
+
+msgid "发送文本内容"
+msgstr "Besked"
+
+msgid "发送给你了一条消息："
+msgstr "sendte dig en besked:"
+
+msgid "发送请求已提交，请等待对端响应"
+msgstr "Send anmodning indsendt; venter på modtageren"
+
+msgid "取消"
+msgstr "Afbryd"
+
+msgid "取消发送"
+msgstr "Annuller afsendelse"
+
+msgid "取消接收"
+msgstr "Annuller modtagelse"
+
+msgid "取消收藏"
+msgstr "Ikke foretrukken"
+
+msgid "另一台设备未出现？"
+msgstr "En anden enhed dukker ikke op?"
+
+msgid "可信设备可以跳过每次接收确认"
+msgstr "Betroede enheder kan springe bekræftelsen pr. overførsel over"
+
+msgid "可被发现"
+msgstr "Kan opdages"
+
+msgid "同一网络下的设备会自动出现。"
+msgstr "Enheder på det samme netværk vises automatisk."
+
+msgid "名称"
+msgstr "Navn"
+
+msgid "启动"
+msgstr "Starte"
+
+msgid "启动时运行"
+msgstr "Kør ved opstart"
+
+msgid "启用加密传输，速度可能略低"
+msgstr "Aktiver krypteret overførsel; hastigheden kan falde lidt"
+
+msgid "在文件管理器中显示"
+msgstr "Vis i mappe"
+
+msgid "在线"
+msgstr "Online"
+
+msgid "复制"
+msgstr "Kopiér"
+
+msgid "复制诊断信息"
+msgstr "Kopier diagnostik"
+
+msgid "复制链接"
+msgstr "Kopiér link"
+
+msgid "外观与桌面行为。"
+msgstr "Udseende og skrivebordsadfærd."
+
+msgid "外部文档在当前评审原型中不可用"
+msgstr "Eksterne dokumenter er ikke tilgængelige i denne anmeldelsesprototype"
+
+msgid "外部链接在当前评审原型中不可用"
+msgstr "Eksterne links er ikke tilgængelige i denne anmeldelsesprototype"
+
+msgid "多选"
+msgstr "Flere"
+
+msgid "失败"
+msgstr "Mislykkedes"
+
+msgid "完成"
+msgstr "Færdig"
+
+msgid "完成传输"
+msgstr "Afslut overførslen"
+
+msgid "局域网组播发现地址"
+msgstr "LAN multicast-opdagelsesadresse"
+
+msgid "已发送"
+msgstr "Sendt"
+
+msgid "已取消"
+msgstr "Annulleret"
+
+msgid "已完成"
+msgstr "Fuldført"
+
+msgid "已就绪"
+msgstr "Parat"
+
+msgid "已收藏"
+msgstr "Foretrukken"
+
+msgid "已连接"
+msgstr "Forbundet"
+
+msgid "已送达"
+msgstr "Leveret"
+
+msgid "已选择 {} 个项目"
+msgstr "Valgte {} elementer"
+
+msgid "已选择 {} 台设备"
+msgstr "Valgte {} enheder"
+
+msgid "已选择文件夹，正在刷新附近设备"
+msgstr "Mappe valgt; opfriskende enheder i nærheden"
+
+msgid "已选择文件，正在刷新附近设备"
+msgstr "Fil valgt; opfriskende enheder i nærheden"
+
+msgid "已验证 · 快速保存已开启"
+msgstr "Verificeret · Hurtig lagring er aktiveret"
+
+msgid "当前接收服务的连接信息"
+msgstr "Forbindelsesoplysninger for den aktuelle modtagetjeneste"
+
+msgid "当前没有可复制的接收链接"
+msgstr "Intet modtagelink er tilgængeligt at kopiere"
+
+msgid "待处理"
+msgstr "Indtil"
+
+msgid "快速保存"
+msgstr "Hurtig lagring"
+
+msgid "快速保存说明"
+msgstr "Hurtig gem detaljer"
+
+msgid "总大小"
+msgstr "Samlet størrelse"
+
+msgid "所有文件均已通过 Checksum 校验"
+msgstr "Alle filer bestod kontrolsumverifikation"
+
+msgid "手动添加设备"
+msgstr "Tilføj enhed manuelt"
+
+msgid "手动连接"
+msgstr "Manuel tilslutning"
+
+msgid "打开"
+msgstr "Åbn"
+
+msgid "打开主界面"
+msgstr "Åbn hovedvinduet"
+
+msgid "打开文件"
+msgstr "Åbn fil"
+
+msgid "打开文件夹"
+msgstr "Åbn mappe"
+
+msgid "执行"
+msgstr "Løbe"
+
+msgid "拒绝"
+msgstr "Afvis"
+
+msgid "指纹"
+msgstr "Fingeraftryk"
+
+msgid "按顺序检查设备发现和连接"
+msgstr "Kontrollerer opdagelse og tilslutning i orden"
+
+msgid "接受所选"
+msgstr "Accepter valgt"
+
+msgid "接收"
+msgstr "Modtag"
+
+msgid "接收前要求发送方输入 PIN"
+msgstr "Kræv, at afsenderen indtaster en PIN-kode før modtagelse"
+
+msgid "接收历史"
+msgstr "Modtag historie"
+
+msgid "接收完成"
+msgstr "Modtag komplet"
+
+msgid "接收完成后自动关闭请求，不需要再次确认"
+msgstr "Luk anmodningen automatisk efter modtagelse, uden yderligere bekræftelse"
+
+msgid "接收文件前，发送方需要输入 4 位 PIN"
+msgstr "Afsenderen skal indtaste en 4-cifret PIN-kode, før han kan modtage filer"
+
+msgid "接收服务使用的 TCP 端口"
+msgstr "TCP-port, som modtagetjenesten bruger"
+
+msgid "接收服务在线"
+msgstr "Modtag service online"
+
+msgid "接收服务已就绪，附近设备可以在同一网络中发现你。"
+msgstr "Modtagelsestjenesten er klar; enheder i nærheden på dette netværk kan opdage dig."
+
+msgid "接收服务暂时无法启动。"
+msgstr "Modtagelsestjenesten kunne ikke starte lige nu."
+
+msgid "接收服务离线"
+msgstr "Modtag service offline"
+
+msgid "接收状态"
+msgstr "Modtag status"
+
+msgid "接收目录"
+msgstr "Modtag mappe"
+
+msgid "接收链接"
+msgstr "Modtag link"
+
+msgid "接收链接已复制"
+msgstr "Modtag link kopieret"
+
+msgid "搜索历史"
+msgstr "Søgehistorik"
+
+msgid "搜索消息、文件名或设备"
+msgstr "Søg efter beskeder, filnavne eller enheder"
+
+msgid "搜索设备超时"
+msgstr "Timeout for søgning"
+
+msgid "支持项目"
+msgstr "Støt dette projekt"
+
+msgid "收到文件"
+msgstr "Fil modtaget"
+
+msgid "收到新文件"
+msgstr "Ny fil modtaget"
+
+msgid "收到新消息"
+msgstr "Ny besked modtaget"
+
+msgid "收藏"
+msgstr "Favorit"
+
+msgid "收藏设备"
+msgstr "Yndlingsenheder"
+
+msgid "收藏设备可使用快速保存与快捷发送"
+msgstr "Favoritenheder muliggør hurtig lagring og hurtig afsendelse"
+
+msgid "故障排除"
+msgstr "Fejlsøgning"
+
+msgid "文件"
+msgstr "Filer"
+
+msgid "文件保存、接收确认与完整性校验。"
+msgstr "Fillagring, modtag bekræftelse og integritetstjek."
+
+msgid "文件夹"
+msgstr "Mappe"
+
+msgid "文件已保存"
+msgstr "Filer gemt"
+
+msgid "文件已发送到「{}」。"
+msgstr "Fil sendt til \"{}\"."
+
+msgid "文件已成功送达"
+msgstr "Filen blev leveret"
+
+msgid "文本"
+msgstr "Tekst"
+
+msgid "文本会作为 .txt 文件发送到所选设备"
+msgstr "Teksten sendes til de valgte enheder som en .txt-fil"
+
+msgid "文本内容"
+msgstr "Tekstindhold"
+
+msgid "文本已准备好，请选择附近设备发送"
+msgstr "Tekst klar; vælg en enhed i nærheden at sende"
+
+msgid "文本消息"
+msgstr "SMS-besked"
+
+msgid "无法保存剪贴板图片"
+msgstr "Kan ikke gemme udklipsholderbilledet"
+
+msgid "无法定位剪贴板图片缓存目录"
+msgstr "Kan ikke finde udklipsholderens billedcache-mappe"
+
+msgid "无法将剪贴板图片转换为 PNG"
+msgstr "Kan ikke konvertere udklipsholderbilledet til PNG"
+
+msgid "无法访问剪贴板"
+msgstr "Kan ikke få adgang til udklipsholderen"
+
+msgid "无法重启"
+msgstr "Genstart ikke tilgængelig"
+
+msgid "日志"
+msgstr "Logfiler"
+
+msgid "日本語"
+msgstr "日本語"
+
+msgid "暂不可用"
+msgstr "Ikke tilgængelig"
+
+msgid "最近一次响应：刚刚"
+msgstr "Sidste svar: lige nu"
+
+msgid "最近发现"
+msgstr "For nylig opdaget"
+
+msgid "服务器已停止"
+msgstr "Server stoppet"
+
+msgid "服务器状态"
+msgstr "Serverstatus"
+
+msgid "服务器运行中"
+msgstr "Server kører"
+
+msgid "服务暂停"
+msgstr "Tjenesten sat på pause"
+
+msgid "服务条款"
+msgstr "Servicevilkår"
+
+msgid "未知"
+msgstr "Ukendt"
+
+msgid "本地端口"
+msgstr "Lokal havn"
+
+msgid "来自附近设备"
+msgstr "Fra en enhed i nærheden"
+
+msgid "查看"
+msgstr "Udsigt"
+
+msgid "查看当前会话的调试日志"
+msgstr "Se fejlretningslogfiler for den aktuelle session"
+
+msgid "查看详情"
+msgstr "Se detaljer"
+
+msgid "桌面"
+msgstr "Desktop"
+
+msgid "检查端口、网络与设备发现"
+msgstr "Tjek port, netværk og enhedsgenkendelse"
+
+msgid "正在传输"
+msgstr "Overfører"
+
+msgid "正在关闭后台服务"
+msgstr "Stopper baggrundstjeneste"
+
+msgid "正在关闭浏览器接收页面"
+msgstr "Stopper browserens modtageside"
+
+msgid "正在刷新设备连接…"
+msgstr "Opdaterer enhedsforbindelse..."
+
+msgid "正在发送文件"
+msgstr "Sender filer"
+
+msgid "正在发送文本，等待接收确认"
+msgstr "Sender tekst; venter på modtagerbekræftelse"
+
+msgid "正在取消传输"
+msgstr "Annullerer overførsel"
+
+msgid "正在启动浏览器接收页面"
+msgstr "Start af browserens modtageside"
+
+msgid "正在拒绝传输"
+msgstr "Afvisende overførsel"
+
+msgid "正在接受传输"
+msgstr "Accepterer overførsel"
+
+msgid "正在接收来自 {} 的文件"
+msgstr "Modtager filer fra {}"
+
+msgid "正在查找附近设备"
+msgstr "Leder efter enheder i nærheden"
+
+msgid "正在添加设备"
+msgstr "Tilføjer enhed"
+
+msgid "正在清空历史"
+msgstr "Rydning af historik"
+
+msgid "正在连接"
+msgstr "Forbinder"
+
+msgid "正在连接 localsendd..."
+msgstr "Opretter forbindelse til lokalsend..."
+
+msgid "正在连接后台服务…"
+msgstr "Opretter forbindelse til baggrundstjenesten..."
+
+msgid "正在连接对端，等待接收确认"
+msgstr "Tilslutning til modtageren; venter på bekræftelse"
+
+msgid "正在重启服务器"
+msgstr "Genstarter server"
+
+msgid "正在重连"
+msgstr "Genopretter forbindelse"
+
+msgid "正常"
+msgstr "Normal"
+
+msgid "此设置不能通过文本输入修改"
+msgstr "Denne indstilling kan ikke ændres via tekstinput"
+
+msgid "此项由系统自动检测或当前平台不支持编辑"
+msgstr "Denne værdi registreres af systemet eller kan ikke redigeres på denne platform"
+
+msgid "没有添加有效的文件或文件夹"
+msgstr "Ingen gyldige filer eller mapper blev tilføjet"
+
+msgid "浅色"
+msgstr "Lys"
+
+msgid "浏览器可在同一网络内访问此地址"
+msgstr "Browsere på samme netværk kan nå denne adresse"
+
+msgid "消息已复制"
+msgstr "Beskeden er kopieret"
+
+msgid "深色"
+msgstr "Mørk"
+
+msgid "添加"
+msgstr "Tilføj"
+
+msgid "清空历史"
+msgstr "Ryd historik"
+
+msgid "清除所选项"
+msgstr "Ryd markering"
+
+msgid "版本"
+msgstr "Version"
+
+msgid "版本、开源许可与项目信息"
+msgstr "Version, open source-licens og projektinformation"
+
+msgid "版本、诊断与支持选项。"
+msgstr "Version, diagnostik og supportmuligheder."
+
+msgid "版权"
+msgstr "Copyright"
+
+msgid "状态"
+msgstr "Status"
+
+msgid "用于匹配正确的平台图标"
+msgstr "Bruges til at matche det korrekte platformsikon"
+
+msgid "用于区分设备信息"
+msgstr "Bruges til at skelne enhedsoplysninger"
+
+msgid "界面显示语言"
+msgstr "Interface sprog"
+
+msgid "登录系统后自动启动 LocalSend"
+msgstr "Start LocalSend automatisk efter login"
+
+msgid "目标地址"
+msgstr "Måladresse"
+
+msgid "确保对方也打开了 LocalSend，并已连接到同一个 Wi-Fi 网络。"
+msgstr "Sørg for, at den anden enhed også har LocalSend åben og er på det samme Wi-Fi-netværk."
+
+msgid "确定"
+msgstr "OK"
+
+msgid "确认"
+msgstr "Bekræft"
+
+msgid "确认双方处于同一子网，并允许防火墙访问 LocalSend。"
+msgstr "Bekræft, at begge enheder er på det samme undernet, og tillad firewalladgang til LocalSend."
+
+msgid "离线"
+msgstr "Offline"
+
+msgid "移除收藏"
+msgstr "Fjern favorit"
+
+msgid "端口"
+msgstr "Port:"
+
+msgid "端口必须是 1 到 65535 之间的数字"
+msgstr "Port skal være et tal fra 1 til 65535"
+
+msgid "等待中"
+msgstr "Venter"
+
+msgid "简体中文"
+msgstr "简体中文"
+
+msgid "管理 LocalSend 的外观、接收、网络与支持选项。"
+msgstr "Administrer LocalSends udseende, modtagelse, netværk og supportmuligheder."
+
+msgid "管理收藏设备"
+msgstr "Administrer foretrukne enheder"
+
+msgid "系统"
+msgstr "System"
+
+msgid "繁體中文（台灣）"
+msgstr "繁體中文（台灣）"
+
+msgid "繁體中文（香港）"
+msgstr "繁體中文（香港）"
+
+msgid "组播地址必须是有效 IPv4 地址"
+msgstr "Multicast-adresse skal være en gyldig IPv4-adresse"
+
+msgid "结束本实例的 localsendd"
+msgstr "Stop lokalsend i dette tilfælde"
+
+msgid "绿色"
+msgstr "Grøn"
+
+msgid "编辑"
+msgstr "Rediger"
+
+msgid "编辑设置"
+msgstr "Rediger indstilling"
+
+msgid "网络"
+msgstr "Netværk"
+
+msgid "网络不可用"
+msgstr "Netværket er ikke tilgængeligt"
+
+msgid "网络信息"
+msgstr "Netværksinformation"
+
+msgid "网络接口"
+msgstr "Netværksgrænseflader"
+
+msgid "网络筛选"
+msgstr "Netværksfilter"
+
+msgid "网络连接"
+msgstr "Netværksforbindelse"
+
+msgid "自动完成"
+msgstr "Auto Finish"
+
+msgid "自动接收来自可信设备的文件"
+msgstr "Modtag automatisk filer fra pålidelige enheder"
+
+msgid "若设备指纹发生变化，LocalSend 会重新要求确认。你可以随时在收藏设备中取消信任。"
+msgstr "Hvis en enheds fingeraftryk ændres, beder LocalSend om bekræftelse igen. Du kan til enhver tid ikke stole på den fra foretrukne enheder."
+
+msgid "蓝色"
+msgstr "Blå"
+
+msgid "记住本次窗口尺寸与位置"
+msgstr "Husk denne vinduesstørrelse og placering"
+
+msgid "设备信息"
+msgstr "Enhedsoplysninger"
+
+msgid "设备名称"
+msgstr "Enhedsnavn:"
+
+msgid "设备型号"
+msgstr "Enhedsmodel"
+
+msgid "设备已离线，请刷新设备列表"
+msgstr "Enheden gik offline; opdatere enhedslisten"
+
+msgid "设备类型"
+msgstr "Enhedstype"
+
+msgid "设备详情"
+msgstr "Enhedsdetaljer"
+
+msgid "设备身份、服务与发现协议。"
+msgstr "Enhedsidentitet, service og opdagelsesprotokol."
+
+msgid "设置"
+msgstr "Indstillinger"
+
+msgid "设置 PIN"
+msgstr "Indstil pinkode"
+
+msgid "设置值"
+msgstr "Indstillingsværdi"
+
+msgid "设置已提交"
+msgstr "Indstillinger indsendt"
+
+msgid "访问者需要通过 PIN 验证后才能上传文件。"
+msgstr "Besøgende skal bestå PIN-bekræftelse, før de kan uploade filer."
+
+msgid "诊断"
+msgstr "Diagnostik"
+
+msgid "诊断信息已复制"
+msgstr "Diagnostik kopieret"
+
+msgid "语言"
+msgstr "Sprog"
+
+msgid "请先选择文件、文件夹、文本或剪贴板，再选择设备发送"
+msgstr "Vælg en fil, mappe, tekst eller udklipsholderindhold, før du vælger en enhed"
+
+msgid "请先选择文件或文件夹"
+msgstr "Vælg først en fil eller mappe"
+
+msgid "请先选择至少一个设备"
+msgstr "Vælg mindst én enhed"
+
+msgid "请在系统设置中检查防火墙规则"
+msgstr "Tjek firewall-reglerne i systemindstillingerne"
+
+msgid "请求发送 {} 个项目"
+msgstr "ønsker at sende {} elementer"
+
+msgid "请输入设备 IP 地址或主机名"
+msgstr "Indtast en enheds IP-adresse eller værtsnavn"
+
+msgid "请选择目标设备"
+msgstr "Vælg en målenhed"
+
+msgid "跟随系统"
+msgstr "System"
+
+msgid "跟随系统或固定使用浅色、深色"
+msgstr "Følg systemet eller sæt det til lys eller mørke"
+
+msgid "路径可在文件管理器中打开"
+msgstr "Stien kan åbnes i filhåndteringen"
+
+msgid "输入同一网络中设备的 IP 地址"
+msgstr "Indtast IP-adressen på en enhed på det samme netværk"
+
+msgid "返回"
+msgstr "Tilbage"
+
+msgid "还没有接收记录"
+msgstr "Ingen modtagne varer endnu"
+
+msgid "还没有收藏设备"
+msgstr "Ingen foretrukne enheder endnu"
+
+msgid "连接"
+msgstr "Forbinde"
+
+msgid "退出"
+msgstr "Forlade"
+
+msgid "退出时保存窗口位置"
+msgstr "Gem vinduesposition ved afslutning"
+
+msgid "选择"
+msgstr "Valg"
+
+msgid "选择要发送的内容，或从剪贴板快速创建一条文本消息。"
+msgstr "Vælg, hvad du vil sende, eller opret hurtigt en tekstbesked fra udklipsholderen."
+
+msgid "通用"
+msgstr "Generelt"
+
+msgid "通过链接接收"
+msgstr "Modtag via link"
+
+msgid "重启"
+msgstr "Genstart"
+
+msgid "重新启动接收"
+msgstr "Genstart modtagelse"
+
+msgid "重新扫描"
+msgstr "Scan igen"
+
+msgid "附近的设备"
+msgstr "Enheder i nærheden"
+
+msgid "附近设备中显示的 alias"
+msgstr "Alias ​​vist til enheder i nærheden"
+
+msgid "隐私政策"
+msgstr "Privatlivspolitik"
+
+msgid "颜色"
+msgstr "Farve"
+
+msgid "验证"
+msgstr "Verificer"

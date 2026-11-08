@@ -1,0 +1,892 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: az\n"
+
+msgid "Checksum 校验"
+msgstr "Yoxlama məbləğinin yoxlanılması"
+
+msgid "HTTPS"
+msgstr "HTTPS"
+
+msgid "IP 地址"
+msgstr "IP ünvan"
+
+msgid "IP 地址或主机名"
+msgstr "IP ünvanı və ya host adı"
+
+msgid "LocalSend Next {} · 桌面版"
+msgstr "LocalSend Next {} · İş masası"
+
+msgid "LocalSend 青绿色品牌色"
+msgstr "LocalSend mavi marka rəngi"
+
+msgid "Multicast"
+msgstr "Multicast"
+
+msgid "PIN 不能为空"
+msgstr "PIN boş ola bilməz"
+
+msgid "PIN 值"
+msgstr "PIN dəyəri"
+
+msgid "PIN 密码"
+msgstr "PİN"
+
+msgid "PIN 需要 4 位数字"
+msgstr "PIN kod 4 rəqəmli olmalıdır"
+
+msgid "PIN 验证"
+msgstr "PIN doğrulaması"
+
+msgid "TCP {} 正在监听"
+msgstr "TCP {} dinləyir"
+
+msgid "Web Share 已验证"
+msgstr "Veb Paylaşımı təsdiqləndi"
+
+msgid "Web Share 链接不可用"
+msgstr "Veb Paylaşım linki əlçatan deyil"
+
+msgid "{} 个文件已保存到「下载 / LocalSend」。"
+msgstr "{} fayl \"Yükləmələr / LocalSend\" bölməsində saxlanıldı."
+
+msgid "「收藏设备」只会自动接受来自已验证收藏设备的请求。文件保存到当前接收目录，并继续显示在历史记录中。"
+msgstr "\"Sevimli cihazlar\" avtomatik olaraq yalnız təsdiqlənmiş sevimlilərdən gələn sorğuları qəbul edir. Fayllar cari qəbul qovluğunda saxlanılır və tarixdə qalır."
+
+msgid "与后台服务的连接已断开，正在重连…"
+msgstr "Fon xidməti ilə əlaqə itirildi; yenidən qoşulur..."
+
+msgid "主题"
+msgstr "Tema"
+
+msgid "仅允许指定网段访问"
+msgstr "Yalnız müəyyən edilmiş alt şəbəkədən girişə icazə verin"
+
+msgid "传输中"
+msgstr "Transfer edilir"
+
+msgid "传输后校验文件完整性"
+msgstr "Transferdən sonra faylın bütövlüyünü yoxlayın"
+
+msgid "传输失败：{}"
+msgstr "Transfer alınmadı: {}"
+
+msgid "传输完成"
+msgstr "Transfer tamamlandı"
+
+msgid "传输用时"
+msgstr "Müddət"
+
+msgid "保存"
+msgstr "Yadda saxla"
+
+msgid "保留最近 100 条接收与发送记录"
+msgstr "Son 100 qəbul və göndərmə qeydini saxlayın"
+
+msgid "保留状态变化和页面切换反馈"
+msgstr "Status dəyişikliyi və səhifə keçidi ilə bağlı rəyi saxlayın"
+
+msgid "停止"
+msgstr "Dayandır"
+
+msgid "允许接收方校验传输内容"
+msgstr "Qəbulediciyə ötürülən məzmunu yoxlamağa icazə verin"
+
+msgid "全部开启"
+msgstr "Hamısını yandırın"
+
+msgid "全部接受"
+msgstr "Hamısını qəbul et"
+
+msgid "全部接口"
+msgstr "Bütün interfeyslər"
+
+msgid "关于 LocalSend Next"
+msgstr "LocalSend Next haqqında"
+
+msgid "关闭"
+msgstr "Bağla"
+
+msgid "关闭 ({})"
+msgstr "Bağlayın ({})"
+
+msgid "关闭后台服务"
+msgstr "Fon xidmətini dayandırın"
+
+msgid "关闭时最小化到托盘"
+msgstr "Bağlandıqda qabı minimuma endir"
+
+msgid "关闭窗口后保持接收服务运行"
+msgstr "Pəncərəni bağladıqdan sonra qəbul xidmətini işə salın"
+
+msgid "其他"
+msgstr "Digər"
+
+msgid "再次发送"
+msgstr "Yenidən göndərin"
+
+msgid "刷新设备"
+msgstr "Cihazları yeniləyin"
+
+msgid "剪贴板"
+msgstr "Yapışdır"
+
+msgid "剪贴板中没有可发送的文件、文件夹、图片或文本"
+msgstr "Mübadilə buferində göndəriləcək fayl, qovluq, şəkillər və ya mətn yoxdur"
+
+msgid "剪贴板文本已准备好，请选择附近设备发送"
+msgstr "Bufer mətn hazırdır; göndərmək üçün yaxınlıqdakı cihazı seçin"
+
+msgid "动画效果"
+msgstr "Animasiyalar"
+
+msgid "协议"
+msgstr "Protokol"
+
+msgid "协议 {}"
+msgstr "Protokol v{}"
+
+msgid "单位：秒；0 表示持续发现"
+msgstr "Vahid: saniyə; 0 kəşf etməyə davam etmək deməkdir"
+
+msgid "单选"
+msgstr "subay"
+
+msgid "历史记录"
+msgstr "Tarix"
+
+msgid "历史记录只保存在当前设备，不会同步到云服务。"
+msgstr "Tarixçə yalnız bu cihazda saxlanılır və heç vaxt buludla sinxronlaşdırılmır."
+
+msgid "发现"
+msgstr "Kəşf"
+
+msgid "发现和传输使用的网络"
+msgstr "Şəbəkə kəşf və köçürmə üçün istifadə olunur"
+
+msgid "发现超时必须是正整数"
+msgstr "Kəşf etmə vaxtı müsbət tam ədəd olmalıdır"
+
+msgid "发送"
+msgstr "Göndər"
+
+msgid "发送内容"
+msgstr "Göndərmək üçün məzmun"
+
+msgid "发送到 "
+msgstr "göndərilir"
+
+msgid "发送到所选设备"
+msgstr "Seçilmiş cihazlara göndərin"
+
+msgid "发送完成"
+msgstr "Göndərmə tamamlandı"
+
+msgid "发送文件时创建校验和"
+msgstr "Faylları göndərərkən yoxlama məbləğləri yarat"
+
+msgid "发送文本"
+msgstr "Mətn göndərin"
+
+msgid "发送文本内容"
+msgstr "Mesaj"
+
+msgid "发送给你了一条消息："
+msgstr "sənə mesaj göndərdi:"
+
+msgid "发送请求已提交，请等待对端响应"
+msgstr "Göndərilmiş sorğu göndərildi; qəbuledicini gözləyir"
+
+msgid "取消"
+msgstr "Ləğv et"
+
+msgid "取消发送"
+msgstr "Göndərməyi ləğv edin"
+
+msgid "取消接收"
+msgstr "Qəbulu ləğv edin"
+
+msgid "取消收藏"
+msgstr "Sevimli deyil"
+
+msgid "另一台设备未出现？"
+msgstr "Başqa cihaz görünmür?"
+
+msgid "可信设备可以跳过每次接收确认"
+msgstr "Etibarlı cihazlar hər köçürmə təsdiqini atlaya bilər"
+
+msgid "可被发现"
+msgstr "Kəşf oluna bilən"
+
+msgid "同一网络下的设备会自动出现。"
+msgstr "Eyni şəbəkədəki cihazlar avtomatik olaraq görünür."
+
+msgid "名称"
+msgstr "Ad"
+
+msgid "启动"
+msgstr "Başlayın"
+
+msgid "启动时运行"
+msgstr "Başlanğıcda işə salın"
+
+msgid "启用加密传输，速度可能略低"
+msgstr "Şifrələnmiş köçürməni aktivləşdirin; sürət bir qədər aşağı düşə bilər"
+
+msgid "在文件管理器中显示"
+msgstr "Qovluqda göstər"
+
+msgid "在线"
+msgstr "Onlayn"
+
+msgid "复制"
+msgstr "Köçür"
+
+msgid "复制诊断信息"
+msgstr "Diaqnostikanı kopyalayın"
+
+msgid "复制链接"
+msgstr "Linki kopyalayın"
+
+msgid "外观与桌面行为。"
+msgstr "Görünüş və iş masası davranışı."
+
+msgid "外部文档在当前评审原型中不可用"
+msgstr "Xarici sənədlər bu baxış prototipində mövcud deyil"
+
+msgid "外部链接在当前评审原型中不可用"
+msgstr "Xarici linklər bu baxış prototipində mövcud deyil"
+
+msgid "多选"
+msgstr "Çoxsaylı"
+
+msgid "失败"
+msgstr "Uğursuz oldu"
+
+msgid "完成"
+msgstr "Oldu"
+
+msgid "完成传输"
+msgstr "Transferi bitirin"
+
+msgid "局域网组播发现地址"
+msgstr "LAN multicast kəşf ünvanı"
+
+msgid "已发送"
+msgstr "Göndərildi"
+
+msgid "已取消"
+msgstr "Ləğv edildi"
+
+msgid "已完成"
+msgstr "Bitdi"
+
+msgid "已就绪"
+msgstr "Hazır"
+
+msgid "已收藏"
+msgstr "Sevimlilər"
+
+msgid "已连接"
+msgstr "Qoşuldu"
+
+msgid "已送达"
+msgstr "Çatdırıldı"
+
+msgid "已选择 {} 个项目"
+msgstr "{} element seçildi"
+
+msgid "已选择 {} 台设备"
+msgstr "Seçilmiş {} cihaz"
+
+msgid "已选择文件夹，正在刷新附近设备"
+msgstr "Qovluq seçildi; yaxınlıqdakı cihazları təzələyir"
+
+msgid "已选择文件，正在刷新附近设备"
+msgstr "Fayl seçildi; yaxınlıqdakı cihazları təzələyir"
+
+msgid "已验证 · 快速保存已开启"
+msgstr "Doğrulanmış · Tez Yadda saxlama aktivdir"
+
+msgid "当前接收服务的连接信息"
+msgstr "Cari qəbul xidməti üçün əlaqə məlumatı"
+
+msgid "当前没有可复制的接收链接"
+msgstr "Kopyalamaq üçün heç bir qəbul linki yoxdur"
+
+msgid "待处理"
+msgstr "Gözlənir"
+
+msgid "快速保存"
+msgstr "Tez Saxla"
+
+msgid "快速保存说明"
+msgstr "Tez Saxla Detalları"
+
+msgid "总大小"
+msgstr "Ümumi ölçü"
+
+msgid "所有文件均已通过 Checksum 校验"
+msgstr "Bütün fayllar yoxlama məbləğinin yoxlanılmasından keçdi"
+
+msgid "手动添加设备"
+msgstr "Cihazı əl ilə əlavə edin"
+
+msgid "手动连接"
+msgstr "Əl ilə əlaqə"
+
+msgid "打开"
+msgstr "Aç"
+
+msgid "打开主界面"
+msgstr "Əsas pəncərəni açın"
+
+msgid "打开文件"
+msgstr "Faylı aç"
+
+msgid "打开文件夹"
+msgstr "Qovluğu açın"
+
+msgid "执行"
+msgstr "Qaç"
+
+msgid "拒绝"
+msgstr "İmtina et"
+
+msgid "指纹"
+msgstr "Barmaq izi"
+
+msgid "按顺序检查设备发现和连接"
+msgstr "Tapşırığı və əlaqəni sıra ilə yoxlayır"
+
+msgid "接受所选"
+msgstr "Seçilmişləri qəbul edin"
+
+msgid "接收"
+msgstr "Qəbul et"
+
+msgid "接收前要求发送方输入 PIN"
+msgstr "Göndərəndən qəbul etməzdən əvvəl PİN kodu daxil etməyi tələb edin"
+
+msgid "接收历史"
+msgstr "Tarixi qəbul edin"
+
+msgid "接收完成"
+msgstr "Tam qəbul edin"
+
+msgid "接收完成后自动关闭请求，不需要再次确认"
+msgstr "Əlavə təsdiq olmadan sorğunu qəbul etdikdən sonra avtomatik olaraq bağlayın"
+
+msgid "接收文件前，发送方需要输入 4 位 PIN"
+msgstr "Göndərən faylları qəbul etməzdən əvvəl 4 rəqəmli PİN kodu daxil etməlidir"
+
+msgid "接收服务使用的 TCP 端口"
+msgstr "Qəbul xidmətinin istifadə etdiyi TCP portu"
+
+msgid "接收服务在线"
+msgstr "Onlayn xidmət alın"
+
+msgid "接收服务已就绪，附近设备可以在同一网络中发现你。"
+msgstr "Qəbul xidməti hazırdır; bu şəbəkədəki yaxınlıqdakı cihazlar sizi kəşf edə bilər."
+
+msgid "接收服务暂时无法启动。"
+msgstr "Qəbul xidməti hazırda başlaya bilməz."
+
+msgid "接收服务离线"
+msgstr "Xidməti oflayn qəbul edin"
+
+msgid "接收状态"
+msgstr "Status almaq"
+
+msgid "接收目录"
+msgstr "Qovluğu qəbul edin"
+
+msgid "接收链接"
+msgstr "Linki qəbul edin"
+
+msgid "接收链接已复制"
+msgstr "Kopyalanan linki alın"
+
+msgid "搜索历史"
+msgstr "Axtarış tarixçəsi"
+
+msgid "搜索消息、文件名或设备"
+msgstr "Mesajları, fayl adlarını və ya cihazları axtarın"
+
+msgid "搜索设备超时"
+msgstr "Axtarışın zaman aşımı"
+
+msgid "支持项目"
+msgstr "Bu layihəni dəstəkləyin"
+
+msgid "收到文件"
+msgstr "Fayl qəbul edildi"
+
+msgid "收到新文件"
+msgstr "Yeni fayl alındı"
+
+msgid "收到新消息"
+msgstr "Yeni mesaj alındı"
+
+msgid "收藏"
+msgstr "Sevimli"
+
+msgid "收藏设备"
+msgstr "Sevimli cihazlar"
+
+msgid "收藏设备可使用快速保存与快捷发送"
+msgstr "Sevimli cihazlar Sürətli Saxla və sürətli göndərməni aktivləşdirir"
+
+msgid "故障排除"
+msgstr "Problemləri həll etmə"
+
+msgid "文件"
+msgstr "Fayllar"
+
+msgid "文件保存、接收确认与完整性校验。"
+msgstr "Fayl saxlama, təsdiq və bütövlüyü yoxlamaları alın."
+
+msgid "文件夹"
+msgstr "Qovluq"
+
+msgid "文件已保存"
+msgstr "Fayllar yadda saxlanıldı"
+
+msgid "文件已发送到「{}」。"
+msgstr "Fayl \"{}\" ünvanına göndərildi."
+
+msgid "文件已成功送达"
+msgstr "Fayl uğurla çatdırıldı"
+
+msgid "文本"
+msgstr "Mətn"
+
+msgid "文本会作为 .txt 文件发送到所选设备"
+msgstr "Mətn seçilmiş cihazlara .txt faylı kimi göndərilir"
+
+msgid "文本内容"
+msgstr "Mətn məzmunu"
+
+msgid "文本已准备好，请选择附近设备发送"
+msgstr "Mətn hazırdır; göndərmək üçün yaxınlıqdakı cihazı seçin"
+
+msgid "文本消息"
+msgstr "Mətn mesajı"
+
+msgid "无法保存剪贴板图片"
+msgstr "Bufer şəklini saxlamaq mümkün deyil"
+
+msgid "无法定位剪贴板图片缓存目录"
+msgstr "Mübadilə buferi şəklinin keş kataloqunu tapmaq mümkün deyil"
+
+msgid "无法将剪贴板图片转换为 PNG"
+msgstr "Bufer şəklini PNG formatına çevirmək mümkün deyil"
+
+msgid "无法访问剪贴板"
+msgstr "Mübadilə buferinə daxil olmaq mümkün deyil"
+
+msgid "无法重启"
+msgstr "Yenidən başlatma mümkün deyil"
+
+msgid "日志"
+msgstr "Jurnallar"
+
+msgid "日本語"
+msgstr "日本語"
+
+msgid "暂不可用"
+msgstr "Əlçatan deyil"
+
+msgid "最近一次响应：刚刚"
+msgstr "Son cavab: indi"
+
+msgid "最近发现"
+msgstr "Bu yaxınlarda aşkar edilmişdir"
+
+msgid "服务器已停止"
+msgstr "Server dayandı"
+
+msgid "服务器状态"
+msgstr "Server statusu"
+
+msgid "服务器运行中"
+msgstr "Server işləyir"
+
+msgid "服务暂停"
+msgstr "Xidmət dayandırıldı"
+
+msgid "服务条款"
+msgstr "Xidmət Şərtləri"
+
+msgid "未知"
+msgstr "Naməlum"
+
+msgid "本地端口"
+msgstr "Yerli liman"
+
+msgid "来自附近设备"
+msgstr "Yaxınlıqdakı cihazdan"
+
+msgid "查看"
+msgstr "Baxın"
+
+msgid "查看当前会话的调试日志"
+msgstr "Cari sessiya üçün sazlama qeydlərinə baxın"
+
+msgid "查看详情"
+msgstr "Detallara baxın"
+
+msgid "桌面"
+msgstr "İş masası"
+
+msgid "检查端口、网络与设备发现"
+msgstr "Port, şəbəkə və cihaz kəşfini yoxlayın"
+
+msgid "正在传输"
+msgstr "Transfer edilir"
+
+msgid "正在关闭后台服务"
+msgstr "Fon xidməti dayandırılır"
+
+msgid "正在关闭浏览器接收页面"
+msgstr "Brauzer qəbul səhifəsinin dayandırılması"
+
+msgid "正在刷新设备连接…"
+msgstr "Cihaz bağlantısı təzələnir..."
+
+msgid "正在发送文件"
+msgstr "Fayllar göndərilir"
+
+msgid "正在发送文本，等待接收确认"
+msgstr "Mətnin göndərilməsi; alıcının təsdiqini gözləyir"
+
+msgid "正在取消传输"
+msgstr "Köçürmə ləğv edilir"
+
+msgid "正在启动浏览器接收页面"
+msgstr "Brauzer qəbul səhifəsi işə salınır"
+
+msgid "正在拒绝传输"
+msgstr "Transferin azalması"
+
+msgid "正在接受传输"
+msgstr "Transfer qəbul edilir"
+
+msgid "正在接收来自 {} 的文件"
+msgstr "{} ünvanından fayllar qəbul edilir"
+
+msgid "正在查找附近设备"
+msgstr "Yaxınlıqdakı cihazlar axtarılır"
+
+msgid "正在添加设备"
+msgstr "Cihaz əlavə edilir"
+
+msgid "正在清空历史"
+msgstr "Tarixin təmizlənməsi"
+
+msgid "正在连接"
+msgstr "Qoşulur"
+
+msgid "正在连接 localsendd..."
+msgstr "localsendd-ə qoşulur..."
+
+msgid "正在连接后台服务…"
+msgstr "Arxa fon xidmətinə qoşulur..."
+
+msgid "正在连接对端，等待接收确认"
+msgstr "Qəbulediciyə qoşulma; təsdiqini gözləyir"
+
+msgid "正在重启服务器"
+msgstr "Server yenidən işə salınır"
+
+msgid "正在重连"
+msgstr "Yenidən qoşulur"
+
+msgid "正常"
+msgstr "Normal"
+
+msgid "此设置不能通过文本输入修改"
+msgstr "Bu parametr mətn daxiletmə yolu ilə dəyişdirilə bilməz"
+
+msgid "此项由系统自动检测或当前平台不支持编辑"
+msgstr "Bu dəyər sistem tərəfindən aşkarlanıb və ya bu platformada redaktə edilə bilməz"
+
+msgid "没有添加有效的文件或文件夹"
+msgstr "Heç bir etibarlı fayl və ya qovluq əlavə edilmədi"
+
+msgid "浅色"
+msgstr "İşıqlı"
+
+msgid "浏览器可在同一网络内访问此地址"
+msgstr "Eyni şəbəkədəki brauzerlər bu ünvana çata bilər"
+
+msgid "消息已复制"
+msgstr "Mesaj kopyalandı"
+
+msgid "深色"
+msgstr "Qaranlıq"
+
+msgid "添加"
+msgstr "Əlavə et"
+
+msgid "清空历史"
+msgstr "Tarixi təmizləyin"
+
+msgid "清除所选项"
+msgstr "Seçimi təmizləyin"
+
+msgid "版本"
+msgstr "Versiya"
+
+msgid "版本、开源许可与项目信息"
+msgstr "Versiya, açıq mənbə lisenziyası və layihə məlumatı"
+
+msgid "版本、诊断与支持选项。"
+msgstr "Versiya, diaqnostika və dəstək seçimləri."
+
+msgid "版权"
+msgstr "Müəllif hüququ"
+
+msgid "状态"
+msgstr "Vəziyyət"
+
+msgid "用于匹配正确的平台图标"
+msgstr "Düzgün platforma ikonasına uyğunlaşdırmaq üçün istifadə olunur"
+
+msgid "用于区分设备信息"
+msgstr "Cihaz məlumatlarını ayırd etmək üçün istifadə olunur"
+
+msgid "界面显示语言"
+msgstr "İnterfeys dili"
+
+msgid "登录系统后自动启动 LocalSend"
+msgstr "Daxil olduqdan sonra LocalSend-i avtomatik işə salın"
+
+msgid "目标地址"
+msgstr "Hədəf ünvanı"
+
+msgid "确保对方也打开了 LocalSend，并已连接到同一个 Wi-Fi 网络。"
+msgstr "Digər cihazın da LocalSend-in açıq olduğundan və eyni Wi-Fi şəbəkəsində olduğundan əmin olun."
+
+msgid "确定"
+msgstr "OK"
+
+msgid "确认"
+msgstr "Təsdiqlə"
+
+msgid "确认双方处于同一子网，并允许防火墙访问 LocalSend。"
+msgstr "Hər iki cihazın eyni alt şəbəkədə olduğunu təsdiqləyin və təhlükəsizlik divarının LocalSend-ə girişinə icazə verin."
+
+msgid "离线"
+msgstr "Oflayn"
+
+msgid "移除收藏"
+msgstr "Sevimliləri silin"
+
+msgid "端口"
+msgstr "Port:"
+
+msgid "端口必须是 1 到 65535 之间的数字"
+msgstr "Port 1-dən 65535-ə qədər rəqəm olmalıdır"
+
+msgid "等待中"
+msgstr "Gözləyirəm"
+
+msgid "简体中文"
+msgstr "简体中文"
+
+msgid "管理 LocalSend 的外观、接收、网络与支持选项。"
+msgstr "LocalSend-in görünüşünü, qəbulunu, şəbəkəsini və dəstək seçimlərini idarə edin."
+
+msgid "管理收藏设备"
+msgstr "Sevimli cihazları idarə edin"
+
+msgid "系统"
+msgstr "Sistem"
+
+msgid "繁體中文（台灣）"
+msgstr "繁體中文（台灣）"
+
+msgid "繁體中文（香港）"
+msgstr "繁體中文（香港）"
+
+msgid "组播地址必须是有效 IPv4 地址"
+msgstr "Multicast ünvanı etibarlı IPv4 ünvanı olmalıdır"
+
+msgid "结束本实例的 localsendd"
+msgstr "Bu misal üçün localsendd-i dayandırın"
+
+msgid "绿色"
+msgstr "Yaşıl"
+
+msgid "编辑"
+msgstr "Düzəliş et"
+
+msgid "编辑设置"
+msgstr "Parametrləri redaktə edin"
+
+msgid "网络"
+msgstr "Şəbəkə"
+
+msgid "网络不可用"
+msgstr "Şəbəkə əlçatan deyil"
+
+msgid "网络信息"
+msgstr "Şəbəkə məlumatı"
+
+msgid "网络接口"
+msgstr "Şəbəkə interfeysləri"
+
+msgid "网络筛选"
+msgstr "Şəbəkə filtri"
+
+msgid "网络连接"
+msgstr "Şəbəkə bağlantısı"
+
+msgid "自动完成"
+msgstr "Avtomatik Bitirmə"
+
+msgid "自动接收来自可信设备的文件"
+msgstr "Etibarlı cihazlardan faylları avtomatik qəbul edin"
+
+msgid "若设备指纹发生变化，LocalSend 会重新要求确认。你可以随时在收藏设备中取消信任。"
+msgstr "Cihazın barmaq izi dəyişərsə, LocalSend yenidən təsdiq tələb edir. İstənilən vaxt Sevimli cihazlardan ona etibar edə bilərsiniz."
+
+msgid "蓝色"
+msgstr "Mavi"
+
+msgid "记住本次窗口尺寸与位置"
+msgstr "Bu pəncərə ölçüsünü və mövqeyini xatırlayın"
+
+msgid "设备信息"
+msgstr "Cihaz məlumatı"
+
+msgid "设备名称"
+msgstr "Cihazın adı:"
+
+msgid "设备型号"
+msgstr "Cihazın modeli"
+
+msgid "设备已离线，请刷新设备列表"
+msgstr "Cihaz oflayn oldu; cihaz siyahısını yeniləyin"
+
+msgid "设备类型"
+msgstr "Cihazın tipi"
+
+msgid "设备详情"
+msgstr "Cihaz təfərrüatları"
+
+msgid "设备身份、服务与发现协议。"
+msgstr "Cihazın şəxsiyyəti, xidmət və kəşf protokolu."
+
+msgid "设置"
+msgstr "Parametrlər"
+
+msgid "设置 PIN"
+msgstr "PIN kodu təyin edin"
+
+msgid "设置值"
+msgstr "Tənzimləmə dəyəri"
+
+msgid "设置已提交"
+msgstr "Parametrlər təqdim edildi"
+
+msgid "访问者需要通过 PIN 验证后才能上传文件。"
+msgstr "Ziyarətçilər faylları yükləməzdən əvvəl PİN kodu yoxlamasından keçməlidirlər."
+
+msgid "诊断"
+msgstr "Diaqnostika"
+
+msgid "诊断信息已复制"
+msgstr "Diaqnostika kopyalandı"
+
+msgid "语言"
+msgstr "Dil"
+
+msgid "请先选择文件、文件夹、文本或剪贴板，再选择设备发送"
+msgstr "Cihazı seçməzdən əvvəl fayl, qovluq, mətn və ya bufer məzmununu seçin"
+
+msgid "请先选择文件或文件夹"
+msgstr "Əvvəlcə fayl və ya qovluğu seçin"
+
+msgid "请先选择至少一个设备"
+msgstr "Ən azı bir cihaz seçin"
+
+msgid "请在系统设置中检查防火墙规则"
+msgstr "Sistem parametrlərində firewall qaydalarını yoxlayın"
+
+msgid "请求发送 {} 个项目"
+msgstr "{} element göndərmək istəyir"
+
+msgid "请输入设备 IP 地址或主机名"
+msgstr "Cihazın IP ünvanını və ya host adını daxil edin"
+
+msgid "请选择目标设备"
+msgstr "Hədəf cihazı seçin"
+
+msgid "跟随系统"
+msgstr "Sistem"
+
+msgid "跟随系统或固定使用浅色、深色"
+msgstr "Sistemə əməl edin və ya açıq və ya qaranlığa düzəldin"
+
+msgid "路径可在文件管理器中打开"
+msgstr "Yol fayl menecerində açıla bilər"
+
+msgid "输入同一网络中设备的 IP 地址"
+msgstr "Eyni şəbəkədəki cihazın IP ünvanını daxil edin"
+
+msgid "返回"
+msgstr "Geri"
+
+msgid "还没有接收记录"
+msgstr "Hələ heç bir əşya alınmayıb"
+
+msgid "还没有收藏设备"
+msgstr "Hələ sevimli cihazlar yoxdur"
+
+msgid "连接"
+msgstr "Qoşun"
+
+msgid "退出"
+msgstr "Çıxın"
+
+msgid "退出时保存窗口位置"
+msgstr "Çıxdıqdan sonra pəncərə mövqeyini saxla"
+
+msgid "选择"
+msgstr "Seçim"
+
+msgid "选择要发送的内容，或从剪贴板快速创建一条文本消息。"
+msgstr "Nə göndərəcəyinizi seçin və ya mübadilə buferindən cəld mətn mesajı yaradın."
+
+msgid "通用"
+msgstr "Ümumi"
+
+msgid "通过链接接收"
+msgstr "Keçid vasitəsilə qəbul et"
+
+msgid "重启"
+msgstr "Yenidən başlat"
+
+msgid "重新启动接收"
+msgstr "Qəbulu yenidən başladın"
+
+msgid "重新扫描"
+msgstr "Yenidən tarama"
+
+msgid "附近的设备"
+msgstr "Yaxınlıqdakı cihazlar"
+
+msgid "附近设备中显示的 alias"
+msgstr "Yaxınlıqdakı cihazlara ləqəb göstərilir"
+
+msgid "隐私政策"
+msgstr "Məxfilik siyasəti"
+
+msgid "颜色"
+msgstr "Rəng"
+
+msgid "验证"
+msgstr "Doğrula"

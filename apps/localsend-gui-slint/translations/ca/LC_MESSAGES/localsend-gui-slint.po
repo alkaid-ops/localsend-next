@@ -1,0 +1,892 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: ca\n"
+
+msgid "Checksum 校验"
+msgstr "Verificació de la suma de comprovació"
+
+msgid "HTTPS"
+msgstr "HTTPS"
+
+msgid "IP 地址"
+msgstr "Adreça IP"
+
+msgid "IP 地址或主机名"
+msgstr "Adreça IP o nom d'amfitrió"
+
+msgid "LocalSend Next {} · 桌面版"
+msgstr "LocalSend Següent {} · Escriptori"
+
+msgid "LocalSend 青绿色品牌色"
+msgstr "Color de la marca LocalSend verd verd"
+
+msgid "Multicast"
+msgstr "Multicast"
+
+msgid "PIN 不能为空"
+msgstr "El PIN no pot estar buit"
+
+msgid "PIN 值"
+msgstr "valor PIN"
+
+msgid "PIN 密码"
+msgstr "PIN"
+
+msgid "PIN 需要 4 位数字"
+msgstr "El PIN ha de tenir 4 dígits"
+
+msgid "PIN 验证"
+msgstr "Verificació del PIN"
+
+msgid "TCP {} 正在监听"
+msgstr "TCP {} escoltant"
+
+msgid "Web Share 已验证"
+msgstr "Compartició web verificada"
+
+msgid "Web Share 链接不可用"
+msgstr "L'enllaç Web Share no està disponible"
+
+msgid "{} 个文件已保存到「下载 / LocalSend」。"
+msgstr "S'han desat {} fitxers a \"Baixades / LocalSend\"."
+
+msgid "「收藏设备」只会自动接受来自已验证收藏设备的请求。文件保存到当前接收目录，并继续显示在历史记录中。"
+msgstr "\"Dispositius preferits\" accepta automàticament sol·licituds només dels favorits verificats. Els fitxers es guarden a la carpeta de recepció actual i es conserven a l'historial."
+
+msgid "与后台服务的连接已断开，正在重连…"
+msgstr "S'ha perdut la connexió amb el servei de fons; tornant a connectar..."
+
+msgid "主题"
+msgstr "Tema"
+
+msgid "仅允许指定网段访问"
+msgstr "Només permet l'accés des de la subxarxa especificada"
+
+msgid "传输中"
+msgstr "Transferència"
+
+msgid "传输后校验文件完整性"
+msgstr "Comproveu la integritat del fitxer després de la transferència"
+
+msgid "传输失败：{}"
+msgstr "La transferència ha fallat: {}"
+
+msgid "传输完成"
+msgstr "Transferència completa"
+
+msgid "传输用时"
+msgstr "Durada"
+
+msgid "保存"
+msgstr "Desa"
+
+msgid "保留最近 100 条接收与发送记录"
+msgstr "Conserveu els últims 100 registres de recepció i enviament"
+
+msgid "保留状态变化和页面切换反馈"
+msgstr "Conserveu els comentaris sobre el canvi d'estat i la transició de la pàgina"
+
+msgid "停止"
+msgstr "Atura"
+
+msgid "允许接收方校验传输内容"
+msgstr "Permet que el receptor verifiqui el contingut transferit"
+
+msgid "全部开启"
+msgstr "Enceneu-ho tot"
+
+msgid "全部接受"
+msgstr "Acceptar-ho tot"
+
+msgid "全部接口"
+msgstr "Totes les interfícies"
+
+msgid "关于 LocalSend Next"
+msgstr "Sobre LocalSend Next"
+
+msgid "关闭"
+msgstr "Tanca"
+
+msgid "关闭 ({})"
+msgstr "Tanca ({})"
+
+msgid "关闭后台服务"
+msgstr "Atura el servei en segon pla"
+
+msgid "关闭时最小化到托盘"
+msgstr "Minimitzar a la safata quan estigui tancat"
+
+msgid "关闭窗口后保持接收服务运行"
+msgstr "Mantingueu el servei de recepció en funcionament després de tancar la finestra"
+
+msgid "其他"
+msgstr "Altres"
+
+msgid "再次发送"
+msgstr "Torna a enviar"
+
+msgid "刷新设备"
+msgstr "Actualitzar dispositius"
+
+msgid "剪贴板"
+msgstr "Enganxa"
+
+msgid "剪贴板中没有可发送的文件、文件夹、图片或文本"
+msgstr "El porta-retalls no té fitxers, carpetes, imatges o text per enviar"
+
+msgid "剪贴板文本已准备好，请选择附近设备发送"
+msgstr "Text del porta-retalls preparat; seleccioneu un dispositiu proper per enviar"
+
+msgid "动画效果"
+msgstr "Animacions"
+
+msgid "协议"
+msgstr "Protocol"
+
+msgid "协议 {}"
+msgstr "Protocol v{}"
+
+msgid "单位：秒；0 表示持续发现"
+msgstr "Unitat: segons; 0 significa seguir descobrint"
+
+msgid "单选"
+msgstr "Solter"
+
+msgid "历史记录"
+msgstr "Història"
+
+msgid "历史记录只保存在当前设备，不会同步到云服务。"
+msgstr "L'historial només s'emmagatzema en aquest dispositiu i mai es sincronitza amb el núvol."
+
+msgid "发现"
+msgstr "Descobriment"
+
+msgid "发现和传输使用的网络"
+msgstr "Xarxa utilitzada per a la descoberta i la transferència"
+
+msgid "发现超时必须是正整数"
+msgstr "El temps d'espera de descoberta ha de ser un nombre enter positiu"
+
+msgid "发送"
+msgstr "Envia"
+
+msgid "发送内容"
+msgstr "Contingut per enviar"
+
+msgid "发送到 "
+msgstr "Enviament a"
+
+msgid "发送到所选设备"
+msgstr "Envia als dispositius seleccionats"
+
+msgid "发送完成"
+msgstr "Envia complet"
+
+msgid "发送文件时创建校验和"
+msgstr "Crea sumes de verificació en enviar fitxers"
+
+msgid "发送文本"
+msgstr "Envia text"
+
+msgid "发送文本内容"
+msgstr "Missatge"
+
+msgid "发送给你了一条消息："
+msgstr "us ha enviat un missatge:"
+
+msgid "发送请求已提交，请等待对端响应"
+msgstr "Enviar sol·licitud presentada; esperant el receptor"
+
+msgid "取消"
+msgstr "Cancel·la"
+
+msgid "取消发送"
+msgstr "Cancel·la l'enviament"
+
+msgid "取消接收"
+msgstr "Cancel·la la recepció"
+
+msgid "取消收藏"
+msgstr "Desfavorit"
+
+msgid "另一台设备未出现？"
+msgstr "No apareix un altre dispositiu?"
+
+msgid "可信设备可以跳过每次接收确认"
+msgstr "Els dispositius de confiança poden ometre la confirmació per transferència"
+
+msgid "可被发现"
+msgstr "Descobrible"
+
+msgid "同一网络下的设备会自动出现。"
+msgstr "Els dispositius de la mateixa xarxa apareixen automàticament."
+
+msgid "名称"
+msgstr "Nom"
+
+msgid "启动"
+msgstr "Comença"
+
+msgid "启动时运行"
+msgstr "Executeu a l'inici"
+
+msgid "启用加密传输，速度可能略低"
+msgstr "Activa la transferència xifrada; la velocitat pot baixar lleugerament"
+
+msgid "在文件管理器中显示"
+msgstr "Mostra a la carpeta"
+
+msgid "在线"
+msgstr "En línia"
+
+msgid "复制"
+msgstr "Copia"
+
+msgid "复制诊断信息"
+msgstr "Copia el diagnòstic"
+
+msgid "复制链接"
+msgstr "Copia l'enllaç"
+
+msgid "外观与桌面行为。"
+msgstr "Aparença i comportament de l'escriptori."
+
+msgid "外部文档在当前评审原型中不可用"
+msgstr "Els documents externs no estan disponibles en aquest prototip de revisió"
+
+msgid "外部链接在当前评审原型中不可用"
+msgstr "Els enllaços externs no estan disponibles en aquest prototip de revisió"
+
+msgid "多选"
+msgstr "Múltiples"
+
+msgid "失败"
+msgstr "Ha fallat"
+
+msgid "完成"
+msgstr "Fet"
+
+msgid "完成传输"
+msgstr "Acabar la transferència"
+
+msgid "局域网组播发现地址"
+msgstr "Adreça de descobriment de multidifusió LAN"
+
+msgid "已发送"
+msgstr "Enviat"
+
+msgid "已取消"
+msgstr "Cancel·lat"
+
+msgid "已完成"
+msgstr "Finalitzat"
+
+msgid "已就绪"
+msgstr "A punt"
+
+msgid "已收藏"
+msgstr "Favorit"
+
+msgid "已连接"
+msgstr "Connectat"
+
+msgid "已送达"
+msgstr "Lliurat"
+
+msgid "已选择 {} 个项目"
+msgstr "S'han seleccionat {} elements"
+
+msgid "已选择 {} 台设备"
+msgstr "{} dispositius seleccionats"
+
+msgid "已选择文件夹，正在刷新附近设备"
+msgstr "Carpeta seleccionada; actualitzant els dispositius propers"
+
+msgid "已选择文件，正在刷新附近设备"
+msgstr "Fitxer seleccionat; actualitzant els dispositius propers"
+
+msgid "已验证 · 快速保存已开启"
+msgstr "Verificat · Desa ràpid està activat"
+
+msgid "当前接收服务的连接信息"
+msgstr "Informació de connexió per al servei de recepció actual"
+
+msgid "当前没有可复制的接收链接"
+msgstr "No hi ha cap enllaç de recepció disponible per copiar"
+
+msgid "待处理"
+msgstr "Pendent"
+
+msgid "快速保存"
+msgstr "Desa ràpid"
+
+msgid "快速保存说明"
+msgstr "Detalls de desa ràpid"
+
+msgid "总大小"
+msgstr "Mida total"
+
+msgid "所有文件均已通过 Checksum 校验"
+msgstr "Tots els fitxers han passat la verificació de la suma de verificació"
+
+msgid "手动添加设备"
+msgstr "Afegeix el dispositiu manualment"
+
+msgid "手动连接"
+msgstr "Connexió manual"
+
+msgid "打开"
+msgstr "Obre"
+
+msgid "打开主界面"
+msgstr "Obre la finestra principal"
+
+msgid "打开文件"
+msgstr "Obre el fitxer"
+
+msgid "打开文件夹"
+msgstr "Obre la carpeta"
+
+msgid "执行"
+msgstr "Corre"
+
+msgid "拒绝"
+msgstr "Rebutja"
+
+msgid "指纹"
+msgstr "empremta digital"
+
+msgid "按顺序检查设备发现和连接"
+msgstr "Comprova el descobriment i la connectivitat en ordre"
+
+msgid "接受所选"
+msgstr "Accepta seleccionat"
+
+msgid "接收"
+msgstr "Recepció"
+
+msgid "接收前要求发送方输入 PIN"
+msgstr "Demaneu al remitent que introdueixi un PIN abans de rebre"
+
+msgid "接收历史"
+msgstr "Rebre la història"
+
+msgid "接收完成"
+msgstr "Rebre complet"
+
+msgid "接收完成后自动关闭请求，不需要再次确认"
+msgstr "Tanqueu la sol·licitud automàticament després de rebre-la, sense més confirmació"
+
+msgid "接收文件前，发送方需要输入 4 位 PIN"
+msgstr "El remitent ha d'introduir un PIN de 4 dígits abans de rebre els fitxers"
+
+msgid "接收服务使用的 TCP 端口"
+msgstr "Port TCP que utilitza el servei de recepció"
+
+msgid "接收服务在线"
+msgstr "Rebre servei en línia"
+
+msgid "接收服务已就绪，附近设备可以在同一网络中发现你。"
+msgstr "El servei de recepció està preparat; els dispositius propers d'aquesta xarxa et poden descobrir."
+
+msgid "接收服务暂时无法启动。"
+msgstr "El servei de recepció no s'ha pogut iniciar ara mateix."
+
+msgid "接收服务离线"
+msgstr "Rebre servei fora de línia"
+
+msgid "接收状态"
+msgstr "Rebre estat"
+
+msgid "接收目录"
+msgstr "Carpeta de recepció"
+
+msgid "接收链接"
+msgstr "Rebre l'enllaç"
+
+msgid "接收链接已复制"
+msgstr "Rebre l'enllaç copiat"
+
+msgid "搜索历史"
+msgstr "Historial de cerques"
+
+msgid "搜索消息、文件名或设备"
+msgstr "Cerca missatges, noms de fitxers o dispositius"
+
+msgid "搜索设备超时"
+msgstr "Temps d'espera de descobriment"
+
+msgid "支持项目"
+msgstr "Donar suport a aquest projecte"
+
+msgid "收到文件"
+msgstr "Arxiu rebut"
+
+msgid "收到新文件"
+msgstr "S'ha rebut un nou fitxer"
+
+msgid "收到新消息"
+msgstr "S'ha rebut missatge nou"
+
+msgid "收藏"
+msgstr "Preferit"
+
+msgid "收藏设备"
+msgstr "Dispositius preferits"
+
+msgid "收藏设备可使用快速保存与快捷发送"
+msgstr "Els dispositius preferits permeten l'emmagatzematge ràpid i l'enviament ràpid"
+
+msgid "故障排除"
+msgstr "Solució de problemes"
+
+msgid "文件"
+msgstr "Fitxers"
+
+msgid "文件保存、接收确认与完整性校验。"
+msgstr "Emmagatzematge de fitxers, rebre confirmació i comprovacions d'integritat."
+
+msgid "文件夹"
+msgstr "Carpeta"
+
+msgid "文件已保存"
+msgstr "Fitxers desats"
+
+msgid "文件已发送到「{}」。"
+msgstr "Fitxer enviat a \"{}\"."
+
+msgid "文件已成功送达"
+msgstr "Fitxer lliurat correctament"
+
+msgid "文本"
+msgstr "Text"
+
+msgid "文本会作为 .txt 文件发送到所选设备"
+msgstr "El text s'envia als dispositius seleccionats com a fitxer .txt"
+
+msgid "文本内容"
+msgstr "Contingut de text"
+
+msgid "文本已准备好，请选择附近设备发送"
+msgstr "Text preparat; seleccioneu un dispositiu proper per enviar"
+
+msgid "文本消息"
+msgstr "Missatge de text"
+
+msgid "无法保存剪贴板图片"
+msgstr "No es pot desar la imatge del porta-retalls"
+
+msgid "无法定位剪贴板图片缓存目录"
+msgstr "No es pot localitzar el directori de la memòria cau d'imatges del porta-retalls"
+
+msgid "无法将剪贴板图片转换为 PNG"
+msgstr "No es pot convertir la imatge del porta-retalls a PNG"
+
+msgid "无法访问剪贴板"
+msgstr "No es pot accedir al porta-retalls"
+
+msgid "无法重启"
+msgstr "Reinici no disponible"
+
+msgid "日志"
+msgstr "Registres"
+
+msgid "日本語"
+msgstr "日本語"
+
+msgid "暂不可用"
+msgstr "No disponible"
+
+msgid "最近一次响应：刚刚"
+msgstr "Última resposta: ara mateix"
+
+msgid "最近发现"
+msgstr "Descobert recentment"
+
+msgid "服务器已停止"
+msgstr "El servidor s'ha aturat"
+
+msgid "服务器状态"
+msgstr "Estat del servidor"
+
+msgid "服务器运行中"
+msgstr "Servidor en execució"
+
+msgid "服务暂停"
+msgstr "Servei aturat"
+
+msgid "服务条款"
+msgstr "Condicions del servei"
+
+msgid "未知"
+msgstr "Desconegut"
+
+msgid "本地端口"
+msgstr "Port local"
+
+msgid "来自附近设备"
+msgstr "Des del dispositiu proper"
+
+msgid "查看"
+msgstr "Veure"
+
+msgid "查看当前会话的调试日志"
+msgstr "Visualitza els registres de depuració de la sessió actual"
+
+msgid "查看详情"
+msgstr "Veure detalls"
+
+msgid "桌面"
+msgstr "Escriptori"
+
+msgid "检查端口、网络与设备发现"
+msgstr "Comproveu el descobriment del port, la xarxa i el dispositiu"
+
+msgid "正在传输"
+msgstr "Transferència"
+
+msgid "正在关闭后台服务"
+msgstr "Aturant el servei en segon pla"
+
+msgid "正在关闭浏览器接收页面"
+msgstr "Aturant la pàgina de recepció del navegador"
+
+msgid "正在刷新设备连接…"
+msgstr "S'està actualitzant la connexió del dispositiu..."
+
+msgid "正在发送文件"
+msgstr "S'estan enviant els fitxers"
+
+msgid "正在发送文本，等待接收确认"
+msgstr "Enviament de text; esperant la confirmació del receptor"
+
+msgid "正在取消传输"
+msgstr "S'està cancel·lant la transferència"
+
+msgid "正在启动浏览器接收页面"
+msgstr "Inici de la pàgina de recepció del navegador"
+
+msgid "正在拒绝传输"
+msgstr "Transferència decreixent"
+
+msgid "正在接受传输"
+msgstr "Acceptació de la transferència"
+
+msgid "正在接收来自 {} 的文件"
+msgstr "S'estan rebent fitxers de {}"
+
+msgid "正在查找附近设备"
+msgstr "Buscant dispositius propers"
+
+msgid "正在添加设备"
+msgstr "S'afegeix un dispositiu"
+
+msgid "正在清空历史"
+msgstr "Esborrar l'historial"
+
+msgid "正在连接"
+msgstr "Connectant"
+
+msgid "正在连接 localsendd..."
+msgstr "S'està connectant a localsendd..."
+
+msgid "正在连接后台服务…"
+msgstr "S'està connectant al servei en segon pla..."
+
+msgid "正在连接对端，等待接收确认"
+msgstr "Connexió al receptor; esperant confirmació"
+
+msgid "正在重启服务器"
+msgstr "S'està reiniciant el servidor"
+
+msgid "正在重连"
+msgstr "Tornant a connectar"
+
+msgid "正常"
+msgstr "Normal"
+
+msgid "此设置不能通过文本输入修改"
+msgstr "Aquesta configuració no es pot canviar mitjançant l'entrada de text"
+
+msgid "此项由系统自动检测或当前平台不支持编辑"
+msgstr "Aquest valor el detecta el sistema o no es pot editar en aquesta plataforma"
+
+msgid "没有添加有效的文件或文件夹"
+msgstr "No s'han afegit fitxers ni carpetes vàlids"
+
+msgid "浅色"
+msgstr "Clar"
+
+msgid "浏览器可在同一网络内访问此地址"
+msgstr "Els navegadors de la mateixa xarxa poden arribar a aquesta adreça"
+
+msgid "消息已复制"
+msgstr "S'ha copiat el missatge"
+
+msgid "深色"
+msgstr "Fosc"
+
+msgid "添加"
+msgstr "Afegeix"
+
+msgid "清空历史"
+msgstr "Esborra l'historial"
+
+msgid "清除所选项"
+msgstr "Esborra la selecció"
+
+msgid "版本"
+msgstr "Versió"
+
+msgid "版本、开源许可与项目信息"
+msgstr "Versió, llicència de codi obert i informació del projecte"
+
+msgid "版本、诊断与支持选项。"
+msgstr "Opcions de versió, diagnòstic i suport."
+
+msgid "版权"
+msgstr "Copyright"
+
+msgid "状态"
+msgstr "Estat"
+
+msgid "用于匹配正确的平台图标"
+msgstr "S'utilitza per fer coincidir la icona de la plataforma correcta"
+
+msgid "用于区分设备信息"
+msgstr "S'utilitza per distingir la informació del dispositiu"
+
+msgid "界面显示语言"
+msgstr "Llenguatge de la interfície"
+
+msgid "登录系统后自动启动 LocalSend"
+msgstr "Inicieu LocalSend automàticament després d'iniciar sessió"
+
+msgid "目标地址"
+msgstr "Adreça de destinació"
+
+msgid "确保对方也打开了 LocalSend，并已连接到同一个 Wi-Fi 网络。"
+msgstr "Assegureu-vos que l'altre dispositiu també tingui LocalSend obert i que estigui a la mateixa xarxa Wi-Fi."
+
+msgid "确定"
+msgstr "D'acord"
+
+msgid "确认"
+msgstr "Confirma"
+
+msgid "确认双方处于同一子网，并允许防火墙访问 LocalSend。"
+msgstr "Confirmeu que els dos dispositius estan a la mateixa subxarxa i permeteu l'accés del tallafoc a LocalSend."
+
+msgid "离线"
+msgstr "Desconnectat"
+
+msgid "移除收藏"
+msgstr "Elimina el favorit"
+
+msgid "端口"
+msgstr "Port:"
+
+msgid "端口必须是 1 到 65535 之间的数字"
+msgstr "El port ha de ser un número de l'1 al 65535"
+
+msgid "等待中"
+msgstr "Esperant"
+
+msgid "简体中文"
+msgstr "简体中文"
+
+msgid "管理 LocalSend 的外观、接收、网络与支持选项。"
+msgstr "Gestioneu l'aparença, la recepció, la xarxa i les opcions de suport de LocalSend."
+
+msgid "管理收藏设备"
+msgstr "Gestioneu els dispositius preferits"
+
+msgid "系统"
+msgstr "Sistema"
+
+msgid "繁體中文（台灣）"
+msgstr "繁體中文（台灣）"
+
+msgid "繁體中文（香港）"
+msgstr "繁體中文（香港）"
+
+msgid "组播地址必须是有效 IPv4 地址"
+msgstr "L'adreça de multidifusió ha de ser una adreça IPv4 vàlida"
+
+msgid "结束本实例的 localsendd"
+msgstr "Atureu el localsendd per a aquesta instància"
+
+msgid "绿色"
+msgstr "Verd"
+
+msgid "编辑"
+msgstr "Edita"
+
+msgid "编辑设置"
+msgstr "Edita la configuració"
+
+msgid "网络"
+msgstr "Xarxa"
+
+msgid "网络不可用"
+msgstr "Xarxa no disponible"
+
+msgid "网络信息"
+msgstr "Informació de la xarxa"
+
+msgid "网络接口"
+msgstr "Interfícies de xarxa"
+
+msgid "网络筛选"
+msgstr "Filtre de xarxa"
+
+msgid "网络连接"
+msgstr "Connexió a la xarxa"
+
+msgid "自动完成"
+msgstr "Acabat automàtic"
+
+msgid "自动接收来自可信设备的文件"
+msgstr "Rebre automàticament fitxers de dispositius de confiança"
+
+msgid "若设备指纹发生变化，LocalSend 会重新要求确认。你可以随时在收藏设备中取消信任。"
+msgstr "Si l'empremta digital d'un dispositiu canvia, LocalSend demana confirmació de nou. Pots deixar de confiar en els teus dispositius preferits en qualsevol moment."
+
+msgid "蓝色"
+msgstr "Blau"
+
+msgid "记住本次窗口尺寸与位置"
+msgstr "Recordeu la mida i la posició d'aquesta finestra"
+
+msgid "设备信息"
+msgstr "Informació del dispositiu"
+
+msgid "设备名称"
+msgstr "Nom del dispositiu:"
+
+msgid "设备型号"
+msgstr "Model del dispositiu"
+
+msgid "设备已离线，请刷新设备列表"
+msgstr "El dispositiu es va desconnectar; actualitzeu la llista de dispositius"
+
+msgid "设备类型"
+msgstr "Tipus de dispositiu"
+
+msgid "设备详情"
+msgstr "Detalls del dispositiu"
+
+msgid "设备身份、服务与发现协议。"
+msgstr "Identitat del dispositiu, servei i protocol de descobriment."
+
+msgid "设置"
+msgstr "Configuració"
+
+msgid "设置 PIN"
+msgstr "Estableix el PIN"
+
+msgid "设置值"
+msgstr "Valor de configuració"
+
+msgid "设置已提交"
+msgstr "S'ha enviat la configuració"
+
+msgid "访问者需要通过 PIN 验证后才能上传文件。"
+msgstr "Els visitants han de passar la verificació del PIN abans de poder penjar fitxers."
+
+msgid "诊断"
+msgstr "Diagnòstics"
+
+msgid "诊断信息已复制"
+msgstr "S'han copiat els diagnòstics"
+
+msgid "语言"
+msgstr "Llengua"
+
+msgid "请先选择文件、文件夹、文本或剪贴板，再选择设备发送"
+msgstr "Seleccioneu un fitxer, carpeta, text o contingut del porta-retalls abans de triar un dispositiu"
+
+msgid "请先选择文件或文件夹"
+msgstr "Seleccioneu primer un fitxer o carpeta"
+
+msgid "请先选择至少一个设备"
+msgstr "Seleccioneu almenys un dispositiu"
+
+msgid "请在系统设置中检查防火墙规则"
+msgstr "Comproveu les regles del tallafoc a la configuració del sistema"
+
+msgid "请求发送 {} 个项目"
+msgstr "vol enviar {} elements"
+
+msgid "请输入设备 IP 地址或主机名"
+msgstr "Introduïu una adreça IP o un nom d'amfitrió del dispositiu"
+
+msgid "请选择目标设备"
+msgstr "Seleccioneu un dispositiu de destinació"
+
+msgid "跟随系统"
+msgstr "Sistema"
+
+msgid "跟随系统或固定使用浅色、深色"
+msgstr "Seguiu el sistema o fixeu-lo amb llum o fosc"
+
+msgid "路径可在文件管理器中打开"
+msgstr "El camí es pot obrir al gestor de fitxers"
+
+msgid "输入同一网络中设备的 IP 地址"
+msgstr "Introduïu l'adreça IP d'un dispositiu a la mateixa xarxa"
+
+msgid "返回"
+msgstr "Enrere"
+
+msgid "还没有接收记录"
+msgstr "Encara no s'ha rebut cap article"
+
+msgid "还没有收藏设备"
+msgstr "Encara no hi ha cap dispositiu preferit"
+
+msgid "连接"
+msgstr "Connecta't"
+
+msgid "退出"
+msgstr "Surt"
+
+msgid "退出时保存窗口位置"
+msgstr "Desa la posició de la finestra en sortir"
+
+msgid "选择"
+msgstr "Selecció"
+
+msgid "选择要发送的内容，或从剪贴板快速创建一条文本消息。"
+msgstr "Trieu què voleu enviar o creeu ràpidament un missatge de text des del porta-retalls."
+
+msgid "通用"
+msgstr "General"
+
+msgid "通过链接接收"
+msgstr "Rebre mitjançant enllaç"
+
+msgid "重启"
+msgstr "Reinicia"
+
+msgid "重新启动接收"
+msgstr "Reinicia la recepció"
+
+msgid "重新扫描"
+msgstr "Torna a escanejar"
+
+msgid "附近的设备"
+msgstr "Dispositius propers"
+
+msgid "附近设备中显示的 alias"
+msgstr "Àlies mostrat als dispositius propers"
+
+msgid "隐私政策"
+msgstr "Política de privadesa"
+
+msgid "颜色"
+msgstr "Color"
+
+msgid "验证"
+msgstr "Verifica"

@@ -38,13 +38,13 @@ fn main() -> anyhow::Result<()> {
 
     let ui = AppWindow::new()?;
     ui.set_freeze_motion(true);
-    slint::select_bundled_translation(if english { "en-US" } else { "zh-CN" })?;
+    slint::select_bundled_translation(&language)?;
     ui.set_selected_tab(page.clone().into());
     ui.set_requested_window_width(width as f32);
     ui.set_requested_window_height(height as f32);
     ui.global::<ThemeTokens>().set_dark(dark);
     ui.global::<ThemeTokens>().set_accent_index(accent);
-    seed_common_state(&ui, english);
+    seed_common_state(&ui, english, &language);
     seed_dialog_state(&ui, &state, english);
     ui.set_settings_theme(
         if english {
@@ -60,7 +60,7 @@ fn main() -> anyhow::Result<()> {
     match page.as_str() {
         "receive" => seed_receive(&ui, &state, english),
         "send" => seed_send(&ui, &state, english),
-        "settings" => seed_settings(&ui),
+        "settings" => seed_settings(&ui, &language),
         _ => bail!("unknown page: {page}"),
     }
     set_window_size(&ui, width, height);
@@ -250,7 +250,7 @@ where
     Ok(value[1].parse()?)
 }
 
-fn seed_common_state(ui: &AppWindow, english: bool) {
+fn seed_common_state(ui: &AppWindow, english: bool, language: &str) {
     ui.set_device_alias("Flutter Reference".into());
     ui.set_device_id("#80".into());
     ui.set_info_alias("Flutter Reference".into());
@@ -268,7 +268,16 @@ fn seed_common_state(ui: &AppWindow, english: bool) {
     ui.set_server_running(true);
     ui.set_settings_theme(if english { "Light" } else { "浅色" }.into());
     ui.set_settings_color("LocalSend Teal".into());
-    ui.set_settings_language(if english { "English" } else { "简体中文" }.into());
+    ui.set_settings_language_code(language.into());
+    ui.set_settings_language_name(localsend_gui_slint::reference_language_name(language).into());
+    let language_items: Vec<LanguageItem> = localsend_gui_slint::reference_language_items(english)
+        .into_iter()
+        .map(|(code, name)| LanguageItem {
+            code: code.into(),
+            name: name.into(),
+        })
+        .collect();
+    ui.set_language_items(ModelRc::new(VecModel::from(language_items)));
     ui.set_settings_device_type("Desktop".into());
     ui.set_settings_device_model("macOS".into());
     ui.set_settings_discovery_timeout("10".into());
@@ -295,6 +304,7 @@ fn seed_receive(ui: &AppWindow, state: &str, english: bool) {
             | "text"
             | "troubleshoot"
             | "auto-save-help"
+            | "language"
     ) {
         return;
     }
@@ -496,6 +506,9 @@ fn seed_dialog_state(ui: &AppWindow, state: &str, _english: bool) {
     }
     if state == "auto-save-help" {
         ui.set_auto_save_help_dialog_open(true);
+    }
+    if state == "language" {
+        ui.set_language_dialog_open(true);
     }
     if state == "web-share" {
         ui.set_web_share_dialog_open(true);
@@ -856,7 +869,7 @@ fn seed_dense_devices(ui: &AppWindow) {
     ])));
 }
 
-fn seed_settings(ui: &AppWindow) {
+fn seed_settings(ui: &AppWindow, _language: &str) {
     ui.set_settings_device_type("Desktop".into());
     ui.set_settings_device_model("MacBook Pro".into());
     ui.set_settings_advanced(false);

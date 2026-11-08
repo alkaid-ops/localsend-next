@@ -44,7 +44,7 @@ export component ReceivePage inherits Rectangle {
         ? 66px
         : (root.tight ? 62px : 76px);
     property <bool> receive-finished: root.transfers.length > 0
-        && root.transfers[0].direction == "接收"
+        && root.transfers[0].direction == "receive"
         && root.transfers[0].terminal;
 
     background: ThemeTokens.surface;
@@ -181,7 +181,7 @@ export component ReceivePage inherits Rectangle {
                                         spacing: 2px;
                                         alignment: center;
                                         Text { text: root.request-title; color: ThemeTokens.on-surface; font-size: 16px; font-weight: 600; overflow: elide; }
-                                        Text { text: @tr("请求发送 ") + root.request-files.length + @tr(" 个项目"); color: ThemeTokens.on-surface-variant; font-size: 12px; }
+                                        Text { text: @tr("请求发送 {} 个项目", root.request-files.length); color: ThemeTokens.on-surface-variant; font-size: 12px; }
                                     }
                                     Rectangle {
                                         width: request-badge.preferred-width + 12px;
@@ -461,7 +461,7 @@ export component ReceivePage inherits Rectangle {
                                             height: 24px;
                                             spacing: 8px;
                                             Text {
-                                                text: @tr("正在接收来自 ") + transfer.peer + @tr(" 的文件");
+                                                text: @tr("正在接收来自 {} 的文件", transfer.peer);
                                                 color: ThemeTokens.on-surface;
                                                 font-size: 16px;
                                                 font-weight: 600;
@@ -507,7 +507,7 @@ export component ReceivePage inherits Rectangle {
                                                 height: 34px;
                                                 automation-id: "transfer-cancel";
                                                 label: @tr("取消接收");
-                                                enabled: transfer.status == @tr("等待中") || transfer.status == @tr("传输中");
+                                                enabled: transfer.status == "waiting" || transfer.status == "transferring";
                                                 clicked => { root.cancel-transfer(transfer.transfer-id); }
                                             }
                                         }
@@ -558,7 +558,7 @@ export component ReceivePage inherits Rectangle {
                                     Text { width: parent.width; height: parent.height; y: -10px; text: @tr("文件已保存"); color: ThemeTokens.on-surface; font-family: "Avenir Next"; font-size: 48px; font-weight: 610; letter-spacing: -1.68px; horizontal-alignment: center; }
                                 }
                                 Rectangle { height: 14px; background: transparent; }
-                                Text { text: root.transfers[0].file_count + @tr(" 个文件已保存到「下载 / LocalSend」。"); color: ThemeTokens.on-surface-variant; font-size: 14px; horizontal-alignment: center; height: 22px; }
+                                Text { text: @tr("{} 个文件已保存到「下载 / LocalSend」。", root.transfers[0].file_count); color: ThemeTokens.on-surface-variant; font-size: 14px; horizontal-alignment: center; height: 22px; }
                                 Rectangle { height: 14px; background: transparent; }
                                 Rectangle {
                                     accessible-role: groupbox;

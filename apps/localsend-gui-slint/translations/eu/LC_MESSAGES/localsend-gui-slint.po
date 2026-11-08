@@ -1,0 +1,892 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: eu\n"
+
+msgid "Checksum 校验"
+msgstr "Checksum egiaztatzea"
+
+msgid "HTTPS"
+msgstr "HTTPS"
+
+msgid "IP 地址"
+msgstr "IP Helbidea"
+
+msgid "IP 地址或主机名"
+msgstr "IP helbidea edo ostalari-izena"
+
+msgid "LocalSend Next {} · 桌面版"
+msgstr "LocalSend Hurrengoa {} · Mahaigaina"
+
+msgid "LocalSend 青绿色品牌色"
+msgstr "LocalSend teal markako kolorea"
+
+msgid "Multicast"
+msgstr "Multicast"
+
+msgid "PIN 不能为空"
+msgstr "PINa ezin da hutsik egon"
+
+msgid "PIN 值"
+msgstr "PIN balioa"
+
+msgid "PIN 密码"
+msgstr "PINa"
+
+msgid "PIN 需要 4 位数字"
+msgstr "PINak 4 digitu izan behar ditu"
+
+msgid "PIN 验证"
+msgstr "PIN egiaztapena"
+
+msgid "TCP {} 正在监听"
+msgstr "TCP {} entzuten"
+
+msgid "Web Share 已验证"
+msgstr "Web-partekatzea egiaztatu da"
+
+msgid "Web Share 链接不可用"
+msgstr "Web Share esteka ez dago erabilgarri"
+
+msgid "{} 个文件已保存到「下载 / LocalSend」。"
+msgstr "{} fitxategi gorde dira \"Deskargak / LocalSend\"."
+
+msgid "「收藏设备」只会自动接受来自已验证收藏设备的请求。文件保存到当前接收目录，并继续显示在历史记录中。"
+msgstr "\"Gogoko gailuak\" automatikoki onartzen ditu egiaztatutako gogokoen eskaerak. Fitxategiak uneko jasotzeko karpetan gordetzen dira eta historian geratzen dira."
+
+msgid "与后台服务的连接已断开，正在重连…"
+msgstr "Atzeko planoko zerbitzuarekiko konexioa galdu da; berriro konektatzen…"
+
+msgid "主题"
+msgstr "Argitasuna"
+
+msgid "仅允许指定网段访问"
+msgstr "Zehaztutako azpisaretik soilik baimendu sarbidea"
+
+msgid "传输中"
+msgstr "Transferitzea"
+
+msgid "传输后校验文件完整性"
+msgstr "Egiaztatu fitxategiaren osotasuna transferitu ondoren"
+
+msgid "传输失败：{}"
+msgstr "Transferentzia huts egin du: {}"
+
+msgid "传输完成"
+msgstr "Transferentzia amaituta"
+
+msgid "传输用时"
+msgstr "Iraupena"
+
+msgid "保存"
+msgstr "Gorde"
+
+msgid "保留最近 100 条接收与发送记录"
+msgstr "Gorde azken 100 jaso eta bidali erregistroak"
+
+msgid "保留状态变化和页面切换反馈"
+msgstr "Mantendu egoera-aldaketaren eta orrialde-trantsizioaren iritzia"
+
+msgid "停止"
+msgstr "Gelditu"
+
+msgid "允许接收方校验传输内容"
+msgstr "Baimendu hartzaileak transferitutako edukia egiaztatzea"
+
+msgid "全部开启"
+msgstr "Piztu dena"
+
+msgid "全部接受"
+msgstr "Onartu guztiak"
+
+msgid "全部接口"
+msgstr "Interfaze guztiak"
+
+msgid "关于 LocalSend Next"
+msgstr "LocalSend Next-i buruz"
+
+msgid "关闭"
+msgstr "Itxi"
+
+msgid "关闭 ({})"
+msgstr "Itxi ({})"
+
+msgid "关闭后台服务"
+msgstr "Gelditu atzeko planoko zerbitzua"
+
+msgid "关闭时最小化到托盘"
+msgstr "Minimizatu erretilura itxita dagoenean"
+
+msgid "关闭窗口后保持接收服务运行"
+msgstr "Mantendu jasotzeko zerbitzua martxan leihoa itxi ondoren"
+
+msgid "其他"
+msgstr "Besteak"
+
+msgid "再次发送"
+msgstr "Bidali berriro"
+
+msgid "刷新设备"
+msgstr "Freskatu gailuak"
+
+msgid "剪贴板"
+msgstr "Itsatsi"
+
+msgid "剪贴板中没有可发送的文件、文件夹、图片或文本"
+msgstr "Arbelak ez du bidaltzeko fitxategirik, karpetarik, irudirik edo testurik"
+
+msgid "剪贴板文本已准备好，请选择附近设备发送"
+msgstr "Arbeleko testua prest; hautatu inguruko gailu bat bidaltzeko"
+
+msgid "动画效果"
+msgstr "Animazioak"
+
+msgid "协议"
+msgstr "Protokoloa"
+
+msgid "协议 {}"
+msgstr "v{} protokoloa"
+
+msgid "单位：秒；0 表示持续发现"
+msgstr "Unitatea: segundoak; 0-k deskubritzen jarraitu esan nahi du"
+
+msgid "单选"
+msgstr "Bakarra"
+
+msgid "历史记录"
+msgstr "Historia"
+
+msgid "历史记录只保存在当前设备，不会同步到云服务。"
+msgstr "Historia gailu honetan soilik gordetzen da eta inoiz ez da hodeiarekin sinkronizatzen."
+
+msgid "发现"
+msgstr "Aurkikuntza"
+
+msgid "发现和传输使用的网络"
+msgstr "Aurkikuntzarako eta transferentziarako erabiltzen den sarea"
+
+msgid "发现超时必须是正整数"
+msgstr "Aurkikuntzaren denbora-muga oso positiboa izan behar da"
+
+msgid "发送"
+msgstr "Bidali"
+
+msgid "发送内容"
+msgstr "Bidaltzeko edukia"
+
+msgid "发送到 "
+msgstr "Hona bidaltzen"
+
+msgid "发送到所选设备"
+msgstr "Bidali hautatutako gailuetara"
+
+msgid "发送完成"
+msgstr "Bidali osoa"
+
+msgid "发送文件时创建校验和"
+msgstr "Sortu kontrol-baturak fitxategiak bidaltzean"
+
+msgid "发送文本"
+msgstr "Bidali testua"
+
+msgid "发送文本内容"
+msgstr "Mezua"
+
+msgid "发送给你了一条消息："
+msgstr "-(e)k mezu bat bidali dizu:"
+
+msgid "发送请求已提交，请等待对端响应"
+msgstr "Bidali bidalitako eskaera; hartzailearen zain"
+
+msgid "取消"
+msgstr "Utzi"
+
+msgid "取消发送"
+msgstr "Utzi bidalketa"
+
+msgid "取消接收"
+msgstr "Utzi jasotzea"
+
+msgid "取消收藏"
+msgstr "Gogoko gabe"
+
+msgid "另一台设备未出现？"
+msgstr "Beste gailu bat ez da agertzen?"
+
+msgid "可信设备可以跳过每次接收确认"
+msgstr "Gailu fidagarriek transferentzia bakoitzeko berrespena salta dezakete"
+
+msgid "可被发现"
+msgstr "Aurkigarria"
+
+msgid "同一网络下的设备会自动出现。"
+msgstr "Sare bereko gailuak automatikoki agertzen dira."
+
+msgid "名称"
+msgstr "Izena"
+
+msgid "启动"
+msgstr "Hasi"
+
+msgid "启动时运行"
+msgstr "Exekutatu abiaraztean"
+
+msgid "启用加密传输，速度可能略低"
+msgstr "Gaitu enkriptatutako transferentzia; abiadura apur bat jaitsi daiteke"
+
+msgid "在文件管理器中显示"
+msgstr "Erakutsi karpetan"
+
+msgid "在线"
+msgstr "Online"
+
+msgid "复制"
+msgstr "Kopiatu"
+
+msgid "复制诊断信息"
+msgstr "Kopiatu diagnostikoak"
+
+msgid "复制链接"
+msgstr "Kopiatu esteka"
+
+msgid "外观与桌面行为。"
+msgstr "Itxura eta mahaigaineko portaera."
+
+msgid "外部文档在当前评审原型中不可用"
+msgstr "Kanpoko dokumentuak ez daude erabilgarri berrikuspen-prototipo honetan"
+
+msgid "外部链接在当前评审原型中不可用"
+msgstr "Kanpoko estekak ez daude erabilgarri berrikuspen-prototipo honetan"
+
+msgid "多选"
+msgstr "Anitz"
+
+msgid "失败"
+msgstr "Huts egin du"
+
+msgid "完成"
+msgstr "Egina"
+
+msgid "完成传输"
+msgstr "Amaitu transferentzia"
+
+msgid "局域网组播发现地址"
+msgstr "LAN multicast aurkikuntza helbidea"
+
+msgid "已发送"
+msgstr "Bidali"
+
+msgid "已取消"
+msgstr "Bertan behera utzita"
+
+msgid "已完成"
+msgstr "Amaituta"
+
+msgid "已就绪"
+msgstr "Prest"
+
+msgid "已收藏"
+msgstr "Gogokoena"
+
+msgid "已连接"
+msgstr "Konektatuta"
+
+msgid "已送达"
+msgstr "Entregatua"
+
+msgid "已选择 {} 个项目"
+msgstr "{} elementu hautatu dira"
+
+msgid "已选择 {} 台设备"
+msgstr "Hautatutako {} gailu"
+
+msgid "已选择文件夹，正在刷新附近设备"
+msgstr "Karpeta hautatuta; inguruko gailuak freskatuz"
+
+msgid "已选择文件，正在刷新附近设备"
+msgstr "Fitxategia hautatua; inguruko gailuak freskatuz"
+
+msgid "已验证 · 快速保存已开启"
+msgstr "Egiaztatuta · Gorde azkarra aktibatuta dago"
+
+msgid "当前接收服务的连接信息"
+msgstr "Uneko harrera-zerbitzurako konexio-informazioa"
+
+msgid "当前没有可复制的接收链接"
+msgstr "Ez dago jasotzeko estekarik kopiatzeko erabilgarri"
+
+msgid "待处理"
+msgstr "Zain"
+
+msgid "快速保存"
+msgstr "Gorde azkarra"
+
+msgid "快速保存说明"
+msgstr "Gorde azkarren xehetasunak"
+
+msgid "总大小"
+msgstr "Tamaina osoa"
+
+msgid "所有文件均已通过 Checksum 校验"
+msgstr "Fitxategi guztiek kontrol-sumaren egiaztapena gainditu dute"
+
+msgid "手动添加设备"
+msgstr "Gehitu gailua eskuz"
+
+msgid "手动连接"
+msgstr "Eskuzko konexioa"
+
+msgid "打开"
+msgstr "Ireki"
+
+msgid "打开主界面"
+msgstr "Ireki leiho nagusia"
+
+msgid "打开文件"
+msgstr "Ireki fitxategia"
+
+msgid "打开文件夹"
+msgstr "Ireki karpeta"
+
+msgid "执行"
+msgstr "Korrika"
+
+msgid "拒绝"
+msgstr "Ez onartu"
+
+msgid "指纹"
+msgstr "Hatz-marka"
+
+msgid "按顺序检查设备发现和连接"
+msgstr "Aurkikuntza eta konexioa ordenan egiaztatzen ditu"
+
+msgid "接受所选"
+msgstr "Onartu hautatutakoa"
+
+msgid "接收"
+msgstr "Eskuratu"
+
+msgid "接收前要求发送方输入 PIN"
+msgstr "Eskatu bidaltzaileari PIN bat sar dezala jaso aurretik"
+
+msgid "接收历史"
+msgstr "Historia jaso"
+
+msgid "接收完成"
+msgstr "Jaso osoa"
+
+msgid "接收完成后自动关闭请求，不需要再次确认"
+msgstr "Itxi eskaera automatikoki jaso ondoren, berrespen gehiagorik gabe"
+
+msgid "接收文件前，发送方需要输入 4 位 PIN"
+msgstr "Bidaltzaileak 4 digituko PIN bat sartu behar du fitxategiak jaso aurretik"
+
+msgid "接收服务使用的 TCP 端口"
+msgstr "Hartzeko zerbitzuak erabiltzen duen TCP ataka"
+
+msgid "接收服务在线"
+msgstr "Jaso zerbitzua linean"
+
+msgid "接收服务已就绪，附近设备可以在同一网络中发现你。"
+msgstr "Jasotzeko zerbitzua prest dago; Sare honetako inguruko gailuek aurki dezakete."
+
+msgid "接收服务暂时无法启动。"
+msgstr "Jasotzeko zerbitzua ezin izan da oraintxe hasi."
+
+msgid "接收服务离线"
+msgstr "Jaso zerbitzua lineaz kanpo"
+
+msgid "接收状态"
+msgstr "Jaso egoera"
+
+msgid "接收目录"
+msgstr "Jaso karpeta"
+
+msgid "接收链接"
+msgstr "Jaso esteka"
+
+msgid "接收链接已复制"
+msgstr "Jaso esteka kopiatu da"
+
+msgid "搜索历史"
+msgstr "Bilaketa historia"
+
+msgid "搜索消息、文件名或设备"
+msgstr "Bilatu mezuak, fitxategi-izenak edo gailuak"
+
+msgid "搜索设备超时"
+msgstr "Aurkikuntza denbora muga"
+
+msgid "支持项目"
+msgstr "Lagundu proiektu honi"
+
+msgid "收到文件"
+msgstr "Fitxategia jaso da"
+
+msgid "收到新文件"
+msgstr "Fitxategi berria jaso da"
+
+msgid "收到新消息"
+msgstr "Mezu berria jaso da"
+
+msgid "收藏"
+msgstr "Gogokoa"
+
+msgid "收藏设备"
+msgstr "Gogoko gailuak"
+
+msgid "收藏设备可使用快速保存与快捷发送"
+msgstr "Gogoko gailuek Gorde azkarra eta bidalketa azkarra gaitzen dute"
+
+msgid "故障排除"
+msgstr "Konpondu arazoak"
+
+msgid "文件"
+msgstr "Fitxategiak"
+
+msgid "文件保存、接收确认与完整性校验。"
+msgstr "Fitxategiak biltegiratzea, jaso berrespena eta osotasun egiaztapenak."
+
+msgid "文件夹"
+msgstr "Direktorioa"
+
+msgid "文件已保存"
+msgstr "Fitxategiak gordeta"
+
+msgid "文件已发送到「{}」。"
+msgstr "Fitxategia \"{}\" helbidera bidali da."
+
+msgid "文件已成功送达"
+msgstr "Fitxategia behar bezala entregatu da"
+
+msgid "文本"
+msgstr "Testua"
+
+msgid "文本会作为 .txt 文件发送到所选设备"
+msgstr "Testua hautatutako gailuetara .txt fitxategi gisa bidaltzen da"
+
+msgid "文本内容"
+msgstr "Testuaren edukia"
+
+msgid "文本已准备好，请选择附近设备发送"
+msgstr "Testua prest; hautatu inguruko gailu bat bidaltzeko"
+
+msgid "文本消息"
+msgstr "Testu-mezua"
+
+msgid "无法保存剪贴板图片"
+msgstr "Ezin da arbeleko irudia gorde"
+
+msgid "无法定位剪贴板图片缓存目录"
+msgstr "Ezin da arbeleko irudien cache direktorioa aurkitu"
+
+msgid "无法将剪贴板图片转换为 PNG"
+msgstr "Ezin da arbeleko irudia PNG bihurtu"
+
+msgid "无法访问剪贴板"
+msgstr "Ezin da arbelera sartu"
+
+msgid "无法重启"
+msgstr "Berrabiarazi ez dago erabilgarri"
+
+msgid "日志"
+msgstr "Erregistroak"
+
+msgid "日本語"
+msgstr "日本語"
+
+msgid "暂不可用"
+msgstr "Ez dago erabilgarri"
+
+msgid "最近一次响应：刚刚"
+msgstr "Azken erantzuna: oraintxe bertan"
+
+msgid "最近发现"
+msgstr "Duela gutxi aurkitua"
+
+msgid "服务器已停止"
+msgstr "Zerbitzaria gelditu da"
+
+msgid "服务器状态"
+msgstr "Zerbitzariaren egoera"
+
+msgid "服务器运行中"
+msgstr "Zerbitzaria martxan"
+
+msgid "服务暂停"
+msgstr "Zerbitzua pausatu egin da"
+
+msgid "服务条款"
+msgstr "Zerbitzu-baldintzak"
+
+msgid "未知"
+msgstr "Ezezaguna"
+
+msgid "本地端口"
+msgstr "Tokiko portua"
+
+msgid "来自附近设备"
+msgstr "Inguruko gailutik"
+
+msgid "查看"
+msgstr "Ikusi"
+
+msgid "查看当前会话的调试日志"
+msgstr "Ikusi uneko saioko arazketa-erregistroak"
+
+msgid "查看详情"
+msgstr "Ikusi xehetasunak"
+
+msgid "桌面"
+msgstr "Mahaigaina"
+
+msgid "检查端口、网络与设备发现"
+msgstr "Egiaztatu ataka, sarea eta gailuen aurkikuntza"
+
+msgid "正在传输"
+msgstr "Transferitzea"
+
+msgid "正在关闭后台服务"
+msgstr "Atzeko planoko zerbitzua gelditzea"
+
+msgid "正在关闭浏览器接收页面"
+msgstr "Arakatzailea jasotzeko orria gelditzea"
+
+msgid "正在刷新设备连接…"
+msgstr "Gailuaren konexioa freskatzen…"
+
+msgid "正在发送文件"
+msgstr "Fitxategiak bidaltzen"
+
+msgid "正在发送文本，等待接收确认"
+msgstr "Testua bidaltzea; hartzailearen baieztapenaren zain"
+
+msgid "正在取消传输"
+msgstr "Transferentzia bertan behera uzten"
+
+msgid "正在启动浏览器接收页面"
+msgstr "Arakatzailea jasotzeko orria abiaraztea"
+
+msgid "正在拒绝传输"
+msgstr "Transferentzia gainbehera"
+
+msgid "正在接受传输"
+msgstr "Transferentzia onartzea"
+
+msgid "正在接收来自 {} 的文件"
+msgstr "{}-tik fitxategiak jasotzen"
+
+msgid "正在查找附近设备"
+msgstr "Inguruko gailuen bila"
+
+msgid "正在添加设备"
+msgstr "Gailua gehitzea"
+
+msgid "正在清空历史"
+msgstr "Historia garbitzea"
+
+msgid "正在连接"
+msgstr "Konektatzen"
+
+msgid "正在连接 localsendd..."
+msgstr "Localsendd-era konektatzen..."
+
+msgid "正在连接后台服务…"
+msgstr "Atzeko planoko zerbitzura konektatzen…"
+
+msgid "正在连接对端，等待接收确认"
+msgstr "Hargailura konektatzea; baieztapenaren zain"
+
+msgid "正在重启服务器"
+msgstr "Zerbitzaria berrabiarazten"
+
+msgid "正在重连"
+msgstr "Berriro konektatzen"
+
+msgid "正常"
+msgstr "Normala"
+
+msgid "此设置不能通过文本输入修改"
+msgstr "Ezarpen hau ezin da aldatu testua idatziz"
+
+msgid "此项由系统自动检测或当前平台不支持编辑"
+msgstr "Balio hau sistemak detektatzen du edo ezin da editatu plataforma honetan"
+
+msgid "没有添加有效的文件或文件夹"
+msgstr "Ez da baliozko fitxategirik edo karpetarik gehitu"
+
+msgid "浅色"
+msgstr "Argia"
+
+msgid "浏览器可在同一网络内访问此地址"
+msgstr "Sare bereko arakatzaileak helbide honetara irits daitezke"
+
+msgid "消息已复制"
+msgstr "Mezua kopiatu da"
+
+msgid "深色"
+msgstr "Iluna"
+
+msgid "添加"
+msgstr "Gehitu"
+
+msgid "清空历史"
+msgstr "Garbitu historia"
+
+msgid "清除所选项"
+msgstr "Garbitu hautaketa"
+
+msgid "版本"
+msgstr "Bertsioa"
+
+msgid "版本、开源许可与项目信息"
+msgstr "Bertsioa, kode irekiko lizentzia eta proiektuaren informazioa"
+
+msgid "版本、诊断与支持选项。"
+msgstr "Bertsioa, diagnostikoak eta laguntza aukerak."
+
+msgid "版权"
+msgstr "Copyright"
+
+msgid "状态"
+msgstr "Egoera"
+
+msgid "用于匹配正确的平台图标"
+msgstr "Plataformaren ikono zuzenarekin bat etortzeko erabiltzen da"
+
+msgid "用于区分设备信息"
+msgstr "Gailuaren informazioa bereizteko erabiltzen da"
+
+msgid "界面显示语言"
+msgstr "Interfaze hizkuntza"
+
+msgid "登录系统后自动启动 LocalSend"
+msgstr "Abiarazi LocalSend automatikoki saioa hasi ondoren"
+
+msgid "目标地址"
+msgstr "Helburu-helbidea"
+
+msgid "确保对方也打开了 LocalSend，并已连接到同一个 Wi-Fi 网络。"
+msgstr "Ziurtatu beste gailuak LocalSend irekita duela eta Wi-Fi sare berean dagoela."
+
+msgid "确定"
+msgstr "Ados"
+
+msgid "确认"
+msgstr "Baieztatu"
+
+msgid "确认双方处于同一子网，并允许防火墙访问 LocalSend。"
+msgstr "Ziurtatu bi gailuak azpisare berean daudela eta baimendu su-hormarako sarbidea LocalSend-era."
+
+msgid "离线"
+msgstr "Deskonektatua"
+
+msgid "移除收藏"
+msgstr "Kendu gogokoa"
+
+msgid "端口"
+msgstr "Portua:"
+
+msgid "端口必须是 1 到 65535 之间的数字"
+msgstr "Portuak 1etik 65535era bitarteko zenbaki bat izan behar du"
+
+msgid "等待中"
+msgstr "Zain"
+
+msgid "简体中文"
+msgstr "简体中文"
+
+msgid "管理 LocalSend 的外观、接收、网络与支持选项。"
+msgstr "Kudeatu LocalSend-en itxura, jaso, sare eta laguntza aukerak."
+
+msgid "管理收藏设备"
+msgstr "Kudeatu gogoko gailuak"
+
+msgid "系统"
+msgstr "Sistema"
+
+msgid "繁體中文（台灣）"
+msgstr "繁體中文（台灣）"
+
+msgid "繁體中文（香港）"
+msgstr "繁體中文（香港）"
+
+msgid "组播地址必须是有效 IPv4 地址"
+msgstr "Multicast helbideak baliozko IPv4 helbidea izan behar du"
+
+msgid "结束本实例的 localsendd"
+msgstr "Gelditu localsendd instantzia honetarako"
+
+msgid "绿色"
+msgstr "Berdea"
+
+msgid "编辑"
+msgstr "Editatu"
+
+msgid "编辑设置"
+msgstr "Editatu ezarpena"
+
+msgid "网络"
+msgstr "Gorria"
+
+msgid "网络不可用"
+msgstr "Sarea ez dago erabilgarri"
+
+msgid "网络信息"
+msgstr "Sareko informazioa"
+
+msgid "网络接口"
+msgstr "Sare interfazeak"
+
+msgid "网络筛选"
+msgstr "Sare-iragazkia"
+
+msgid "网络连接"
+msgstr "Sare-konexioa"
+
+msgid "自动完成"
+msgstr "Auto akabera"
+
+msgid "自动接收来自可信设备的文件"
+msgstr "Jaso automatikoki fitxategiak gailu fidagarrietatik"
+
+msgid "若设备指纹发生变化，LocalSend 会重新要求确认。你可以随时在收藏设备中取消信任。"
+msgstr "Gailu baten hatz-marka aldatzen bada, LocalSend-ek berrespena eskatuko du berriro. Gogoko gailuetatik konfiantzarik gabe utzi dezakezu edonoiz."
+
+msgid "蓝色"
+msgstr "Urdina"
+
+msgid "记住本次窗口尺寸与位置"
+msgstr "Gogoratu leihoaren tamaina eta posizio hau"
+
+msgid "设备信息"
+msgstr "Gailuaren informazioa"
+
+msgid "设备名称"
+msgstr "Aliasa:"
+
+msgid "设备型号"
+msgstr "Gailu modeloa"
+
+msgid "设备已离线，请刷新设备列表"
+msgstr "Gailua lineaz kanpo geratu da; freskatu gailuen zerrenda"
+
+msgid "设备类型"
+msgstr "Gailu mota"
+
+msgid "设备详情"
+msgstr "Gailuaren xehetasunak"
+
+msgid "设备身份、服务与发现协议。"
+msgstr "Gailuaren identitatea, zerbitzua eta aurkikuntza protokoloa."
+
+msgid "设置"
+msgstr "Aukerak"
+
+msgid "设置 PIN"
+msgstr "Ezarri PINa"
+
+msgid "设置值"
+msgstr "Balioa ezartzea"
+
+msgid "设置已提交"
+msgstr "Ezarpenak bidali dira"
+
+msgid "访问者需要通过 PIN 验证后才能上传文件。"
+msgstr "Bisitariek PIN egiaztapena gainditu behar dute fitxategiak kargatu ahal izateko."
+
+msgid "诊断"
+msgstr "Diagnostikoak"
+
+msgid "诊断信息已复制"
+msgstr "Diagnostikoak kopiatu dira"
+
+msgid "语言"
+msgstr "Hizkuntza"
+
+msgid "请先选择文件、文件夹、文本或剪贴板，再选择设备发送"
+msgstr "Hautatu fitxategi, karpeta, testu edo arbeleko edukia gailu bat aukeratu aurretik"
+
+msgid "请先选择文件或文件夹"
+msgstr "Hautatu fitxategi edo karpeta bat lehenik"
+
+msgid "请先选择至少一个设备"
+msgstr "Hautatu gutxienez gailu bat"
+
+msgid "请在系统设置中检查防火墙规则"
+msgstr "Egiaztatu suebakiaren arauak sistemaren ezarpenetan"
+
+msgid "请求发送 {} 个项目"
+msgstr "{} elementu bidali nahi ditu"
+
+msgid "请输入设备 IP 地址或主机名"
+msgstr "Idatzi gailuaren IP helbidea edo ostalari-izena"
+
+msgid "请选择目标设备"
+msgstr "Hautatu helburuko gailu bat"
+
+msgid "跟随系统"
+msgstr "Sistema"
+
+msgid "跟随系统或固定使用浅色、深色"
+msgstr "Jarraitu sistema edo konpondu argia edo iluna"
+
+msgid "路径可在文件管理器中打开"
+msgstr "Bidea fitxategi-kudeatzailean ireki daiteke"
+
+msgid "输入同一网络中设备的 IP 地址"
+msgstr "Sartu sare bereko gailu baten IP helbidea"
+
+msgid "返回"
+msgstr "Itzuli"
+
+msgid "还没有接收记录"
+msgstr "Oraindik ez da jaso elementurik"
+
+msgid "还没有收藏设备"
+msgstr "Oraindik ez dago gogoko gailurik"
+
+msgid "连接"
+msgstr "Konektatu"
+
+msgid "退出"
+msgstr "Irten"
+
+msgid "退出时保存窗口位置"
+msgstr "Ateratzean gorde lehioaren kokapena"
+
+msgid "选择"
+msgstr "Aukeraketa"
+
+msgid "选择要发送的内容，或从剪贴板快速创建一条文本消息。"
+msgstr "Aukeratu zer bidali nahi duzun edo sortu azkar testu-mezu bat arbeletik."
+
+msgid "通用"
+msgstr "Orokorra"
+
+msgid "通过链接接收"
+msgstr "Jaso esteka bidez"
+
+msgid "重启"
+msgstr "Berrasieratu"
+
+msgid "重新启动接收"
+msgstr "Berrabiarazi jasotzen"
+
+msgid "重新扫描"
+msgstr "Berriro eskaneatu"
+
+msgid "附近的设备"
+msgstr "Inguruko Gailuak"
+
+msgid "附近设备中显示的 alias"
+msgstr "Inguruko gailuei ezizena erakusten zaie"
+
+msgid "隐私政策"
+msgstr "Pribatutasun politika"
+
+msgid "颜色"
+msgstr "Kolorea"
+
+msgid "验证"
+msgstr "Egiaztatu"
