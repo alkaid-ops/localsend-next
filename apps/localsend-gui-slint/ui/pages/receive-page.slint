@@ -284,12 +284,16 @@ export component ReceivePage inherits Rectangle {
                         VerticalLayout {
                             width: parent.width;
                             height: root.tight ? 364px : (root.narrow ? 385px : 434px);
-                            // In a short window the block sits high enough that the
-                            // ring reads as cramped against the header; nudge it
-                            // down and leave room above the sun's rays.
+                            // The block is a fixed height, so a taller window would
+                            // otherwise leave all the extra space below it. Bias it
+                            // toward the optical centre (slightly above true centre)
+                            // and keep the sun clear of the header in short windows.
                             y: root.request-files.length > 0
                                 ? 28px
-                                : (parent.height - self.height) / 2 + (root.tight ? 14px : 0px);
+                                : max(
+                                    root.tight ? 14px : 0px,
+                                    (parent.height - self.height) / 2 - self.height * 0.08
+                                );
                             spacing: 0px;
 
                             HorizontalLayout {

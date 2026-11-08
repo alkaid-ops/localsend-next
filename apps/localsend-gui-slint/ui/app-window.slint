@@ -20,10 +20,16 @@ export { DeviceItem, DeviceLogItem, FavoriteItem, HistoryItem, LanguageItem, Req
 export component AppWindow inherits Window {
     title: "LocalSend";
     in property <string> app-version: "0.1.0";
+    // Only the initial size is fixed. A preferred width/height here would also
+    // become the window's maximum on macOS (Slint derives max from the root
+    // layout constraints), which is why the window could grow sideways but
+    // never taller, and why the green zoom button only stretched the width.
     preferred-width: root.requested-window-width;
     preferred-height: root.requested-window-height;
     min-width: 600px;
     min-height: 500px;
+    max-width: 4096px;
+    max-height: 4096px;
     default-font-family: "Avenir Next";
     default-font-size: 15px;
     default-font-weight: 400;
